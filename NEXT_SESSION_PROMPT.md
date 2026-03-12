@@ -32,6 +32,7 @@ Current known context:
 - Baseline smoke tests are in place and currently passing (`npm run test` -> 6 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
+- Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
 - `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
 - Regular coin queue/refill scheduling was extracted from `Game.ts` into `src/game/pickupSpawnRuntime.ts`.
 - Stale internal debug-only hooks were removed from runtime (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug-event plumbing), while in-game `Shift + D` showcase remains intact.
@@ -39,6 +40,7 @@ Current known context:
 - Regular pickup toast flow was hardened to coin-only path (`spawnCoinPickupMessage`), with specials still handled via dedicated effect flow.
 - Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
+- Latest hardening pass made no pacing/mechanic constant changes (structure-only refactor).
 
 Priority lock for this session:
 1) Hardening and structure
@@ -47,7 +49,8 @@ Priority lock for this session:
 Primary goals:
 1. Continue structural cleanup:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
-   - prioritize encounter orchestration extraction (`plane` / `police`) into focused runtime helpers
+   - prioritize safe extraction of remaining run-state orchestration (begin/restart/game-over/showcase/reset flows) into focused runtime helpers
+   - keep encounter behavior centralized through `src/game/encounterRuntime.ts` helpers; avoid re-inlining
    - avoid behavior changes and preserve controls/core loop
 2. Follow-up hardening:
    - audit remaining stale gameplay branches (especially deferred channels) and keep guard behavior coherent

@@ -1,11 +1,27 @@
 import type { Rect, Vector2, World } from '../shared/types';
+import type {
+  PlaneBonusEventState,
+  PlaneBoostLaneState,
+  PlaneWarningState,
+  PoliceChaseState,
+  PoliceWarningState,
+} from './gameStateTypes';
 import { clamp, rectCenter } from '../shared/utils';
 import {
+  blendAngle,
   PLANE_BOOST_LANE_LENGTH_PX,
   PLANE_BOOST_LANE_STEP_PX,
   PLANE_BOOST_LANE_WIDTH_PX,
+  PLANE_BOOST_LANE_CHANCE,
   PLANE_EVENT_CORNER_SPAN,
   PLANE_EVENT_ENTRY_OFFSET,
+  PLANE_EVENT_SPEED,
+  PLANE_WARNING_MS,
+  POLICE_CHASE_DURATION_MAX_MS,
+  POLICE_CHASE_DURATION_MIN_MS,
+  POLICE_ICE_SPEED_MULTIPLIER,
+  POLICE_ICE_TURN_RATE,
+  POLICE_WARNING_MS,
   randomBetween,
 } from './gameRuntime';
 import { POLICE_CAR_SIZE, type PoliceEdge } from './policeSprite';
@@ -17,12 +33,226 @@ interface PlanePath {
 
 type PlaneCorner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 
+export interface PoliceSpawnCountdownResult {
+  policeSpawnTimerMs: number;
+  policeWarning: PoliceWarningState | null;
+  warningStarted: boolean;
+  shouldSpawn: boolean;
+}
+
 export function getPoliceRect(police: { x: number; y: number }): Rect {
   return {
     x: police.x,
     y: police.y,
     width: POLICE_CAR_SIZE.width,
     height: POLICE_CAR_SIZE.height,
+  };
+}
+
+export function tickPlaneWarningState(
+  planeWarning: PlaneWarningState | null,
+  dtSeconds: number,
+): PlaneWarningState | null {
+  if (!planeWarning) {
+    return null;
+  }
+
+  planeWarning.remainingMs = Math.max(0, planeWarning.remainingMs - dtSeconds * 1000);
+  if (planeWarning.remainingMs === 0) {
+    return null;
+  }
+
+  return planeWarning;
+}
+
+export function tickPlaneBoostLaneState(
+  planeBoostLane: PlaneBoostLaneState | null,
+  dtSeconds: number,
+): PlaneBoostLaneState | null {
+  if (!planeBoostLane) {
+    return null;
+  }
+
+  planeBoostLane.ttlMs = Math.max(0, planeBoostLane.ttlMs - dtSeconds * 1000);
+  if (planeBoostLane.ttlMs === 0) {
+    return null;
+  }
+
+  return planeBoostLane;
+}
+
+export function createPlaneBonusEncounter(viewport: World['viewport']): {
+  planeBonusEvent: PlaneBonusEventState;
+  planeWarning: PlaneWarningState;
+} {
+  const path = createPlaneCornerPath(viewport);
+  const dx = path.end.x - path.start.x;
+  const dy = path.end.y - path.start.y;
+  const distance = Math.max(1, Math.hypot(dx, dy));
+  const vx = (dx / distance) * PLANE_EVENT_SPEED;
+  const vy = (dy / distance) * PLANE_EVENT_SPEED;
+  const ttlMs = (distance / PLANE_EVENT_SPEED) * 1000 + 650;
+
+  return {
+    planeBonusEvent: {
+      x: path.start.x,
+      y: path.start.y,
+      vx,
+      vy,
+      angle: Math.atan2(vy, vx),
+      ttlMs,
+      distancePx: distance,
+      traveledPx: 0,
+      dropAtPx: distance * randomBetween(0.36, 0.64),
+      dropped: false,
+      effectMode: Math.random() < PLANE_BOOST_LANE_CHANCE ? 'boost-lane' : 'bonus-drop',
+    },
+    planeWarning: {
+      edge: getPlaneEntryEdge(viewport, path.start),
+      remainingMs: PLANE_WARNING_MS,
+      durationMs: PLANE_WARNING_MS,
+    },
+  };
+}
+
+export function advancePlaneBonusEventState(
+  viewport: World['viewport'],
+  planeBonusEvent: PlaneBonusEventState,
+  dtSeconds: number,
+): { dropReady: boolean; completed: boolean } {
+  const stepX = planeBonusEvent.vx * dtSeconds;
+  const stepY = planeBonusEvent.vy * dtSeconds;
+  planeBonusEvent.ttlMs = Math.max(0, planeBonusEvent.ttlMs - dtSeconds * 1000);
+  planeBonusEvent.x += stepX;
+  planeBonusEvent.y += stepY;
+  planeBonusEvent.traveledPx += Math.hypot(stepX, stepY);
+
+  const dropReady = !planeBonusEvent.dropped && planeBonusEvent.traveledPx >= planeBonusEvent.dropAtPx;
+  const offscreen = isPointOutsideViewport(
+    viewport,
+    planeBonusEvent.x,
+    planeBonusEvent.y,
+    86,
+  );
+  const completed =
+    planeBonusEvent.ttlMs === 0 ||
+    planeBonusEvent.traveledPx >= planeBonusEvent.distancePx + 24 ||
+    offscreen;
+
+  return { dropReady, completed };
+}
+
+export function tickPoliceSpawnCountdown(
+  policeSpawnTimerMs: number,
+  policeWarning: PoliceWarningState | null,
+  dtSeconds: number,
+): PoliceSpawnCountdownResult {
+  const nextPoliceSpawnTimerMs = Math.max(0, policeSpawnTimerMs - dtSeconds * 1000);
+  let nextPoliceWarning = policeWarning;
+  let warningStarted = false;
+
+  if (!nextPoliceWarning && nextPoliceSpawnTimerMs <= POLICE_WARNING_MS) {
+    nextPoliceWarning = {
+      edge: getRandomPoliceEdge(),
+      remainingMs: nextPoliceSpawnTimerMs,
+      durationMs: POLICE_WARNING_MS,
+    };
+    warningStarted = true;
+  }
+
+  if (nextPoliceWarning) {
+    nextPoliceWarning.remainingMs = nextPoliceSpawnTimerMs;
+  }
+
+  return {
+    policeSpawnTimerMs: nextPoliceSpawnTimerMs,
+    policeWarning: nextPoliceWarning,
+    warningStarted,
+    shouldSpawn: nextPoliceSpawnTimerMs <= 0,
+  };
+}
+
+export function createPoliceChase(viewport: World['viewport'], edge?: PoliceEdge): PoliceChaseState {
+  const spawnEdge = edge ?? getRandomPoliceEdge();
+  const spawn = getPoliceSpawn(viewport, spawnEdge);
+  const durationMs = randomBetween(POLICE_CHASE_DURATION_MIN_MS, POLICE_CHASE_DURATION_MAX_MS);
+  return {
+    ...spawn,
+    remainingMs: durationMs,
+    durationMs,
+    phase: 'chasing',
+    exitEdge: spawnEdge,
+  };
+}
+
+export function beginPoliceLeaving(
+  viewport: World['viewport'],
+  policeChase: PoliceChaseState,
+): PoliceChaseState {
+  policeChase.phase = 'leaving';
+  policeChase.exitEdge = getNearestPoliceExitEdge(viewport, policeChase);
+  return policeChase;
+}
+
+export function tickPoliceChaseDuration(policeChase: PoliceChaseState, dtSeconds: number): boolean {
+  policeChase.remainingMs = Math.max(0, policeChase.remainingMs - dtSeconds * 1000);
+  return policeChase.remainingMs === 0;
+}
+
+export function advancePoliceLeaving(
+  viewport: World['viewport'],
+  policeChase: PoliceChaseState,
+  dtSeconds: number,
+  onIce: boolean,
+): void {
+  const exitTarget = getPoliceExitTarget(viewport, policeChase);
+  const policeCenter = getPoliceCenter(policeChase);
+  const dx = exitTarget.x - policeCenter.x;
+  const dy = exitTarget.y - policeCenter.y;
+  const distance = Math.hypot(dx, dy);
+  const exitSpeed = 230 * (onIce ? POLICE_ICE_SPEED_MULTIPLIER : 1);
+
+  if (distance > 0.0001) {
+    const targetAngle = Math.atan2(dy, dx);
+    const turnBlend = clamp(dtSeconds * (onIce ? POLICE_ICE_TURN_RATE : 16), 0, 1);
+    const moveAngle = blendAngle(policeChase.angle, targetAngle, turnBlend);
+    policeChase.x += Math.cos(moveAngle) * exitSpeed * dtSeconds;
+    policeChase.y += Math.sin(moveAngle) * exitSpeed * dtSeconds;
+    policeChase.angle = moveAngle;
+  }
+}
+
+export function advancePoliceChasing(
+  policeChase: PoliceChaseState,
+  dtSeconds: number,
+  target: Vector2,
+  score: number,
+  onIce: boolean,
+): { urgency: number } {
+  const policeCenter = getPoliceCenter(policeChase);
+  const dx = target.x - policeCenter.x;
+  const dy = target.y - policeCenter.y;
+  const distance = Math.hypot(dx, dy);
+  const urgency = clamp(1 - distance / 260, 0.12, 1);
+  const speed =
+    (162 + Math.min(50, score * 0.2) + urgency * 28) * (onIce ? POLICE_ICE_SPEED_MULTIPLIER : 1);
+
+  if (distance > 0.0001) {
+    const targetAngle = Math.atan2(dy, dx);
+    const turnBlend = clamp(dtSeconds * (onIce ? POLICE_ICE_TURN_RATE : 18), 0, 1);
+    const moveAngle = blendAngle(policeChase.angle, targetAngle, turnBlend);
+    policeChase.x += Math.cos(moveAngle) * speed * dtSeconds;
+    policeChase.y += Math.sin(moveAngle) * speed * dtSeconds;
+    policeChase.angle = moveAngle;
+  }
+
+  return { urgency };
+}
+
+function getPoliceCenter(police: { x: number; y: number }): Vector2 {
+  return {
+    x: police.x + POLICE_CAR_SIZE.width / 2,
+    y: police.y + POLICE_CAR_SIZE.height / 2,
   };
 }
 

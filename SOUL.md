@@ -534,7 +534,7 @@ Status: `done`
 - [x] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
 - [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
 - [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
-- [ ] Continue extracting encounter orchestration (`plane` / `police`) from `src/game/Game.ts` into focused runtime helpers with no control-loop behavior drift
+- [x] Continue extracting encounter orchestration (`plane` / `police`) from `src/game/Game.ts` into focused runtime helpers with no control-loop behavior drift
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
@@ -567,6 +567,9 @@ Status: `done`
 
 Session note:
 
+- Current session continues hardening-first structural cleanup by extracting plane/police encounter transition helpers from `src/game/Game.ts` into `src/game/encounterRuntime.ts` (`createPlaneBonusEncounter`, `advancePlaneBonusEventState`, `tickPoliceSpawnCountdown`, `createPoliceChase`, `advancePoliceChasing`, `advancePoliceLeaving`) while preserving controls/core loop behavior.
+- Current session keeps hardening lock active with no mechanic expansion and no tuning-constant changes.
+- Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 - Current session continues hardening-first cleanup by extracting effect/combo timer + HUD active-effect assembly from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without changing controls or core loop flow.
 - Current session removes stale internal debug-only runtime branches left after debug API hardening (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug event plumbing), keeping debug workflow in-game only via `Shift + D`.
 - Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
