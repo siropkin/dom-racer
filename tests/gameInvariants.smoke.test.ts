@@ -218,4 +218,33 @@ describe('game economy and police smoke invariants', () => {
     expect(trailCoinsAfterExpiry).toHaveLength(0);
     expect((game as any).planeCoinTrail).toBeNull();
   });
+
+  it('uses airplane spotlight as a short-lived special highlight only', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    const queueBefore = (game as any).coinSpawnQueue.length;
+    const cuesBefore = (game as any).specialSpawnCues.length;
+    const specialCountBefore = runtimeWorld.pickups.filter((pickup) => pickup.kind === 'special').length;
+
+    runtimeWorld.pickups.push({
+      id: 'special:magnet:test',
+      rect: { x: 540, y: 250, width: 20, height: 20 },
+      value: 25,
+      kind: 'special',
+      effect: 'magnet',
+      accentColor: '#67e8f9',
+      label: 'MAG',
+    });
+
+    const spawned = (game as any).spawnPlaneSpotlight(560, 260) as boolean;
+    const specialCountAfter = runtimeWorld.pickups.filter((pickup) => pickup.kind === 'special').length;
+    const cuesAfter = (game as any).specialSpawnCues as Array<{ label: string; ttlMs: number }>;
+
+    expect(spawned).toBe(true);
+    expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
+    expect(specialCountAfter).toBe(specialCountBefore + 1);
+    expect(cuesAfter.length).toBe(cuesBefore + 1);
+    expect(cuesAfter.at(-1)?.label).toBe('MAG');
+    expect(cuesAfter.at(-1)?.ttlMs).toBeGreaterThan(1500);
+  });
 });

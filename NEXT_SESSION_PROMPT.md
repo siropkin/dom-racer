@@ -16,6 +16,7 @@ First, read:
 - `src/game/encounterRuntime.ts`
 - `src/game/gameRenderRuntime.ts`
 - `src/game/gameOverlays.ts`
+- `src/game/gameHudAudioRuntime.ts`
 - `src/content/domScanner.ts`
 - `src/content/worldBuilder.ts`
 - `src/shared/types.ts`
@@ -25,16 +26,18 @@ First, read:
 - `tests/scannerWorld.smoke.test.ts`
 
 Current known context:
-- Airplane event now supports three drop modes: `bonus drop`, short-lived `boost lane`, and short-lived `coin trail`.
+- Airplane event now supports four drop modes: `bonus drop`, short-lived `boost lane`, short-lived `coin trail`, and short-lived `spotlight`.
+- `spotlight` highlights an existing special pickup via a longer cue; if no special exists at drop time, it safely falls back to `bonus drop`.
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
 - Debug workflow is in-game only via `Shift + D` sprite showcase mode.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
-- Baseline smoke tests are in place and currently passing (`npm run test` -> 7 tests).
+- Baseline smoke tests are in place and currently passing (`npm run test` -> 8 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
 - `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
+- HUD state construction and drive-input audio assembly were extracted from `Game.ts` into `src/game/gameHudAudioRuntime.ts` while side-effect calls remain in `Game.ts`.
 - Begin/caught/showcase run-state transition snapshots are now extracted to `src/game/gameRunStateRuntime.ts`; `Game.ts` keeps side-effect sequencing.
 - Regular coin queue/refill scheduling was extracted from `Game.ts` into `src/game/pickupSpawnRuntime.ts`.
 - Input/control key dispatch was extracted from `Game.ts` into `src/game/gameInputRuntime.ts` while keeping key bindings and swallowed-space behavior unchanged.
@@ -42,9 +45,10 @@ Current known context:
 - Stale pickup collection branch state (`collectedIds`) was removed; scanner smoke now asserts active kind allowlist while `hazards`/`deadSpots` remain deferred-empty.
 - Regular pickup toast flow was hardened to coin-only path (`spawnCoinPickupMessage`), with specials still handled via dedicated effect flow.
 - Airplane `coin trail` is implemented as a readable temporary route: spawned in a line, expires quickly, and uses ambient-special stagger to reduce overlap noise.
+- Airplane `spotlight` mode is implemented as a short-lived special highlight moment and does not alter regular coin staging semantics.
 - Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
-- Latest pass changed airplane event mode selection to include `coin trail`; no screen shake and no broad mechanic expansion.
+- Latest pass changed airplane event mode selection to include `spotlight`; no screen shake and no broad mechanic expansion.
 
 Priority lock for this session:
 1) Deliver one bounded hardening extraction
@@ -54,12 +58,12 @@ Priority lock for this session:
 Primary goals:
 1. Hardening extraction target:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
-   - pick exactly one remaining extraction target (tick pickup/economy block OR HUD/audio assembly) and move it to a focused runtime helper
+   - pick exactly one remaining extraction target (`tick` pickup/economy block) and move it to a focused runtime helper
    - keep run-state orchestration centralized through `src/game/gameRunStateRuntime.ts`
    - keep encounter behavior centralized through `src/game/encounterRuntime.ts` helpers; avoid re-inlining
    - avoid behavior changes and preserve controls/core loop
 2. Feature target:
-   - implement one bounded follow-up airplane feature from remaining roadmap candidates (prefer `lucky wind` or `spotlight`)
+   - implement one bounded follow-up airplane feature from remaining roadmap candidates (prefer `lucky wind`)
    - keep feature readability-first and short-lived (route opportunity, not chaos)
    - keep specials independent from regular coin economy semantics
    - keep no screen shake and avoid chaotic overlap with police/plane warning beats

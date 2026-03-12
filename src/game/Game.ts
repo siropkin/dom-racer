@@ -1,5 +1,4 @@
 import type {
-  HudState,
   InputState,
   Rect,
   SpecialEffect,
@@ -47,14 +46,14 @@ import {
   drawSpecialSpawnCues,
 } from './gameRenderRuntime';
 import {
-  applyPickupComboState,
   BLACKOUT_EFFECT_DURATION_MS,
-  getActiveEffectsForHud,
+  applyPickupComboState,
   GHOST_EFFECT_DURATION_MS,
   INVERT_EFFECT_DURATION_MS,
   MAGNET_EFFECT_DURATION_MS,
   tickEffectTimers,
 } from './gameEffectsRuntime';
+import { buildHudState, isDriveInputActive } from './gameHudAudioRuntime';
 import {
   createBeginRunState,
   createCaughtGameOverTransitionState,
@@ -83,7 +82,6 @@ import {
   clonePickup,
   cloneWorld,
   ENCOUNTER_STAGGER_MS,
-  getFlavorText,
   getNextVehicleDesign,
   getSpecialActivationMessage,
   getSpecialColor,
@@ -106,6 +104,7 @@ import {
   PLANE_EVENT_RESPAWN_MAX_MS,
   PLANE_EVENT_RESPAWN_MIN_MS,
   PLANE_LANE_SPECIAL_STAGGER_MS,
+  PLANE_SPOTLIGHT_CUE_DURATION_MS,
   POLICE_AFTER_PLANE_MAX_MS,
   POLICE_AFTER_PLANE_MIN_MS,
   POLICE_INITIAL_SPAWN_MAX_MS,
@@ -447,7 +446,7 @@ export class Game {
     });
     void this.audio.updateEngine(
       this.player.getLastStepDiagnostics().speed,
-      activeInput.up || activeInput.down || activeInput.left || activeInput.right,
+      isDriveInputActive(activeInput),
     );
     const policeStep = this.updatePoliceChase(dtSeconds);
     void this.audio.updatePoliceSiren(policeStep.active, policeStep.urgency);
@@ -543,10 +542,9 @@ export class Game {
     ctx.restore();
 
     const currentSurface = this.sampleCurrentSurface();
-    const blackoutActsAsInvert =
-      this.blackoutTimerMs > 0 && adaptBlackoutEffectForSurface('blackout', currentSurface) === 'invert';
-
-    const hudState: HudState = {
+    const policeRemainingMs = this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null;
+    const policeDurationMs = this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null;
+    const hudState = buildHudState({
       score: this.score,
       elapsedMs: performance.now() - this.startTimeMs,
       pageTitle: this.getPageTitle(),
@@ -555,30 +553,19 @@ export class Game {
       airborne: this.player.isAirborne(),
       boostActive: this.player.isBoostActive(),
       soundEnabled: this.soundEnabled,
-      flavorText: getFlavorText({
-        score: this.score,
-        airborne: this.player.isAirborne(),
-        boostActive: this.player.isBoostActive(),
-        magnetActive: this.magnetTimerMs > 0,
-        ghostActive: this.ghostTimerMs > 0,
-        invertActive: this.invertTimerMs > 0 || blackoutActsAsInvert,
-        blackoutActive: this.blackoutTimerMs > 0 && !blackoutActsAsInvert,
-        policeActive: this.isPoliceChasing(),
-      }),
-      pageBestScore: Math.max(this.pageBestScore, this.score),
-      lifetimeBestScore: Math.max(this.lifetimeBestScore, this.score),
-      activeEffects: getActiveEffectsForHud({
-        magnetTimerMs: this.magnetTimerMs,
-        ghostTimerMs: this.ghostTimerMs,
-        invertTimerMs: this.invertTimerMs,
-        blackoutTimerMs: this.blackoutTimerMs,
-        comboTimerMs: this.comboTimerMs,
-        pickupComboCount: this.pickupComboCount,
-        policeRemainingMs: this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null,
-        policeDurationMs: this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null,
-        currentSurface,
-      }),
-    };
+      pageBestScore: this.pageBestScore,
+      lifetimeBestScore: this.lifetimeBestScore,
+      magnetTimerMs: this.magnetTimerMs,
+      ghostTimerMs: this.ghostTimerMs,
+      invertTimerMs: this.invertTimerMs,
+      blackoutTimerMs: this.blackoutTimerMs,
+      comboTimerMs: this.comboTimerMs,
+      pickupComboCount: this.pickupComboCount,
+      policeRemainingMs,
+      policeDurationMs,
+      policeActive: this.isPoliceChasing(),
+      currentSurface,
+    });
     drawHud(ctx, this.world.viewport, hudState);
   }
 
@@ -894,6 +881,14 @@ export class Game {
         if (!spawnedTrail) {
           this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
         }
+      } else if (this.planeBonusEvent.effectMode === 'spotlight') {
+        const spawnedSpotlight = this.spawnPlaneSpotlight(
+          this.planeBonusEvent.x,
+          this.planeBonusEvent.y + 14,
+        );
+        if (!spawnedSpotlight) {
+          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
+        }
       } else {
         this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
       }
@@ -1005,6 +1000,30 @@ export class Game {
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('COIN TRAIL', '#facc15', 'high');
+    return true;
+  }
+
+  private spawnPlaneSpotlight(x: number, y: number): boolean {
+    if (!this.world) {
+      return false;
+    }
+
+    const specialPickups = this.world.pickups.filter((pickup) => pickup.kind === 'special');
+    if (specialPickups.length === 0) {
+      return false;
+    }
+
+    const target = specialPickups.reduce((best, candidate) => {
+      const candidateCenter = rectCenter(candidate.rect);
+      const bestCenter = rectCenter(best.rect);
+      const candidateDistance = Math.hypot(candidateCenter.x - x, candidateCenter.y - y);
+      const bestDistance = Math.hypot(bestCenter.x - x, bestCenter.y - y);
+      return candidateDistance < bestDistance ? candidate : best;
+    });
+    this.enqueueSpecialSpawnCue(target, PLANE_SPOTLIGHT_CUE_DURATION_MS);
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.audio.playPlaneDrop();
+    this.spawnEffectMessage('SPOTLIGHT', '#fde047', 'high');
     return true;
   }
 
@@ -1431,13 +1450,12 @@ export class Game {
     });
   }
 
-  private enqueueSpecialSpawnCue(pickup: WorldPickup): void {
+  private enqueueSpecialSpawnCue(pickup: WorldPickup, durationMs = 1200): void {
     if (pickup.kind !== 'special') {
       return;
     }
 
     const center = rectCenter(pickup.rect);
-    const durationMs = 1200;
     this.specialSpawnCues.push({
       x: center.x,
       y: center.y,
