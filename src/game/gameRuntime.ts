@@ -392,10 +392,15 @@ export function getFlavorText(state: {
   invertActive: boolean;
   blackoutActive: boolean;
   policeActive: boolean;
+  policeWarningActive: boolean;
   policeDelayActive: boolean;
 }): string {
   if (state.policeActive) {
     return 'Sirens up. Do not get audited by the law.';
+  }
+
+  if (state.policeWarningActive) {
+    return 'Sirens warming up. Pick your exit lane.';
   }
 
   if (state.policeDelayActive) {

@@ -40,6 +40,7 @@ import {
   tickPoliceSpawnCountdown,
 } from './encounterRuntime';
 import {
+  advanceSpecialSpawnCues,
   drawFocusModeLayer,
   drawPickups,
   drawPlaneBoostLane,
@@ -583,6 +584,7 @@ export class Game {
       policeRemainingMs,
       policeDurationMs,
       policeActive: this.isPoliceChasing(),
+      policeWarningActive: Boolean(this.policeWarning) && !this.isPoliceChasing(),
       currentSurface,
     });
     drawHud(ctx, this.world.viewport, hudState);
@@ -771,17 +773,7 @@ export class Game {
   }
 
   private updateSpecialSpawnCues(dtSeconds: number): void {
-    if (this.specialSpawnCues.length === 0) {
-      return;
-    }
-
-    const deltaMs = dtSeconds * 1000;
-    this.specialSpawnCues = this.specialSpawnCues
-      .map((cue) => ({
-        ...cue,
-        ttlMs: cue.ttlMs - deltaMs,
-      }))
-      .filter((cue) => cue.ttlMs > 0);
+    this.specialSpawnCues = advanceSpecialSpawnCues(this.specialSpawnCues, dtSeconds);
   }
 
   private updatePlaneWarning(dtSeconds: number): void {

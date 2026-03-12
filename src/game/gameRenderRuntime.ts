@@ -82,6 +82,23 @@ export function drawSpecialSpawnCues(
   ctx.restore();
 }
 
+export function advanceSpecialSpawnCues(
+  cues: SpecialSpawnCue[],
+  dtSeconds: number,
+): SpecialSpawnCue[] {
+  if (cues.length === 0) {
+    return cues;
+  }
+
+  const deltaMs = dtSeconds * 1000;
+  return cues
+    .map((cue) => ({
+      ...cue,
+      ttlMs: cue.ttlMs - deltaMs,
+    }))
+    .filter((cue) => cue.ttlMs > 0);
+}
+
 export function drawPlaneBonusEvent(
   ctx: CanvasRenderingContext2D,
   planeBonusEvent: PlaneBonusEventState | null,

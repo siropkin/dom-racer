@@ -25,6 +25,7 @@ interface BuildHudStateOptions {
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
   policeActive: boolean;
+  policeWarningActive: boolean;
   currentSurface: SurfaceSample;
 }
 
@@ -80,6 +81,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
       policeActive: options.policeActive,
+      policeWarningActive: options.policeWarningActive,
       policeDelayActive: options.policeDelayCueTimerMs > 0 && options.policeDelayCueDurationMs > 0,
     }),
     pageBestScore: Math.max(options.pageBestScore, options.score),

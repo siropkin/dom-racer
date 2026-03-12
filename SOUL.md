@@ -466,6 +466,7 @@ Status: `in progress`
 - [x] Extract airplane drop-mode dispatch + fallback from `src/game/Game.ts` into focused runtime helper(s) without behavior drift
 - [x] Extract plane coin-trail expiry/update orchestration from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
 - [x] Extract police-delay cue timer lifecycle from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
+- [x] Extract special-spawn cue timer lifecycle from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -476,6 +477,7 @@ Status: `in progress`
 - [x] Add coverage for police catch -> game over -> restart
 - [x] Close overgrowth collision gap with scope-guard coverage while overgrowth stays deferred (deadSpot safety reset + empty hazard/deadSpot scanner/world channels)
 - [x] Add hazard-channel guard coverage for world refresh safety reset while overgrowth remains deferred
+- [x] Add smoke assertions for extracted special-spawn cue lifecycle and police-warning readability flavor text
 
 ### Final Tuning
 
@@ -562,6 +564,7 @@ Status: `done`
 - [x] Run one hybrid session: implement airplane `police delay` follow-up and pair it with airplane drop-mode dispatch extraction from `src/game/Game.ts`
 - [x] Run one hybrid session: add police-delay readability cue follow-up and pair it with plane coin-trail tick extraction from `src/game/Game.ts`
 - [x] Run one hybrid session: add police-delay flavor-text readability follow-up and pair it with police-delay cue lifecycle extraction from `src/game/Game.ts`
+- [x] Run one hybrid session: add police-warning flavor-text readability follow-up and pair it with special-spawn cue lifecycle extraction from `src/game/Game.ts`
 - [x] Keep police catch -> `GAME OVER` -> `Space` restart invariants and special-vs-regular economy separation unchanged in the hybrid pass
 - [x] Re-verify `__domRacerDebug` absence in both source and build output after hybrid changes
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
@@ -595,6 +598,12 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands the locked hybrid pair in one pass: bounded special-spawn cue lifecycle extraction plus bounded police-warning readability follow-up.
+- Feature delivery: HUD flavor text now explicitly calls out pre-chase police warning beats (`Sirens warming up`) before active chase, improving telegraph readability without changing encounter timings or economy semantics.
+- Hardening delivery: special-spawn cue timer lifecycle moved from `Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceSpecialSpawnCues`), preserving run-state and encounter boundaries.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart and special-vs-regular economy separation intact, and extends smoke checks for extracted cue lifecycle + warning flavor text.
+- Verification this session: `npm run test` (14 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands the locked hybrid pair in one pass: bounded police-delay cue lifecycle extraction plus bounded police-delay readability follow-up.
 - Feature delivery: while airplane `police delay` cue is active, HUD flavor text now explicitly communicates a short breathing-room beat (`Traffic hold`) without changing police timing or coin economy semantics.

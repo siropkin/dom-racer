@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { World } from '../src/shared/types';
 import { advancePoliceDelayCueState, createPoliceDelayCueState } from '../src/game/planeDropRuntime';
+import { advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 
 vi.mock('../src/game/audio', () => {
@@ -385,6 +386,44 @@ describe('game economy and police smoke invariants', () => {
     expect(expired.policeDelayCueDurationMs).toBe(0);
   });
 
+  it('keeps extracted special-spawn cue lifecycle unchanged', () => {
+    const next = advanceSpecialSpawnCues(
+      [
+        {
+          x: 128,
+          y: 256,
+          label: 'MAG',
+          color: '#67e8f9',
+          ttlMs: 1000,
+          durationMs: 1000,
+        },
+      ],
+      0.25,
+    );
+    expect(next).toHaveLength(1);
+    expect(next[0].ttlMs).toBe(750);
+
+    const expired = advanceSpecialSpawnCues(next, 2);
+    expect(expired).toHaveLength(0);
+  });
+
+  it('surfaces police-warning pre-chase flavor text', () => {
+    const text = getFlavorText({
+      score: 80,
+      airborne: false,
+      boostActive: false,
+      magnetActive: false,
+      ghostActive: false,
+      invertActive: false,
+      blackoutActive: false,
+      policeActive: false,
+      policeWarningActive: true,
+      policeDelayActive: false,
+    });
+
+    expect(text).toContain('Sirens warming up');
+  });
+
   it('surfaces police-delay breathing-room flavor text', () => {
     const text = getFlavorText({
       score: 80,
@@ -395,6 +434,7 @@ describe('game economy and police smoke invariants', () => {
       invertActive: false,
       blackoutActive: false,
       policeActive: false,
+      policeWarningActive: false,
       policeDelayActive: true,
     });
 
