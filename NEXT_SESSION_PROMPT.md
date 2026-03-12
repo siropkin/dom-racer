@@ -32,6 +32,8 @@ Current known context:
 - Baseline smoke tests are in place and currently passing (`npm run test` -> 6 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
+- `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
+- Stale internal debug-only hooks were removed from runtime (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug-event plumbing), while in-game `Shift + D` showcase remains intact.
 - Stale pickup collection branch state (`collectedIds`) was removed; scanner smoke now asserts active kind allowlist while `hazards`/`deadSpots` remain deferred-empty.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
 
@@ -45,6 +47,7 @@ Primary goals:
    - avoid behavior changes and preserve controls/core loop
 2. Follow-up hardening:
    - audit remaining stale gameplay branches (especially deferred channels) and keep guard behavior coherent
+   - keep internal debug surface lean (no hidden callback/debug snapshot branches unless intentionally required)
    - if overgrowth stays deferred, keep that decision explicit in docs/tests
 3. Verification hardening:
    - confirm no page-level debug globals in source/build (`__domRacerDebug`)

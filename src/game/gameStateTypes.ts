@@ -1,6 +1,4 @@
 import type {
-  HudState,
-  InputState,
   Rect,
   Vector2,
   VehicleDesign,
@@ -8,8 +6,6 @@ import type {
 } from '../shared/types';
 import type { SurfaceSample } from './gameRuntime';
 import type { PoliceEdge } from './policeSprite';
-
-export type ScrollDirection = 'up' | 'down';
 
 export interface SpecialSpawnCue {
   x: number;
@@ -67,61 +63,6 @@ export interface GameOverState {
   startedAtMs: number;
 }
 
-export type GameDebugEvent =
-  | {
-      type: 'pickup';
-      atMs: number;
-      score: number;
-      pickupId: string;
-      x: number;
-      y: number;
-      value: number;
-    }
-  | {
-      type: 'restart';
-      atMs: number;
-      reason: 'manual' | 'deadSpot' | 'caught';
-      score: number;
-    }
-  | {
-      type: 'collision';
-      atMs: number;
-      x: number;
-      y: number;
-      hitX: boolean;
-      hitY: boolean;
-      speed: number;
-      scrollY: number;
-    }
-  | {
-      type: 'scroll';
-      atMs: number;
-      direction: ScrollDirection;
-      amount: number;
-      scrollY: number;
-    };
-
-export interface GameDebugSnapshot {
-  atMs: number;
-  score: number;
-  scrollY: number;
-  player: Rect;
-  pickupsRemaining: number;
-  pickups: Array<{
-    id: string;
-    x: number;
-    y: number;
-    value: number;
-  }>;
-  obstacleCount: number;
-  boostCount: number;
-  airborne: boolean;
-  boostActive: boolean;
-  speed: number;
-  hitX: boolean;
-  hitY: boolean;
-}
-
 export interface GameOptions {
   canvas: HTMLCanvasElement;
   createWorld: () => World;
@@ -142,8 +83,4 @@ export interface GameOptions {
     elapsedMs: number;
     reason: 'manual' | 'deadSpot' | 'caught' | 'quit';
   }) => void;
-  onDebugEvent?: (event: GameDebugEvent) => void;
 }
-
-export type ActiveEffects = HudState['activeEffects'];
-export type InputOverrides = Partial<InputState> | null;

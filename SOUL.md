@@ -444,6 +444,7 @@ Goal: make the game safe to share more widely.
 - [x] Remove page-level debug API surface (`window.__domRacerDebug`)
 - [x] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
 - [x] Audit remaining stale gameplay branches
+- [x] Remove stale internal debug-only runtime branches left after page-debug API removal
 
 ### Test Coverage
 
@@ -526,6 +527,7 @@ Status: `done`
 - [x] Extract rendering-only gameplay helpers from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` without changing controls/loop behavior
 - [x] Remove stale pickup collection branch state (`collectedIds`) and keep deferred-channel smoke guardrails explicit (`scanner` kind allowlist + empty `hazards`/`deadSpots` world channels)
 - [x] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
+- [x] Continue stale-branch hardening by removing dead internal debug hooks and extracting effect/combo timer runtime helpers into `src/game/gameEffectsRuntime.ts`
 - [x] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
 - [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
 - [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
@@ -561,6 +563,9 @@ Status: `done`
 
 Session note:
 
+- Current session continues hardening-first cleanup by extracting effect/combo timer + HUD active-effect assembly from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without changing controls or core loop flow.
+- Current session removes stale internal debug-only runtime branches left after debug API hardening (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug event plumbing), keeping debug workflow in-game only via `Shift + D`.
+- Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 - Current session continues hardening-first cleanup by extracting rendering-only runtime helpers from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (focus layer + pickup/special/plane lane rendering) with no control or loop behavior changes.
 - Current session removes one stale gameplay data branch (`collectPickups` `collectedIds`, unused) and keeps deferred overgrowth channels explicit via smoke guardrail assertion that scanned kinds stay within active runtime scope.
 - Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.

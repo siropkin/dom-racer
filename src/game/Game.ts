@@ -9,8 +9,6 @@ import type {
   WorldPickup,
 } from '../shared/types';
 import type {
-  GameDebugEvent,
-  GameDebugSnapshot,
   GameOptions,
   GameOverState,
   PlaneBonusEventState,
@@ -44,6 +42,15 @@ import {
   drawSpecialSpawnCues,
 } from './gameRenderRuntime';
 import {
+  applyPickupComboState,
+  BLACKOUT_EFFECT_DURATION_MS,
+  getActiveEffectsForHud,
+  GHOST_EFFECT_DURATION_MS,
+  INVERT_EFFECT_DURATION_MS,
+  MAGNET_EFFECT_DURATION_MS,
+  tickEffectTimers,
+} from './gameEffectsRuntime';
+import {
   POLICE_CAR_SIZE,
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
@@ -64,14 +71,12 @@ import {
   clonePickup,
   cloneRect,
   cloneWorld,
-  COMBO_WINDOW_MS,
   ENCOUNTER_STAGGER_MS,
   getFlavorText,
   getNextVehicleDesign,
   getSpecialActivationMessage,
   getSpecialColor,
   getSpecialDropMessage,
-  getSpecialHudLabel,
   getSpecialLabel,
   getVehicleDesignLabel,
   isModifierKey,
@@ -144,8 +149,6 @@ import {
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
-export type { GameDebugEvent, GameDebugSnapshot } from './gameStateTypes';
-
 export class Game {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
@@ -163,14 +166,12 @@ export class Game {
     elapsedMs: number;
     reason: 'manual' | 'deadSpot' | 'caught' | 'quit';
   }) => void;
-  private onDebugEvent?: (event: GameDebugEvent) => void;
   private audio: AudioManager;
   private soundEnabled: boolean;
   private vehicleDesign: VehicleDesign;
   private player: Player | null;
   private world: World | null;
   private input: InputState;
-  private debugInput: Partial<InputState> | null;
   private running: boolean;
   private frameHandle: number | null;
   private lastFrameMs: number;
@@ -189,7 +190,6 @@ export class Game {
   private planeBoostLane: PlaneBoostLaneState | null;
   private planeBonusTimerMs: number;
   private pickupFlavorIndex: number;
-  private lastCollisionEventAtMs: number;
   private coinsCollectedTotal: number;
   private specialSpawnTimerMs: number;
   private magnetTimerMs: number;
@@ -228,7 +228,6 @@ export class Game {
     this.onSoundEnabledChange = options.onSoundEnabledChange;
     this.onVehicleDesignChange = options.onVehicleDesignChange;
     this.onRunFinished = options.onRunFinished;
-    this.onDebugEvent = options.onDebugEvent;
     this.soundEnabled = options.initialSoundEnabled;
     this.vehicleDesign = options.initialVehicleDesign;
     this.pageBestScore = options.initialPageBestScore;
@@ -242,7 +241,6 @@ export class Game {
       left: false,
       right: false,
     };
-    this.debugInput = null;
     this.running = false;
     this.frameHandle = null;
     this.lastFrameMs = 0;
@@ -263,7 +261,6 @@ export class Game {
     this.planeBoostLane = null;
     this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
-    this.lastCollisionEventAtMs = 0;
     this.coinsCollectedTotal = 0;
     this.specialSpawnTimerMs = randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS);
     this.magnetTimerMs = 0;
@@ -336,14 +333,6 @@ export class Game {
     this.restartWithReason('manual');
   }
 
-  setDebugInput(input: Partial<InputState> | null): void {
-    this.debugInput = input;
-  }
-
-  triggerJump(): void {
-    // Kept for debug API compatibility; manual accel is disabled.
-  }
-
   setSoundEnabled(enabled: boolean): void {
     this.soundEnabled = enabled;
     this.audio.setEnabled(enabled);
@@ -354,37 +343,9 @@ export class Game {
     this.player?.setVehicleDesign(design);
   }
 
-  getDebugSnapshot(): GameDebugSnapshot | null {
-    if (!this.world || !this.player) {
-      return null;
-    }
-
-    const diagnostics = this.player.getLastStepDiagnostics();
-    return {
-      atMs: performance.now(),
-      score: this.score,
-      scrollY: window.scrollY,
-      player: this.player.getBounds(),
-      pickupsRemaining: this.world.pickups.length,
-      pickups: this.world.pickups.map((pickup) => ({
-        id: pickup.id,
-        x: pickup.rect.x + pickup.rect.width / 2,
-        y: pickup.rect.y + pickup.rect.height / 2,
-        value: pickup.value,
-      })),
-      obstacleCount: this.world.obstacles.length,
-      boostCount: this.world.boosts.length,
-      airborne: this.player.isAirborne(),
-      boostActive: this.player.isBoostActive(),
-      speed: diagnostics.speed,
-      hitX: diagnostics.hitX,
-      hitY: diagnostics.hitY,
-    };
-  }
-
   private restartWithReason(reason: 'manual' | 'deadSpot' | 'caught'): void {
     this.finishCurrentRun(reason);
-    this.beginRun(reason);
+    this.beginRun();
   }
 
   private finishCurrentRun(reason: 'manual' | 'deadSpot' | 'caught' | 'quit'): void {
@@ -485,7 +446,6 @@ export class Game {
       slowed,
       onIce,
     });
-    this.emitCollisionEventIfNeeded();
     void this.audio.updateEngine(
       this.player.getLastStepDiagnostics().speed,
       activeInput.up || activeInput.down || activeInput.left || activeInput.right,
@@ -528,15 +488,6 @@ export class Game {
       }
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
-      this.emitDebugEvent({
-        type: 'pickup',
-        atMs: performance.now(),
-        score: this.score,
-        pickupId: pickup.id,
-        x: pickup.rect.x + pickup.rect.width / 2,
-        y: pickup.rect.y + pickup.rect.height / 2,
-        value: pickup.value,
-      });
     }
 
     this.updateRegularCoinSpawns(dtSeconds);
@@ -617,7 +568,17 @@ export class Game {
       }),
       pageBestScore: Math.max(this.pageBestScore, this.score),
       lifetimeBestScore: Math.max(this.lifetimeBestScore, this.score),
-      activeEffects: this.getActiveEffects(currentSurface),
+      activeEffects: getActiveEffectsForHud({
+        magnetTimerMs: this.magnetTimerMs,
+        ghostTimerMs: this.ghostTimerMs,
+        invertTimerMs: this.invertTimerMs,
+        blackoutTimerMs: this.blackoutTimerMs,
+        comboTimerMs: this.comboTimerMs,
+        pickupComboCount: this.pickupComboCount,
+        policeRemainingMs: this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null,
+        policeDurationMs: this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null,
+        currentSurface,
+      }),
     };
     drawHud(ctx, this.world.viewport, hudState);
   }
@@ -700,7 +661,7 @@ export class Game {
       void this.audio.resume();
       event.stopImmediatePropagation();
       event.preventDefault();
-      this.beginRun('manual');
+      this.beginRun();
       return;
     }
 
@@ -718,7 +679,7 @@ export class Game {
       event.preventDefault();
       if (this.spriteShowcaseActive) {
         this.spriteShowcaseActive = false;
-        this.beginRun('manual');
+        this.beginRun();
       } else {
         this.enterSpriteShowcaseMode();
       }
@@ -823,41 +784,12 @@ export class Game {
     this.input.right = false;
   }
 
-  private emitCollisionEventIfNeeded(): void {
-    if (!this.player) {
-      return;
-    }
-
-    const diagnostics = this.player.getLastStepDiagnostics();
-    if (!diagnostics.hitX && !diagnostics.hitY) {
-      return;
-    }
-
-    const now = performance.now();
-    if (now - this.lastCollisionEventAtMs < 140) {
-      return;
-    }
-
-    const bounds = this.player.getBounds();
-    this.emitDebugEvent({
-      type: 'collision',
-      atMs: now,
-      x: bounds.x + bounds.width / 2,
-      y: bounds.y + bounds.height / 2,
-      hitX: diagnostics.hitX,
-      hitY: diagnostics.hitY,
-      speed: diagnostics.speed,
-      scrollY: window.scrollY,
-    });
-    this.lastCollisionEventAtMs = now;
-  }
-
   private getActiveInput(): InputState {
     return {
-      up: this.debugInput?.up ?? this.input.up,
-      down: this.debugInput?.down ?? this.input.down,
-      left: this.debugInput?.left ?? this.input.left,
-      right: this.debugInput?.right ?? this.input.right,
+      up: this.input.up,
+      down: this.input.down,
+      left: this.input.left,
+      right: this.input.right,
     };
   }
 
@@ -1292,20 +1224,20 @@ export class Game {
         this.spawnEffectMessage(getSpecialActivationMessage('bonus'), getSpecialColor('bonus'), 'high');
         return;
       case 'invert':
-        this.invertTimerMs = 5200;
+        this.invertTimerMs = INVERT_EFFECT_DURATION_MS;
         this.setInverted(true);
         this.spawnEffectMessage(getSpecialActivationMessage('invert'), getSpecialColor('invert'), 'high');
         return;
       case 'magnet':
-        this.magnetTimerMs = 6200;
+        this.magnetTimerMs = MAGNET_EFFECT_DURATION_MS;
         this.spawnEffectMessage(getSpecialActivationMessage('magnet'), getSpecialColor('magnet'), 'high');
         return;
       case 'ghost':
-        this.ghostTimerMs = 5600;
+        this.ghostTimerMs = GHOST_EFFECT_DURATION_MS;
         this.spawnEffectMessage(getSpecialActivationMessage('ghost'), getSpecialColor('ghost'), 'high');
         return;
       case 'blackout':
-        this.blackoutTimerMs = 4200;
+        this.blackoutTimerMs = BLACKOUT_EFFECT_DURATION_MS;
         this.setBlackout(true);
         this.spawnEffectMessage(getSpecialActivationMessage('blackout'), getSpecialColor('blackout'), 'high');
         return;
@@ -1362,24 +1294,13 @@ export class Game {
   }
 
   private applyPickupComboBonus(): number {
-    if (this.comboTimerMs > 0) {
-      this.pickupComboCount += 1;
-    } else {
-      this.pickupComboCount = 1;
+    const nextComboState = applyPickupComboState(this.comboTimerMs, this.pickupComboCount);
+    this.pickupComboCount = nextComboState.pickupComboCount;
+    this.comboTimerMs = nextComboState.comboTimerMs;
+    if (nextComboState.flowTier !== null) {
+      this.spawnEffectMessage(`FLOW x${nextComboState.flowTier}`, '#fb7185', 'medium');
     }
-
-    this.comboTimerMs = COMBO_WINDOW_MS;
-
-    if (this.pickupComboCount < 3) {
-      return 0;
-    }
-
-    const bonus = Math.min(14, 2 + (this.pickupComboCount - 3) * 2);
-    if ([3, 5, 8, 12].includes(this.pickupComboCount)) {
-      this.spawnEffectMessage(`FLOW x${this.pickupComboCount}`, '#fb7185', 'medium');
-    }
-
-    return bonus;
+    return nextComboState.bonus;
   }
 
   private updatePoliceChase(dtSeconds: number): {
@@ -1573,22 +1494,28 @@ export class Game {
   }
 
   private updateEffectTimers(dtSeconds: number): void {
-    this.magnetTimerMs = Math.max(0, this.magnetTimerMs - dtSeconds * 1000);
-    this.ghostTimerMs = Math.max(0, this.ghostTimerMs - dtSeconds * 1000);
-    this.comboTimerMs = Math.max(0, this.comboTimerMs - dtSeconds * 1000);
-    if (this.comboTimerMs === 0) {
-      this.pickupComboCount = 0;
-    }
+    const timers = tickEffectTimers(
+      {
+        magnetTimerMs: this.magnetTimerMs,
+        ghostTimerMs: this.ghostTimerMs,
+        invertTimerMs: this.invertTimerMs,
+        blackoutTimerMs: this.blackoutTimerMs,
+        comboTimerMs: this.comboTimerMs,
+        pickupComboCount: this.pickupComboCount,
+      },
+      dtSeconds,
+    );
+    this.magnetTimerMs = timers.magnetTimerMs;
+    this.ghostTimerMs = timers.ghostTimerMs;
+    this.invertTimerMs = timers.invertTimerMs;
+    this.blackoutTimerMs = timers.blackoutTimerMs;
+    this.comboTimerMs = timers.comboTimerMs;
+    this.pickupComboCount = timers.pickupComboCount;
 
-    const wasInverted = this.invertTimerMs > 0;
-    this.invertTimerMs = Math.max(0, this.invertTimerMs - dtSeconds * 1000);
-    if (wasInverted && this.invertTimerMs === 0) {
+    if (timers.invertExpired) {
       this.setInverted(false);
     }
-
-    const wasBlackout = this.blackoutTimerMs > 0;
-    this.blackoutTimerMs = Math.max(0, this.blackoutTimerMs - dtSeconds * 1000);
-    if (wasBlackout && this.blackoutTimerMs === 0) {
+    if (timers.blackoutExpired) {
       this.setBlackout(false);
     }
   }
@@ -1655,7 +1582,7 @@ export class Game {
     }
   }
 
-  private beginRun(reason: 'manual' | 'deadSpot' | 'caught'): void {
+  private beginRun(): void {
     this.dynamicPickups = [];
     this.coinSpawnQueue = [];
     this.coinSpawnIdCounter = 0;
@@ -1684,16 +1611,9 @@ export class Game {
     this.comboTimerMs = 0;
     this.gameOverState = null;
     this.spriteShowcaseActive = false;
-    this.debugInput = null;
     this.startTimeMs = performance.now();
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = 0;
-    this.emitDebugEvent({
-      type: 'restart',
-      atMs: performance.now(),
-      reason,
-      score: this.score,
-    });
   }
 
   private enterCaughtGameOver(): void {
@@ -1718,7 +1638,6 @@ export class Game {
     this.planeBonusEvent = null;
     this.planeBoostLane = null;
     this.resetInput();
-    this.debugInput = null;
     this.gameOverState = {
       reason: 'caught',
       startedAtMs: performance.now(),
@@ -1746,7 +1665,6 @@ export class Game {
     this.planeBonusEvent = null;
     this.planeBoostLane = null;
     this.resetInput();
-    this.debugInput = null;
   }
 
   private drawGameOverScreen(): void {
@@ -1760,79 +1678,5 @@ export class Game {
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
     });
-  }
-
-  private getActiveEffects(currentSurface: SurfaceSample): HudState['activeEffects'] {
-    const effects: HudState['activeEffects'] = [];
-
-    if (this.magnetTimerMs > 0) {
-      effects.push({
-        effect: 'magnet',
-        label: getSpecialHudLabel('magnet'),
-        remainingMs: this.magnetTimerMs,
-        durationMs: 6200,
-        color: getSpecialColor('magnet'),
-      });
-    }
-
-    if (this.invertTimerMs > 0) {
-      effects.push({
-        effect: 'invert',
-        label: getSpecialHudLabel('invert'),
-        remainingMs: this.invertTimerMs,
-        durationMs: 5200,
-        color: getSpecialColor('invert'),
-      });
-    }
-
-    if (this.blackoutTimerMs > 0) {
-      const blackoutHudEffect: Exclude<SpecialEffect, 'bonus'> =
-        adaptBlackoutEffectForSurface('blackout', currentSurface) === 'invert'
-          ? 'invert'
-          : 'blackout';
-      effects.push({
-        effect: blackoutHudEffect,
-        label: getSpecialHudLabel(blackoutHudEffect),
-        remainingMs: this.blackoutTimerMs,
-        durationMs: 4200,
-        color: getSpecialColor(blackoutHudEffect),
-      });
-    }
-
-    if (this.ghostTimerMs > 0) {
-      effects.push({
-        effect: 'ghost',
-        label: getSpecialHudLabel('ghost'),
-        remainingMs: this.ghostTimerMs,
-        durationMs: 5600,
-        color: getSpecialColor('ghost'),
-      });
-    }
-
-    if (this.isPoliceChasing() && this.policeChase) {
-      effects.push({
-        effect: 'police',
-        label: 'POLICE',
-        remainingMs: this.policeChase.remainingMs,
-        durationMs: this.policeChase.durationMs,
-        color: '#60a5fa',
-      });
-    }
-
-    if (this.comboTimerMs > 0 && this.pickupComboCount >= 3) {
-      effects.push({
-        effect: 'flow',
-        label: `FLOW x${this.pickupComboCount}`,
-        remainingMs: this.comboTimerMs,
-        durationMs: COMBO_WINDOW_MS,
-        color: '#fb7185',
-      });
-    }
-
-    return effects.sort((left, right) => right.remainingMs - left.remainingMs);
-  }
-
-  private emitDebugEvent(event: GameDebugEvent): void {
-    this.onDebugEvent?.(event);
   }
 }

@@ -1,0 +1,143 @@
+import type { HudState } from '../shared/types';
+import { adaptBlackoutEffectForSurface, COMBO_WINDOW_MS, getSpecialColor, getSpecialHudLabel } from './gameRuntime';
+import type { SurfaceSample } from './gameRuntime';
+
+export const INVERT_EFFECT_DURATION_MS = 5200;
+export const MAGNET_EFFECT_DURATION_MS = 6200;
+export const GHOST_EFFECT_DURATION_MS = 5600;
+export const BLACKOUT_EFFECT_DURATION_MS = 4200;
+
+interface EffectTimerState {
+  magnetTimerMs: number;
+  ghostTimerMs: number;
+  invertTimerMs: number;
+  blackoutTimerMs: number;
+  comboTimerMs: number;
+  pickupComboCount: number;
+}
+
+interface EffectTimerUpdateResult extends EffectTimerState {
+  invertExpired: boolean;
+  blackoutExpired: boolean;
+}
+
+interface ActiveEffectsInput {
+  magnetTimerMs: number;
+  ghostTimerMs: number;
+  invertTimerMs: number;
+  blackoutTimerMs: number;
+  comboTimerMs: number;
+  pickupComboCount: number;
+  policeRemainingMs: number | null;
+  policeDurationMs: number | null;
+  currentSurface: SurfaceSample;
+}
+
+interface PickupComboResult {
+  pickupComboCount: number;
+  comboTimerMs: number;
+  bonus: number;
+  flowTier: number | null;
+}
+
+export function tickEffectTimers(state: EffectTimerState, dtSeconds: number): EffectTimerUpdateResult {
+  const deltaMs = dtSeconds * 1000;
+  const nextInvertTimerMs = Math.max(0, state.invertTimerMs - deltaMs);
+  const nextBlackoutTimerMs = Math.max(0, state.blackoutTimerMs - deltaMs);
+  const nextComboTimerMs = Math.max(0, state.comboTimerMs - deltaMs);
+
+  return {
+    magnetTimerMs: Math.max(0, state.magnetTimerMs - deltaMs),
+    ghostTimerMs: Math.max(0, state.ghostTimerMs - deltaMs),
+    invertTimerMs: nextInvertTimerMs,
+    blackoutTimerMs: nextBlackoutTimerMs,
+    comboTimerMs: nextComboTimerMs,
+    pickupComboCount: nextComboTimerMs === 0 ? 0 : state.pickupComboCount,
+    invertExpired: state.invertTimerMs > 0 && nextInvertTimerMs === 0,
+    blackoutExpired: state.blackoutTimerMs > 0 && nextBlackoutTimerMs === 0,
+  };
+}
+
+export function applyPickupComboState(comboTimerMs: number, pickupComboCount: number): PickupComboResult {
+  const nextPickupComboCount = comboTimerMs > 0 ? pickupComboCount + 1 : 1;
+  const bonus =
+    nextPickupComboCount < 3 ? 0 : Math.min(14, 2 + (nextPickupComboCount - 3) * 2);
+  const flowTier = [3, 5, 8, 12].includes(nextPickupComboCount) ? nextPickupComboCount : null;
+
+  return {
+    pickupComboCount: nextPickupComboCount,
+    comboTimerMs: COMBO_WINDOW_MS,
+    bonus,
+    flowTier,
+  };
+}
+
+export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['activeEffects'] {
+  const effects: HudState['activeEffects'] = [];
+
+  if (input.magnetTimerMs > 0) {
+    effects.push({
+      effect: 'magnet',
+      label: getSpecialHudLabel('magnet'),
+      remainingMs: input.magnetTimerMs,
+      durationMs: MAGNET_EFFECT_DURATION_MS,
+      color: getSpecialColor('magnet'),
+    });
+  }
+
+  if (input.invertTimerMs > 0) {
+    effects.push({
+      effect: 'invert',
+      label: getSpecialHudLabel('invert'),
+      remainingMs: input.invertTimerMs,
+      durationMs: INVERT_EFFECT_DURATION_MS,
+      color: getSpecialColor('invert'),
+    });
+  }
+
+  if (input.blackoutTimerMs > 0) {
+    const blackoutHudEffect =
+      adaptBlackoutEffectForSurface('blackout', input.currentSurface) === 'invert'
+        ? 'invert'
+        : 'blackout';
+    effects.push({
+      effect: blackoutHudEffect,
+      label: getSpecialHudLabel(blackoutHudEffect),
+      remainingMs: input.blackoutTimerMs,
+      durationMs: BLACKOUT_EFFECT_DURATION_MS,
+      color: getSpecialColor(blackoutHudEffect),
+    });
+  }
+
+  if (input.ghostTimerMs > 0) {
+    effects.push({
+      effect: 'ghost',
+      label: getSpecialHudLabel('ghost'),
+      remainingMs: input.ghostTimerMs,
+      durationMs: GHOST_EFFECT_DURATION_MS,
+      color: getSpecialColor('ghost'),
+    });
+  }
+
+  if (input.policeRemainingMs !== null && input.policeDurationMs !== null) {
+    effects.push({
+      effect: 'police',
+      label: 'POLICE',
+      remainingMs: input.policeRemainingMs,
+      durationMs: input.policeDurationMs,
+      color: '#60a5fa',
+    });
+  }
+
+  if (input.comboTimerMs > 0 && input.pickupComboCount >= 3) {
+    effects.push({
+      effect: 'flow',
+      label: `FLOW x${input.pickupComboCount}`,
+      remainingMs: input.comboTimerMs,
+      durationMs: COMBO_WINDOW_MS,
+      color: '#fb7185',
+    });
+  }
+
+  return effects.sort((left, right) => right.remainingMs - left.remainingMs);
+}
