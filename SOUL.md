@@ -486,7 +486,10 @@ Session note:
 - Cross-page manual driving on the 4 target page types is blocked in this environment (no interactive extension browser session).
 - This session's regression confirmations were completed via source audit + `npm run build`.
 - This pass improved HUD sound-state clarity (`M SOUND` + explicit `ON/OFF` chip), introduced tuned plane flyover/drop cues, and reworked toast overlap handling with priority-aware stacking.
-- Commit state: pending local commit for HUD sound-state clarity, airplane audio polish, and toast stacking readability improvements.
+- Follow-up HUD polish moved the `ON`/`OFF` sound chip left so it sits closer to `M SOUND`.
+- Commit state: committed locally on `main` in:
+  - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)
+  - `f374289` (SOUL commit-state note refresh)
 
 ## Latest Session Progress And Learnings
 

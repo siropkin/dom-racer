@@ -31,7 +31,7 @@ export function drawHud(
   ctx.fillRect(hintX, hintY, hintWidth, 2);
   ctx.fillStyle = '#e2e8f0';
   ctx.fillText('V CAR  |  M SOUND', hintX + 12, hintY + 10);
-  drawSoundStateChip(ctx, hintX + hintWidth - 64, hintY + 8, state.soundEnabled);
+  drawSoundStateChip(ctx, hintX + 152, hintY + 8, state.soundEnabled);
   ctx.fillText('ARROWS DRIVE  |  ESC QUIT', hintX + 12, hintY + 30);
 
   if (state.activeEffects.length > 0) {
