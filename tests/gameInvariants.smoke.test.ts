@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { World } from '../src/shared/types';
+import { advancePoliceDelayCueState, createPoliceDelayCueState } from '../src/game/planeDropRuntime';
+import { getFlavorText } from '../src/game/gameRuntime';
 
 vi.mock('../src/game/audio', () => {
   class MockAudioManager {
@@ -367,5 +369,35 @@ describe('game economy and police smoke invariants', () => {
     expect(cuesAfter.length).toBe(cuesBefore + 1);
     expect(cuesAfter.at(-1)?.label).toBe('MAG');
     expect(cuesAfter.at(-1)?.ttlMs).toBeGreaterThan(1500);
+  });
+
+  it('keeps extracted police-delay cue lifecycle unchanged', () => {
+    const initial = createPoliceDelayCueState(3200);
+    expect(initial.policeDelayCueTimerMs).toBe(3200);
+    expect(initial.policeDelayCueDurationMs).toBe(3200);
+
+    const afterHalfSecond = advancePoliceDelayCueState(initial, 0.5);
+    expect(afterHalfSecond.policeDelayCueTimerMs).toBe(2700);
+    expect(afterHalfSecond.policeDelayCueDurationMs).toBe(3200);
+
+    const expired = advancePoliceDelayCueState(afterHalfSecond, 10);
+    expect(expired.policeDelayCueTimerMs).toBe(0);
+    expect(expired.policeDelayCueDurationMs).toBe(0);
+  });
+
+  it('surfaces police-delay breathing-room flavor text', () => {
+    const text = getFlavorText({
+      score: 80,
+      airborne: false,
+      boostActive: false,
+      magnetActive: false,
+      ghostActive: false,
+      invertActive: false,
+      blackoutActive: false,
+      policeActive: false,
+      policeDelayActive: true,
+    });
+
+    expect(text).toContain('Traffic hold');
   });
 });

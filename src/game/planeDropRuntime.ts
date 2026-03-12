@@ -15,6 +15,11 @@ export interface PlaneCoinTrailStep {
   planeCoinTrail: PlaneCoinTrailState | null;
 }
 
+export interface PoliceDelayCueState {
+  policeDelayCueTimerMs: number;
+  policeDelayCueDurationMs: number;
+}
+
 export function dispatchPlaneDropWithFallback(
   planeBonusEvent: PlaneBonusEventState,
   handlers: PlaneDropDispatchHandlers,
@@ -115,5 +120,30 @@ export function advancePlaneCoinTrailState(
   return {
     worldPickups: worldPickups.filter((pickup) => !expiredIds.has(pickup.id)),
     planeCoinTrail: null,
+  };
+}
+
+export function createPoliceDelayCueState(delayMs: number): PoliceDelayCueState {
+  return {
+    policeDelayCueTimerMs: delayMs,
+    policeDelayCueDurationMs: delayMs,
+  };
+}
+
+export function advancePoliceDelayCueState(
+  state: PoliceDelayCueState,
+  dtSeconds: number,
+): PoliceDelayCueState {
+  if (state.policeDelayCueTimerMs <= 0) {
+    return {
+      policeDelayCueTimerMs: 0,
+      policeDelayCueDurationMs: 0,
+    };
+  }
+
+  const nextTimerMs = Math.max(0, state.policeDelayCueTimerMs - dtSeconds * 1000);
+  return {
+    policeDelayCueTimerMs: nextTimerMs,
+    policeDelayCueDurationMs: nextTimerMs === 0 ? 0 : state.policeDelayCueDurationMs,
   };
 }

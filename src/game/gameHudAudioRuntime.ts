@@ -80,6 +80,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
       policeActive: options.policeActive,
+      policeDelayActive: options.policeDelayCueTimerMs > 0 && options.policeDelayCueDurationMs > 0,
     }),
     pageBestScore: Math.max(options.pageBestScore, options.score),
     lifetimeBestScore: Math.max(options.lifetimeBestScore, options.score),

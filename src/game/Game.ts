@@ -154,7 +154,12 @@ import {
   resolveKeyUpConsumed,
   resetInputState,
 } from './gameInputRuntime';
-import { advancePlaneCoinTrailState, dispatchPlaneDropWithFallback } from './planeDropRuntime';
+import {
+  advancePlaneCoinTrailState,
+  advancePoliceDelayCueState,
+  createPoliceDelayCueState,
+  dispatchPlaneDropWithFallback,
+} from './planeDropRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -1026,8 +1031,9 @@ export class Game {
     const delayMs = randomBetween(PLANE_POLICE_DELAY_MIN_MS, PLANE_POLICE_DELAY_MAX_MS);
     this.policeWarning = null;
     this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
-    this.policeDelayCueTimerMs = delayMs;
-    this.policeDelayCueDurationMs = delayMs;
+    const delayCue = createPoliceDelayCueState(delayMs);
+    this.policeDelayCueTimerMs = delayCue.policeDelayCueTimerMs;
+    this.policeDelayCueDurationMs = delayCue.policeDelayCueDurationMs;
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('HOLD-UP', '#93c5fd', 'high');
     return true;
@@ -1185,14 +1191,15 @@ export class Game {
   }
 
   private updatePoliceDelayCue(dtSeconds: number): void {
-    if (this.policeDelayCueTimerMs <= 0) {
-      return;
-    }
-
-    this.policeDelayCueTimerMs = Math.max(0, this.policeDelayCueTimerMs - dtSeconds * 1000);
-    if (this.policeDelayCueTimerMs === 0) {
-      this.policeDelayCueDurationMs = 0;
-    }
+    const cueState = advancePoliceDelayCueState(
+      {
+        policeDelayCueTimerMs: this.policeDelayCueTimerMs,
+        policeDelayCueDurationMs: this.policeDelayCueDurationMs,
+      },
+      dtSeconds,
+    );
+    this.policeDelayCueTimerMs = cueState.policeDelayCueTimerMs;
+    this.policeDelayCueDurationMs = cueState.policeDelayCueDurationMs;
   }
 
   private getActiveBoostZones(): Rect[] {
