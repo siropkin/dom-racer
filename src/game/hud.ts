@@ -19,16 +19,20 @@ export function drawHud(
   ctx.fillText(`TIME  ${formatElapsed(state.elapsedMs)}`, 28, 28);
   ctx.fillText(`SCORE ${state.score.toString().padStart(4, '0')}`, 28, 46);
 
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.82)';
-  const hintWidth = 222;
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+  const hintWidth = 250;
   const hintX = viewport.width - hintWidth - 16;
-  const hintY = viewport.height - 68;
-  ctx.fillRect(hintX, hintY, hintWidth, 52);
+  const hintY = viewport.height - 72;
+  ctx.fillRect(hintX, hintY, hintWidth, 56);
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.44)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(hintX + 0.5, hintY + 0.5, hintWidth - 1, 55);
   ctx.fillStyle = 'rgba(168, 85, 247, 0.82)';
   ctx.fillRect(hintX, hintY, hintWidth, 2);
   ctx.fillStyle = '#e2e8f0';
   ctx.fillText('V CAR  |  M SOUND', hintX + 12, hintY + 10);
-  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', hintX + 12, hintY + 28);
+  drawSoundStateChip(ctx, hintX + hintWidth - 64, hintY + 8, state.soundEnabled);
+  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', hintX + 12, hintY + 30);
 
   if (state.activeEffects.length > 0) {
     drawActiveEffects(ctx, viewport, state);
@@ -39,6 +43,28 @@ export function drawHud(
   }
 
   ctx.restore();
+}
+
+function drawSoundStateChip(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  soundEnabled: boolean,
+): void {
+  const label = soundEnabled ? 'ON' : 'OFF';
+  const border = soundEnabled ? '#67e8f9' : '#fca5a5';
+  const fill = soundEnabled ? 'rgba(8, 145, 178, 0.26)' : 'rgba(185, 28, 28, 0.26)';
+  const text = soundEnabled ? '#a5f3fc' : '#fecaca';
+  const width = 46;
+  const height = 16;
+
+  ctx.fillStyle = fill;
+  ctx.fillRect(x, y, width, height);
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
+  ctx.fillStyle = text;
+  ctx.fillText(label, x + 14, y + 3);
 }
 
 function drawActiveEffects(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {

@@ -17,6 +17,7 @@ export interface ToastSystemOptions {
 
 interface ToastMessage extends ToastMessageInput {
   createdAtMs: number;
+  driftPxPerSecond: number;
 }
 
 const TOAST_PRIORITY_RANK: Record<ToastPriority, number> = {
@@ -71,9 +72,17 @@ export class ToastSystem {
       }
     }
 
+    const priorityRank = getToastPriorityRank(normalized.priority);
+    const nearbyCount = this.messages.filter((existing) => {
+      return Math.hypot(existing.x - normalized.x, existing.y - normalized.y) <= 72;
+    }).length;
+    const stackLift = Math.min(46, nearbyCount * 12) + priorityRank * 4;
+
     this.messages.push({
       ...normalized,
+      y: normalized.y - stackLift,
       createdAtMs: now,
+      driftPxPerSecond: 20 + priorityRank * 6,
     });
   }
 
@@ -82,7 +91,7 @@ export class ToastSystem {
     this.messages = this.messages
       .map((message) => ({
         ...message,
-        y: message.y - dtSeconds * 24,
+        y: message.y - dtSeconds * message.driftPxPerSecond,
         ttlMs: message.ttlMs - deltaMs,
       }))
       .filter((message) => message.ttlMs > 0);
@@ -96,18 +105,63 @@ export class ToastSystem {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 'bold 13px "SFMono-Regular", "JetBrains Mono", monospace';
+    ctx.font = 'bold 12px "SFMono-Regular", "JetBrains Mono", monospace';
 
-    for (const message of this.messages) {
+    const ordered = [...this.messages].sort((left, right) => {
+      const rankDelta = getToastPriorityRank(right.priority) - getToastPriorityRank(left.priority);
+      if (rankDelta !== 0) {
+        return rankDelta;
+      }
+      return right.createdAtMs - left.createdAtMs;
+    });
+    const placed: Array<{ x: number; y: number; width: number; height: number }> = [];
+
+    for (const message of ordered) {
+      const width = getToastWidth(ctx, message.text);
+      const height = 20;
+      const halfWidth = width / 2;
+      const halfHeight = height / 2;
+      let x = clamp(message.x, halfWidth + 8, ctx.canvas.width - halfWidth - 8);
+      let y = clamp(message.y, halfHeight + 8, ctx.canvas.height - halfHeight - 8);
+
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const overlap = placed.find((placedToast) =>
+          toastsOverlap(
+            x,
+            y,
+            width,
+            height,
+            placedToast.x,
+            placedToast.y,
+            placedToast.width,
+            placedToast.height,
+            6,
+          ),
+        );
+        if (!overlap) {
+          break;
+        }
+        y = overlap.y + overlap.height / 2 + halfHeight + 6;
+      }
+
+      if (y > ctx.canvas.height - halfHeight - 8) {
+        if (message.priority === 'low') {
+          continue;
+        }
+        y = ctx.canvas.height - halfHeight - 8;
+      }
+
       const alpha = Math.max(0, Math.min(1, message.ttlMs / 700));
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-      ctx.fillRect(message.x - 38, message.y - 10, 76, 20);
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+      ctx.fillRect(x - halfWidth, y - halfHeight, width, height);
       ctx.strokeStyle = message.color;
-      ctx.lineWidth = 1.2;
-      ctx.strokeRect(message.x - 37.5, message.y - 9.5, 75, 19);
+      ctx.lineWidth = message.priority === 'critical' ? 1.8 : 1.3;
+      ctx.strokeRect(x - halfWidth + 0.5, y - halfHeight + 0.5, width - 1, height - 1);
       ctx.fillStyle = message.color;
-      ctx.fillText(message.text, message.x, message.y + 1);
+      ctx.fillText(message.text, x, y + 0.5);
+
+      placed.push({ x, y, width, height });
     }
 
     ctx.restore();
@@ -147,4 +201,35 @@ function formatToastText(text: string, maxChars: number): string {
 
 function getToastPriorityRank(priority: ToastPriority): number {
   return TOAST_PRIORITY_RANK[priority];
+}
+
+function getToastWidth(ctx: CanvasRenderingContext2D, text: string): number {
+  const measured = Math.ceil(ctx.measureText(text).width);
+  return clamp(measured + 18, 64, 94);
+}
+
+function toastsOverlap(
+  aX: number,
+  aY: number,
+  aWidth: number,
+  aHeight: number,
+  bX: number,
+  bY: number,
+  bWidth: number,
+  bHeight: number,
+  gap: number,
+): boolean {
+  const horizontal = Math.abs(aX - bX) < (aWidth + bWidth) / 2 + gap;
+  const vertical = Math.abs(aY - bY) < (aHeight + bHeight) / 2 + gap;
+  return horizontal && vertical;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
 }

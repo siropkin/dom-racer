@@ -242,6 +242,71 @@ export class AudioManager {
     });
   }
 
+  playPlaneFlyover(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    this.playSweepTone({
+      time: now,
+      startFrequency: 560,
+      endFrequency: 280,
+      duration: 0.46,
+      type: 'sawtooth',
+      volume: 0.021,
+      startFilterFrequency: 1800,
+      endFilterFrequency: 640,
+      q: 0.9,
+    });
+    this.playSweepTone({
+      time: now + 0.025,
+      startFrequency: 840,
+      endFrequency: 430,
+      duration: 0.4,
+      type: 'triangle',
+      volume: 0.016,
+      startFilterFrequency: 2100,
+      endFilterFrequency: 900,
+      q: 0.8,
+    });
+    this.playTone({
+      time: now + 0.2,
+      frequency: 1080,
+      duration: 0.08,
+      type: 'sine',
+      volume: 0.009,
+    });
+  }
+
+  playPlaneDrop(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    this.playSweepTone({
+      time: now,
+      startFrequency: 380,
+      endFrequency: 620,
+      duration: 0.11,
+      type: 'triangle',
+      volume: 0.018,
+      startFilterFrequency: 980,
+      endFilterFrequency: 1500,
+      q: 0.7,
+    });
+    this.playTone({
+      time: now + 0.075,
+      frequency: 520,
+      duration: 0.08,
+      type: 'triangle',
+      volume: 0.013,
+    });
+  }
+
   private ensureContext(): AudioContextLike {
     if (this.context) {
       return this.context;
@@ -403,5 +468,43 @@ export class AudioManager {
 
     oscillator.start(options.time);
     oscillator.stop(options.time + options.duration + 0.02);
+  }
+
+  private playSweepTone(options: {
+    time: number;
+    startFrequency: number;
+    endFrequency: number;
+    duration: number;
+    type: OscillatorType;
+    volume: number;
+    startFilterFrequency: number;
+    endFilterFrequency: number;
+    q: number;
+  }): void {
+    const context = this.ensureContext();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const filter = context.createBiquadFilter();
+    const attackAt = options.time + 0.012;
+    const endAt = options.time + options.duration;
+
+    oscillator.type = options.type;
+    oscillator.frequency.setValueAtTime(Math.max(1, options.startFrequency), options.time);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, options.endFrequency), endAt);
+    filter.type = 'bandpass';
+    filter.Q.setValueAtTime(options.q, options.time);
+    filter.frequency.setValueAtTime(Math.max(100, options.startFilterFrequency), options.time);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(100, options.endFilterFrequency), endAt);
+
+    gain.gain.setValueAtTime(0.0001, options.time);
+    gain.gain.exponentialRampToValueAtTime(options.volume, attackAt);
+    gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+    oscillator.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ensureMasterGain());
+
+    oscillator.start(options.time);
+    oscillator.stop(endAt + 0.02);
   }
 }

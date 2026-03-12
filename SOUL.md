@@ -215,6 +215,8 @@ Status: `in progress`
 - [x] Remove decorative screen line borders from gameplay overlay UI
 - [x] Keep HUD readability and hierarchy clear after border removal
 - [x] Improve police and airplane sprite contrast for bright-page readability
+- [x] Show sound state (`ON` / `OFF`) in the same HUD hint line as `M` and `SOUND`
+- [x] Run a toast stacking readability pass (overlap/spacing/legibility when multiple messages are active)
 - [ ] Verify the map still reads quickly without adding visual noise
 
 ### 7. Verification Pass
@@ -352,6 +354,7 @@ Status: `in progress`
 - [x] Implement one `bonus drop` pickup event (`BON`) with rarity/cooldown timing
 - [x] Add airplane edge warning indicator (`NYOOM`) before entry
 - [x] Stabilize and tune airplane sprite readability in gameplay (shape, propeller, contrast, placement)
+- [x] Add and tune a "cool" airplane sound profile that is noticeable without becoming noisy
 - [x] Stagger airplane and police cadence to reduce same-time overlap noise
 - [ ] Implement `coin trail`
 - [ ] Implement temporary `boost lane`
@@ -482,6 +485,8 @@ Session note:
 
 - Cross-page manual driving on the 4 target page types is blocked in this environment (no interactive extension browser session).
 - This session's regression confirmations were completed via source audit + `npm run build`.
+- This pass improved HUD sound-state clarity (`M SOUND` + explicit `ON/OFF` chip), introduced tuned plane flyover/drop cues, and reworked toast overlap handling with priority-aware stacking.
+- Commit state: pending local commit for HUD sound-state clarity, airplane audio polish, and toast stacking readability improvements.
 
 ## Latest Session Progress And Learnings
 

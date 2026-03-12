@@ -1285,6 +1285,7 @@ export class Game {
         remainingMs: PLANE_WARNING_MS,
         durationMs: PLANE_WARNING_MS,
       };
+      this.audio.playPlaneFlyover();
       this.spawnEffectMessage('PLANE', '#93c5fd', 'medium');
       return;
     }
@@ -1347,6 +1348,7 @@ export class Game {
     this.dynamicPickups.push(pickup);
     this.world.pickups.push(clonePickup(pickup));
     this.enqueueSpecialSpawnCue(pickup);
+    this.audio.playPlaneDrop();
     this.spawnEffectMessage(getSpecialDropMessage('bonus'), getSpecialColor('bonus'), 'high');
   }
 
@@ -1923,9 +1925,11 @@ export class Game {
     }
 
     const bounds = this.player.getBounds();
+    const yOffset =
+      priority === 'critical' ? 44 : priority === 'high' ? 34 : priority === 'medium' ? 26 : 18;
     this.toastSystem.enqueue({
       x: bounds.x + bounds.width / 2,
-      y: bounds.y - 14,
+      y: bounds.y - yOffset,
       text,
       ttlMs: TOAST_EFFECT_TTL_MS,
       color,
