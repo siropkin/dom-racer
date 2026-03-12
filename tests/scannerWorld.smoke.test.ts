@@ -60,8 +60,10 @@ describe('scanner -> world smoke', () => {
 
     const scanned = scanVisibleDom(null);
     const world = buildWorld(scanned, { width: 1200, height: 800 });
+    const allowedKinds = new Set(['wall', 'pickup', 'boost', 'ice', 'barrier']);
 
     expect(scanned.length).toBeGreaterThan(0);
+    expect(scanned.every((entry) => allowedKinds.has(entry.kind))).toBe(true);
     expect(scanned.filter((entry) => entry.kind === 'pickup').length).toBeGreaterThanOrEqual(2);
     expect(scanned.some((entry) => entry.kind === 'ice')).toBe(true);
     expect(scanned.some((entry) => entry.kind === 'boost')).toBe(true);

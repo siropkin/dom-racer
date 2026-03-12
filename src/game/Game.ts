@@ -36,7 +36,13 @@ import {
   isPointOutsideViewport,
   isPoliceOffscreen,
 } from './encounterRuntime';
-import { renderPlaneSprite } from './planeSprite';
+import {
+  drawFocusModeLayer,
+  drawPickups,
+  drawPlaneBoostLane,
+  drawPlaneBonusEvent,
+  drawSpecialSpawnCues,
+} from './gameRenderRuntime';
 import {
   POLICE_CAR_SIZE,
   renderEdgeWarningIndicator,
@@ -50,7 +56,6 @@ import {
   findFreePickupRectNear,
 } from './pickupSpawnRuntime';
 import { drawCaughtGameOverOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
-import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
 import { Player } from './player';
 import {
   adaptBlackoutEffectForSurface,
@@ -567,11 +572,16 @@ export class Game {
     }
 
     ctx.save();
-    this.drawFocusModeLayer();
-    this.drawPlaneBoostLane();
-    this.drawPlaneBonusEvent();
-    this.drawSpecialSpawnCues();
-    this.drawPickups();
+    drawFocusModeLayer(
+      ctx,
+      this.world.viewport,
+      this.player ? rectCenter(this.player.getBounds()) : null,
+      this.focusModeAlpha,
+    );
+    drawPlaneBoostLane(ctx, this.planeBoostLane, performance.now());
+    drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
+    drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
+    drawPickups(ctx, this.world.pickups, this.comboTimerMs, this.pickupComboCount, performance.now());
     this.player.draw(ctx, {
       opacity: this.ghostTimerMs > 0 ? 0.46 : 1,
       magnetActive: this.magnetTimerMs > 0,
@@ -610,124 +620,6 @@ export class Game {
       activeEffects: this.getActiveEffects(currentSurface),
     };
     drawHud(ctx, this.world.viewport, hudState);
-  }
-
-  private drawPickups(): void {
-    if (!this.world) {
-      return;
-    }
-
-    const ctx = this.context;
-    ctx.save();
-    const now = performance.now();
-
-    for (const [index, pickup] of this.world.pickups.entries()) {
-      const centerX = pickup.rect.x + pickup.rect.width / 2;
-      const centerY = pickup.rect.y + pickup.rect.height / 2;
-      const radius = pickup.rect.width / 2 + 1;
-      const spin = Math.abs(Math.sin(now / 180 + index * 0.75));
-      const width = Math.max(3.5, radius * (0.3 + spin * 0.7));
-
-      if (pickup.kind === 'special' && pickup.effect) {
-        drawSpecialPickupSprite(ctx, pickup, {
-          centerX,
-          centerY,
-          radius,
-          spin,
-          nowMs: now,
-        });
-        continue;
-      }
-
-      const isFlowCoin = this.comboTimerMs > 0 && this.pickupComboCount >= 3;
-      drawRegularCoinSprite(ctx, {
-        centerX,
-        centerY,
-        radius,
-        width,
-        isFlowCoin,
-      });
-    }
-
-    ctx.restore();
-  }
-
-  private drawSpecialSpawnCues(): void {
-    if (this.specialSpawnCues.length === 0) {
-      return;
-    }
-
-    const ctx = this.context;
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
-
-    for (const cue of this.specialSpawnCues) {
-      const progress = 1 - cue.ttlMs / cue.durationMs;
-      const ringRadius = 10 + progress * 22;
-      const alpha = Math.max(0, Math.min(1, cue.ttlMs / 600));
-
-      ctx.globalAlpha = alpha * 0.85;
-      ctx.strokeStyle = cue.color;
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.arc(cue.x, cue.y, ringRadius, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = 'rgba(2, 6, 23, 0.88)';
-      ctx.fillRect(cue.x - 14, cue.y - 26, 28, 12);
-      ctx.strokeStyle = cue.color;
-      ctx.lineWidth = 1.1;
-      ctx.strokeRect(cue.x - 13.5, cue.y - 25.5, 27, 11);
-      ctx.fillStyle = cue.label === getSpecialLabel('blackout') ? '#e2e8f0' : cue.color;
-      ctx.fillText(cue.label, cue.x, cue.y - 20);
-    }
-
-    ctx.restore();
-  }
-
-  private drawPlaneBonusEvent(): void {
-    if (!this.planeBonusEvent) {
-      return;
-    }
-
-    const ctx = this.context;
-    const plane = this.planeBonusEvent;
-    renderPlaneSprite(
-      ctx,
-      { x: plane.x, y: plane.y, angle: plane.angle },
-      performance.now(),
-      {
-        wobbleRadians: Math.sin(performance.now() / 220) * 0.022,
-        snapToPixel: true,
-      },
-    );
-  }
-
-  private drawPlaneBoostLane(): void {
-    if (!this.planeBoostLane) {
-      return;
-    }
-
-    const ctx = this.context;
-    const lane = this.planeBoostLane;
-    const now = performance.now();
-    const life = Math.max(0, Math.min(1, lane.ttlMs / Math.max(1, lane.durationMs)));
-    const pulse = 0.86 + Math.sin(now / 130) * 0.14;
-
-    ctx.save();
-    for (const [index, rect] of lane.rects.entries()) {
-      const shimmer = 0.82 + Math.sin(now / 94 + index * 0.74) * 0.18;
-      const alpha = Math.max(0.06, life * 0.24 * pulse * shimmer);
-      ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
-      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-      ctx.strokeStyle = `rgba(186, 230, 253, ${Math.max(0.18, life * 0.56)})`;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
-    }
-    ctx.restore();
   }
 
   private drawSpriteShowcase(): void {
@@ -1678,26 +1570,6 @@ export class Game {
       flashPeriodMs: 82,
       padding: 18,
     });
-  }
-
-  private drawFocusModeLayer(): void {
-    if (!this.world || this.focusModeAlpha <= 0.01) {
-      return;
-    }
-
-    const ctx = this.context;
-    const { width, height } = this.world.viewport;
-    const center = this.player ? rectCenter(this.player.getBounds()) : { x: width / 2, y: height / 2 };
-    const radius = Math.max(width, height) * 0.72;
-
-    ctx.save();
-    const vignette = ctx.createRadialGradient(center.x, center.y, 44, center.x, center.y, radius);
-    vignette.addColorStop(0, `rgba(56, 189, 248, ${0.05 * this.focusModeAlpha})`);
-    vignette.addColorStop(0.45, `rgba(14, 116, 144, ${0.018 * this.focusModeAlpha})`);
-    vignette.addColorStop(1, 'rgba(2, 6, 23, 0)');
-    ctx.fillStyle = vignette;
-    ctx.fillRect(0, 0, width, height);
-    ctx.restore();
   }
 
   private updateEffectTimers(dtSeconds: number): void {

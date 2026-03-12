@@ -13,6 +13,7 @@ First, read:
 - `src/game/gameStateTypes.ts`
 - `src/game/pickupSpawnRuntime.ts`
 - `src/game/encounterRuntime.ts`
+- `src/game/gameRenderRuntime.ts`
 - `src/game/gameOverlays.ts`
 - `src/content/domScanner.ts`
 - `src/content/worldBuilder.ts`
@@ -30,7 +31,9 @@ Current known context:
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
 - Baseline smoke tests are in place and currently passing (`npm run test` -> 6 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
-- `Game.ts` was split further with state-contract and pickup-spawn helper extraction.
+- `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
+- Stale pickup collection branch state (`collectedIds`) was removed; scanner smoke now asserts active kind allowlist while `hazards`/`deadSpots` remain deferred-empty.
+- `__domRacerDebug` was re-audited absent in both source and production build output.
 
 Priority lock for this session:
 1) Hardening and structure

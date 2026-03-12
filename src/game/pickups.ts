@@ -4,20 +4,17 @@ import { rectsIntersect } from '../shared/utils';
 interface PickupResult {
   remainingPickups: WorldPickup[];
   scoreGained: number;
-  collectedIds: string[];
   collectedPickups: WorldPickup[];
 }
 
 export function collectPickups(playerBounds: Rect, pickups: WorldPickup[]): PickupResult {
   const remainingPickups: WorldPickup[] = [];
-  const collectedIds: string[] = [];
   const collectedPickups: WorldPickup[] = [];
   let scoreGained = 0;
 
   for (const pickup of pickups) {
     if (rectsIntersect(playerBounds, pickup.rect)) {
       scoreGained += pickup.value;
-      collectedIds.push(pickup.id);
       collectedPickups.push(pickup);
       continue;
     }
@@ -28,7 +25,6 @@ export function collectPickups(playerBounds: Rect, pickups: WorldPickup[]): Pick
   return {
     remainingPickups,
     scoreGained,
-    collectedIds,
     collectedPickups,
   };
 }

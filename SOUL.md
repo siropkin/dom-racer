@@ -518,6 +518,8 @@ Status: `done`
 
 ### Next Session Follow-Ups (Locked Order)
 
+- [x] Extract rendering-only gameplay helpers from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` without changing controls/loop behavior
+- [x] Remove stale pickup collection branch state (`collectedIds`) and keep deferred-channel smoke guardrails explicit (`scanner` kind allowlist + empty `hazards`/`deadSpots` world channels)
 - [x] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
 - [x] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
 - [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
@@ -554,6 +556,9 @@ Status: `done`
 
 Session note:
 
+- Current session continues hardening-first cleanup by extracting rendering-only runtime helpers from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (focus layer + pickup/special/plane lane rendering) with no control or loop behavior changes.
+- Current session removes one stale gameplay data branch (`collectPickups` `collectedIds`, unused) and keeps deferred overgrowth channels explicit via smoke guardrail assertion that scanned kinds stay within active runtime scope.
+- Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 - Current session continues hardening-first cleanup: extracts game state contracts and pickup spawn geometry helpers out of `src/game/Game.ts` into `src/game/gameStateTypes.ts` and `src/game/pickupSpawnRuntime.ts` without changing controls or loop behavior.
 - Current session closes a stale hazard-path inconsistency by aligning refresh/spawn guardrails (`applyWorld` safety reset + pickup placement blockers) to treat deferred `hazards` consistently with `deadSpots`.
 - Current session extends smoke invariants with hazard refresh safety coverage and re-verifies police catch -> `GAME OVER` -> `Space` restart flow.
