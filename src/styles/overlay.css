@@ -18,8 +18,9 @@
   height: 100%;
   display: block;
   pointer-events: none;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  border: 0;
+  outline: none;
+  image-rendering: auto;
 }
 
 #dom-racer-root[data-active='true'] .dom-racer-canvas {

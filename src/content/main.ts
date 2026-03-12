@@ -43,17 +43,17 @@ const handleDebugEvent = installDebugApi({
 void loadSoundEnabledSetting().then((value) => {
   soundEnabled = value;
   game?.setSoundEnabled(value);
-});
+}).catch(() => undefined);
 
 void loadVehicleDesignSetting().then((value) => {
   vehicleDesign = value;
   game?.setVehicleDesign(value);
-});
+}).catch(() => undefined);
 
 void loadScoreSummary(window.location.href).then((summary) => {
   pageBestScore = summary.pageBestScore;
   lifetimeBestScore = summary.lifetimeBestScore;
-});
+}).catch(() => undefined);
 
 const rescanWhileActive = debounce(() => {
   if (!active || !game) {
@@ -167,12 +167,12 @@ function createWorld() {
 
 function handleSoundEnabledChange(enabled: boolean): void {
   soundEnabled = enabled;
-  void saveSoundEnabledSetting(enabled);
+  void saveSoundEnabledSetting(enabled).catch(() => undefined);
 }
 
 function handleVehicleDesignChange(design: VehicleDesign): void {
   vehicleDesign = design;
-  void saveVehicleDesignSetting(design);
+  void saveVehicleDesignSetting(design).catch(() => undefined);
 }
 
 function handleRunFinished(run: {
@@ -188,7 +188,7 @@ function handleRunFinished(run: {
     score: run.score,
     elapsedMs: run.elapsedMs,
     reason: run.reason,
-  });
+  }).catch(() => undefined);
 }
 
 function preventScrollWhileActive(event: Event): void {

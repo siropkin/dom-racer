@@ -21,10 +21,10 @@ export interface ViewportSize {
 }
 
 export type VehicleDesign = 'coupe' | 'buggy' | 'truck';
-export type SpecialEffect = 'invert' | 'magnet' | 'ghost' | 'blackout';
+export type SpecialEffect = 'invert' | 'magnet' | 'ghost' | 'blackout' | 'bonus';
 export type HudEffectKind = SpecialEffect | 'police' | 'flow';
 
-export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'hazard' | 'barrier' | 'deadSpot';
+export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'hazard' | 'barrier' | 'deadSpot';
 
 export interface ScannedElement {
   id: string;
@@ -49,6 +49,7 @@ export interface World {
   viewport: ViewportSize;
   obstacles: Rect[];
   slowZones: Rect[];
+  iceZones: Rect[];
   hazards: Rect[];
   deadSpots: Rect[];
   pickups: WorldPickup[];

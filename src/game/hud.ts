@@ -66,7 +66,7 @@ function drawActiveEffects(ctx: CanvasRenderingContext2D, viewport: ViewportSize
     ctx.fillStyle = effect.color;
     ctx.fillRect(panelX + 10, rowY, Math.max(10, (panelWidth - 20) * progress), 18);
 
-    ctx.fillStyle = '#020617';
+    ctx.fillStyle = effect.effect === 'blackout' ? '#f8fafc' : '#020617';
     ctx.fillText(effect.label, panelX + 16, rowY + 4);
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`${remainingSeconds.toFixed(1)}s`, panelX + panelWidth - 48, rowY + 4);

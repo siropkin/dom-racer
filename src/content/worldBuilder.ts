@@ -7,6 +7,7 @@ const REGULAR_COIN_VALUE = 10;
 export function buildWorld(scannedElements: ScannedElement[], viewport: ViewportSize): World {
   const obstacles: Rect[] = [];
   const slowZones: Rect[] = [];
+  const iceZones: Rect[] = [];
   const hazards: Rect[] = [];
   const deadSpots: Rect[] = [];
   const boosts: Rect[] = [];
@@ -35,6 +36,11 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
 
     if (element.kind === 'boost') {
       boosts.push(expandRect(element.rect, 2));
+      continue;
+    }
+
+    if (element.kind === 'ice') {
+      iceZones.push(expandRect(element.rect, 2));
       continue;
     }
   }
@@ -66,6 +72,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
     viewport,
     obstacles,
     slowZones,
+    iceZones,
     hazards,
     deadSpots,
     boosts,

@@ -41,6 +41,10 @@ export function isOnSlowZone(playerBounds: Rect, slowZones: Rect[]): boolean {
   return slowZones.some((slowZone) => rectsIntersect(playerBounds, slowZone));
 }
 
+export function isOnIceZone(playerBounds: Rect, iceZones: Rect[]): boolean {
+  return iceZones.some((iceZone) => rectsIntersect(playerBounds, iceZone));
+}
+
 export function isOnDeadSpot(playerBounds: Rect, deadSpots: Rect[]): boolean {
   return deadSpots.some((deadSpot) => rectsIntersect(playerBounds, deadSpot));
 }

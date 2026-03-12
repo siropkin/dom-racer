@@ -12,6 +12,11 @@ interface ExtensionStorageArea {
 }
 
 interface ExtensionChrome {
+  runtime?: {
+    lastError?: {
+      message?: string;
+    };
+  };
   storage?: {
     local?: ExtensionStorageArea;
   };
@@ -151,20 +156,28 @@ async function writeProfileDirect(profile: DomRacerProfile): Promise<void> {
   const storage = getExtensionStorage();
   if (storage) {
     return new Promise<void>((resolve) => {
-      storage.set(
-        {
-          [PROFILE_KEY]: normalized,
-          [SOUND_ENABLED_KEY]: normalized.soundEnabled,
-          [VEHICLE_DESIGN_KEY]: normalized.vehicleDesign,
-        },
-        () => resolve(),
-      );
+      try {
+        storage.set(
+          {
+            [PROFILE_KEY]: normalized,
+            [SOUND_ENABLED_KEY]: normalized.soundEnabled,
+            [VEHICLE_DESIGN_KEY]: normalized.vehicleDesign,
+          },
+          () => {
+            if (getExtensionRuntimeLastErrorMessage()) {
+              writeLocalStorageFallback(normalized);
+            }
+            resolve();
+          },
+        );
+      } catch {
+        writeLocalStorageFallback(normalized);
+        resolve();
+      }
     });
   }
 
-  window.localStorage.setItem(PROFILE_KEY, JSON.stringify(normalized));
-  window.localStorage.setItem(SOUND_ENABLED_KEY, String(normalized.soundEnabled));
-  window.localStorage.setItem(VEHICLE_DESIGN_KEY, normalized.vehicleDesign);
+  writeLocalStorageFallback(normalized);
 }
 
 function getExtensionStorage(): ExtensionStorageArea | null {
@@ -173,26 +186,70 @@ function getExtensionStorage(): ExtensionStorageArea | null {
 }
 
 async function readStorageItems(): Promise<Record<string, unknown>> {
+  const defaults = getStorageDefaults();
   const storage = getExtensionStorage();
   if (storage) {
     return new Promise<Record<string, unknown>>((resolve) => {
-      storage.get(
-        {
-          [PROFILE_KEY]: null,
-          [SOUND_ENABLED_KEY]: true,
-          [VEHICLE_DESIGN_KEY]: 'coupe',
-        },
-        (items) => resolve(items),
-      );
+      try {
+        storage.get(defaults, (items) => {
+          if (getExtensionRuntimeLastErrorMessage()) {
+            resolve(readLocalStorageFallback(defaults));
+            return;
+          }
+          resolve(items);
+        });
+      } catch {
+        resolve(readLocalStorageFallback(defaults));
+      }
     });
   }
 
-  const rawProfile = window.localStorage.getItem(PROFILE_KEY);
+  return readLocalStorageFallback(defaults);
+}
+
+function getStorageDefaults(): Record<string, unknown> {
   return {
-    [PROFILE_KEY]: rawProfile ? parseJsonSafely(rawProfile) : null,
-    [SOUND_ENABLED_KEY]: window.localStorage.getItem(SOUND_ENABLED_KEY) ?? true,
-    [VEHICLE_DESIGN_KEY]: window.localStorage.getItem(VEHICLE_DESIGN_KEY) ?? 'coupe',
+    [PROFILE_KEY]: null,
+    [SOUND_ENABLED_KEY]: true,
+    [VEHICLE_DESIGN_KEY]: 'coupe',
   };
+}
+
+function readLocalStorageFallback(defaults: Record<string, unknown>): Record<string, unknown> {
+  const rawProfile = safeLocalStorageGetItem(PROFILE_KEY);
+  return {
+    [PROFILE_KEY]: rawProfile ? parseJsonSafely(rawProfile) : defaults[PROFILE_KEY],
+    [SOUND_ENABLED_KEY]: safeLocalStorageGetItem(SOUND_ENABLED_KEY) ?? defaults[SOUND_ENABLED_KEY],
+    [VEHICLE_DESIGN_KEY]:
+      safeLocalStorageGetItem(VEHICLE_DESIGN_KEY) ?? defaults[VEHICLE_DESIGN_KEY],
+  };
+}
+
+function writeLocalStorageFallback(profile: DomRacerProfile): void {
+  safeLocalStorageSetItem(PROFILE_KEY, JSON.stringify(profile));
+  safeLocalStorageSetItem(SOUND_ENABLED_KEY, String(profile.soundEnabled));
+  safeLocalStorageSetItem(VEHICLE_DESIGN_KEY, profile.vehicleDesign);
+}
+
+function safeLocalStorageGetItem(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeLocalStorageSetItem(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage write failures in restricted contexts.
+  }
+}
+
+function getExtensionRuntimeLastErrorMessage(): string | null {
+  const maybeChrome = globalThis as typeof globalThis & { chrome?: ExtensionChrome };
+  return maybeChrome.chrome?.runtime?.lastError?.message ?? null;
 }
 
 function normalizeVehicleDesign(value: unknown): VehicleDesign {

@@ -59,8 +59,12 @@ As of this plan version, the game already includes:
 - page best / lifetime best persistence
 - random special items
 - power-ups such as `MAGNET`, `INVERT`, `GHOST`, and `BLACKOUT`
+- adaptive special behavior where dark-surface `BLACKOUT` resolves to `INVERT`
 - police warning + chase
 - police `GAME OVER` screen with explicit `Space` restart
+- airplane warning + flyover `BON` drop event
+- priority-based toast system with duplicate handling and eviction rules
+- hidden `Shift + D` sprite showcase with theme switching and auto contrast pick
 - sound toggle and vehicle toggle
 - extension/store branding assets
 - debug API for autopilot / reports
@@ -90,7 +94,7 @@ As of this plan version, the game already includes:
 - Let special moments feel surprising, not noisy.
 - Prefer escalating route pressure over raw chaos.
 - Favor humorous or stylish events over violent ones.
-- Avoid mechanics that make the whole page feel slippery, draggy, or confusing.
+- Avoid mechanics that make the whole page uniformly slippery, draggy, or visually confusing.
 
 ## Known Production Risks
 
@@ -111,7 +115,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 |---|---|---|
 | Phase 1 | `in progress` | Clean up the core money loop |
 | Phase 2 | `planned` | Add overgrowth difficulty with trees and bushes |
-| Phase 3 | `planned` | Add airplane world-event prototype |
+| Phase 3 | `in progress` | Add airplane world-event prototype |
 | Phase 4 | `planned` | Add research-driven indie juice systems |
 | Phase 5 | `in progress` | Production hardening and test coverage |
 | Phase 6 | `in progress` | README / presentation pass |
@@ -210,11 +214,12 @@ Status: `in progress`
 - [x] Remove the background grid layer from gameplay rendering
 - [x] Remove decorative screen line borders from gameplay overlay UI
 - [x] Keep HUD readability and hierarchy clear after border removal
+- [x] Improve police and airplane sprite contrast for bright-page readability
 - [ ] Verify the map still reads quickly without adding visual noise
 
 ### 7. Verification Pass
 
-Status: `planned`
+Status: `blocked`
 
 - [ ] Manual test on GitHub repo page
 - [ ] Manual test on long-form article / docs page
@@ -228,6 +233,10 @@ Status: `planned`
   - [ ] flow recolor still reads clearly
   - [ ] police still feels fair
 
+Blocker:
+
+- Manual drive verification on real pages requires an interactive browser extension session, which is not available in this CLI-only environment.
+
 ### 8. Bonus Item Review (When Core Loop Is Stable)
 
 Status: `in progress`
@@ -237,6 +246,8 @@ Goal: review power-up clarity and keep only specials that are fun and instantly 
 - [ ] Run a focused review of current bonus items after Phase 1 verification
 - [x] Re-evaluate `GHOST` clarity (what it does, when it helps, whether players feel it)
 - [x] Re-evaluate full-page `BLACKOUT` readability and fairness
+- [x] Make `BLACKOUT` adapt to dark pages by resolving to `INVERT`
+- [x] Make HUD effect labels reflect adaptive effect resolution
 - [x] Keep currently liked specials unless they conflict with readability
 - [x] Brainstorm and shortlist `2-4` new special ideas
 - [ ] Prototype only the best `1-2` new specials with simple rules
@@ -254,6 +265,37 @@ Definition of done:
 - each active bonus item is understandable within a few seconds
 - unclear specials are reworked, replaced, or removed intentionally
 - final special pool feels surprising, readable, and fun
+
+### 9. Surface Behavior Refresh
+
+Status: `done`
+
+Goal: make image-heavy pages feel playful without replacing route decisions with raw speed.
+
+- [x] Change scanned `img` / `picture` surfaces from `boost` to `ice`
+- [x] Keep visually reactive UI surfaces as `boost` so boost moments remain readable and intentional
+- [x] Implement `ice` handling with low grip + low friction + tiny entry speed burst + subtle drift
+- [x] Make police chase movement react to `ice` surfaces too
+- [x] Keep controls and HUD readability unchanged
+
+Definition of done:
+
+- image/picture surfaces no longer behave like simple speed boosts
+- route pressure still comes from positioning and spawn pacing, not chaos
+
+### 10. Sand Design Spike
+
+Status: `done`
+
+Goal: decide whether sand adds meaningful choices right now.
+
+- [x] Evaluate adding a `sand` surface archetype
+- [x] Decide to reject `sand` for now to avoid overlapping with existing slow-zone readability
+- [x] Keep no `sand` scanner/world/runtime branches in this phase
+
+Decision note:
+
+- Sand is intentionally rejected in the current phase. Existing text-wall slow zones already represent friction clearly, and adding another drag surface now would dilute the "simple money + readable route pressure" rule.
 
 ## Phase 2: Overgrowth Difficulty
 
@@ -281,19 +323,20 @@ Definition of done:
 
 ## Phase 3: Airplane Event
 
-Status: `planned`
+Status: `in progress`
 
 Goal: add a rare, stylish world event that changes the map in a playful way.
 
 ### Airplane Design Rules
 
-- [ ] Airplane should feel whimsical, not military
+- [x] Airplane should feel whimsical, not military
 - [ ] Do not use bombs
-- [ ] Event should be readable at a glance
+- [x] Event should be readable at a glance
 - [ ] Event should create opportunity, not random punishment
 
 ### Candidate Effects
 
+- [x] `Bonus drop`: airplane drops a bonus-only special pickup
 - [ ] `Coin trail`: airplane leaves a short line of coins across the map
 - [ ] `Boost lane`: airplane paints a temporary speed strip
 - [ ] `Lucky wind`: airplane gently nudges nearby coins into a route
@@ -303,12 +346,16 @@ Goal: add a rare, stylish world event that changes the map in a playful way.
 
 ### Recommended First Prototype
 
-Status: `planned`
+Status: `in progress`
 
-- [ ] Implement airplane flyover visual
+- [x] Implement airplane flyover visual
+- [x] Implement one `bonus drop` pickup event (`BON`) with rarity/cooldown timing
+- [x] Add airplane edge warning indicator (`NYOOM`) before entry
+- [x] Stabilize and tune airplane sprite readability in gameplay (shape, propeller, contrast, placement)
+- [x] Stagger airplane and police cadence to reduce same-time overlap noise
 - [ ] Implement `coin trail`
 - [ ] Implement temporary `boost lane`
-- [ ] Add cooldown / rarity rules
+- [x] Add cooldown / rarity rules
 
 Definition of done:
 
@@ -421,12 +468,40 @@ Status: `in progress`
   - [x] `GHOST` (purpose and feel)
   - [x] full-page `BLACKOUT` (readability and fairness)
 - [x] brainstorm and shortlist `2-4` additional special ideas
+- [x] refresh surface behavior:
+  - [x] image / picture surfaces use `ice` behavior
+  - [x] reactive surfaces keep `boost` behavior
+- [x] sand design spike:
+  - [x] decide to reject `sand` for now
+  - [x] document rationale
+- [x] start one world-event prototype:
+  - [x] propeller plane flyover + `BON` bonus drop
 - [x] document outcomes and update statuses in this plan
 
 Session note:
 
-- Cross-page manual driving on the 4 target page types is still pending in this environment.
+- Cross-page manual driving on the 4 target page types is blocked in this environment (no interactive extension browser session).
 - This session's regression confirmations were completed via source audit + `npm run build`.
+
+## Latest Session Progress And Learnings
+
+Status: `done`
+
+### Progress landed
+
+- [x] Added adaptive sprite showcase theme selection from sampled page lightness; arrows still provide manual override
+- [x] Improved magnet readability (stronger player halo/rings and fixed alpha inheritance issue)
+- [x] Refined airplane sprite repeatedly (artifact cleanup, propeller readability, wing placement, bright-page contrast)
+- [x] Improved police/airplane event pacing to feel like alternating encounter beats instead of stacked noise
+- [x] Expanded `ice` feel with stronger handling identity and added police-on-ice behavior
+
+### Practical learnings for future tuning
+
+- Bright and low-contrast pages require explicit dark keylines/backplates for thin sprites
+- Plane readability issues came mostly from silhouette layering and detached-looking propeller cues, not only scale
+- Independent timers for major events create noisy overlap; a small encounter stagger dramatically improves readability
+- Adaptive effect resolution (`BLACKOUT` -> `INVERT` on dark surfaces) should be mirrored in HUD labels and flavor text
+- Surface mechanics are easier to feel when they include both handling change and tiny speed/trajectory cues
 
 Why this first:
 

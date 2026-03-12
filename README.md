@@ -19,7 +19,8 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 
 - `Shift + R` toggles the game on any page
 - Page text is scanned into readable wall geometry
-- Images and reactive surfaces can become speed-up zones
+- Images and pictures can become slippery ice zones
+- Reactive visual surfaces can become speed-up zones
 - Links and buttons both spawn money pickups
 - Ambient special pickups spawn independently from normal money
 - `FLOW` streaks recolor regular coins to make the streak state obvious
@@ -84,7 +85,8 @@ DOM Racer scans the currently visible page and translates it into a compact arca
 - Large fixed UI near page edges becomes barriers
 - Links and button-like elements become money pickups
 - Text blocks are converted into wall slices using visible text bounds
-- Images and visually reactive surfaces can become boosts
+- Images and pictures can become ice
+- Visually reactive surfaces can become boosts
 - Random special pickups are spawned into free space during the run
 
 The result is intentionally game-ish rather than perfectly literal. The goal is to preserve the feel of the page while still making it readable and fun as a racer.

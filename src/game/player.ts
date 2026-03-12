@@ -1,12 +1,22 @@
 import { PLAYER_SIZE, type InputState, type Rect, type Vector2, type VehicleDesign, type ViewportSize } from '../shared/types';
 import { clamp } from '../shared/utils';
 import { moveWithCollisions } from './collisions';
+import { renderPlayerSprite } from './playerSprite';
 
 const BASE_SPEED = 250;
 const BOOST_SPEED = 360;
 const SLOW_ZONE_MULTIPLIER = 0.62;
 const RESPONSE = 11;
 const FRICTION = 7;
+const ICE_RESPONSE = 2.1;
+const ICE_FRICTION = 0.42;
+const ICE_TOP_SPEED_MULTIPLIER = 1.08;
+const ICE_ENTRY_BURST_MS = 240;
+const ICE_ENTRY_BURST_MULTIPLIER = 1.12;
+const ICE_DRIFT_RESEED_MIN_MS = 90;
+const ICE_DRIFT_RESEED_MAX_MS = 220;
+const ICE_DRIFT_INPUT_INFLUENCE = 0.2;
+const ICE_DRIFT_ACCELERATION = 26;
 const BOOST_HOLD_MS = 400;
 
 interface PlayerUpdateContext {
@@ -16,6 +26,7 @@ interface PlayerUpdateContext {
   obstacles: Rect[];
   boosting: boolean;
   slowed: boolean;
+  onIce: boolean;
 }
 
 interface LastStepDiagnostics {
@@ -30,6 +41,10 @@ export class Player {
   private angle: number;
   private vehicleDesign: VehicleDesign;
   private boostTimerMs: number;
+  private onIceLastFrame: boolean;
+  private iceEntryBoostMs: number;
+  private iceDriftDirection: Vector2;
+  private iceDriftRetargetMs: number;
   private lastStepDiagnostics: LastStepDiagnostics;
 
   constructor(spawnPoint: Vector2, vehicleDesign: VehicleDesign) {
@@ -38,6 +53,10 @@ export class Player {
     this.angle = -Math.PI / 2;
     this.vehicleDesign = vehicleDesign;
     this.boostTimerMs = 0;
+    this.onIceLastFrame = false;
+    this.iceEntryBoostMs = 0;
+    this.iceDriftDirection = { x: 0, y: 0 };
+    this.iceDriftRetargetMs = 0;
     this.lastStepDiagnostics = { hitX: false, hitY: false, speed: 0 };
   }
 
@@ -46,11 +65,15 @@ export class Player {
     this.velocity = { x: 0, y: 0 };
     this.angle = -Math.PI / 2;
     this.boostTimerMs = 0;
+    this.onIceLastFrame = false;
+    this.iceEntryBoostMs = 0;
+    this.iceDriftDirection = { x: 0, y: 0 };
+    this.iceDriftRetargetMs = 0;
     this.lastStepDiagnostics = { hitX: false, hitY: false, speed: 0 };
   }
 
   update(context: PlayerUpdateContext): void {
-    const { input, dtSeconds, viewport, obstacles, boosting, slowed } = context;
+    const { input, dtSeconds, viewport, obstacles, boosting, slowed, onIce } = context;
     const direction = getInputDirection(input);
 
     if (boosting) {
@@ -59,16 +82,73 @@ export class Player {
       this.boostTimerMs = Math.max(0, this.boostTimerMs - dtSeconds * 1000);
     }
 
-    const topSpeed = (this.boostTimerMs > 0 ? BOOST_SPEED : BASE_SPEED) * (slowed ? SLOW_ZONE_MULTIPLIER : 1);
+    if (onIce && !this.onIceLastFrame) {
+      this.iceEntryBoostMs = ICE_ENTRY_BURST_MS;
+    }
+    this.onIceLastFrame = onIce;
+
+    if (onIce) {
+      this.iceEntryBoostMs = Math.max(0, this.iceEntryBoostMs - dtSeconds * 1000);
+      this.iceDriftRetargetMs = Math.max(0, this.iceDriftRetargetMs - dtSeconds * 1000);
+      if (this.iceDriftRetargetMs === 0) {
+        const angle = Math.random() * Math.PI * 2;
+        this.iceDriftDirection = { x: Math.cos(angle), y: Math.sin(angle) };
+        this.iceDriftRetargetMs = randomBetween(ICE_DRIFT_RESEED_MIN_MS, ICE_DRIFT_RESEED_MAX_MS);
+      }
+    } else {
+      this.iceEntryBoostMs = 0;
+      this.iceDriftRetargetMs = 0;
+      this.iceDriftDirection = { x: 0, y: 0 };
+    }
+
+    const iceEntryMultiplier = onIce && this.iceEntryBoostMs > 0 ? ICE_ENTRY_BURST_MULTIPLIER : 1;
+    const topSpeed =
+      (this.boostTimerMs > 0 ? BOOST_SPEED : BASE_SPEED) *
+      (slowed ? SLOW_ZONE_MULTIPLIER : 1) *
+      (onIce ? ICE_TOP_SPEED_MULTIPLIER : 1) *
+      iceEntryMultiplier;
+    const response = onIce ? ICE_RESPONSE : RESPONSE;
+    const friction = onIce ? ICE_FRICTION : FRICTION;
 
     if (direction.x !== 0 || direction.y !== 0) {
-      const blend = Math.min(1, dtSeconds * RESPONSE);
-      this.velocity.x += (direction.x * topSpeed - this.velocity.x) * blend;
-      this.velocity.y += (direction.y * topSpeed - this.velocity.y) * blend;
+      let steerDirection = direction;
+      if (onIce) {
+        const driftedX = direction.x + this.iceDriftDirection.x * ICE_DRIFT_INPUT_INFLUENCE;
+        const driftedY = direction.y + this.iceDriftDirection.y * ICE_DRIFT_INPUT_INFLUENCE;
+        const driftedMagnitude = Math.hypot(driftedX, driftedY);
+        if (driftedMagnitude > 0.0001) {
+          steerDirection = {
+            x: driftedX / driftedMagnitude,
+            y: driftedY / driftedMagnitude,
+          };
+        }
+      }
+
+      let blend = Math.min(1, dtSeconds * response);
+      if (onIce) {
+        const speed = Math.hypot(this.velocity.x, this.velocity.y);
+        if (speed > 8) {
+          const alignment = (this.velocity.x * direction.x + this.velocity.y * direction.y) / speed;
+          // Turning against momentum on ice should feel much looser.
+          const steeringGrip = alignment < 0 ? 0.34 : 0.52 + Math.max(0, alignment) * 0.3;
+          blend *= steeringGrip;
+        }
+      }
+      this.velocity.x += (steerDirection.x * topSpeed - this.velocity.x) * blend;
+      this.velocity.y += (steerDirection.y * topSpeed - this.velocity.y) * blend;
     } else {
-      const damping = Math.max(0, 1 - dtSeconds * FRICTION);
+      const damping = Math.max(0, 1 - dtSeconds * friction);
       this.velocity.x *= damping;
       this.velocity.y *= damping;
+    }
+
+    if (onIce) {
+      const speed = Math.hypot(this.velocity.x, this.velocity.y);
+      if (speed > 20) {
+        const driftStrength = Math.min(1, speed / 210);
+        this.velocity.x += this.iceDriftDirection.x * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+        this.velocity.y += this.iceDriftDirection.y * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+      }
     }
 
     const movement = {
@@ -132,44 +212,20 @@ export class Player {
     return this.lastStepDiagnostics;
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
+  draw(ctx: CanvasRenderingContext2D, options?: { opacity?: number; magnetActive?: boolean }): void {
     const bounds = this.getBounds();
-    const centerX = bounds.x + bounds.width / 2;
-    const centerY = bounds.y + bounds.height / 2;
-
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate(this.angle);
-
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-    ctx.globalAlpha = 0.3;
-    ctx.fillRect(-10, -5, 20, 10);
-
-    ctx.globalAlpha = 1;
-    drawWheel(ctx, -5, -10);
-    drawWheel(ctx, 5, -10);
-    drawWheel(ctx, -5, 10);
-    drawWheel(ctx, 5, 10);
-    drawVehicleBody(ctx, this.vehicleDesign, false);
-
-    if (this.isBoostActive()) {
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
-      ctx.beginPath();
-      ctx.moveTo(-18, 0);
-      ctx.lineTo(-10, -6);
-      ctx.lineTo(-10, 6);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-15, -3, 3, 2);
-      ctx.fillRect(-15, 1, 3, 2);
-      ctx.fillStyle = '#fde68a';
-      ctx.fillRect(-17, -2.5, 2, 1.5);
-      ctx.fillRect(-17, 1, 2, 1.5);
-    }
-
-    ctx.restore();
+    const opacity = Math.max(0.2, Math.min(1, options?.opacity ?? 1));
+    renderPlayerSprite(ctx, {
+      centerX: bounds.x + bounds.width / 2,
+      centerY: bounds.y + bounds.height / 2,
+      angle: this.angle,
+      design: this.vehicleDesign,
+      boostActive: this.isBoostActive(),
+      magnetActive: options?.magnetActive ?? false,
+      opacity,
+      nowMs: performance.now(),
+      airborne: false,
+    });
   }
 }
 
@@ -188,127 +244,6 @@ function getInputDirection(input: InputState): Vector2 {
   };
 }
 
-function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-  ctx.fillStyle = '#111827';
-  ctx.beginPath();
-  ctx.roundRect(x - 3.5, y - 1.75, 7, 3.5, 1.4);
-  ctx.fill();
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.1;
-  ctx.stroke();
-}
-
-function drawVehicleBody(ctx: CanvasRenderingContext2D, design: VehicleDesign, airborne: boolean): void {
-  switch (design) {
-    case 'buggy':
-      drawBuggyBody(ctx, airborne);
-      return;
-    case 'truck':
-      drawTruckBody(ctx, airborne);
-      return;
-    case 'coupe':
-    default:
-      drawCoupeBody(ctx, airborne);
-  }
-}
-
-function drawCoupeBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.fillStyle = airborne ? '#60a5fa' : '#2563eb';
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.roundRect(-11.5, -7.5, 22, 15, 5);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#1d4ed8';
-  ctx.beginPath();
-  ctx.roundRect(-6.5, -10.5, 12, 21, 4);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(-7, -1.5, 13, 3);
-
-  ctx.fillStyle = '#dbeafe';
-  ctx.beginPath();
-  ctx.roundRect(-1.5, -6, 5, 12, 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#111827';
-  ctx.fillRect(10.5, -3, 2, 2);
-  ctx.fillRect(10.5, 1, 2, 2);
-
-  ctx.fillStyle = '#7f1d1d';
-  ctx.fillRect(-12.5, -3, 2, 2);
-  ctx.fillRect(-12.5, 1, 2, 2);
-
-  ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(-11.5, -7.5, 22, 15, 5);
-  ctx.stroke();
-}
-
-function drawBuggyBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.6;
-  ctx.fillStyle = airborne ? '#fb923c' : '#f97316';
-  ctx.beginPath();
-  ctx.roundRect(-10.5, -7, 20, 14, 4);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#7c2d12';
-  ctx.fillRect(-7, -8.5, 9, 17);
-  ctx.fillRect(3.5, -5.5, 4, 11);
-
-  ctx.strokeStyle = '#fdba74';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(-4.5, -8.5);
-  ctx.lineTo(3.5, -2.5);
-  ctx.moveTo(-4.5, 8.5);
-  ctx.lineTo(3.5, 2.5);
-  ctx.stroke();
-
-  ctx.fillStyle = '#fed7aa';
-  ctx.fillRect(-1.5, -4, 5, 8);
-  ctx.fillStyle = '#fef3c7';
-  ctx.fillRect(-9.5, -1.5, 2, 3);
-  ctx.fillRect(8.5, -1.5, 2, 3);
-}
-
-function drawTruckBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.7;
-  ctx.fillStyle = airborne ? '#34d399' : '#059669';
-  ctx.beginPath();
-  ctx.roundRect(-12, -7.5, 24, 15, 4);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#064e3b';
-  ctx.beginPath();
-  ctx.roundRect(-1.5, -7.5, 12.5, 15, 4);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#d1fae5';
-  ctx.fillRect(1.5, -4.5, 6.5, 4);
-  ctx.fillStyle = '#a7f3d0';
-  ctx.fillRect(-9, -5, 6, 10);
-
-  ctx.fillStyle = '#111827';
-  ctx.fillRect(10.5, -2.5, 2, 2);
-  ctx.fillRect(10.5, 0.5, 2, 2);
-  ctx.fillStyle = '#7f1d1d';
-  ctx.fillRect(-12.5, -2.5, 2, 2);
-  ctx.fillRect(-12.5, 0.5, 2, 2);
-
-  ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(-12, -7.5, 24, 15, 4);
-  ctx.stroke();
+function randomBetween(min: number, max: number): number {
+  return min + Math.random() * (max - min);
 }
