@@ -595,7 +595,7 @@ Session note:
 - Verification this session: `npm run test` (7 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session updates execution strategy to hybrid delivery (one bounded refactor + one bounded roadmap feature per session) to avoid refactor-only stagnation while keeping hardening guardrails active.
-- Next implementation target is explicitly paired: airplane `coin trail` feature + one additional safe `Game.ts` subsystem extraction in the same pass.
+- Next implementation target remains explicitly paired: one additional safe `Game.ts` subsystem extraction + one bounded follow-up airplane roadmap feature.
 - Current session continues hardening-first structural cleanup by extracting begin/caught/showcase run-state transition snapshots out of `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts`, while keeping side-effect sequencing (`audio`, page FX toggles, world apply) inside `Game.ts`.
 - Current session keeps encounter behavior centralized in `src/game/encounterRuntime.ts` (no re-inlining), keeps overgrowth deferred scope unchanged, and makes no pacing/mechanic constant changes.
 - Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
