@@ -17,6 +17,7 @@ import {
   PLANE_COIN_TRAIL_COIN_SIZE_PX,
   PLANE_COIN_TRAIL_LENGTH_PX,
   PLANE_COIN_TRAIL_STEP_PX,
+  PLANE_LUCKY_WIND_CHANCE,
   PLANE_SPOTLIGHT_CHANCE,
   PLANE_EVENT_CORNER_SPAN,
   PLANE_EVENT_ENTRY_OFFSET,
@@ -106,6 +107,12 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
         ? 'coin-trail'
         : effectRoll < PLANE_BOOST_LANE_CHANCE + PLANE_COIN_TRAIL_CHANCE + PLANE_SPOTLIGHT_CHANCE
           ? 'spotlight'
+        : effectRoll <
+            PLANE_BOOST_LANE_CHANCE +
+              PLANE_COIN_TRAIL_CHANCE +
+              PLANE_SPOTLIGHT_CHANCE +
+              PLANE_LUCKY_WIND_CHANCE
+          ? 'lucky-wind'
         : 'bonus-drop';
 
   return {

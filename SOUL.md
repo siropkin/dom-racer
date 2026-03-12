@@ -387,7 +387,7 @@ Goal: add a rare, stylish world event that changes the map in a playful way.
 - [x] `Bonus drop`: airplane drops a bonus-only special pickup
 - [x] `Coin trail`: airplane leaves a short line of coins across the map
 - [x] `Boost lane`: airplane paints a temporary speed strip
-- [ ] `Lucky wind`: airplane gently nudges nearby coins into a route
+- [x] `Lucky wind`: airplane gently nudges nearby coins into a route
 - [x] `Spotlight`: airplane reveals or highlights a special
 - [ ] `Garden trim`: airplane cuts back bushes / trees and opens a lane
 - [ ] `Police delay`: airplane disrupts police timing briefly
@@ -460,7 +460,7 @@ Status: `in progress`
 
 Status: `in progress`
 
-- [ ] Extract one more `tick` orchestration slice from `src/game/Game.ts` (pickup/economy update block) into a focused runtime helper without behavior change
+- [x] Extract one more `tick` orchestration slice from `src/game/Game.ts` (pickup/economy update block) into a focused runtime helper without behavior change
 - [x] Extract input/control dispatch helper from `src/game/Game.ts` while preserving existing key bindings and swallowed-key behavior
 - [x] Extract HUD/audio orchestration assembly helper from `src/game/Game.ts` while keeping side effects in `Game.ts`
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
@@ -555,6 +555,7 @@ Status: `done`
 - [x] Extract remaining run-state orchestration snapshots (`beginRun`, caught `GAME OVER`, sprite showcase) into `src/game/gameRunStateRuntime.ts` with no control/loop drift
 - [x] Run one hybrid session: implement airplane `coin trail` from Phase 3 and pair it with one bounded `Game.ts` extraction from "Remaining Structural Cleanup (Bounded)"
 - [x] Run one hybrid session: implement airplane `spotlight` follow-up and pair it with HUD/audio assembly extraction from `src/game/Game.ts`
+- [x] Run one hybrid session: implement airplane `lucky wind` follow-up and pair it with pickup/economy tick extraction from `src/game/Game.ts`
 - [x] Keep police catch -> `GAME OVER` -> `Space` restart invariants and special-vs-regular economy separation unchanged in the hybrid pass
 - [x] Re-verify `__domRacerDebug` absence in both source and build output after hybrid changes
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
@@ -588,6 +589,12 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands the locked hybrid pair in one pass: airplane `lucky wind` follow-up plus bounded pickup/economy tick extraction from `src/game/Game.ts`.
+- Feature delivery: airplane flyovers can now resolve into `lucky-wind` mode that gently nudges nearby regular coins toward a readable short route; if there are not enough valid coins to reroute, behavior safely falls back to `bonus drop`.
+- Hardening delivery: tick pickup/economy collection orchestration is extracted from `src/game/Game.ts` into `src/game/gameEconomyRuntime.ts` (`resolvePickupCollectionStep`) while side-effect sequencing remains in `Game.ts`.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart and special-vs-regular economy separation intact, and adds smoke coverage for lucky-wind behavior.
+- Verification this session: `npm run test` (9 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands the locked hybrid pair in one pass: airplane `spotlight` follow-up plus bounded HUD/audio assembly extraction from `src/game/Game.ts`.
 - Feature delivery: airplane flyovers can now resolve into `spotlight` mode that briefly highlights an existing special pickup via a longer-lived cue; if no special exists, behavior safely falls back to `bonus drop`.

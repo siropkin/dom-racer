@@ -27,7 +27,7 @@ export interface PlaneBonusEventState {
   traveledPx: number;
   dropAtPx: number;
   dropped: boolean;
-  effectMode: 'bonus-drop' | 'boost-lane' | 'coin-trail' | 'spotlight';
+  effectMode: 'bonus-drop' | 'boost-lane' | 'coin-trail' | 'spotlight' | 'lucky-wind';
 }
 
 export interface PlaneBoostLaneState {

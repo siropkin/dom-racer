@@ -219,6 +219,90 @@ describe('game economy and police smoke invariants', () => {
     expect((game as any).planeCoinTrail).toBeNull();
   });
 
+  it('uses lucky wind to gently reroute existing regular coins only', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    runtimeWorld.pickups = [
+      {
+        id: 'coin:a',
+        sourceId: 'coin:a',
+        rect: { x: 488, y: 232, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:b',
+        sourceId: 'coin:b',
+        rect: { x: 536, y: 360, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:c',
+        sourceId: 'coin:c',
+        rect: { x: 602, y: 244, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:d',
+        sourceId: 'coin:d',
+        rect: { x: 652, y: 350, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'special:magnet:wind',
+        rect: { x: 760, y: 300, width: 20, height: 20 },
+        value: 25,
+        kind: 'special',
+        effect: 'magnet',
+        accentColor: '#67e8f9',
+        label: 'MAG',
+      },
+    ];
+
+    const regularBefore = runtimeWorld.pickups.filter((pickup) => pickup.kind !== 'special');
+    const regularCentersBefore = new Map(
+      regularBefore.map((pickup) => [
+        pickup.id,
+        {
+          x: pickup.rect.x + pickup.rect.width / 2,
+          y: pickup.rect.y + pickup.rect.height / 2,
+        },
+      ]),
+    );
+    const queueBefore = (game as any).coinSpawnQueue.length;
+    const specialBefore = runtimeWorld.pickups.find((pickup) => pickup.kind === 'special');
+    const specialRectBefore = specialBefore ? { ...specialBefore.rect } : null;
+
+    const spawned = (game as any).spawnPlaneLuckyWind(560, 300, 1, 0) as boolean;
+
+    const regularAfter = runtimeWorld.pickups.filter((pickup) => pickup.kind !== 'special');
+    const movedRegularCoins = regularAfter.filter((pickup) => {
+      const center = {
+        x: pickup.rect.x + pickup.rect.width / 2,
+        y: pickup.rect.y + pickup.rect.height / 2,
+      };
+      const beforeCenter = regularCentersBefore.get(pickup.id);
+      if (!beforeCenter) {
+        return false;
+      }
+      return (
+        Math.abs(center.x - beforeCenter.x) > 0.01 || Math.abs(center.y - beforeCenter.y) > 0.01
+      );
+    });
+    const specialAfter = runtimeWorld.pickups.find((pickup) => pickup.kind === 'special');
+
+    expect(spawned).toBe(true);
+    expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
+    expect(regularAfter.length).toBe(regularBefore.length);
+    expect(regularAfter.every((pickup) => pickup.value === 10)).toBe(true);
+    expect(movedRegularCoins.length).toBeGreaterThanOrEqual(2);
+    expect(specialAfter?.id).toBe(specialBefore?.id);
+    expect(specialAfter?.rect).toEqual(specialRectBefore);
+  });
+
   it('uses airplane spotlight as a short-lived special highlight only', () => {
     (game as any).beginRun('manual');
     const runtimeWorld = (game as any).world as World;
