@@ -8,6 +8,18 @@ import type {
   World,
   WorldPickup,
 } from '../shared/types';
+import type {
+  GameDebugEvent,
+  GameDebugSnapshot,
+  GameOptions,
+  GameOverState,
+  PlaneBonusEventState,
+  PlaneBoostLaneState,
+  PlaneWarningState,
+  PoliceChaseState,
+  PoliceWarningState,
+  SpecialSpawnCue,
+} from './gameStateTypes';
 import { AudioManager } from './audio';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
@@ -32,6 +44,11 @@ import {
   renderPoliceWarningIndicator,
   type PoliceEdge,
 } from './policeSprite';
+import {
+  canSpawnRegularCoinRect,
+  findFreePickupRect,
+  findFreePickupRectNear,
+} from './pickupSpawnRuntime';
 import { drawCaughtGameOverOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
 import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
 import { Player } from './player';
@@ -122,141 +139,7 @@ import {
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
-export type ScrollDirection = 'up' | 'down';
-
-interface SpecialSpawnCue {
-  x: number;
-  y: number;
-  label: string;
-  color: string;
-  ttlMs: number;
-  durationMs: number;
-}
-
-interface PlaneBonusEventState {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  angle: number;
-  ttlMs: number;
-  distancePx: number;
-  traveledPx: number;
-  dropAtPx: number;
-  dropped: boolean;
-  effectMode: 'bonus-drop' | 'boost-lane';
-}
-
-interface PlaneBoostLaneState {
-  rects: Rect[];
-  ttlMs: number;
-  durationMs: number;
-}
-
-interface PoliceChaseState {
-  x: number;
-  y: number;
-  angle: number;
-  remainingMs: number;
-  durationMs: number;
-  phase: 'chasing' | 'leaving';
-  exitEdge: PoliceEdge;
-}
-
-interface PoliceWarningState {
-  edge: PoliceEdge;
-  remainingMs: number;
-  durationMs: number;
-}
-
-interface PlaneWarningState {
-  edge: PoliceEdge;
-  remainingMs: number;
-  durationMs: number;
-}
-
-interface GameOverState {
-  reason: 'caught';
-  startedAtMs: number;
-}
-
-export type GameDebugEvent =
-  | {
-      type: 'pickup';
-      atMs: number;
-      score: number;
-      pickupId: string;
-      x: number;
-      y: number;
-      value: number;
-    }
-  | {
-      type: 'restart';
-      atMs: number;
-      reason: 'manual' | 'deadSpot' | 'caught';
-      score: number;
-    }
-  | {
-      type: 'collision';
-      atMs: number;
-      x: number;
-      y: number;
-      hitX: boolean;
-      hitY: boolean;
-      speed: number;
-      scrollY: number;
-    }
-  | {
-      type: 'scroll';
-      atMs: number;
-      direction: ScrollDirection;
-      amount: number;
-      scrollY: number;
-    };
-
-export interface GameDebugSnapshot {
-  atMs: number;
-  score: number;
-  scrollY: number;
-  player: Rect;
-  pickupsRemaining: number;
-  pickups: Array<{
-    id: string;
-    x: number;
-    y: number;
-    value: number;
-  }>;
-  obstacleCount: number;
-  boostCount: number;
-  airborne: boolean;
-  boostActive: boolean;
-  speed: number;
-  hitX: boolean;
-  hitY: boolean;
-}
-
-interface GameOptions {
-  canvas: HTMLCanvasElement;
-  createWorld: () => World;
-  getPageTitle: () => string;
-  sampleSurfaceAt: (point: Vector2) => SurfaceSample;
-  setPageInverted: (active: boolean) => void;
-  setPageBlackout: (active: boolean) => void;
-  setMagnetUiState: (state: { active: boolean; point: Vector2 | null; strength: number }) => void;
-  onQuit: () => void;
-  initialSoundEnabled: boolean;
-  onSoundEnabledChange: (enabled: boolean) => void;
-  initialVehicleDesign: VehicleDesign;
-  onVehicleDesignChange: (design: VehicleDesign) => void;
-  initialPageBestScore: number;
-  initialLifetimeBestScore: number;
-  onRunFinished?: (run: {
-    score: number;
-    elapsedMs: number;
-    reason: 'manual' | 'deadSpot' | 'caught' | 'quit';
-  }) => void;
-  onDebugEvent?: (event: GameDebugEvent) => void;
-}
+export type { GameDebugEvent, GameDebugSnapshot } from './gameStateTypes';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -528,7 +411,9 @@ export class Game {
     } else {
       const currentBounds = this.player.getBounds();
       const blocked = !this.player.isAirborne() && collidesWithAny(currentBounds, world.obstacles);
-      const unsafe = !this.player.isAirborne() && collidesWithAny(currentBounds, world.deadSpots);
+      const unsafe =
+        !this.player.isAirborne() &&
+        (collidesWithAny(currentBounds, world.deadSpots) || collidesWithAny(currentBounds, world.hazards));
       if (blocked || unsafe) {
         this.player.reset(world.spawnPoint);
       }
@@ -1425,23 +1310,7 @@ export class Game {
       return false;
     }
 
-    if (rectsIntersect(rect, this.player.getBounds())) {
-      return false;
-    }
-
-    if (this.world.obstacles.some((obstacle) => rectsIntersect(rect, obstacle))) {
-      return false;
-    }
-
-    if (this.world.deadSpots.some((deadSpot) => rectsIntersect(rect, deadSpot))) {
-      return false;
-    }
-
-    if (this.world.hazards.some((hazard) => rectsIntersect(rect, hazard))) {
-      return false;
-    }
-
-    return !this.world.pickups.some((pickup) => rectsIntersect(rect, pickup.rect));
+    return canSpawnRegularCoinRect(rect, this.getPickupSpawnBlockers());
   }
 
   private getCoinRefillDelayMs(visibleRegularCoins: number): number {
@@ -1497,27 +1366,7 @@ export class Game {
       return null;
     }
 
-    const blockers = [
-      ...this.world.obstacles,
-      ...this.world.deadSpots,
-      this.player.getBounds(),
-      ...this.world.pickups.map((pickup) => pickup.rect),
-    ];
-
-    for (let attempt = 0; attempt < 48; attempt += 1) {
-      const rect = {
-        x: 16 + Math.random() * Math.max(1, this.world.viewport.width - size - 32),
-        y: 24 + Math.random() * Math.max(1, this.world.viewport.height - size - 48),
-        width: size,
-        height: size,
-      };
-
-      if (!blockers.some((blocker) => rectsIntersect(rect, blocker))) {
-        return rect;
-      }
-    }
-
-    return null;
+    return findFreePickupRect(size, this.getPickupSpawnBlockers());
   }
 
   private findFreePickupRectNear(point: Vector2, size: number, radius: number): Rect | null {
@@ -1525,53 +1374,22 @@ export class Game {
       return null;
     }
 
-    const blockers = [
-      ...this.world.obstacles,
-      ...this.world.deadSpots,
-      this.player.getBounds(),
-      ...this.world.pickups.map((pickup) => pickup.rect),
-    ];
+    return findFreePickupRectNear(point, size, radius, this.getPickupSpawnBlockers());
+  }
 
-    const preferredOffsets = [
-      { x: 0, y: 0 },
-      { x: 0, y: 8 },
-      { x: 0, y: -8 },
-      { x: 8, y: 0 },
-      { x: -8, y: 0 },
-      { x: 6, y: 6 },
-      { x: -6, y: 6 },
-      { x: 6, y: -6 },
-      { x: -6, y: -6 },
-      { x: 0, y: 14 },
-    ];
-
-    for (const offset of preferredOffsets) {
-      const candidate = {
-        x: clamp(point.x + offset.x - size / 2, 16, this.world.viewport.width - size - 16),
-        y: clamp(point.y + offset.y - size / 2, 24, this.world.viewport.height - size - 24),
-        width: size,
-        height: size,
-      };
-      if (!blockers.some((blocker) => rectsIntersect(candidate, blocker))) {
-        return candidate;
-      }
+  private getPickupSpawnBlockers() {
+    if (!this.world || !this.player) {
+      throw new Error('Pickup spawn blockers require an active world and player.');
     }
 
-    for (let attempt = 0; attempt < 14; attempt += 1) {
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * radius;
-      const rect = {
-        x: clamp(point.x + Math.cos(angle) * distance - size / 2, 16, this.world.viewport.width - size - 16),
-        y: clamp(point.y + Math.sin(angle) * distance - size / 2, 24, this.world.viewport.height - size - 24),
-        width: size,
-        height: size,
-      };
-      if (!blockers.some((blocker) => rectsIntersect(rect, blocker))) {
-        return rect;
-      }
-    }
-
-    return null;
+    return {
+      viewport: this.world.viewport,
+      player: this.player.getBounds(),
+      obstacles: this.world.obstacles,
+      deadSpots: this.world.deadSpots,
+      hazards: this.world.hazards,
+      pickups: this.world.pickups.map((pickup) => pickup.rect),
+    };
   }
 
   private activateSpecialEffect(effect: SpecialEffect): void {

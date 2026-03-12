@@ -174,4 +174,27 @@ describe('game economy and police smoke invariants', () => {
     expect(safeBounds.x).toBe(44);
     expect(safeBounds.y).toBe(88);
   });
+
+  it('resets player when a refreshed world places them inside a hazard blocker', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    const player = (game as any).player;
+    expect(player).toBeTruthy();
+
+    player.reset({ x: 260, y: 260 });
+    const movedBounds = player.getBounds();
+    expect(movedBounds.x).toBe(260);
+    expect(movedBounds.y).toBe(260);
+
+    const refreshedWorld: World = {
+      ...runtimeWorld,
+      hazards: [{ x: 252, y: 252, width: 38, height: 38 }],
+      spawnPoint: { x: 58, y: 102 },
+    };
+    game.applyWorld(refreshedWorld, false);
+
+    const safeBounds = (game as any).player.getBounds();
+    expect(safeBounds.x).toBe(58);
+    expect(safeBounds.y).toBe(102);
+  });
 });

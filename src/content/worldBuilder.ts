@@ -36,7 +36,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
     }
   }
 
-  const pickupBlockers = [...obstacles, ...deadSpots];
+  const pickupBlockers = [...obstacles, ...deadSpots, ...hazards];
 
   for (const element of scannedElements) {
     if (element.kind !== 'pickup') {

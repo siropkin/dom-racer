@@ -438,7 +438,7 @@ Goal: make the game safe to share more widely.
 - [x] Resolve scanner/runtime drift for `deadSpot` and `hazard`
 - [x] Remove page-level debug API surface (`window.__domRacerDebug`)
 - [x] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
-- [ ] Audit remaining stale gameplay branches
+- [x] Audit remaining stale gameplay branches
 
 ### Test Coverage
 
@@ -447,6 +447,7 @@ Goal: make the game safe to share more widely.
 - [x] Add coverage for special item spawning
 - [x] Add coverage for police catch -> game over -> restart
 - [x] Close overgrowth collision gap with scope-guard coverage while overgrowth stays deferred (deadSpot safety reset + empty hazard/deadSpot scanner/world channels)
+- [x] Add hazard-channel guard coverage for world refresh safety reset while overgrowth remains deferred
 
 ### Final Tuning
 
@@ -553,6 +554,10 @@ Status: `done`
 
 Session note:
 
+- Current session continues hardening-first cleanup: extracts game state contracts and pickup spawn geometry helpers out of `src/game/Game.ts` into `src/game/gameStateTypes.ts` and `src/game/pickupSpawnRuntime.ts` without changing controls or loop behavior.
+- Current session closes a stale hazard-path inconsistency by aligning refresh/spawn guardrails (`applyWorld` safety reset + pickup placement blockers) to treat deferred `hazards` consistently with `deadSpots`.
+- Current session extends smoke invariants with hazard refresh safety coverage and re-verifies police catch -> `GAME OVER` -> `Space` restart flow.
+- Verification this session: `npm run test` (6 smoke tests) and `npm run build` pass.
 - Current session extracts encounter pathing helpers and overlay renderers out of `src/game/Game.ts` into focused modules (`src/game/encounterRuntime.ts`, `src/game/gameOverlays.ts`) without changing control bindings or core loop flow.
 - Current session closes overgrowth hardening as an explicit defer decision: overgrowth remains out of active runtime scope, with guard coverage added for deadSpot safety reset and empty scanner/world hazard channels.
 - Current session adds release-readiness docs: `docs/release-checklist.md` and `docs/permissions-host-scope.md` (`<all_urls>` rationale).
@@ -565,7 +570,7 @@ Session note:
 - Current session removes page-level debug API exposure, keeps debug work in `Shift + D` sprite showcase mode, and persists production/design research notes for next passes.
 - Current priority lock: hardening (tests + structure) before design polish (event pacing/tuning loops).
 - Current session adds first Vitest smoke checks (scanner->world, regular coin staging/source rules, specials independence, police catch restart flow), extracts shared runtime constants/helpers from `Game.ts` into `src/game/gameRuntime.ts`, aligns scanner contract by dropping stale scanned `hazard`/`deadSpot` kinds, and adds a release build profile with sourcemaps disabled unless explicitly enabled.
-- Verification this session: `npm run test` (5 smoke tests) and `npm run build` both pass.
+- Verification this session: `npm run test` (6 smoke tests) and `npm run build` both pass.
 - Next-session prompt is prepared in `NEXT_SESSION_PROMPT.md`.
 - Previous commit state on `main` before this session:
   - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)
