@@ -351,7 +351,9 @@ Goal: create a visible mid-to-late-run difficulty ramp.
 
 - [ ] Add `bush` blockers that grow out of border / obstacle-adjacent elements
 - [ ] Add `tree` blockers as larger variants
+- [ ] Start growth from scanned UI border/barrier structure first so escalation has a readable source
 - [ ] Grow over time in waves instead of instantly
+- [ ] Stage escalation over run time: `bushes` first, then convert/upgrade some lanes into `trees`
 - [ ] Make them collide with:
   - [ ] player
   - [ ] police car
@@ -363,6 +365,7 @@ Definition of done:
 
 - early game feels open
 - late game feels overgrown
+- growth source and escalation read clearly (border-origin bushes before trees)
 - players must route around growth instead of driving straight through
 
 ## Phase 3: Airplane Event
@@ -416,6 +419,7 @@ Goal: add cool indie flavor without bloating the rules.
 ### Candidate Systems To Research / Prototype
 
 - [ ] near-miss bonus around police / overgrowth
+- [ ] late-run police escalation pass: transition pressure from `police car` to a readable `police helicopter` variant after clear score/time thresholds
 - [ ] risk-lane high-value opportunity
 - [ ] page mood variants like `night shift`, `office panic`, `focus mode`
 - [ ] micro-objectives during a run
@@ -426,6 +430,7 @@ Rule:
 
 - [ ] only keep additions that strengthen `action -> reward -> expansion`
 - [ ] reject anything that makes the page harder to read without adding meaningful decisions
+- [ ] for police-helicopter escalation, keep telegraphing/fairness explicit and preserve playful non-violent tone
 
 ## Phase 5: Production Hardening
 
