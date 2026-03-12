@@ -27,11 +27,17 @@ export interface PlaneBonusEventState {
   traveledPx: number;
   dropAtPx: number;
   dropped: boolean;
-  effectMode: 'bonus-drop' | 'boost-lane';
+  effectMode: 'bonus-drop' | 'boost-lane' | 'coin-trail';
 }
 
 export interface PlaneBoostLaneState {
   rects: Rect[];
+  ttlMs: number;
+  durationMs: number;
+}
+
+export interface PlaneCoinTrailState {
+  coinIds: string[];
   ttlMs: number;
   durationMs: number;
 }

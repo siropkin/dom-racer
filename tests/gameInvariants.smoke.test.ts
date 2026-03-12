@@ -197,4 +197,25 @@ describe('game economy and police smoke invariants', () => {
     expect(safeBounds.x).toBe(58);
     expect(safeBounds.y).toBe(102);
   });
+
+  it('spawns and expires airplane coin trail coins as short-lived route opportunities', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    runtimeWorld.pickups = [];
+
+    const spawned = (game as any).spawnPlaneCoinTrail(620, 280, 1, 0) as boolean;
+    expect(spawned).toBe(true);
+
+    const trailCoins = runtimeWorld.pickups.filter((pickup) => pickup.id.startsWith('plane-trail:'));
+    expect(trailCoins.length).toBeGreaterThanOrEqual(3);
+    expect(trailCoins.every((pickup) => pickup.kind === 'coin')).toBe(true);
+    expect(trailCoins.every((pickup) => pickup.value === 10)).toBe(true);
+
+    (game as any).updatePlaneCoinTrail(4);
+    const trailCoinsAfterExpiry = runtimeWorld.pickups.filter((pickup) =>
+      pickup.id.startsWith('plane-trail:'),
+    );
+    expect(trailCoinsAfterExpiry).toHaveLength(0);
+    expect((game as any).planeCoinTrail).toBeNull();
+  });
 });

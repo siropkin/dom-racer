@@ -13,6 +13,7 @@ import type {
   GameOverState,
   PlaneBonusEventState,
   PlaneBoostLaneState,
+  PlaneCoinTrailState,
   PlaneWarningState,
   PoliceChaseState,
   PoliceWarningState,
@@ -30,6 +31,7 @@ import {
   createPlaneBonusEncounter,
   createPoliceChase,
   createPlaneBoostLaneRects,
+  createPlaneCoinTrailRects,
   getPoliceRect,
   isPoliceOffscreen,
   tickPlaneBoostLaneState,
@@ -88,7 +90,6 @@ import {
   getSpecialDropMessage,
   getSpecialLabel,
   getVehicleDesignLabel,
-  isModifierKey,
   isSpecialPickup,
   pickOppositeShowcaseThemeIndex,
   pickSpecialEffect,
@@ -98,6 +99,7 @@ import {
   PLANE_AFTER_POLICE_MIN_MS,
   PLANE_BONUS_PICKUP_SIZE,
   PLANE_BOOST_LANE_DURATION_MS,
+  PLANE_COIN_TRAIL_DURATION_MS,
   PLANE_EVENT_INITIAL_MAX_MS,
   PLANE_EVENT_INITIAL_MIN_MS,
   PLANE_EVENT_MIN_SCORE,
@@ -119,6 +121,7 @@ import {
   REGULAR_COIN_REFILL_BOOST_MS,
   REGULAR_COIN_RETRY_MAX_MS,
   REGULAR_COIN_RETRY_MIN_MS,
+  REGULAR_COIN_SCORE,
   REGULAR_COIN_STARTING_BATCH,
   REGULAR_COIN_VISIBLE_CAP,
   SHOWCASE_THEMES,
@@ -139,6 +142,12 @@ import {
   TOAST_PICKUP_TTL_MS,
   type SurfaceSample,
 } from './gameRuntime';
+import {
+  cloneInputState,
+  resolveKeyDownAction,
+  resolveKeyUpConsumed,
+  resetInputState,
+} from './gameInputRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -181,6 +190,7 @@ export class Game {
   private specialSpawnCues: SpecialSpawnCue[];
   private planeBonusEvent: PlaneBonusEventState | null;
   private planeBoostLane: PlaneBoostLaneState | null;
+  private planeCoinTrail: PlaneCoinTrailState | null;
   private planeBonusTimerMs: number;
   private pickupFlavorIndex: number;
   private coinsCollectedTotal: number;
@@ -252,6 +262,7 @@ export class Game {
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
     this.planeBoostLane = null;
+    this.planeCoinTrail = null;
     this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
     this.coinsCollectedTotal = 0;
@@ -417,6 +428,7 @@ export class Game {
     this.updateFocusMode(dtSeconds);
     this.updatePlaneWarning(dtSeconds);
     this.updatePlaneBoostLane(dtSeconds);
+    this.updatePlaneCoinTrail(dtSeconds);
 
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
@@ -632,93 +644,83 @@ export class Game {
       return;
     }
 
-    if (this.gameOverState) {
-      if (event.code === 'Escape') {
+    const action = resolveKeyDownAction(
+      {
+        gameOverActive: Boolean(this.gameOverState),
+        spriteShowcaseActive: this.spriteShowcaseActive,
+      },
+      {
+        code: event.code,
+        shiftKey: event.shiftKey,
+        repeat: event.repeat,
+      },
+      this.input,
+    );
+
+    switch (action.kind) {
+      case 'none':
+        return;
+      case 'quit':
         void this.audio.resume();
         event.stopImmediatePropagation();
         event.preventDefault();
         this.onQuit();
         return;
-      }
-
-      if (event.repeat || isModifierKey(event.code) || event.code !== 'Space') {
+      case 'game-over-restart':
+        void this.audio.resume();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        this.beginRun();
+        return;
+      case 'toggle-showcase':
+        void this.audio.resume();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        if (this.spriteShowcaseActive) {
+          this.spriteShowcaseActive = false;
+          this.beginRun();
+        } else {
+          this.enterSpriteShowcaseMode();
+        }
+        return;
+      case 'cycle-showcase-theme':
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        this.cycleSpriteShowcaseTheme(action.direction);
+        return;
+      case 'restart-run':
+        void this.audio.resume();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        this.restart();
+        return;
+      case 'toggle-sound': {
+        void this.audio.resume();
+        const nextSoundEnabled = !this.soundEnabled;
+        this.setSoundEnabled(nextSoundEnabled);
+        this.onSoundEnabledChange(nextSoundEnabled);
+        this.audio.playToggle(nextSoundEnabled);
+        event.stopImmediatePropagation();
+        event.preventDefault();
         return;
       }
-
-      void this.audio.resume();
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      this.beginRun();
-      return;
-    }
-
-    if (event.code === 'Escape') {
-      void this.audio.resume();
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      this.onQuit();
-      return;
-    }
-
-    if (event.code === 'KeyD' && event.shiftKey && !event.repeat) {
-      void this.audio.resume();
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      if (this.spriteShowcaseActive) {
-        this.spriteShowcaseActive = false;
-        this.beginRun();
-      } else {
-        this.enterSpriteShowcaseMode();
+      case 'cycle-vehicle': {
+        void this.audio.resume();
+        const nextVehicleDesign = getNextVehicleDesign(this.vehicleDesign);
+        this.setVehicleDesign(nextVehicleDesign);
+        this.onVehicleDesignChange(nextVehicleDesign);
+        this.spawnEffectMessage(getVehicleDesignLabel(nextVehicleDesign), '#f8fafc', 'low');
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        return;
       }
-      return;
-    }
-
-    if (
-      this.spriteShowcaseActive &&
-      !event.repeat &&
-      (event.code === 'ArrowLeft' || event.code === 'ArrowRight')
-    ) {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      this.cycleSpriteShowcaseTheme(event.code === 'ArrowRight' ? 1 : -1);
-      return;
-    }
-
-    if (event.code === 'KeyR' && !event.shiftKey && !event.repeat) {
-      void this.audio.resume();
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      this.restart();
-      return;
-    }
-
-    if (event.code === 'KeyM' && !event.repeat) {
-      void this.audio.resume();
-      const nextSoundEnabled = !this.soundEnabled;
-      this.setSoundEnabled(nextSoundEnabled);
-      this.onSoundEnabledChange(nextSoundEnabled);
-      this.audio.playToggle(nextSoundEnabled);
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      return;
-    }
-
-    if (event.code === 'KeyV' && !event.repeat) {
-      void this.audio.resume();
-      const nextVehicleDesign = getNextVehicleDesign(this.vehicleDesign);
-      this.setVehicleDesign(nextVehicleDesign);
-      this.onVehicleDesignChange(nextVehicleDesign);
-      this.spawnEffectMessage(getVehicleDesignLabel(nextVehicleDesign), '#f8fafc', 'low');
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      return;
-    }
-
-    const consumed = this.setInputFlag(event.code, true);
-    if (consumed) {
-      void this.audio.resume();
-      event.stopImmediatePropagation();
-      event.preventDefault();
+      case 'apply-input':
+        if (action.consumed) {
+          void this.audio.resume();
+          event.stopImmediatePropagation();
+          event.preventDefault();
+        }
+        return;
     }
   };
 
@@ -727,57 +729,22 @@ export class Game {
       return;
     }
 
-    if (this.gameOverState) {
-      return;
-    }
-
-    const consumed = this.setInputFlag(event.code, false);
+    const consumed = resolveKeyUpConsumed(this.input, {
+      code: event.code,
+      gameOverActive: Boolean(this.gameOverState),
+    });
     if (consumed) {
       event.stopImmediatePropagation();
       event.preventDefault();
     }
   };
 
-  private setInputFlag(code: string, value: boolean): boolean {
-    switch (code) {
-      case 'ArrowUp':
-      case 'KeyW':
-        this.input.up = value;
-        return true;
-      case 'ArrowDown':
-      case 'KeyS':
-        this.input.down = value;
-        return true;
-      case 'ArrowLeft':
-      case 'KeyA':
-        this.input.left = value;
-        return true;
-      case 'ArrowRight':
-      case 'KeyD':
-        this.input.right = value;
-        return true;
-      case 'Space':
-        // Keep Space swallowed so the underlying page does not react while racing.
-        return true;
-      default:
-        return false;
-    }
-  }
-
   private resetInput(): void {
-    this.input.up = false;
-    this.input.down = false;
-    this.input.left = false;
-    this.input.right = false;
+    resetInputState(this.input);
   }
 
   private getActiveInput(): InputState {
-    return {
-      up: this.input.up,
-      down: this.input.down,
-      left: this.input.left,
-      right: this.input.right,
-    };
+    return cloneInputState(this.input);
   }
 
   private spawnCoinPickupMessage(pickup: World['pickups'][number]): void {
@@ -845,8 +812,8 @@ export class Game {
       return;
     }
 
-    if (this.planeBoostLane) {
-      // Keep lane moments readable by delaying ambient specials a bit.
+    if (this.planeBoostLane || this.planeCoinTrail) {
+      // Keep temporary plane-route moments readable by delaying ambient specials a bit.
       this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
       return;
     }
@@ -917,6 +884,16 @@ export class Game {
         if (!spawnedLane) {
           this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
         }
+      } else if (this.planeBonusEvent.effectMode === 'coin-trail') {
+        const spawnedTrail = this.spawnPlaneCoinTrail(
+          this.planeBonusEvent.x,
+          this.planeBonusEvent.y + 12,
+          this.planeBonusEvent.vx,
+          this.planeBonusEvent.vy,
+        );
+        if (!spawnedTrail) {
+          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
+        }
       } else {
         this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
       }
@@ -982,8 +959,77 @@ export class Game {
     return true;
   }
 
+  private spawnPlaneCoinTrail(x: number, y: number, vx: number, vy: number): boolean {
+    if (!this.world) {
+      return false;
+    }
+
+    const trailRects = createPlaneCoinTrailRects(this.world.viewport, { x, y }, { x: vx, y: vy });
+    if (trailRects.length === 0) {
+      return false;
+    }
+
+    const trailSeed = `${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+    const trailPickups: WorldPickup[] = [];
+    for (const [index, rect] of trailRects.entries()) {
+      if (!this.canSpawnRegularCoinAt(rect)) {
+        continue;
+      }
+      trailPickups.push({
+        id: `plane-trail:${trailSeed}:${index}`,
+        sourceId: `plane-trail:${trailSeed}:${index}`,
+        rect: {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        },
+        value: REGULAR_COIN_SCORE,
+        kind: 'coin',
+      });
+    }
+
+    if (trailPickups.length < 3) {
+      return false;
+    }
+
+    for (const pickup of trailPickups) {
+      this.world.pickups.push(pickup);
+    }
+
+    this.planeCoinTrail = {
+      coinIds: trailPickups.map((pickup) => pickup.id),
+      ttlMs: PLANE_COIN_TRAIL_DURATION_MS,
+      durationMs: PLANE_COIN_TRAIL_DURATION_MS,
+    };
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.audio.playPlaneDrop();
+    this.spawnEffectMessage('COIN TRAIL', '#facc15', 'high');
+    return true;
+  }
+
   private updatePlaneBoostLane(dtSeconds: number): void {
     this.planeBoostLane = tickPlaneBoostLaneState(this.planeBoostLane, dtSeconds);
+  }
+
+  private updatePlaneCoinTrail(dtSeconds: number): void {
+    if (!this.world || !this.planeCoinTrail) {
+      return;
+    }
+
+    this.planeCoinTrail.ttlMs = Math.max(0, this.planeCoinTrail.ttlMs - dtSeconds * 1000);
+    const livePickupIds = new Set(this.world.pickups.map((pickup) => pickup.id));
+    this.planeCoinTrail.coinIds = this.planeCoinTrail.coinIds.filter((id) => livePickupIds.has(id));
+
+    if (this.planeCoinTrail.ttlMs > 0 && this.planeCoinTrail.coinIds.length > 0) {
+      return;
+    }
+
+    if (this.planeCoinTrail.coinIds.length > 0) {
+      const expiredIds = new Set(this.planeCoinTrail.coinIds);
+      this.world.pickups = this.world.pickups.filter((pickup) => !expiredIds.has(pickup.id));
+    }
+    this.planeCoinTrail = null;
   }
 
   private getActiveBoostZones(): Rect[] {
@@ -1413,6 +1459,7 @@ export class Game {
     this.specialSpawnCues = cleared.specialSpawnCues;
     this.planeBonusEvent = cleared.planeBonusEvent;
     this.planeBoostLane = cleared.planeBoostLane;
+    this.planeCoinTrail = cleared.planeCoinTrail;
   }
 
   private clearEffectRuntimeState(): void {

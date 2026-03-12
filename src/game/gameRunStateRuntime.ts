@@ -3,6 +3,7 @@ import type {
   GameOverState,
   PlaneBonusEventState,
   PlaneBoostLaneState,
+  PlaneCoinTrailState,
   PlaneWarningState,
   PoliceChaseState,
   PoliceWarningState,
@@ -25,6 +26,7 @@ export interface ClearedEncounterState {
   specialSpawnCues: SpecialSpawnCue[];
   planeBonusEvent: PlaneBonusEventState | null;
   planeBoostLane: PlaneBoostLaneState | null;
+  planeCoinTrail: PlaneCoinTrailState | null;
 }
 
 export interface ClearedEffectState {
@@ -80,6 +82,7 @@ export function createClearedEncounterState(): ClearedEncounterState {
     specialSpawnCues: [],
     planeBonusEvent: null,
     planeBoostLane: null,
+    planeCoinTrail: null,
   };
 }
 

@@ -13,6 +13,10 @@ import {
   PLANE_BOOST_LANE_STEP_PX,
   PLANE_BOOST_LANE_WIDTH_PX,
   PLANE_BOOST_LANE_CHANCE,
+  PLANE_COIN_TRAIL_CHANCE,
+  PLANE_COIN_TRAIL_COIN_SIZE_PX,
+  PLANE_COIN_TRAIL_LENGTH_PX,
+  PLANE_COIN_TRAIL_STEP_PX,
   PLANE_EVENT_CORNER_SPAN,
   PLANE_EVENT_ENTRY_OFFSET,
   PLANE_EVENT_SPEED,
@@ -93,6 +97,14 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
   const vy = (dy / distance) * PLANE_EVENT_SPEED;
   const ttlMs = (distance / PLANE_EVENT_SPEED) * 1000 + 650;
 
+  const effectRoll = Math.random();
+  const effectMode =
+    effectRoll < PLANE_BOOST_LANE_CHANCE
+      ? 'boost-lane'
+      : effectRoll < PLANE_BOOST_LANE_CHANCE + PLANE_COIN_TRAIL_CHANCE
+        ? 'coin-trail'
+        : 'bonus-drop';
+
   return {
     planeBonusEvent: {
       x: path.start.x,
@@ -105,7 +117,7 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
       traveledPx: 0,
       dropAtPx: distance * randomBetween(0.36, 0.64),
       dropped: false,
-      effectMode: Math.random() < PLANE_BOOST_LANE_CHANCE ? 'boost-lane' : 'bonus-drop',
+      effectMode,
     },
     planeWarning: {
       edge: getPlaneEntryEdge(viewport, path.start),
@@ -434,6 +446,62 @@ export function createPlaneBoostLaneRects(
       y: clamp(centerY - halfWidth, minY, maxY),
       width: PLANE_BOOST_LANE_WIDTH_PX,
       height: PLANE_BOOST_LANE_WIDTH_PX,
+    };
+
+    const duplicate = rects.some(
+      (existing) =>
+        Math.abs(existing.x - rect.x) < 0.5 &&
+        Math.abs(existing.y - rect.y) < 0.5 &&
+        existing.width === rect.width &&
+        existing.height === rect.height,
+    );
+    if (!duplicate) {
+      rects.push(rect);
+    }
+  }
+
+  return rects;
+}
+
+export function createPlaneCoinTrailRects(
+  viewport: World['viewport'],
+  center: Vector2,
+  direction: Vector2,
+): Rect[] {
+  const magnitude = Math.hypot(direction.x, direction.y);
+  if (magnitude < 0.001) {
+    return [];
+  }
+
+  const dir = {
+    x: direction.x / magnitude,
+    y: direction.y / magnitude,
+  };
+  const halfLength = PLANE_COIN_TRAIL_LENGTH_PX / 2;
+  const halfSize = PLANE_COIN_TRAIL_COIN_SIZE_PX / 2;
+  const minX = 8;
+  const minY = 8;
+  const maxX = Math.max(minX, viewport.width - PLANE_COIN_TRAIL_COIN_SIZE_PX - 8);
+  const maxY = Math.max(minY, viewport.height - PLANE_COIN_TRAIL_COIN_SIZE_PX - 8);
+  const rects: Rect[] = [];
+
+  for (let offset = -halfLength; offset <= halfLength; offset += PLANE_COIN_TRAIL_STEP_PX) {
+    const centerX = center.x + dir.x * offset;
+    const centerY = center.y + dir.y * offset;
+    if (
+      centerX < -halfSize ||
+      centerY < -halfSize ||
+      centerX > viewport.width + halfSize ||
+      centerY > viewport.height + halfSize
+    ) {
+      continue;
+    }
+
+    const rect: Rect = {
+      x: clamp(centerX - halfSize, minX, maxX),
+      y: clamp(centerY - halfSize, minY, maxY),
+      width: PLANE_COIN_TRAIL_COIN_SIZE_PX,
+      height: PLANE_COIN_TRAIL_COIN_SIZE_PX,
     };
 
     const duplicate = rects.some(
