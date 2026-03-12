@@ -54,6 +54,14 @@ import {
   tickEffectTimers,
 } from './gameEffectsRuntime';
 import {
+  createBeginRunState,
+  createCaughtGameOverTransitionState,
+  createClearedComboState,
+  createClearedEffectState,
+  createClearedEncounterState,
+  createSpriteShowcaseTransitionState,
+} from './gameRunStateRuntime';
+import {
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
@@ -1398,80 +1406,81 @@ export class Game {
   }
 
   private clearEncounterRuntimeState(): void {
-    this.policeChase = null;
-    this.policeWarning = null;
-    this.planeWarning = null;
-    this.specialSpawnCues = [];
-    this.planeBonusEvent = null;
-    this.planeBoostLane = null;
+    const cleared = createClearedEncounterState();
+    this.policeChase = cleared.policeChase;
+    this.policeWarning = cleared.policeWarning;
+    this.planeWarning = cleared.planeWarning;
+    this.specialSpawnCues = cleared.specialSpawnCues;
+    this.planeBonusEvent = cleared.planeBonusEvent;
+    this.planeBoostLane = cleared.planeBoostLane;
+  }
+
+  private clearEffectRuntimeState(): void {
+    const cleared = createClearedEffectState();
+    this.magnetTimerMs = cleared.magnetTimerMs;
+    this.ghostTimerMs = cleared.ghostTimerMs;
+    this.invertTimerMs = cleared.invertTimerMs;
+    this.blackoutTimerMs = cleared.blackoutTimerMs;
   }
 
   private resetComboState(): void {
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
+    const cleared = createClearedComboState();
+    this.pickupComboCount = cleared.pickupComboCount;
+    this.comboTimerMs = cleared.comboTimerMs;
   }
 
   private beginRun(): void {
-    this.dynamicPickups = [];
-    this.coinSpawnQueue = [];
-    this.coinSpawnIdCounter = 0;
-    this.coinRefillTimerMs = 0;
-    this.coinRefillBoostTimerMs = 0;
+    const nextRunState = createBeginRunState(performance.now());
+    this.dynamicPickups = nextRunState.dynamicPickups;
+    this.coinSpawnQueue = nextRunState.coinSpawnQueue;
+    this.coinSpawnIdCounter = nextRunState.coinSpawnIdCounter;
+    this.coinRefillTimerMs = nextRunState.coinRefillTimerMs;
+    this.coinRefillBoostTimerMs = nextRunState.coinRefillBoostTimerMs;
     this.toastSystem.clear();
-    this.score = 0;
-    this.coinsCollectedTotal = 0;
-    this.specialSpawnTimerMs = randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS);
-    this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
-    this.magnetTimerMs = 0;
-    this.ghostTimerMs = 0;
-    this.invertTimerMs = 0;
-    this.blackoutTimerMs = 0;
+    this.score = nextRunState.score;
+    this.coinsCollectedTotal = nextRunState.coinsCollectedTotal;
+    this.specialSpawnTimerMs = nextRunState.specialSpawnTimerMs;
+    this.planeBonusTimerMs = nextRunState.planeBonusTimerMs;
+    this.clearEffectRuntimeState();
     this.setInverted(false);
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
-    this.policeSpawnTimerMs = randomBetween(POLICE_INITIAL_SPAWN_MIN_MS, POLICE_INITIAL_SPAWN_MAX_MS);
+    this.policeSpawnTimerMs = nextRunState.policeSpawnTimerMs;
     this.resetComboState();
-    this.gameOverState = null;
-    this.spriteShowcaseActive = false;
-    this.startTimeMs = performance.now();
+    this.gameOverState = nextRunState.gameOverState;
+    this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
+    this.startTimeMs = nextRunState.startTimeMs;
     this.applyWorld(this.createWorld(), true);
-    this.lastFrameMs = 0;
+    this.lastFrameMs = nextRunState.lastFrameMs;
   }
 
   private enterCaughtGameOver(): void {
+    const transition = createCaughtGameOverTransitionState(performance.now());
     this.finishCurrentRun('caught');
-    this.startTimeMs = 0;
+    this.startTimeMs = transition.startTimeMs;
     this.setInverted(false);
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.audio.stop();
-    this.magnetTimerMs = 0;
-    this.ghostTimerMs = 0;
-    this.invertTimerMs = 0;
-    this.blackoutTimerMs = 0;
+    this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.resetComboState();
-    this.spriteShowcaseActive = false;
+    this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.toastSystem.clear();
     this.resetInput();
-    this.gameOverState = {
-      reason: 'caught',
-      startedAtMs: performance.now(),
-    };
+    this.gameOverState = transition.gameOverState;
   }
 
   private enterSpriteShowcaseMode(): void {
-    this.spriteShowcaseActive = true;
+    const transition = createSpriteShowcaseTransitionState();
+    this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.autoPickSpriteShowcaseTheme();
     this.audio.stop();
     this.setInverted(false);
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
-    this.magnetTimerMs = 0;
-    this.ghostTimerMs = 0;
-    this.invertTimerMs = 0;
-    this.blackoutTimerMs = 0;
+    this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.resetComboState();
     this.toastSystem.clear();

@@ -11,6 +11,7 @@ First, read:
 - `src/game/Game.ts`
 - `src/game/gameRuntime.ts`
 - `src/game/gameStateTypes.ts`
+- `src/game/gameRunStateRuntime.ts`
 - `src/game/pickupSpawnRuntime.ts`
 - `src/game/encounterRuntime.ts`
 - `src/game/gameRenderRuntime.ts`
@@ -34,6 +35,7 @@ Current known context:
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
 - `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
+- Begin/caught/showcase run-state transition snapshots are now extracted to `src/game/gameRunStateRuntime.ts`; `Game.ts` keeps side-effect sequencing.
 - Regular coin queue/refill scheduling was extracted from `Game.ts` into `src/game/pickupSpawnRuntime.ts`.
 - Stale internal debug-only hooks were removed from runtime (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug-event plumbing), while in-game `Shift + D` showcase remains intact.
 - Stale pickup collection branch state (`collectedIds`) was removed; scanner smoke now asserts active kind allowlist while `hazards`/`deadSpots` remain deferred-empty.
@@ -49,7 +51,7 @@ Priority lock for this session:
 Primary goals:
 1. Continue structural cleanup:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
-   - prioritize safe extraction of remaining run-state orchestration (begin/restart/game-over/showcase/reset flows) into focused runtime helpers
+   - keep run-state orchestration centralized through `src/game/gameRunStateRuntime.ts` and continue trimming any remaining state-transition duplication in `Game.ts`
    - keep encounter behavior centralized through `src/game/encounterRuntime.ts` helpers; avoid re-inlining
    - avoid behavior changes and preserve controls/core loop
 2. Follow-up hardening:

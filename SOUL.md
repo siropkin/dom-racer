@@ -444,6 +444,7 @@ Goal: make the game safe to share more widely.
 - [x] Resolve scanner/runtime drift for `deadSpot` and `hazard`
 - [x] Remove page-level debug API surface (`window.__domRacerDebug`)
 - [x] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
+- [x] Extract run-state transition snapshots (`begin`/`caught`/`showcase`) into `src/game/gameRunStateRuntime.ts` while keeping side-effect orchestration in `Game.ts`
 - [x] Audit remaining stale gameplay branches
 - [x] Remove stale internal debug-only runtime branches left after page-debug API removal
 
@@ -535,6 +536,7 @@ Status: `done`
 - [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
 - [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
 - [x] Continue extracting encounter orchestration (`plane` / `police`) from `src/game/Game.ts` into focused runtime helpers with no control-loop behavior drift
+- [x] Extract remaining run-state orchestration snapshots (`beginRun`, caught `GAME OVER`, sprite showcase) into `src/game/gameRunStateRuntime.ts` with no control/loop drift
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
@@ -567,6 +569,9 @@ Status: `done`
 
 Session note:
 
+- Current session continues hardening-first structural cleanup by extracting begin/caught/showcase run-state transition snapshots out of `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts`, while keeping side-effect sequencing (`audio`, page FX toggles, world apply) inside `Game.ts`.
+- Current session keeps encounter behavior centralized in `src/game/encounterRuntime.ts` (no re-inlining), keeps overgrowth deferred scope unchanged, and makes no pacing/mechanic constant changes.
+- Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 - Current session continues hardening-first structural cleanup by extracting plane/police encounter transition helpers from `src/game/Game.ts` into `src/game/encounterRuntime.ts` (`createPlaneBonusEncounter`, `advancePlaneBonusEventState`, `tickPoliceSpawnCountdown`, `createPoliceChase`, `advancePoliceChasing`, `advancePoliceLeaving`) while preserving controls/core loop behavior.
 - Current session keeps hardening lock active with no mechanic expansion and no tuning-constant changes.
 - Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
