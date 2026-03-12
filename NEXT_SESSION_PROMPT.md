@@ -28,7 +28,7 @@ Current known context:
 - Airplane `boost lane` prototype exists; `coin trail` is still not implemented.
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
 - Debug workflow is in-game only via `Shift + D` sprite showcase mode.
-- Hardening-first lock is active before any broader design/system expansion.
+- Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
 - Baseline smoke tests are in place and currently passing (`npm run test` -> 6 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
@@ -45,23 +45,29 @@ Current known context:
 - Latest hardening pass made no pacing/mechanic constant changes (structure-only refactor).
 
 Priority lock for this session:
-1) Hardening and structure
-2) Then tiny tuning polish only
+1) Deliver one bounded hardening extraction
+2) Deliver one bounded roadmap feature (`coin trail`)
+3) Tiny tuning polish only if needed after both
 
 Primary goals:
-1. Continue structural cleanup:
+1. Hardening extraction target:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
-   - keep run-state orchestration centralized through `src/game/gameRunStateRuntime.ts` and continue trimming any remaining state-transition duplication in `Game.ts`
+   - pick exactly one remaining extraction target (tick pickup/economy block OR input dispatch OR HUD/audio assembly) and move it to a focused runtime helper
+   - keep run-state orchestration centralized through `src/game/gameRunStateRuntime.ts`
    - keep encounter behavior centralized through `src/game/encounterRuntime.ts` helpers; avoid re-inlining
    - avoid behavior changes and preserve controls/core loop
-2. Follow-up hardening:
+2. Feature target:
+   - implement airplane `coin trail` as a readable, short-lived route opportunity
+   - keep specials independent from regular coin economy semantics
+   - keep no screen shake and avoid chaotic overlap with police/plane warning beats
+3. Follow-up hardening:
    - audit remaining stale gameplay branches (especially deferred channels) and keep guard behavior coherent
    - keep internal debug surface lean (no hidden callback/debug snapshot branches unless intentionally required)
    - if overgrowth stays deferred, keep that decision explicit in docs/tests
-3. Verification hardening:
+4. Verification hardening:
    - confirm no page-level debug globals in source/build (`__domRacerDebug`)
    - keep police catch -> game over -> `Space` restart flow intact
-4. Only after hardening:
+5. Only after goals 1+2:
    - tiny pacing/constants pass if needed (no mechanic expansion)
    - keep airplane/police/special overlap readable and non-chaotic
 

@@ -439,6 +439,14 @@ Status: `in progress`
 
 Goal: make the game safe to share more widely.
 
+### Current Delivery Mode
+
+Status: `in progress`
+
+- [x] Switch from refactor-only cadence to hybrid delivery: one bounded hardening task + one bounded feature task per session
+- [ ] Keep each hybrid session scoped so behavior drift is testable (`npm run test` + `npm run build` in the same pass)
+- [ ] Keep feature scope tied to existing roadmap items (no broad mechanic expansion)
+
 ### Code / Logic Fixes
 
 - [x] Resolve scanner/runtime drift for `deadSpot` and `hazard`
@@ -447,6 +455,15 @@ Goal: make the game safe to share more widely.
 - [x] Extract run-state transition snapshots (`begin`/`caught`/`showcase`) into `src/game/gameRunStateRuntime.ts` while keeping side-effect orchestration in `Game.ts`
 - [x] Audit remaining stale gameplay branches
 - [x] Remove stale internal debug-only runtime branches left after page-debug API removal
+
+### Remaining Structural Cleanup (Bounded)
+
+Status: `in progress`
+
+- [ ] Extract one more `tick` orchestration slice from `src/game/Game.ts` (pickup/economy update block) into a focused runtime helper without behavior change
+- [ ] Extract input/control dispatch helper from `src/game/Game.ts` while preserving existing key bindings and swallowed-key behavior
+- [ ] Extract HUD/audio orchestration assembly helper from `src/game/Game.ts` while keeping side effects in `Game.ts`
+- [ ] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
 
@@ -499,14 +516,13 @@ Goal: make the project page feel as cool as the game.
 
 ## Suggested Execution Order
 
-1. Phase 5 hardening first: structure cleanup + baseline test harness
-2. Resolve scanner/runtime drift and stale branches
-3. Add regression checks for economy/police/airplane event pacing
-4. Complete Phase 1 manual verification on target page types
-5. Design polish pass: event pacing and tuning loops (no new noisy systems)
-6. Continue Phase 2 overgrowth prototype
-7. Continue Phase 4 indie juice candidates under readability constraints
-8. Polish README and presentation assets for store readiness
+1. Hybrid pass each session: land one bounded hardening extraction + one bounded roadmap feature
+2. Keep encounter and debug guardrails intact while extracting (`encounterRuntime`, no page-level debug API)
+3. Add/adjust smoke checks for each extraction or feature edge touched
+4. Complete Phase 1 manual verification on target page types once interactive browser session is available
+5. Continue Phase 2 overgrowth prototype only after explicit scope re-activation
+6. Continue Phase 4 indie juice candidates under readability constraints
+7. Polish README and presentation assets for store readiness
 
 ## Immediate Next Build Target
 
@@ -537,6 +553,9 @@ Status: `done`
 - [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
 - [x] Continue extracting encounter orchestration (`plane` / `police`) from `src/game/Game.ts` into focused runtime helpers with no control-loop behavior drift
 - [x] Extract remaining run-state orchestration snapshots (`beginRun`, caught `GAME OVER`, sprite showcase) into `src/game/gameRunStateRuntime.ts` with no control/loop drift
+- [ ] Run one hybrid session: implement airplane `coin trail` from Phase 3 and pair it with one bounded `Game.ts` extraction from "Remaining Structural Cleanup (Bounded)"
+- [ ] Keep police catch -> `GAME OVER` -> `Space` restart invariants and special-vs-regular economy separation unchanged in the hybrid pass
+- [ ] Re-verify `__domRacerDebug` absence in both source and build output after hybrid changes
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
@@ -569,6 +588,8 @@ Status: `done`
 
 Session note:
 
+- Current session updates execution strategy to hybrid delivery (one bounded refactor + one bounded roadmap feature per session) to avoid refactor-only stagnation while keeping hardening guardrails active.
+- Next implementation target is explicitly paired: airplane `coin trail` feature + one additional safe `Game.ts` subsystem extraction in the same pass.
 - Current session continues hardening-first structural cleanup by extracting begin/caught/showcase run-state transition snapshots out of `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts`, while keeping side-effect sequencing (`audio`, page FX toggles, world apply) inside `Game.ts`.
 - Current session keeps encounter behavior centralized in `src/game/encounterRuntime.ts` (no re-inlining), keeps overgrowth deferred scope unchanged, and makes no pacing/mechanic constant changes.
 - Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
