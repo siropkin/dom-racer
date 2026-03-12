@@ -24,7 +24,7 @@ export type VehicleDesign = 'coupe' | 'buggy' | 'truck';
 export type SpecialEffect = 'invert' | 'magnet' | 'ghost' | 'blackout' | 'bonus';
 export type HudEffectKind = SpecialEffect | 'police' | 'flow';
 
-export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'hazard' | 'barrier' | 'deadSpot';
+export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';
 
 export interface ScannedElement {
   id: string;

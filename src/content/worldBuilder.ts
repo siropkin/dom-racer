@@ -8,6 +8,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
   const obstacles: Rect[] = [];
   const slowZones: Rect[] = [];
   const iceZones: Rect[] = [];
+  // Reserved runtime channels; scanner intentionally does not populate these today.
   const hazards: Rect[] = [];
   const deadSpots: Rect[] = [];
   const boosts: Rect[] = [];
@@ -21,16 +22,6 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
 
     if (element.kind === 'barrier') {
       obstacles.push(expandRect(element.rect, 4));
-      continue;
-    }
-
-    if (element.kind === 'hazard') {
-      hazards.push(expandRect(element.rect, 2));
-      continue;
-    }
-
-    if (element.kind === 'deadSpot') {
-      deadSpots.push(expandRect(element.rect, 4));
       continue;
     }
 

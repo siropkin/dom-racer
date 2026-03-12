@@ -435,29 +435,29 @@ Goal: make the game safe to share more widely.
 
 ### Code / Logic Fixes
 
-- [ ] Resolve scanner/runtime drift for `deadSpot` and `hazard`
+- [x] Resolve scanner/runtime drift for `deadSpot` and `hazard`
 - [x] Remove page-level debug API surface (`window.__domRacerDebug`)
-- [ ] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
+- [x] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
 - [ ] Audit remaining stale gameplay branches
 
 ### Test Coverage
 
-- [ ] Add smoke coverage for DOM scan -> world build
-- [ ] Add coverage for staged coin spawning
-- [ ] Add coverage for special item spawning
-- [ ] Add coverage for police catch -> game over -> restart
+- [x] Add smoke coverage for DOM scan -> world build
+- [x] Add coverage for staged coin spawning
+- [x] Add coverage for special item spawning
+- [x] Add coverage for police catch -> game over -> restart
 - [ ] Add coverage for overgrowth collision with player and police
 
 ### Final Tuning
 
-- [ ] spawn cadence
-- [ ] police frequency
+- [x] spawn cadence
+- [x] police frequency
 - [ ] overgrowth speed
 - [ ] visible coin cap
 
 ### Chrome Web Store Readiness (Near-Term)
 
-- [ ] Add production build profile with sourcemaps disabled by default
+- [x] Add production build profile with sourcemaps disabled by default
 - [ ] Re-audit permissions + host scope and document rationale for `<all_urls>`
 - [ ] Add lightweight release checklist (build, smoke checks, docs sanity)
 - [ ] Ensure no page-level debug globals are present in production bundles
@@ -500,19 +500,27 @@ Goal: make the project page feel as cool as the game.
 
 ## Immediate Next Build Target
 
-Status: `in progress`
+Status: `done`
 
 ### Milestone: Phase 5 Hardening Baseline
 
 - [x] Remove page-level debug API from runtime (`window.__domRacerDebug`)
-- [ ] Introduce first automated smoke tests:
-  - [ ] scanner -> world build sanity
-  - [ ] regular coin source and staging invariants
-  - [ ] specials independence invariants
-  - [ ] police catch -> `GAME OVER` -> restart flow
-- [ ] Split `src/game/Game.ts` into smaller modules without changing behavior
-- [ ] Add release build profile for Chrome Web Store (sourcemaps off by default)
-- [ ] Re-run `npm run build` and keep regression notes here
+- [x] Introduce first automated smoke tests:
+  - [x] scanner -> world build sanity
+  - [x] regular coin source and staging invariants
+  - [x] specials independence invariants
+  - [x] police catch -> `GAME OVER` -> restart flow
+- [x] Split `src/game/Game.ts` into smaller modules without changing behavior
+- [x] Add release build profile for Chrome Web Store (sourcemaps off by default)
+- [x] Re-run `npm run build` and keep regression notes here
+
+### Next Session Follow-Ups (Locked Order)
+
+- [ ] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
+- [ ] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
+- [ ] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
+- [ ] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
+- [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
 
@@ -551,7 +559,10 @@ Session note:
 - This session adds a short-lived airplane `boost lane` prototype (no screen shake, no economy-rule changes): rare during flyovers, lightly highlighted, time-limited, and staggered against ambient specials to preserve readability.
 - Current session removes page-level debug API exposure, keeps debug work in `Shift + D` sprite showcase mode, and persists production/design research notes for next passes.
 - Current priority lock: hardening (tests + structure) before design polish (event pacing/tuning loops).
-- Commit state: committed locally on `main` in:
+- Current session adds first Vitest smoke checks (scanner->world, regular coin staging/source rules, specials independence, police catch restart flow), extracts shared runtime constants/helpers from `Game.ts` into `src/game/gameRuntime.ts`, aligns scanner contract by dropping stale scanned `hazard`/`deadSpot` kinds, and adds a release build profile with sourcemaps disabled unless explicitly enabled.
+- Verification this session: `npm run test` (4 smoke tests) and `npm run build` both pass.
+- Next-session prompt is prepared in `NEXT_SESSION_PROMPT.md`.
+- Previous commit state on `main` before this session:
   - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)
   - `f374289` (SOUL commit-state note refresh)
 
