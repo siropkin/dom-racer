@@ -27,9 +27,9 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 - Police chases include an edge warning and a proper `GAME OVER` screen
 - Sound can be toggled in-game
 - Vehicle design can be cycled in-game
+- `Shift + D` opens a sprite/debug showcase mode
 - Page best and lifetime best are persisted through storage
 - Extension icons and store assets can be regenerated from source artwork
-- A debug API is available in the page for simulation and diagnostics
 
 ## Controls
 
@@ -40,6 +40,7 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 - `R`: restart the current run
 - `V`: switch vehicle design
 - `M`: toggle sound
+- `Shift + D`: open/close sprite showcase mode
 - `Esc`: quit
 
 ### On Police Game Over
@@ -112,19 +113,11 @@ DOM Racer stores:
 
 Storage uses `chrome.storage.local` when available, with `localStorage` fallback for compatibility.
 
-## Debug API
+## Debug Mode
 
-When the extension is active, a debug helper is installed on the page:
+Debugging now stays inside the game overlay instead of exposing a page-level API.
 
-```js
-window.__domRacerDebug.snapshot()
-await window.__domRacerDebug.runAutopilot({ durationMs: 15000 })
-await window.__domRacerDebug.runBatch({ runs: 5, durationMs: 10000 })
-window.__domRacerDebug.latestReport()
-window.__domRacerDebug.downloadLatestReport()
-```
-
-This is useful for manual balancing, diagnostics, and repeated score runs on the same page.
+Use `Shift + D` to open the sprite/debug showcase mode for visual checks and quick style validation.
 
 ## Branding Assets
 
@@ -140,7 +133,7 @@ Generated assets include:
 ```text
 branding/        SVG sources and branding generator
 public/          Manifest and static extension assets
-src/content/     DOM scanning, overlay bootstrapping, debug API
+src/content/     DOM scanning, overlay bootstrapping, page integration
 src/game/        Game loop, rendering, audio, HUD, player logic
 src/shared/      Shared types, utils, persistence helpers
 src/styles/      Overlay and page-effect styles

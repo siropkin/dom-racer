@@ -54,6 +54,13 @@ interface PlaneBonusEventState {
   traveledPx: number;
   dropAtPx: number;
   dropped: boolean;
+  effectMode: 'bonus-drop' | 'boost-lane';
+}
+
+interface PlaneBoostLaneState {
+  rects: Rect[];
+  ttlMs: number;
+  durationMs: number;
 }
 
 interface PoliceChaseState {
@@ -215,6 +222,7 @@ export class Game {
   private toastSystem: ToastSystem;
   private specialSpawnCues: SpecialSpawnCue[];
   private planeBonusEvent: PlaneBonusEventState | null;
+  private planeBoostLane: PlaneBoostLaneState | null;
   private planeBonusTimerMs: number;
   private pickupFlavorIndex: number;
   private lastCollisionEventAtMs: number;
@@ -288,6 +296,7 @@ export class Game {
     });
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
+    this.planeBoostLane = null;
     this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
     this.lastCollisionEventAtMs = 0;
@@ -353,6 +362,7 @@ export class Game {
     this.gameOverState = null;
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
+    this.planeBoostLane = null;
     this.spriteShowcaseActive = false;
     this.toastSystem.clear();
     this.resetInput();
@@ -492,9 +502,10 @@ export class Game {
     this.updateEffectTimers(dtSeconds);
     this.updateFocusMode(dtSeconds);
     this.updatePlaneWarning(dtSeconds);
+    this.updatePlaneBoostLane(dtSeconds);
 
     const currentBounds = this.player.getBounds();
-    const boosting = isBoosting(currentBounds, this.world.boosts);
+    const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce = isOnIceZone(currentBounds, this.world.iceZones);
     const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, this.world.slowZones);
 
@@ -596,6 +607,7 @@ export class Game {
 
     ctx.save();
     this.drawFocusModeLayer();
+    this.drawPlaneBoostLane();
     this.drawPlaneBonusEvent();
     this.drawSpecialSpawnCues();
     this.drawPickups();
@@ -731,6 +743,30 @@ export class Game {
         snapToPixel: true,
       },
     );
+  }
+
+  private drawPlaneBoostLane(): void {
+    if (!this.planeBoostLane) {
+      return;
+    }
+
+    const ctx = this.context;
+    const lane = this.planeBoostLane;
+    const now = performance.now();
+    const life = Math.max(0, Math.min(1, lane.ttlMs / Math.max(1, lane.durationMs)));
+    const pulse = 0.86 + Math.sin(now / 130) * 0.14;
+
+    ctx.save();
+    for (const [index, rect] of lane.rects.entries()) {
+      const shimmer = 0.82 + Math.sin(now / 94 + index * 0.74) * 0.18;
+      const alpha = Math.max(0.06, life * 0.24 * pulse * shimmer);
+      ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      ctx.strokeStyle = `rgba(186, 230, 253, ${Math.max(0.18, life * 0.56)})`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
+    }
+    ctx.restore();
   }
 
   private drawSpriteShowcase(): void {
@@ -1218,6 +1254,12 @@ export class Game {
       return;
     }
 
+    if (this.planeBoostLane) {
+      // Keep lane moments readable by delaying ambient specials a bit.
+      this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+      return;
+    }
+
     this.specialSpawnTimerMs = Math.max(0, this.specialSpawnTimerMs - dtSeconds * 1000);
     if (this.specialSpawnTimerMs > 0) {
       return;
@@ -1279,6 +1321,7 @@ export class Game {
         traveledPx: 0,
         dropAtPx: distance * randomBetween(0.36, 0.64),
         dropped: false,
+        effectMode: Math.random() < PLANE_BOOST_LANE_CHANCE ? 'boost-lane' : 'bonus-drop',
       };
       this.planeWarning = {
         edge: getPlaneEntryEdge(this.world.viewport, path.start),
@@ -1299,7 +1342,19 @@ export class Game {
 
     if (!this.planeBonusEvent.dropped) {
       if (this.planeBonusEvent.traveledPx >= this.planeBonusEvent.dropAtPx) {
-        this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
+        if (this.planeBonusEvent.effectMode === 'boost-lane') {
+          const spawnedLane = this.spawnPlaneBoostLane(
+            this.planeBonusEvent.x,
+            this.planeBonusEvent.y + 12,
+            this.planeBonusEvent.vx,
+            this.planeBonusEvent.vy,
+          );
+          if (!spawnedLane) {
+            this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
+          }
+        } else {
+          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
+        }
         this.planeBonusEvent.dropped = true;
       }
     }
@@ -1350,6 +1405,50 @@ export class Game {
     this.enqueueSpecialSpawnCue(pickup);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage(getSpecialDropMessage('bonus'), getSpecialColor('bonus'), 'high');
+  }
+
+  private spawnPlaneBoostLane(x: number, y: number, vx: number, vy: number): boolean {
+    if (!this.world) {
+      return false;
+    }
+
+    const laneRects = createPlaneBoostLaneRects(this.world.viewport, { x, y }, { x: vx, y: vy });
+    if (laneRects.length === 0) {
+      return false;
+    }
+
+    this.planeBoostLane = {
+      rects: laneRects,
+      ttlMs: PLANE_BOOST_LANE_DURATION_MS,
+      durationMs: PLANE_BOOST_LANE_DURATION_MS,
+    };
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.audio.playPlaneDrop();
+    this.spawnEffectMessage('JET LANE', '#7dd3fc', 'high');
+    return true;
+  }
+
+  private updatePlaneBoostLane(dtSeconds: number): void {
+    if (!this.planeBoostLane) {
+      return;
+    }
+
+    this.planeBoostLane.ttlMs = Math.max(0, this.planeBoostLane.ttlMs - dtSeconds * 1000);
+    if (this.planeBoostLane.ttlMs === 0) {
+      this.planeBoostLane = null;
+    }
+  }
+
+  private getActiveBoostZones(): Rect[] {
+    if (!this.world) {
+      return [];
+    }
+
+    if (!this.planeBoostLane) {
+      return this.world.boosts;
+    }
+
+    return [...this.world.boosts, ...this.planeBoostLane.rects];
   }
 
   private spawnQueuedCoins(count: number): boolean {
@@ -1966,6 +2065,7 @@ export class Game {
     this.toastSystem.clear();
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
+    this.planeBoostLane = null;
     this.score = 0;
     this.coinsCollectedTotal = 0;
     this.specialSpawnTimerMs = randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS);
@@ -2017,6 +2117,7 @@ export class Game {
     this.toastSystem.clear();
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
+    this.planeBoostLane = null;
     this.resetInput();
     this.debugInput = null;
     this.gameOverState = {
@@ -2044,6 +2145,7 @@ export class Game {
     this.toastSystem.clear();
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
+    this.planeBoostLane = null;
     this.resetInput();
     this.debugInput = null;
   }
@@ -2194,6 +2296,11 @@ const PLANE_EVENT_INITIAL_MIN_MS = 14000;
 const PLANE_EVENT_INITIAL_MAX_MS = 22000;
 const PLANE_EVENT_RESPAWN_MIN_MS = 17000;
 const PLANE_EVENT_RESPAWN_MAX_MS = 25000;
+const PLANE_BOOST_LANE_CHANCE = 0.38;
+const PLANE_BOOST_LANE_DURATION_MS = 4200;
+const PLANE_BOOST_LANE_LENGTH_PX = 228;
+const PLANE_BOOST_LANE_WIDTH_PX = 24;
+const PLANE_BOOST_LANE_STEP_PX = 22;
 const SPECIAL_VISIBLE_CAP = 2;
 const SPECIAL_INITIAL_SPAWN_MIN_MS = 4800;
 const SPECIAL_INITIAL_SPAWN_MAX_MS = 7600;
@@ -2203,6 +2310,7 @@ const SPECIAL_RETRY_MIN_MS = 2400;
 const SPECIAL_RETRY_MAX_MS = 3600;
 const SPECIAL_CAP_RETRY_MIN_MS = 2600;
 const SPECIAL_CAP_RETRY_MAX_MS = 4200;
+const PLANE_LANE_SPECIAL_STAGGER_MS = 1300;
 const POLICE_START_DELAY_MS = 12000;
 const POLICE_START_SCORE_THRESHOLD = 30;
 const POLICE_START_COINS_THRESHOLD = 6;
@@ -2524,6 +2632,62 @@ function isPointOutsideViewport(
   padding: number,
 ): boolean {
   return x < -padding || y < -padding || x > viewport.width + padding || y > viewport.height + padding;
+}
+
+function createPlaneBoostLaneRects(
+  viewport: World['viewport'],
+  center: Vector2,
+  direction: Vector2,
+): Rect[] {
+  const magnitude = Math.hypot(direction.x, direction.y);
+  if (magnitude < 0.001) {
+    return [];
+  }
+
+  const dir = {
+    x: direction.x / magnitude,
+    y: direction.y / magnitude,
+  };
+  const halfLength = PLANE_BOOST_LANE_LENGTH_PX / 2;
+  const halfWidth = PLANE_BOOST_LANE_WIDTH_PX / 2;
+  const minX = 8;
+  const minY = 8;
+  const maxX = Math.max(minX, viewport.width - PLANE_BOOST_LANE_WIDTH_PX - 8);
+  const maxY = Math.max(minY, viewport.height - PLANE_BOOST_LANE_WIDTH_PX - 8);
+  const rects: Rect[] = [];
+
+  for (let offset = -halfLength; offset <= halfLength; offset += PLANE_BOOST_LANE_STEP_PX) {
+    const centerX = center.x + dir.x * offset;
+    const centerY = center.y + dir.y * offset;
+    if (
+      centerX < -halfWidth ||
+      centerY < -halfWidth ||
+      centerX > viewport.width + halfWidth ||
+      centerY > viewport.height + halfWidth
+    ) {
+      continue;
+    }
+
+    const rect: Rect = {
+      x: clamp(centerX - halfWidth, minX, maxX),
+      y: clamp(centerY - halfWidth, minY, maxY),
+      width: PLANE_BOOST_LANE_WIDTH_PX,
+      height: PLANE_BOOST_LANE_WIDTH_PX,
+    };
+
+    const duplicate = rects.some(
+      (existing) =>
+        Math.abs(existing.x - rect.x) < 0.5 &&
+        Math.abs(existing.y - rect.y) < 0.5 &&
+        existing.width === rect.width &&
+        existing.height === rect.height,
+    );
+    if (!duplicate) {
+      rects.push(rect);
+    }
+  }
+
+  return rects;
 }
 
 function getPlaneEntryEdge(viewport: World['viewport'], point: Vector2): PoliceEdge {

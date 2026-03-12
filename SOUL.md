@@ -67,7 +67,7 @@ As of this plan version, the game already includes:
 - hidden `Shift + D` sprite showcase with theme switching and auto contrast pick
 - sound toggle and vehicle toggle
 - extension/store branding assets
-- debug API for autopilot / reports
+- in-game debug visibility via sprite showcase mode (no page-level debug API)
 
 ### Current Controls
 
@@ -76,12 +76,13 @@ As of this plan version, the game already includes:
 - `R`: restart run
 - `V`: switch vehicle
 - `M`: toggle sound
+- `Shift + D`: sprite showcase debug mode
 - `Esc`: quit
 - on police `GAME OVER`: `Space` restart, `Esc` quit
 
 ### Current Architecture Map
 
-- `src/content/`: page integration, scanning, overlay bootstrapping, debug API
+- `src/content/`: page integration, scanning, overlay bootstrapping
 - `src/game/`: game loop, rendering, HUD, player, audio, pickups
 - `src/shared/`: shared types, settings, persistence, utilities
 - `public/`: extension manifest and shipped assets
@@ -101,9 +102,50 @@ As of this plan version, the game already includes:
 These are already identified and should be addressed in the hardening phase.
 
 - `deadSpot` / `hazard` branches still exist in runtime logic but are not currently produced by the scanner
-- debug autopilot still thinks it can “boost” out of stuck states, but manual boost was removed
-- autopilot does not stop cleanly on police `GAME OVER`
+- `src/game/Game.ts` is now a large multi-system runtime file and should be split by responsibility
+- there is no automated gameplay regression harness yet for economy + police + airplane pacing behavior
 - there is little to no automated coverage for scanner -> world -> gameplay transitions
+
+## Production Research Notes (Persisted)
+
+These notes are intentionally kept here to guide future passes.
+
+### 1) Telegraphing and fairness (Mike Stout)
+
+Source: [Enemy Attacks and Telegraphing](https://www.gamedeveloper.com/design/enemy-attacks-and-telegraphing)
+
+- Keep challenge in overlapping clear questions, not surprise ambiguity.
+- Major events should have readable pre-cues (`WEE-OO`, `NYOOM`) and enough response window.
+- Difficulty should come from route pressure and timing overlap, not hidden state changes.
+
+### 2) Mechanics -> Dynamics -> Aesthetics (MDA)
+
+Source: [MDA framework overview](https://en.wikipedia.org/wiki/MDA_framework)
+
+- Lock target feeling first, then tune mechanics.
+- For `DOM Racer`: keep event roles distinct:
+  - police = pressure/chase
+  - airplane = opportunity/route moment
+  - regular coins = simple economy baseline
+- Reject mechanics that blur roles or reduce first-glance readability.
+
+### 3) Game feel iteration and signal density (Vlambeer / Nijman)
+
+Source: [Interview on Nuclear Throne feel](https://www.rockpapershotgun.com/interview-jan-willem-nijman-on-nuclear-thrones-feel)
+
+- Prioritize "maximum output for minimum input" with concise feedback loops.
+- Tune in short playtest cycles with a small number of knobs at a time.
+- Keep feedback layers additive but controlled; avoid audio/visual stack noise during key events.
+
+### 4) UI hierarchy for moment-to-moment play
+
+Sources:
+- [HUD readability patterns](https://www.indiedevguide.com/articles/game-hud-design-techniques-ui-ux-indie-devs/)
+- [UI mistakes in indie games](https://thedexigner.com/blog/ui-mistakes-in-indie-games-and-how-to-dodge-them/)
+
+- Keep primary HUD reads to score/time/effects/critical warnings.
+- Preserve strong contrast and concise labels over decorative text density.
+- Add presentation only when it does not compete with chase and route perception.
 
 ## North Star
 
@@ -332,15 +374,15 @@ Goal: add a rare, stylish world event that changes the map in a playful way.
 ### Airplane Design Rules
 
 - [x] Airplane should feel whimsical, not military
-- [ ] Do not use bombs
+- [x] Do not use bombs
 - [x] Event should be readable at a glance
-- [ ] Event should create opportunity, not random punishment
+- [x] Event should create opportunity, not random punishment
 
 ### Candidate Effects
 
 - [x] `Bonus drop`: airplane drops a bonus-only special pickup
 - [ ] `Coin trail`: airplane leaves a short line of coins across the map
-- [ ] `Boost lane`: airplane paints a temporary speed strip
+- [x] `Boost lane`: airplane paints a temporary speed strip
 - [ ] `Lucky wind`: airplane gently nudges nearby coins into a route
 - [ ] `Spotlight`: airplane reveals or highlights a special
 - [ ] `Garden trim`: airplane cuts back bushes / trees and opens a lane
@@ -357,7 +399,7 @@ Status: `in progress`
 - [x] Add and tune a "cool" airplane sound profile that is noticeable without becoming noisy
 - [x] Stagger airplane and police cadence to reduce same-time overlap noise
 - [ ] Implement `coin trail`
-- [ ] Implement temporary `boost lane`
+- [x] Implement temporary `boost lane`
 - [x] Add cooldown / rarity rules
 
 Definition of done:
@@ -394,8 +436,8 @@ Goal: make the game safe to share more widely.
 ### Code / Logic Fixes
 
 - [ ] Resolve scanner/runtime drift for `deadSpot` and `hazard`
-- [ ] Fix autopilot stuck-recovery path after manual boost removal
-- [ ] Make autopilot terminate correctly on police `GAME OVER`
+- [x] Remove page-level debug API surface (`window.__domRacerDebug`)
+- [ ] Split `src/game/Game.ts` into focused runtime systems (events, rendering, effects, state)
 - [ ] Audit remaining stale gameplay branches
 
 ### Test Coverage
@@ -412,6 +454,13 @@ Goal: make the game safe to share more widely.
 - [ ] police frequency
 - [ ] overgrowth speed
 - [ ] visible coin cap
+
+### Chrome Web Store Readiness (Near-Term)
+
+- [ ] Add production build profile with sourcemaps disabled by default
+- [ ] Re-audit permissions + host scope and document rationale for `<all_urls>`
+- [ ] Add lightweight release checklist (build, smoke checks, docs sanity)
+- [ ] Ensure no page-level debug globals are present in production bundles
 
 ## Phase 6: README / Presentation
 
@@ -440,20 +489,32 @@ Goal: make the project page feel as cool as the game.
 
 ## Suggested Execution Order
 
-1. Complete Phase 1 verification pass across page types
-2. Improve special spawn feedback and bonus-item clarity (`GHOST`, `BLACKOUT`)
-3. Run a small special-ideas pass and shortlist prototypes
-4. Fix production-hardening issues in debug/autopilot paths
-5. Build trees / bushes overgrowth prototype
-6. Build airplane prototype
-7. Run research-driven indie juice pass
-8. Polish README and presentation assets
+1. Phase 5 hardening first: structure cleanup + baseline test harness
+2. Resolve scanner/runtime drift and stale branches
+3. Add regression checks for economy/police/airplane event pacing
+4. Complete Phase 1 manual verification on target page types
+5. Design polish pass: event pacing and tuning loops (no new noisy systems)
+6. Continue Phase 2 overgrowth prototype
+7. Continue Phase 4 indie juice candidates under readability constraints
+8. Polish README and presentation assets for store readiness
 
 ## Immediate Next Build Target
 
 Status: `in progress`
 
-### Milestone: Phase 1 Verification + Bonus Clarity
+### Milestone: Phase 5 Hardening Baseline
+
+- [x] Remove page-level debug API from runtime (`window.__domRacerDebug`)
+- [ ] Introduce first automated smoke tests:
+  - [ ] scanner -> world build sanity
+  - [ ] regular coin source and staging invariants
+  - [ ] specials independence invariants
+  - [ ] police catch -> `GAME OVER` -> restart flow
+- [ ] Split `src/game/Game.ts` into smaller modules without changing behavior
+- [ ] Add release build profile for Chrome Web Store (sourcemaps off by default)
+- [ ] Re-run `npm run build` and keep regression notes here
+
+### Previous Milestone: Phase 1 Verification + Bonus Clarity
 
 - [ ] run manual verification on:
   - [ ] GitHub repo page
@@ -487,6 +548,9 @@ Session note:
 - This session's regression confirmations were completed via source audit + `npm run build`.
 - This pass improved HUD sound-state clarity (`M SOUND` + explicit `ON/OFF` chip), introduced tuned plane flyover/drop cues, and reworked toast overlap handling with priority-aware stacking.
 - Follow-up HUD polish moved the `ON`/`OFF` sound chip left so it sits closer to `M SOUND`.
+- This session adds a short-lived airplane `boost lane` prototype (no screen shake, no economy-rule changes): rare during flyovers, lightly highlighted, time-limited, and staggered against ambient specials to preserve readability.
+- Current session removes page-level debug API exposure, keeps debug work in `Shift + D` sprite showcase mode, and persists production/design research notes for next passes.
+- Current priority lock: hardening (tests + structure) before design polish (event pacing/tuning loops).
 - Commit state: committed locally on `main` in:
   - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)
   - `f374289` (SOUL commit-state note refresh)

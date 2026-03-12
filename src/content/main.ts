@@ -10,7 +10,6 @@ import {
   saveVehicleDesignSetting,
 } from '../shared/settings';
 import { debounce } from '../shared/utils';
-import { installDebugApi } from './debugApi';
 import { scanVisibleDom } from './domScanner';
 import { ensureOverlay, setOverlayActive } from './overlay';
 import { buildWorld } from './worldBuilder';
@@ -34,11 +33,6 @@ let pageBestScore = 0;
 let lifetimeBestScore = 0;
 let lastMagnetUiUpdateAt = 0;
 const magnetizedElements = new Set<HTMLElement>();
-const handleDebugEvent = installDebugApi({
-  ensureActive: activate,
-  deactivate,
-  getGame: () => game,
-});
 
 void loadSoundEnabledSetting().then((value) => {
   soundEnabled = value;
@@ -135,7 +129,6 @@ function activate(): void {
     initialPageBestScore: pageBestScore,
     initialLifetimeBestScore: lifetimeBestScore,
     onRunFinished: handleRunFinished,
-    onDebugEvent: handleDebugEvent,
   });
   game.start();
 }
