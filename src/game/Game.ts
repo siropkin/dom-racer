@@ -12,6 +12,18 @@ import { AudioManager } from './audio';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
 import { collectPickups, isBoosting, isOnDeadSpot, isOnIceZone, isOnSlowZone } from './pickups';
+import {
+  createPlaneBoostLaneRects,
+  createPlaneCornerPath,
+  getNearestPoliceExitEdge,
+  getPlaneEntryEdge,
+  getPoliceExitTarget,
+  getPoliceRect,
+  getPoliceSpawn,
+  getRandomPoliceEdge,
+  isPointOutsideViewport,
+  isPoliceOffscreen,
+} from './encounterRuntime';
 import { renderPlaneSprite } from './planeSprite';
 import {
   POLICE_CAR_SIZE,
@@ -20,7 +32,7 @@ import {
   renderPoliceWarningIndicator,
   type PoliceEdge,
 } from './policeSprite';
-import { renderPlayerSprite } from './playerSprite';
+import { drawCaughtGameOverOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
 import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
 import { Player } from './player';
 import {
@@ -51,11 +63,6 @@ import {
   PLANE_BONUS_PICKUP_SIZE,
   PLANE_BOOST_LANE_CHANCE,
   PLANE_BOOST_LANE_DURATION_MS,
-  PLANE_BOOST_LANE_LENGTH_PX,
-  PLANE_BOOST_LANE_STEP_PX,
-  PLANE_BOOST_LANE_WIDTH_PX,
-  PLANE_EVENT_CORNER_SPAN,
-  PLANE_EVENT_ENTRY_OFFSET,
   PLANE_EVENT_INITIAL_MAX_MS,
   PLANE_EVENT_INITIAL_MIN_MS,
   PLANE_EVENT_MIN_SCORE,
@@ -95,7 +102,6 @@ import {
   REGULAR_COIN_STARTING_BATCH,
   REGULAR_COIN_VISIBLE_CAP,
   SHOWCASE_THEMES,
-  SHOWCASE_TOAST_MESSAGES,
   shufflePickups,
   SPECIAL_CAP_RETRY_MAX_MS,
   SPECIAL_CAP_RETRY_MIN_MS,
@@ -156,8 +162,6 @@ interface PoliceChaseState {
   phase: 'chasing' | 'leaving';
   exitEdge: PoliceEdge;
 }
-
-type PlaneCorner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 
 interface PoliceWarningState {
   edge: PoliceEdge;
@@ -845,180 +849,13 @@ export class Game {
     if (!this.world) {
       return;
     }
-
-    const ctx = this.context;
-    const { width, height } = this.world.viewport;
-    const now = performance.now();
-    const theme = SHOWCASE_THEMES[this.spriteShowcaseThemeIndex];
-
-    ctx.save();
-    ctx.fillStyle = theme.background;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.strokeStyle = theme.grid;
-    ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 32) {
-      ctx.beginPath();
-      ctx.moveTo(x + 0.5, 0);
-      ctx.lineTo(x + 0.5, height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < height; y += 32) {
-      ctx.beginPath();
-      ctx.moveTo(0, y + 0.5);
-      ctx.lineTo(width, y + 0.5);
-      ctx.stroke();
-    }
-
-    ctx.fillStyle = theme.title;
-    ctx.font = 'bold 14px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillText('SPRITE SHOWCASE', 20, 20);
-    ctx.fillStyle = theme.subtitle;
-    ctx.font = '11px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillText('SHIFT+D TO EXIT + RESTART', 20, 38);
-    ctx.fillText(`ARROWS THEME: ${theme.name}`, 20, 54);
-    ctx.fillText(`AUTO PAGE LUMA: ${Math.round(this.spriteShowcasePageLightness * 100)}%`, 20, 70);
-
-    const carsBaseY = 102;
-    const carXs = [80, 130, 180] as const;
-    const designs: VehicleDesign[] = ['coupe', 'buggy', 'truck'];
-    carXs.forEach((x, index) => {
-      renderPlayerSprite(ctx, {
-        centerX: x,
-        centerY: carsBaseY,
-        angle: -0.24,
-        design: designs[index],
-        boostActive: index === 2,
-        magnetActive: false,
-        opacity: 1,
-        nowMs: now,
-      });
-      renderPlayerSprite(ctx, {
-        centerX: x,
-        centerY: carsBaseY + 36,
-        angle: -0.24,
-        design: designs[index],
-        boostActive: false,
-        magnetActive: false,
-        opacity: 0.46,
-        nowMs: now,
-      });
-      renderPlayerSprite(ctx, {
-        centerX: x,
-        centerY: carsBaseY + 72,
-        angle: -0.24,
-        design: designs[index],
-        boostActive: false,
-        magnetActive: true,
-        opacity: 1,
-        nowMs: now,
-      });
+    drawSpriteShowcaseOverlay({
+      ctx: this.context,
+      viewport: this.world.viewport,
+      nowMs: performance.now(),
+      themeIndex: this.spriteShowcaseThemeIndex,
+      pageLightness: this.spriteShowcasePageLightness,
     });
-
-    renderPlaneSprite(
-      ctx,
-      { x: width * 0.52, y: carsBaseY - 6, angle: 0.48 },
-      now,
-      { wobbleRadians: Math.sin(now / 220) * 0.022, scale: 1.08, snapToPixel: true },
-    );
-
-    renderPoliceCarSprite(
-      ctx,
-      {
-        x: width * 0.68,
-        y: carsBaseY - POLICE_CAR_SIZE.height / 2,
-        angle: 0.38,
-      },
-      now,
-    );
-
-    renderPoliceWarningIndicator(
-      ctx,
-      this.world.viewport,
-      { edge: 'right', remainingMs: 600, durationMs: 1100 },
-      now,
-    );
-
-    renderEdgeWarningIndicator(ctx, this.world.viewport, now, {
-      edge: 'left',
-      label: 'NYOOM',
-      colorOn: '#f9a8d4',
-      colorOff: '#be185d',
-      flashPeriodMs: 82,
-      padding: 18,
-    });
-    const pickupsY = Math.max(176, Math.min(height - 72, carsBaseY + 112));
-    const coinRadius = 9;
-    const coinSpinA = Math.abs(Math.sin(now / 180));
-    const coinSpinB = Math.abs(Math.sin(now / 180 + 0.75));
-    drawRegularCoinSprite(ctx, {
-      centerX: 70,
-      centerY: pickupsY,
-      radius: coinRadius,
-      width: Math.max(3.5, coinRadius * (0.3 + coinSpinA * 0.7)),
-      isFlowCoin: false,
-    });
-    drawRegularCoinSprite(ctx, {
-      centerX: 102,
-      centerY: pickupsY,
-      radius: coinRadius,
-      width: Math.max(3.5, coinRadius * (0.3 + coinSpinB * 0.7)),
-      isFlowCoin: true,
-    });
-
-    const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout'];
-    specialEffects.forEach((effect, index) => {
-      const pickup: WorldPickup = {
-        id: `showcase:${effect}:${index}`,
-        rect: { x: 0, y: 0, width: 18, height: 18 },
-        value: 0,
-        kind: 'special',
-        effect,
-        accentColor: getSpecialColor(effect),
-        label: getSpecialLabel(effect),
-      };
-      drawSpecialPickupSprite(ctx, pickup, {
-        centerX: 154 + index * 34,
-        centerY: pickupsY,
-        radius: 9,
-        spin: Math.abs(Math.sin(now / 180 + index * 0.75)),
-        nowMs: now,
-      });
-    });
-
-    const toastCols = 3;
-    const toastWidth = 66;
-    const toastHeight = 16;
-    const toastGap = 6;
-    const toastPanelX = width - (toastCols * toastWidth + (toastCols - 1) * toastGap) - 18;
-    const toastPanelY = pickupsY - 56;
-    ctx.fillStyle = theme.toastPanel;
-    ctx.fillRect(
-      toastPanelX - 8,
-      toastPanelY - 22,
-      toastCols * toastWidth + (toastCols - 1) * toastGap + 16,
-      Math.ceil(SHOWCASE_TOAST_MESSAGES.length / toastCols) * (toastHeight + toastGap) + 32,
-    );
-    ctx.fillStyle = theme.subtitle;
-    ctx.font = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillText('TOASTS', toastPanelX - 2, toastPanelY - 8);
-
-    SHOWCASE_TOAST_MESSAGES.forEach((text, index) => {
-      const col = index % toastCols;
-      const row = Math.floor(index / toastCols);
-      const x = toastPanelX + col * (toastWidth + toastGap);
-      const y = toastPanelY + row * (toastHeight + toastGap);
-      ctx.fillStyle = theme.toastCard;
-      ctx.fillRect(x, y, toastWidth, toastHeight);
-      ctx.strokeStyle = theme.toastStroke;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x + 0.5, y + 0.5, toastWidth - 1, toastHeight - 1);
-      ctx.fillStyle = theme.toastText;
-      ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
-      ctx.fillText(text, x + 4, y + 11);
-    });
-
-    ctx.restore();
   }
 
   private cycleSpriteShowcaseTheme(direction: -1 | 1): void {
@@ -2226,40 +2063,13 @@ export class Game {
     if (!this.world || !this.gameOverState) {
       return;
     }
-
-    const ctx = this.context;
-    const { width, height } = this.world.viewport;
-    const flash = Math.sin((performance.now() - this.gameOverState.startedAtMs) / 240) > 0 ? 1 : 0.72;
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(2, 6, 23, 0.94)';
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    ctx.font = 'bold 18px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillStyle = '#f87171';
-    ctx.fillText('BUSTED BY POLICE', width / 2, height / 2 - 82);
-
-    ctx.font = 'bold 48px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(96, 165, 250, 0.72)';
-    ctx.fillText('GAME OVER', width / 2 + 3, height / 2 - 16);
-    ctx.fillStyle = 'rgba(251, 113, 133, 0.78)';
-    ctx.fillText('GAME OVER', width / 2 - 3, height / 2 - 16);
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillText('GAME OVER', width / 2, height / 2 - 18);
-
-    ctx.font = 'bold 16px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillStyle = '#fde68a';
-    ctx.fillText(`SCORE ${this.score.toString().padStart(4, '0')}`, width / 2, height / 2 + 32);
-
-    ctx.font = 'bold 14px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillStyle = `rgba(226, 232, 240, ${flash})`;
-    ctx.fillText('PRESS SPACE TO RESTART', width / 2, height / 2 + 84);
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
-    ctx.fillText('ESC TO QUIT', width / 2, height / 2 + 108);
-    ctx.restore();
+    drawCaughtGameOverOverlay({
+      ctx: this.context,
+      viewport: this.world.viewport,
+      nowMs: performance.now(),
+      startedAtMs: this.gameOverState.startedAtMs,
+      score: this.score,
+    });
   }
 
   private getActiveEffects(currentSurface: SurfaceSample): HudState['activeEffects'] {
@@ -2334,246 +2144,5 @@ export class Game {
 
   private emitDebugEvent(event: GameDebugEvent): void {
     this.onDebugEvent?.(event);
-  }
-}
-
-function getPoliceRect(policeChase: PoliceChaseState): Rect {
-  return {
-    x: policeChase.x,
-    y: policeChase.y,
-    width: POLICE_CAR_SIZE.width,
-    height: POLICE_CAR_SIZE.height,
-  };
-}
-
-function getRandomPoliceEdge(): PoliceEdge {
-  const edge = Math.floor(Math.random() * 4);
-  switch (edge) {
-    case 0:
-      return 'top';
-    case 1:
-      return 'right';
-    case 2:
-      return 'bottom';
-    default:
-      return 'left';
-  }
-}
-
-function getNearestPoliceExitEdge(viewport: World['viewport'], policeChase: PoliceChaseState): PoliceEdge {
-  const center = rectCenter(getPoliceRect(policeChase));
-  const distances = [
-    { edge: 'top' as const, distance: center.y },
-    { edge: 'right' as const, distance: viewport.width - center.x },
-    { edge: 'bottom' as const, distance: viewport.height - center.y },
-    { edge: 'left' as const, distance: center.x },
-  ];
-
-  distances.sort((left, right) => left.distance - right.distance);
-  return distances[0].edge;
-}
-
-function getPoliceExitTarget(
-  viewport: World['viewport'],
-  policeChase: PoliceChaseState,
-): { x: number; y: number } {
-  const center = rectCenter(getPoliceRect(policeChase));
-
-  switch (policeChase.exitEdge) {
-    case 'top':
-      return { x: center.x, y: -POLICE_CAR_SIZE.height - 36 };
-    case 'right':
-      return { x: viewport.width + POLICE_CAR_SIZE.width + 36, y: center.y };
-    case 'bottom':
-      return { x: center.x, y: viewport.height + POLICE_CAR_SIZE.height + 36 };
-    default:
-      return { x: -POLICE_CAR_SIZE.width - 36, y: center.y };
-  }
-}
-
-function isPoliceOffscreen(
-  viewport: World['viewport'],
-  policeChase: PoliceChaseState,
-  padding: number,
-): boolean {
-  const rect = getPoliceRect(policeChase);
-  return (
-    rect.x + rect.width < -padding ||
-    rect.y + rect.height < -padding ||
-    rect.x > viewport.width + padding ||
-    rect.y > viewport.height + padding
-  );
-}
-
-function createPlaneCornerPath(viewport: World['viewport']): { start: Vector2; end: Vector2 } {
-  const startCorner = getRandomPlaneCorner();
-  const endCorner = getOppositePlaneCorner(startCorner);
-  return {
-    start: getPlaneCornerPoint(viewport, startCorner),
-    end: getPlaneCornerPoint(viewport, endCorner),
-  };
-}
-
-function getRandomPlaneCorner(): PlaneCorner {
-  const corner = Math.floor(Math.random() * 4);
-  switch (corner) {
-    case 0:
-      return 'top-left';
-    case 1:
-      return 'top-right';
-    case 2:
-      return 'bottom-right';
-    default:
-      return 'bottom-left';
-  }
-}
-
-function getOppositePlaneCorner(corner: PlaneCorner): PlaneCorner {
-  switch (corner) {
-    case 'top-left':
-      return 'bottom-right';
-    case 'top-right':
-      return 'bottom-left';
-    case 'bottom-right':
-      return 'top-left';
-    case 'bottom-left':
-      return 'top-right';
-  }
-}
-
-function getPlaneCornerPoint(viewport: World['viewport'], corner: PlaneCorner): Vector2 {
-  const outside = PLANE_EVENT_ENTRY_OFFSET;
-  const xSpan = Math.min(PLANE_EVENT_CORNER_SPAN, viewport.width * 0.26);
-  const ySpan = Math.min(PLANE_EVENT_CORNER_SPAN, viewport.height * 0.26);
-  const useHorizontalEdge = Math.random() < 0.5;
-
-  switch (corner) {
-    case 'top-left':
-      return useHorizontalEdge
-        ? { x: randomBetween(-outside, xSpan), y: -outside }
-        : { x: -outside, y: randomBetween(-outside, ySpan) };
-    case 'top-right':
-      return useHorizontalEdge
-        ? { x: randomBetween(viewport.width - xSpan, viewport.width + outside), y: -outside }
-        : { x: viewport.width + outside, y: randomBetween(-outside, ySpan) };
-    case 'bottom-right':
-      return useHorizontalEdge
-        ? {
-            x: randomBetween(viewport.width - xSpan, viewport.width + outside),
-            y: viewport.height + outside,
-          }
-        : {
-            x: viewport.width + outside,
-            y: randomBetween(viewport.height - ySpan, viewport.height + outside),
-          };
-    case 'bottom-left':
-      return useHorizontalEdge
-        ? { x: randomBetween(-outside, xSpan), y: viewport.height + outside }
-        : { x: -outside, y: randomBetween(viewport.height - ySpan, viewport.height + outside) };
-  }
-}
-
-function isPointOutsideViewport(
-  viewport: World['viewport'],
-  x: number,
-  y: number,
-  padding: number,
-): boolean {
-  return x < -padding || y < -padding || x > viewport.width + padding || y > viewport.height + padding;
-}
-
-function createPlaneBoostLaneRects(
-  viewport: World['viewport'],
-  center: Vector2,
-  direction: Vector2,
-): Rect[] {
-  const magnitude = Math.hypot(direction.x, direction.y);
-  if (magnitude < 0.001) {
-    return [];
-  }
-
-  const dir = {
-    x: direction.x / magnitude,
-    y: direction.y / magnitude,
-  };
-  const halfLength = PLANE_BOOST_LANE_LENGTH_PX / 2;
-  const halfWidth = PLANE_BOOST_LANE_WIDTH_PX / 2;
-  const minX = 8;
-  const minY = 8;
-  const maxX = Math.max(minX, viewport.width - PLANE_BOOST_LANE_WIDTH_PX - 8);
-  const maxY = Math.max(minY, viewport.height - PLANE_BOOST_LANE_WIDTH_PX - 8);
-  const rects: Rect[] = [];
-
-  for (let offset = -halfLength; offset <= halfLength; offset += PLANE_BOOST_LANE_STEP_PX) {
-    const centerX = center.x + dir.x * offset;
-    const centerY = center.y + dir.y * offset;
-    if (
-      centerX < -halfWidth ||
-      centerY < -halfWidth ||
-      centerX > viewport.width + halfWidth ||
-      centerY > viewport.height + halfWidth
-    ) {
-      continue;
-    }
-
-    const rect: Rect = {
-      x: clamp(centerX - halfWidth, minX, maxX),
-      y: clamp(centerY - halfWidth, minY, maxY),
-      width: PLANE_BOOST_LANE_WIDTH_PX,
-      height: PLANE_BOOST_LANE_WIDTH_PX,
-    };
-
-    const duplicate = rects.some(
-      (existing) =>
-        Math.abs(existing.x - rect.x) < 0.5 &&
-        Math.abs(existing.y - rect.y) < 0.5 &&
-        existing.width === rect.width &&
-        existing.height === rect.height,
-    );
-    if (!duplicate) {
-      rects.push(rect);
-    }
-  }
-
-  return rects;
-}
-
-function getPlaneEntryEdge(viewport: World['viewport'], point: Vector2): PoliceEdge {
-  const distances = [
-    { edge: 'top' as const, distance: point.y },
-    { edge: 'right' as const, distance: viewport.width - point.x },
-    { edge: 'bottom' as const, distance: viewport.height - point.y },
-    { edge: 'left' as const, distance: point.x },
-  ];
-  distances.sort((left, right) => left.distance - right.distance);
-  return distances[0].edge;
-}
-
-function getPoliceSpawn(viewport: World['viewport'], edge: PoliceEdge): Pick<PoliceChaseState, 'x' | 'y' | 'angle'> {
-  switch (edge) {
-    case 'top':
-      return {
-        x: randomBetween(24, viewport.width - POLICE_CAR_SIZE.width - 24),
-        y: -POLICE_CAR_SIZE.height - 12,
-        angle: Math.PI / 2,
-      };
-    case 'right':
-      return {
-        x: viewport.width + 12,
-        y: randomBetween(20, viewport.height - POLICE_CAR_SIZE.height - 20),
-        angle: Math.PI,
-      };
-    case 'bottom':
-      return {
-        x: randomBetween(24, viewport.width - POLICE_CAR_SIZE.width - 24),
-        y: viewport.height + 12,
-        angle: -Math.PI / 2,
-      };
-    default:
-      return {
-        x: -POLICE_CAR_SIZE.width - 12,
-        y: randomBetween(20, viewport.height - POLICE_CAR_SIZE.height - 20),
-        angle: 0,
-      };
   }
 }

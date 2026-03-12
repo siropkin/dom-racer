@@ -71,6 +71,8 @@ describe('scanner -> world smoke', () => {
     expect(world.pickups.every((pickup) => pickup.sourceId)).toBe(true);
     expect(world.iceZones.length).toBeGreaterThan(0);
     expect(world.boosts.length).toBeGreaterThan(0);
+    expect(world.hazards).toHaveLength(0);
+    expect(world.deadSpots).toHaveLength(0);
     expect(world.spawnPoint.x).toBeGreaterThanOrEqual(0);
     expect(world.spawnPoint.y).toBeGreaterThanOrEqual(0);
   });

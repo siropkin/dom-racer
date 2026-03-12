@@ -446,21 +446,22 @@ Goal: make the game safe to share more widely.
 - [x] Add coverage for staged coin spawning
 - [x] Add coverage for special item spawning
 - [x] Add coverage for police catch -> game over -> restart
-- [ ] Add coverage for overgrowth collision with player and police
+- [x] Close overgrowth collision gap with scope-guard coverage while overgrowth stays deferred (deadSpot safety reset + empty hazard/deadSpot scanner/world channels)
 
 ### Final Tuning
 
 - [x] spawn cadence
 - [x] police frequency
+- [x] tiny encounter pacing polish (stagger constants only)
 - [ ] overgrowth speed
 - [ ] visible coin cap
 
 ### Chrome Web Store Readiness (Near-Term)
 
 - [x] Add production build profile with sourcemaps disabled by default
-- [ ] Re-audit permissions + host scope and document rationale for `<all_urls>`
-- [ ] Add lightweight release checklist (build, smoke checks, docs sanity)
-- [ ] Ensure no page-level debug globals are present in production bundles
+- [x] Re-audit permissions + host scope and document rationale for `<all_urls>`
+- [x] Add lightweight release checklist (build, smoke checks, docs sanity)
+- [x] Ensure no page-level debug globals are present in production bundles
 
 ## Phase 6: README / Presentation
 
@@ -516,10 +517,10 @@ Status: `done`
 
 ### Next Session Follow-Ups (Locked Order)
 
-- [ ] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
-- [ ] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
-- [ ] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
-- [ ] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
+- [x] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
+- [x] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
+- [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
+- [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
@@ -552,6 +553,10 @@ Status: `done`
 
 Session note:
 
+- Current session extracts encounter pathing helpers and overlay renderers out of `src/game/Game.ts` into focused modules (`src/game/encounterRuntime.ts`, `src/game/gameOverlays.ts`) without changing control bindings or core loop flow.
+- Current session closes overgrowth hardening as an explicit defer decision: overgrowth remains out of active runtime scope, with guard coverage added for deadSpot safety reset and empty scanner/world hazard channels.
+- Current session adds release-readiness docs: `docs/release-checklist.md` and `docs/permissions-host-scope.md` (`<all_urls>` rationale).
+- Current session applies a tiny event-pacing constants pass only (`ENCOUNTER_STAGGER_MS`, `PLANE_LANE_SPECIAL_STAGGER_MS`) to keep police/plane/special overlap readable.
 - Cross-page manual driving on the 4 target page types is blocked in this environment (no interactive extension browser session).
 - This session's regression confirmations were completed via source audit + `npm run build`.
 - This pass improved HUD sound-state clarity (`M SOUND` + explicit `ON/OFF` chip), introduced tuned plane flyover/drop cues, and reworked toast overlap handling with priority-aware stacking.
@@ -560,7 +565,7 @@ Session note:
 - Current session removes page-level debug API exposure, keeps debug work in `Shift + D` sprite showcase mode, and persists production/design research notes for next passes.
 - Current priority lock: hardening (tests + structure) before design polish (event pacing/tuning loops).
 - Current session adds first Vitest smoke checks (scanner->world, regular coin staging/source rules, specials independence, police catch restart flow), extracts shared runtime constants/helpers from `Game.ts` into `src/game/gameRuntime.ts`, aligns scanner contract by dropping stale scanned `hazard`/`deadSpot` kinds, and adds a release build profile with sourcemaps disabled unless explicitly enabled.
-- Verification this session: `npm run test` (4 smoke tests) and `npm run build` both pass.
+- Verification this session: `npm run test` (5 smoke tests) and `npm run build` both pass.
 - Next-session prompt is prepared in `NEXT_SESSION_PROMPT.md`.
 - Previous commit state on `main` before this session:
   - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)

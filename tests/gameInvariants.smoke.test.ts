@@ -151,4 +151,27 @@ describe('game economy and police smoke invariants', () => {
     expect((game as any).startTimeMs).toBeGreaterThan(0);
     expect((game as any).world).not.toBeNull();
   });
+
+  it('resets player when a refreshed world places them inside a deadSpot blocker', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    const player = (game as any).player;
+    expect(player).toBeTruthy();
+
+    player.reset({ x: 220, y: 220 });
+    const movedBounds = player.getBounds();
+    expect(movedBounds.x).toBe(220);
+    expect(movedBounds.y).toBe(220);
+
+    const refreshedWorld: World = {
+      ...runtimeWorld,
+      deadSpots: [{ x: 210, y: 210, width: 40, height: 40 }],
+      spawnPoint: { x: 44, y: 88 },
+    };
+    game.applyWorld(refreshedWorld, false);
+
+    const safeBounds = (game as any).player.getBounds();
+    expect(safeBounds.x).toBe(44);
+    expect(safeBounds.y).toBe(88);
+  });
 });
