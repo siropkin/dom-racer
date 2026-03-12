@@ -28,14 +28,16 @@ First, read:
 - `tests/scannerWorld.smoke.test.ts`
 
 Current known context:
-- Airplane event now supports five drop modes: `bonus drop`, short-lived `boost lane`, short-lived `coin trail`, short-lived `spotlight`, and short-lived `lucky wind`.
+- Airplane event now supports six drop modes: `bonus drop`, short-lived `boost lane`, short-lived `coin trail`, short-lived `spotlight`, short-lived `lucky wind`, and short-lived `police delay`.
 - `spotlight` highlights an existing special pickup via cue; if no special exists at drop time, it safely falls back to `bonus drop`.
 - `lucky wind` gently reroutes nearby existing regular coins into a readable lane; if not enough safe candidates exist, it safely falls back to `bonus drop`.
+- `police delay` briefly pushes back police spawn timing; if not applicable at drop time, it safely falls back to `bonus drop`.
+- Airplane drop-mode dispatch/fallback is now extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`dispatchPlaneDropWithFallback`).
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
 - Debug workflow is in-game only via `Shift + D` sprite showcase mode.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
-- Baseline smoke tests are in place and currently passing (`npm run test` -> 9 tests).
+- Baseline smoke tests are in place and currently passing (`npm run test` -> 10 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
@@ -53,7 +55,7 @@ Current known context:
 - Airplane `lucky wind` keeps special-vs-regular economy separation intact by re-routing existing regular coins only (no new special economy coupling).
 - Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
-- Latest pass changed airplane event mode selection to include `lucky wind` and extracted pickup/economy tick collection orchestration; no screen shake and no broad mechanic expansion.
+- Latest pass changed airplane event mode selection to include `police delay`, extracted airplane drop-mode dispatch/fallback out of `Game.ts`, and kept no-screen-shake/no-chaos guardrails intact.
 
 Priority lock for this session:
 1) Deliver one bounded hardening extraction
@@ -63,13 +65,14 @@ Priority lock for this session:
 Primary goals:
 1. Hardening extraction target:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
-   - pick exactly one remaining extraction target (prefer airplane drop-mode dispatch + fallback block) and move it to a focused runtime helper
+   - pick exactly one remaining extraction target (now prefer one small post-encounter or post-render orchestration slice) and move it to a focused runtime helper
    - keep run-state orchestration centralized through `src/game/gameRunStateRuntime.ts`
    - keep encounter behavior centralized through `src/game/encounterRuntime.ts` helpers; avoid re-inlining
    - avoid behavior changes and preserve controls/core loop
 2. Feature target:
-   - implement one bounded follow-up airplane feature from remaining roadmap candidates (prefer `police delay`)
-   - keep feature readability-first and short-lived (route opportunity, not chaos)
+   - implement one bounded roadmap follow-up while overgrowth remains deferred (do **not** expand mechanics broadly)
+   - `garden trim` remains blocked unless overgrowth scope is explicitly re-activated
+   - prefer readability-first polish or docs/presentation roadmap progress (e.g., README voice/pitch block) if gameplay feature scope is unclear
    - keep specials independent from regular coin economy semantics
    - keep no screen shake and avoid chaotic overlap with police/plane warning beats
 3. Follow-up hardening:

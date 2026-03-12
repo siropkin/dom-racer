@@ -109,6 +109,8 @@ import {
   PLANE_LUCKY_WIND_RADIUS_PX,
   PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
   PLANE_LANE_SPECIAL_STAGGER_MS,
+  PLANE_POLICE_DELAY_MAX_MS,
+  PLANE_POLICE_DELAY_MIN_MS,
   PLANE_SPOTLIGHT_CUE_DURATION_MS,
   POLICE_AFTER_PLANE_MAX_MS,
   POLICE_AFTER_PLANE_MIN_MS,
@@ -152,6 +154,7 @@ import {
   resolveKeyUpConsumed,
   resetInputState,
 } from './gameInputRuntime';
+import { dispatchPlaneDropWithFallback } from './planeDropRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -864,47 +867,14 @@ export class Game {
       dtSeconds,
     );
     if (planeStep.dropReady) {
-      if (this.planeBonusEvent.effectMode === 'boost-lane') {
-        const spawnedLane = this.spawnPlaneBoostLane(
-          this.planeBonusEvent.x,
-          this.planeBonusEvent.y + 12,
-          this.planeBonusEvent.vx,
-          this.planeBonusEvent.vy,
-        );
-        if (!spawnedLane) {
-          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
-        }
-      } else if (this.planeBonusEvent.effectMode === 'coin-trail') {
-        const spawnedTrail = this.spawnPlaneCoinTrail(
-          this.planeBonusEvent.x,
-          this.planeBonusEvent.y + 12,
-          this.planeBonusEvent.vx,
-          this.planeBonusEvent.vy,
-        );
-        if (!spawnedTrail) {
-          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
-        }
-      } else if (this.planeBonusEvent.effectMode === 'spotlight') {
-        const spawnedSpotlight = this.spawnPlaneSpotlight(
-          this.planeBonusEvent.x,
-          this.planeBonusEvent.y + 14,
-        );
-        if (!spawnedSpotlight) {
-          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
-        }
-      } else if (this.planeBonusEvent.effectMode === 'lucky-wind') {
-        const spawnedLuckyWind = this.spawnPlaneLuckyWind(
-          this.planeBonusEvent.x,
-          this.planeBonusEvent.y + 12,
-          this.planeBonusEvent.vx,
-          this.planeBonusEvent.vy,
-        );
-        if (!spawnedLuckyWind) {
-          this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
-        }
-      } else {
-        this.spawnPlaneBonusDrop(this.planeBonusEvent.x, this.planeBonusEvent.y + 14);
-      }
+      dispatchPlaneDropWithFallback(this.planeBonusEvent, {
+        spawnBonusDrop: (x, y) => this.spawnPlaneBonusDrop(x, y),
+        spawnBoostLane: (x, y, vx, vy) => this.spawnPlaneBoostLane(x, y, vx, vy),
+        spawnCoinTrail: (x, y, vx, vy) => this.spawnPlaneCoinTrail(x, y, vx, vy),
+        spawnSpotlight: (x, y) => this.spawnPlaneSpotlight(x, y),
+        spawnLuckyWind: (x, y, vx, vy) => this.spawnPlaneLuckyWind(x, y, vx, vy),
+        spawnPoliceDelay: () => this.spawnPlanePoliceDelay(),
+      });
       this.planeBonusEvent.dropped = true;
     }
 
@@ -1037,6 +1007,19 @@ export class Game {
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('SPOTLIGHT', '#fde047', 'high');
+    return true;
+  }
+
+  private spawnPlanePoliceDelay(): boolean {
+    if (this.policeChase?.phase === 'chasing') {
+      return false;
+    }
+
+    const delayMs = randomBetween(PLANE_POLICE_DELAY_MIN_MS, PLANE_POLICE_DELAY_MAX_MS);
+    this.policeWarning = null;
+    this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
+    this.audio.playPlaneDrop();
+    this.spawnEffectMessage('HOLD-UP', '#93c5fd', 'high');
     return true;
   }
 

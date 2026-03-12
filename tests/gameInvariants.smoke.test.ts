@@ -303,6 +303,34 @@ describe('game economy and police smoke invariants', () => {
     expect(specialAfter?.rect).toEqual(specialRectBefore);
   });
 
+  it('uses police delay to push police timing without touching coin economy', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    const queueBefore = (game as any).coinSpawnQueue.length;
+    const pickupSnapshotBefore = runtimeWorld.pickups.map((pickup) => ({
+      id: pickup.id,
+      sourceId: pickup.sourceId,
+      kind: pickup.kind,
+      value: pickup.value,
+      rect: { ...pickup.rect },
+    }));
+    const spawnTimerBefore = 1200;
+    (game as any).policeSpawnTimerMs = spawnTimerBefore;
+    (game as any).policeWarning = {
+      edge: 'top',
+      remainingMs: 600,
+      durationMs: 1100,
+    };
+
+    const spawned = (game as any).spawnPlanePoliceDelay() as boolean;
+
+    expect(spawned).toBe(true);
+    expect((game as any).policeWarning).toBeNull();
+    expect((game as any).policeSpawnTimerMs).toBeGreaterThan(spawnTimerBefore + 2500);
+    expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
+    expect(runtimeWorld.pickups).toEqual(pickupSnapshotBefore);
+  });
+
   it('uses airplane spotlight as a short-lived special highlight only', () => {
     (game as any).beginRun('manual');
     const runtimeWorld = (game as any).world as World;

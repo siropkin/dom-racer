@@ -390,7 +390,7 @@ Goal: add a rare, stylish world event that changes the map in a playful way.
 - [x] `Lucky wind`: airplane gently nudges nearby coins into a route
 - [x] `Spotlight`: airplane reveals or highlights a special
 - [ ] `Garden trim`: airplane cuts back bushes / trees and opens a lane
-- [ ] `Police delay`: airplane disrupts police timing briefly
+- [x] `Police delay`: airplane disrupts police timing briefly
 
 ### Recommended First Prototype
 
@@ -463,6 +463,7 @@ Status: `in progress`
 - [x] Extract one more `tick` orchestration slice from `src/game/Game.ts` (pickup/economy update block) into a focused runtime helper without behavior change
 - [x] Extract input/control dispatch helper from `src/game/Game.ts` while preserving existing key bindings and swallowed-key behavior
 - [x] Extract HUD/audio orchestration assembly helper from `src/game/Game.ts` while keeping side effects in `Game.ts`
+- [x] Extract airplane drop-mode dispatch + fallback from `src/game/Game.ts` into focused runtime helper(s) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -556,6 +557,7 @@ Status: `done`
 - [x] Run one hybrid session: implement airplane `coin trail` from Phase 3 and pair it with one bounded `Game.ts` extraction from "Remaining Structural Cleanup (Bounded)"
 - [x] Run one hybrid session: implement airplane `spotlight` follow-up and pair it with HUD/audio assembly extraction from `src/game/Game.ts`
 - [x] Run one hybrid session: implement airplane `lucky wind` follow-up and pair it with pickup/economy tick extraction from `src/game/Game.ts`
+- [x] Run one hybrid session: implement airplane `police delay` follow-up and pair it with airplane drop-mode dispatch extraction from `src/game/Game.ts`
 - [x] Keep police catch -> `GAME OVER` -> `Space` restart invariants and special-vs-regular economy separation unchanged in the hybrid pass
 - [x] Re-verify `__domRacerDebug` absence in both source and build output after hybrid changes
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
@@ -589,6 +591,12 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands the locked hybrid pair in one pass: airplane `police delay` follow-up plus bounded airplane drop-mode dispatch extraction from `src/game/Game.ts`.
+- Feature delivery: airplane flyovers can now resolve into `police-delay` mode that briefly pushes back police timing; if that mode is not applicable at drop time, behavior safely falls back to `bonus drop`.
+- Hardening delivery: airplane drop-mode routing and fallback logic moved from `Game.ts` into `src/game/planeDropRuntime.ts` (`dispatchPlaneDropWithFallback`), keeping run-state and encounter orchestration boundaries intact.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart and special-vs-regular economy separation intact, and adds smoke coverage for police-delay behavior.
+- Verification this session: `npm run test` (10 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands the locked hybrid pair in one pass: airplane `lucky wind` follow-up plus bounded pickup/economy tick extraction from `src/game/Game.ts`.
 - Feature delivery: airplane flyovers can now resolve into `lucky-wind` mode that gently nudges nearby regular coins toward a readable short route; if there are not enough valid coins to reroute, behavior safely falls back to `bonus drop`.

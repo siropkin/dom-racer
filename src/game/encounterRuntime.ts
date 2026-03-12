@@ -18,6 +18,7 @@ import {
   PLANE_COIN_TRAIL_LENGTH_PX,
   PLANE_COIN_TRAIL_STEP_PX,
   PLANE_LUCKY_WIND_CHANCE,
+  PLANE_POLICE_DELAY_MODE_CHANCE,
   PLANE_SPOTLIGHT_CHANCE,
   PLANE_EVENT_CORNER_SPAN,
   PLANE_EVENT_ENTRY_OFFSET,
@@ -112,7 +113,9 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
               PLANE_COIN_TRAIL_CHANCE +
               PLANE_SPOTLIGHT_CHANCE +
               PLANE_LUCKY_WIND_CHANCE
-          ? 'lucky-wind'
+          ? Math.random() < PLANE_POLICE_DELAY_MODE_CHANCE
+            ? 'police-delay'
+            : 'lucky-wind'
         : 'bonus-drop';
 
   return {
