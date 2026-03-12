@@ -1,5 +1,16 @@
-import type { Rect, Vector2, ViewportSize } from '../shared/types';
+import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
+import {
+  randomBetween,
+  REGULAR_COIN_LOW_PRESSURE_THRESHOLD,
+  REGULAR_COIN_REFILL_FAST_MAX_MS,
+  REGULAR_COIN_REFILL_FAST_MIN_MS,
+  REGULAR_COIN_REFILL_LOW_MAX_MS,
+  REGULAR_COIN_REFILL_LOW_MIN_MS,
+  REGULAR_COIN_REFILL_MAX_MS,
+  REGULAR_COIN_REFILL_MIN_MS,
+  REGULAR_COIN_SCORE,
+} from './gameRuntime';
 
 interface PickupSpawnBlockers {
   viewport: ViewportSize;
@@ -8,6 +19,19 @@ interface PickupSpawnBlockers {
   deadSpots: Rect[];
   hazards: Rect[];
   pickups: Rect[];
+}
+
+interface SpawnQueuedCoinsOptions {
+  worldPickups: WorldPickup[];
+  coinSpawnQueue: WorldPickup[];
+  coinSpawnIdCounter: number;
+  count: number;
+  canSpawnRegularCoinAt: (rect: Rect) => boolean;
+}
+
+interface SpawnQueuedCoinsResult {
+  spawnedAny: boolean;
+  coinSpawnIdCounter: number;
 }
 
 export function canSpawnRegularCoinRect(rect: Rect, blockers: PickupSpawnBlockers): boolean {
@@ -116,4 +140,105 @@ export function findFreePickupRectNear(
   }
 
   return null;
+}
+
+export function getCoinRefillDelayMs(
+  visibleRegularCoins: number,
+  coinRefillBoostTimerMs: number,
+): number {
+  if (coinRefillBoostTimerMs > 0) {
+    return randomBetween(REGULAR_COIN_REFILL_FAST_MIN_MS, REGULAR_COIN_REFILL_FAST_MAX_MS);
+  }
+
+  if (visibleRegularCoins <= REGULAR_COIN_LOW_PRESSURE_THRESHOLD) {
+    return randomBetween(REGULAR_COIN_REFILL_LOW_MIN_MS, REGULAR_COIN_REFILL_LOW_MAX_MS);
+  }
+
+  return randomBetween(REGULAR_COIN_REFILL_MIN_MS, REGULAR_COIN_REFILL_MAX_MS);
+}
+
+export function spawnQueuedCoinsFromAnchors({
+  worldPickups,
+  coinSpawnQueue,
+  coinSpawnIdCounter,
+  count,
+  canSpawnRegularCoinAt,
+}: SpawnQueuedCoinsOptions): SpawnQueuedCoinsResult {
+  if (coinSpawnQueue.length === 0) {
+    return {
+      spawnedAny: false,
+      coinSpawnIdCounter,
+    };
+  }
+
+  let nextCoinSpawnIdCounter = coinSpawnIdCounter;
+  let spawnedAny = false;
+  let spawnedCount = 0;
+  while (spawnedCount < count) {
+    const anchor = nextSpawnableCoinAnchor(worldPickups, coinSpawnQueue, canSpawnRegularCoinAt);
+    if (!anchor) {
+      break;
+    }
+
+    const pickup: WorldPickup = {
+      id: `coin:${anchor.sourceId ?? anchor.id}:${nextCoinSpawnIdCounter}`,
+      sourceId: anchor.sourceId ?? anchor.id,
+      rect: cloneRect(anchor.rect),
+      value: REGULAR_COIN_SCORE,
+      kind: 'coin',
+    };
+    nextCoinSpawnIdCounter += 1;
+    worldPickups.push(pickup);
+    spawnedCount += 1;
+    spawnedAny = true;
+  }
+
+  return {
+    spawnedAny,
+    coinSpawnIdCounter: nextCoinSpawnIdCounter,
+  };
+}
+
+function nextSpawnableCoinAnchor(
+  worldPickups: WorldPickup[],
+  coinSpawnQueue: WorldPickup[],
+  canSpawnRegularCoinAt: (rect: Rect) => boolean,
+): WorldPickup | null {
+  if (coinSpawnQueue.length === 0) {
+    return null;
+  }
+
+  const attempts = coinSpawnQueue.length;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const anchor = coinSpawnQueue.shift();
+    if (!anchor) {
+      break;
+    }
+    coinSpawnQueue.push(anchor);
+
+    const sourceId = anchor.sourceId ?? anchor.id;
+    const alreadyVisible = worldPickups.some(
+      (pickup) => pickup.kind !== 'special' && (pickup.sourceId ?? pickup.id) === sourceId,
+    );
+    if (alreadyVisible) {
+      continue;
+    }
+
+    if (!canSpawnRegularCoinAt(anchor.rect)) {
+      continue;
+    }
+
+    return anchor;
+  }
+
+  return null;
+}
+
+function cloneRect(rect: Rect): Rect {
+  return {
+    x: rect.x,
+    y: rect.y,
+    width: rect.width,
+    height: rect.height,
+  };
 }

@@ -58,9 +58,11 @@ import {
   type PoliceEdge,
 } from './policeSprite';
 import {
+  getCoinRefillDelayMs,
   canSpawnRegularCoinRect,
   findFreePickupRect,
   findFreePickupRectNear,
+  spawnQueuedCoinsFromAnchors,
 } from './pickupSpawnRuntime';
 import { drawCaughtGameOverOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
 import { Player } from './player';
@@ -69,7 +71,6 @@ import {
   blendAngle,
   BONUS_SPECIAL_SCORE,
   clonePickup,
-  cloneRect,
   cloneWorld,
   ENCOUNTER_STAGGER_MS,
   getFlavorText,
@@ -115,17 +116,9 @@ import {
   POLICE_START_SCORE_THRESHOLD,
   POLICE_WARNING_MS,
   randomBetween,
-  REGULAR_COIN_LOW_PRESSURE_THRESHOLD,
   REGULAR_COIN_REFILL_BOOST_MS,
-  REGULAR_COIN_REFILL_FAST_MAX_MS,
-  REGULAR_COIN_REFILL_FAST_MIN_MS,
-  REGULAR_COIN_REFILL_LOW_MAX_MS,
-  REGULAR_COIN_REFILL_LOW_MIN_MS,
-  REGULAR_COIN_REFILL_MAX_MS,
-  REGULAR_COIN_REFILL_MIN_MS,
   REGULAR_COIN_RETRY_MAX_MS,
   REGULAR_COIN_RETRY_MIN_MS,
-  REGULAR_COIN_SCORE,
   REGULAR_COIN_STARTING_BATCH,
   REGULAR_COIN_VISIBLE_CAP,
   SHOWCASE_THEMES,
@@ -315,15 +308,9 @@ export class Game {
     this.setInverted(false);
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
-    this.policeChase = null;
-    this.policeWarning = null;
-    this.planeWarning = null;
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
+    this.clearEncounterRuntimeState();
+    this.resetComboState();
     this.gameOverState = null;
-    this.specialSpawnCues = [];
-    this.planeBonusEvent = null;
-    this.planeBoostLane = null;
     this.spriteShowcaseActive = false;
     this.toastSystem.clear();
     this.resetInput();
@@ -387,7 +374,7 @@ export class Game {
 
     this.spawnQueuedCoins(REGULAR_COIN_STARTING_BATCH);
     const visibleRegularCoins = this.world.pickups.filter((pickup) => !isSpecialPickup(pickup)).length;
-    this.coinRefillTimerMs = this.getCoinRefillDelayMs(visibleRegularCoins);
+    this.coinRefillTimerMs = getCoinRefillDelayMs(visibleRegularCoins, this.coinRefillBoostTimerMs);
     this.coinRefillBoostTimerMs = 0;
   }
 
@@ -481,7 +468,7 @@ export class Game {
       if (isSpecialPickup(pickup) && pickup.effect) {
         this.activateSpecialEffect(pickup.effect);
       } else {
-        this.spawnPickupMessage(pickup);
+        this.spawnCoinPickupMessage(pickup);
         this.coinsCollectedTotal += 1;
         this.score += this.applyPickupComboBonus();
         this.coinRefillBoostTimerMs = REGULAR_COIN_REFILL_BOOST_MS;
@@ -793,25 +780,18 @@ export class Game {
     };
   }
 
-  private spawnPickupMessage(pickup: World['pickups'][number]): void {
+  private spawnCoinPickupMessage(pickup: World['pickups'][number]): void {
     const centerX = pickup.rect.x + pickup.rect.width / 2;
     const centerY = pickup.rect.y + pickup.rect.height / 2;
-    const isSpecial = pickup.kind === 'special' && pickup.effect;
-    const text = isSpecial
-      ? `+${pickup.label ?? pickup.effect?.toUpperCase() ?? 'FX'}`
-      : PICKUP_WORDS[this.pickupFlavorIndex % PICKUP_WORDS.length];
-    const color = isSpecial
-      ? pickup.accentColor ?? '#f8fafc'
-      : PICKUP_COLORS[this.pickupFlavorIndex % PICKUP_COLORS.length];
-    if (!isSpecial) {
-      this.pickupFlavorIndex += 1;
-    }
+    const text = PICKUP_WORDS[this.pickupFlavorIndex % PICKUP_WORDS.length];
+    const color = PICKUP_COLORS[this.pickupFlavorIndex % PICKUP_COLORS.length];
+    this.pickupFlavorIndex += 1;
 
     this.toastSystem.enqueue({
       x: centerX,
       y: centerY - 18,
       text,
-      ttlMs: isSpecial ? TOAST_EFFECT_TTL_MS : TOAST_PICKUP_TTL_MS,
+      ttlMs: TOAST_PICKUP_TTL_MS,
       color,
       priority: 'low',
     });
@@ -863,7 +843,7 @@ export class Game {
       (pickup) => !isSpecialPickup(pickup),
     ).length;
     this.coinRefillTimerMs = spawned
-      ? this.getCoinRefillDelayMs(visibleRegularCoinsAfterSpawn)
+      ? getCoinRefillDelayMs(visibleRegularCoinsAfterSpawn, this.coinRefillBoostTimerMs)
       : randomBetween(REGULAR_COIN_RETRY_MIN_MS, REGULAR_COIN_RETRY_MAX_MS);
   }
 
@@ -1074,59 +1054,15 @@ export class Game {
       return false;
     }
 
-    let spawnedAny = false;
-    let spawnedCount = 0;
-    while (spawnedCount < count) {
-      const anchor = this.nextSpawnableCoinAnchor();
-      if (!anchor) {
-        break;
-      }
-
-      const pickup: WorldPickup = {
-        id: `coin:${anchor.sourceId ?? anchor.id}:${this.coinSpawnIdCounter}`,
-        sourceId: anchor.sourceId ?? anchor.id,
-        rect: cloneRect(anchor.rect),
-        value: REGULAR_COIN_SCORE,
-        kind: 'coin',
-      };
-      this.coinSpawnIdCounter += 1;
-      this.world.pickups.push(pickup);
-      spawnedCount += 1;
-      spawnedAny = true;
-    }
-
-    return spawnedAny;
-  }
-
-  private nextSpawnableCoinAnchor(): WorldPickup | null {
-    if (!this.world || !this.player || this.coinSpawnQueue.length === 0) {
-      return null;
-    }
-
-    const attempts = this.coinSpawnQueue.length;
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const anchor = this.coinSpawnQueue.shift();
-      if (!anchor) {
-        break;
-      }
-      this.coinSpawnQueue.push(anchor);
-
-      const sourceId = anchor.sourceId ?? anchor.id;
-      const alreadyVisible = this.world.pickups.some(
-        (pickup) => !isSpecialPickup(pickup) && (pickup.sourceId ?? pickup.id) === sourceId,
-      );
-      if (alreadyVisible) {
-        continue;
-      }
-
-      if (!this.canSpawnRegularCoinAt(anchor.rect)) {
-        continue;
-      }
-
-      return anchor;
-    }
-
-    return null;
+    const result = spawnQueuedCoinsFromAnchors({
+      worldPickups: this.world.pickups,
+      coinSpawnQueue: this.coinSpawnQueue,
+      coinSpawnIdCounter: this.coinSpawnIdCounter,
+      count,
+      canSpawnRegularCoinAt: (rect) => this.canSpawnRegularCoinAt(rect),
+    });
+    this.coinSpawnIdCounter = result.coinSpawnIdCounter;
+    return result.spawnedAny;
   }
 
   private canSpawnRegularCoinAt(rect: Rect): boolean {
@@ -1135,18 +1071,6 @@ export class Game {
     }
 
     return canSpawnRegularCoinRect(rect, this.getPickupSpawnBlockers());
-  }
-
-  private getCoinRefillDelayMs(visibleRegularCoins: number): number {
-    if (this.coinRefillBoostTimerMs > 0) {
-      return randomBetween(REGULAR_COIN_REFILL_FAST_MIN_MS, REGULAR_COIN_REFILL_FAST_MAX_MS);
-    }
-
-    if (visibleRegularCoins <= REGULAR_COIN_LOW_PRESSURE_THRESHOLD) {
-      return randomBetween(REGULAR_COIN_REFILL_LOW_MIN_MS, REGULAR_COIN_REFILL_LOW_MAX_MS);
-    }
-
-    return randomBetween(REGULAR_COIN_REFILL_MIN_MS, REGULAR_COIN_REFILL_MAX_MS);
   }
 
   private spawnSpecialPickup(): boolean {
@@ -1582,6 +1506,20 @@ export class Game {
     }
   }
 
+  private clearEncounterRuntimeState(): void {
+    this.policeChase = null;
+    this.policeWarning = null;
+    this.planeWarning = null;
+    this.specialSpawnCues = [];
+    this.planeBonusEvent = null;
+    this.planeBoostLane = null;
+  }
+
+  private resetComboState(): void {
+    this.pickupComboCount = 0;
+    this.comboTimerMs = 0;
+  }
+
   private beginRun(): void {
     this.dynamicPickups = [];
     this.coinSpawnQueue = [];
@@ -1589,9 +1527,6 @@ export class Game {
     this.coinRefillTimerMs = 0;
     this.coinRefillBoostTimerMs = 0;
     this.toastSystem.clear();
-    this.specialSpawnCues = [];
-    this.planeBonusEvent = null;
-    this.planeBoostLane = null;
     this.score = 0;
     this.coinsCollectedTotal = 0;
     this.specialSpawnTimerMs = randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS);
@@ -1603,12 +1538,9 @@ export class Game {
     this.setInverted(false);
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
-    this.policeChase = null;
-    this.policeWarning = null;
-    this.planeWarning = null;
+    this.clearEncounterRuntimeState();
     this.policeSpawnTimerMs = randomBetween(POLICE_INITIAL_SPAWN_MIN_MS, POLICE_INITIAL_SPAWN_MAX_MS);
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
+    this.resetComboState();
     this.gameOverState = null;
     this.spriteShowcaseActive = false;
     this.startTimeMs = performance.now();
@@ -1627,16 +1559,10 @@ export class Game {
     this.ghostTimerMs = 0;
     this.invertTimerMs = 0;
     this.blackoutTimerMs = 0;
-    this.policeChase = null;
-    this.policeWarning = null;
-    this.planeWarning = null;
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
+    this.clearEncounterRuntimeState();
+    this.resetComboState();
     this.spriteShowcaseActive = false;
     this.toastSystem.clear();
-    this.specialSpawnCues = [];
-    this.planeBonusEvent = null;
-    this.planeBoostLane = null;
     this.resetInput();
     this.gameOverState = {
       reason: 'caught',
@@ -1655,15 +1581,9 @@ export class Game {
     this.ghostTimerMs = 0;
     this.invertTimerMs = 0;
     this.blackoutTimerMs = 0;
-    this.policeChase = null;
-    this.policeWarning = null;
-    this.planeWarning = null;
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
+    this.clearEncounterRuntimeState();
+    this.resetComboState();
     this.toastSystem.clear();
-    this.specialSpawnCues = [];
-    this.planeBonusEvent = null;
-    this.planeBoostLane = null;
     this.resetInput();
   }
 

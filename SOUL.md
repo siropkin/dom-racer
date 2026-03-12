@@ -180,6 +180,7 @@ Status: `in progress`
   - [ ] dashboard page
   - [ ] grid-heavy page like Google Calendar
 - [x] Confirm that specials are the only random pickups not tied to page controls
+- [ ] Future idea (deferred): evaluate spinner-like money anchors (`id="spinner"` or class containing `spined`) only if scan/readability remains clear
 
 Definition of done:
 
@@ -528,9 +529,12 @@ Status: `done`
 - [x] Remove stale pickup collection branch state (`collectedIds`) and keep deferred-channel smoke guardrails explicit (`scanner` kind allowlist + empty `hazards`/`deadSpots` world channels)
 - [x] Continue splitting `src/game/Game.ts` by subsystem boundaries (encounters/rendering/effects) without behavior changes
 - [x] Continue stale-branch hardening by removing dead internal debug hooks and extracting effect/combo timer runtime helpers into `src/game/gameEffectsRuntime.ts`
+- [x] Extract regular coin queue + refill-delay scheduling from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` without behavior changes
+- [x] Remove stale special-branch handling in regular pickup toast flow (coin-only path now explicit)
 - [x] Add remaining hardening coverage for overgrowth collision behavior (or explicitly defer/remove if overgrowth remains out of active scope)
 - [x] Add a lightweight Chrome Web Store release checklist doc (`build`, smoke tests, debug-global sanity, docs pass)
 - [x] Document permissions + host scope rationale for `<all_urls>` in store-facing notes
+- [ ] Continue extracting encounter orchestration (`plane` / `police`) from `src/game/Game.ts` into focused runtime helpers with no control-loop behavior drift
 - [ ] Run manual extension playtest matrix on target page types once interactive browser session is available
 
 ### Previous Milestone: Phase 1 Verification + Bonus Clarity
@@ -584,6 +588,9 @@ Session note:
 - This session adds a short-lived airplane `boost lane` prototype (no screen shake, no economy-rule changes): rare during flyovers, lightly highlighted, time-limited, and staggered against ambient specials to preserve readability.
 - Current session removes page-level debug API exposure, keeps debug work in `Shift + D` sprite showcase mode, and persists production/design research notes for next passes.
 - Current priority lock: hardening (tests + structure) before design polish (event pacing/tuning loops).
+- Current session continues hardening-first structural cleanup by extracting regular coin spawn queue and refill-delay scheduling out of `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts`, preserving anchor-based economy behavior.
+- Current session removes a stale runtime branch in pickup toast messaging by making the non-special coin path explicit (`spawnCoinPickupMessage`), keeping specials handled only via dedicated special-effect flow.
+- Verification this session: `npm run test` (6 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 - Current session adds first Vitest smoke checks (scanner->world, regular coin staging/source rules, specials independence, police catch restart flow), extracts shared runtime constants/helpers from `Game.ts` into `src/game/gameRuntime.ts`, aligns scanner contract by dropping stale scanned `hazard`/`deadSpot` kinds, and adds a release build profile with sourcemaps disabled unless explicitly enabled.
 - Verification this session: `npm run test` (6 smoke tests) and `npm run build` both pass.
 - Next-session prompt is prepared in `NEXT_SESSION_PROMPT.md`.

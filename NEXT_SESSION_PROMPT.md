@@ -33,8 +33,11 @@ Current known context:
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
+- Regular coin queue/refill scheduling was extracted from `Game.ts` into `src/game/pickupSpawnRuntime.ts`.
 - Stale internal debug-only hooks were removed from runtime (`setDebugInput`, `triggerJump`, `getDebugSnapshot`, debug-event plumbing), while in-game `Shift + D` showcase remains intact.
 - Stale pickup collection branch state (`collectedIds`) was removed; scanner smoke now asserts active kind allowlist while `hazards`/`deadSpots` remain deferred-empty.
+- Regular pickup toast flow was hardened to coin-only path (`spawnCoinPickupMessage`), with specials still handled via dedicated effect flow.
+- Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
 
 Priority lock for this session:
@@ -44,6 +47,7 @@ Priority lock for this session:
 Primary goals:
 1. Continue structural cleanup:
    - keep reducing `src/game/Game.ts` by subsystem boundary (safe extractions only)
+   - prioritize encounter orchestration extraction (`plane` / `police`) into focused runtime helpers
    - avoid behavior changes and preserve controls/core loop
 2. Follow-up hardening:
    - audit remaining stale gameplay branches (especially deferred channels) and keep guard behavior coherent
