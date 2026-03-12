@@ -32,7 +32,9 @@ Current known context:
 - `spotlight` highlights an existing special pickup via cue; if no special exists at drop time, it safely falls back to `bonus drop`.
 - `lucky wind` gently reroutes nearby existing regular coins into a readable lane; if not enough safe candidates exist, it safely falls back to `bonus drop`.
 - `police delay` briefly pushes back police spawn timing; if not applicable at drop time, it safely falls back to `bonus drop`.
-- Airplane drop-mode dispatch/fallback is now extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`dispatchPlaneDropWithFallback`).
+- Airplane drop-mode dispatch/fallback is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`dispatchPlaneDropWithFallback`).
+- Plane coin-trail expiry/tick orchestration is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`advancePlaneCoinTrailState`).
+- Police-delay now includes a short-lived HUD readability cue (`HOLD-UP`) that does not change police/coin mechanics.
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
 - Debug workflow is in-game only via `Shift + D` sprite showcase mode.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
@@ -55,11 +57,11 @@ Current known context:
 - Airplane `lucky wind` keeps special-vs-regular economy separation intact by re-routing existing regular coins only (no new special economy coupling).
 - Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
-- Latest pass changed airplane event mode selection to include `police delay`, extracted airplane drop-mode dispatch/fallback out of `Game.ts`, and kept no-screen-shake/no-chaos guardrails intact.
+- Latest pass extracted plane coin-trail lifecycle orchestration from `Game.ts` and added a bounded police-delay readability cue in HUD, while keeping no-screen-shake/no-chaos guardrails intact.
 
 Priority lock for this session:
 1) Deliver one bounded hardening extraction
-2) Deliver one bounded roadmap feature (next Phase 3 airplane candidate)
+2) Deliver one bounded roadmap follow-up (readability-first airplane/police polish or one Phase 6 docs/presentation item)
 3) Tiny tuning polish only if needed after both
 
 Primary goals:

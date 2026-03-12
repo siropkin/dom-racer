@@ -323,10 +323,19 @@ describe('game economy and police smoke invariants', () => {
     };
 
     const spawned = (game as any).spawnPlanePoliceDelay() as boolean;
+    const delayCueMs = (game as any).policeDelayCueTimerMs as number;
+    const delayCueDurationMs = (game as any).policeDelayCueDurationMs as number;
 
     expect(spawned).toBe(true);
     expect((game as any).policeWarning).toBeNull();
     expect((game as any).policeSpawnTimerMs).toBeGreaterThan(spawnTimerBefore + 2500);
+    expect(delayCueMs).toBeGreaterThan(2500);
+    expect(delayCueDurationMs).toBe(delayCueMs);
+
+    (game as any).updatePoliceDelayCue(10);
+    expect((game as any).policeDelayCueTimerMs).toBe(0);
+    expect((game as any).policeDelayCueDurationMs).toBe(0);
+
     expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
     expect(runtimeWorld.pickups).toEqual(pickupSnapshotBefore);
   });

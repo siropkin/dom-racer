@@ -154,7 +154,7 @@ import {
   resolveKeyUpConsumed,
   resetInputState,
 } from './gameInputRuntime';
-import { dispatchPlaneDropWithFallback } from './planeDropRuntime';
+import { advancePlaneCoinTrailState, dispatchPlaneDropWithFallback } from './planeDropRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -198,6 +198,8 @@ export class Game {
   private planeBonusEvent: PlaneBonusEventState | null;
   private planeBoostLane: PlaneBoostLaneState | null;
   private planeCoinTrail: PlaneCoinTrailState | null;
+  private policeDelayCueTimerMs: number;
+  private policeDelayCueDurationMs: number;
   private planeBonusTimerMs: number;
   private pickupFlavorIndex: number;
   private coinsCollectedTotal: number;
@@ -270,6 +272,8 @@ export class Game {
     this.planeBonusEvent = null;
     this.planeBoostLane = null;
     this.planeCoinTrail = null;
+    this.policeDelayCueTimerMs = 0;
+    this.policeDelayCueDurationMs = 0;
     this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
     this.coinsCollectedTotal = 0;
@@ -327,6 +331,7 @@ export class Game {
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
+    this.clearPoliceDelayCue();
     this.resetComboState();
     this.gameOverState = null;
     this.spriteShowcaseActive = false;
@@ -436,6 +441,7 @@ export class Game {
     this.updatePlaneWarning(dtSeconds);
     this.updatePlaneBoostLane(dtSeconds);
     this.updatePlaneCoinTrail(dtSeconds);
+    this.updatePoliceDelayCue(dtSeconds);
 
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
@@ -565,6 +571,8 @@ export class Game {
       ghostTimerMs: this.ghostTimerMs,
       invertTimerMs: this.invertTimerMs,
       blackoutTimerMs: this.blackoutTimerMs,
+      policeDelayCueTimerMs: this.policeDelayCueTimerMs,
+      policeDelayCueDurationMs: this.policeDelayCueDurationMs,
       comboTimerMs: this.comboTimerMs,
       pickupComboCount: this.pickupComboCount,
       policeRemainingMs,
@@ -1018,6 +1026,8 @@ export class Game {
     const delayMs = randomBetween(PLANE_POLICE_DELAY_MIN_MS, PLANE_POLICE_DELAY_MAX_MS);
     this.policeWarning = null;
     this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
+    this.policeDelayCueTimerMs = delayMs;
+    this.policeDelayCueDurationMs = delayMs;
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('HOLD-UP', '#93c5fd', 'high');
     return true;
@@ -1165,19 +1175,24 @@ export class Game {
       return;
     }
 
-    this.planeCoinTrail.ttlMs = Math.max(0, this.planeCoinTrail.ttlMs - dtSeconds * 1000);
-    const livePickupIds = new Set(this.world.pickups.map((pickup) => pickup.id));
-    this.planeCoinTrail.coinIds = this.planeCoinTrail.coinIds.filter((id) => livePickupIds.has(id));
+    const nextTrailStep = advancePlaneCoinTrailState(
+      this.world.pickups,
+      this.planeCoinTrail,
+      dtSeconds,
+    );
+    this.world.pickups = nextTrailStep.worldPickups;
+    this.planeCoinTrail = nextTrailStep.planeCoinTrail;
+  }
 
-    if (this.planeCoinTrail.ttlMs > 0 && this.planeCoinTrail.coinIds.length > 0) {
+  private updatePoliceDelayCue(dtSeconds: number): void {
+    if (this.policeDelayCueTimerMs <= 0) {
       return;
     }
 
-    if (this.planeCoinTrail.coinIds.length > 0) {
-      const expiredIds = new Set(this.planeCoinTrail.coinIds);
-      this.world.pickups = this.world.pickups.filter((pickup) => !expiredIds.has(pickup.id));
+    this.policeDelayCueTimerMs = Math.max(0, this.policeDelayCueTimerMs - dtSeconds * 1000);
+    if (this.policeDelayCueTimerMs === 0) {
+      this.policeDelayCueDurationMs = 0;
     }
-    this.planeCoinTrail = null;
   }
 
   private getActiveBoostZones(): Rect[] {
@@ -1609,6 +1624,11 @@ export class Game {
     this.planeCoinTrail = cleared.planeCoinTrail;
   }
 
+  private clearPoliceDelayCue(): void {
+    this.policeDelayCueTimerMs = 0;
+    this.policeDelayCueDurationMs = 0;
+  }
+
   private clearEffectRuntimeState(): void {
     const cleared = createClearedEffectState();
     this.magnetTimerMs = cleared.magnetTimerMs;
@@ -1640,6 +1660,7 @@ export class Game {
     this.setBlackout(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
+    this.clearPoliceDelayCue();
     this.policeSpawnTimerMs = nextRunState.policeSpawnTimerMs;
     this.resetComboState();
     this.gameOverState = nextRunState.gameOverState;
@@ -1659,6 +1680,7 @@ export class Game {
     this.audio.stop();
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
+    this.clearPoliceDelayCue();
     this.resetComboState();
     this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.toastSystem.clear();
@@ -1676,6 +1698,7 @@ export class Game {
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
+    this.clearPoliceDelayCue();
     this.resetComboState();
     this.toastSystem.clear();
     this.resetInput();

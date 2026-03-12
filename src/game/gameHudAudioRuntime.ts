@@ -18,6 +18,8 @@ interface BuildHudStateOptions {
   ghostTimerMs: number;
   invertTimerMs: number;
   blackoutTimerMs: number;
+  policeDelayCueTimerMs: number;
+  policeDelayCueDurationMs: number;
   comboTimerMs: number;
   pickupComboCount: number;
   policeRemainingMs: number | null;
@@ -34,6 +36,31 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
   const blackoutActsAsInvert =
     options.blackoutTimerMs > 0 &&
     adaptBlackoutEffectForSurface('blackout', options.currentSurface) === 'invert';
+  const activeEffects = getActiveEffectsForHud({
+    magnetTimerMs: options.magnetTimerMs,
+    ghostTimerMs: options.ghostTimerMs,
+    invertTimerMs: options.invertTimerMs,
+    blackoutTimerMs: options.blackoutTimerMs,
+    comboTimerMs: options.comboTimerMs,
+    pickupComboCount: options.pickupComboCount,
+    policeRemainingMs: options.policeRemainingMs,
+    policeDurationMs: options.policeDurationMs,
+    currentSurface: options.currentSurface,
+  });
+  if (
+    options.policeDelayCueTimerMs > 0 &&
+    options.policeDelayCueDurationMs > 0 &&
+    !options.policeActive
+  ) {
+    activeEffects.push({
+      effect: 'police',
+      label: 'HOLD-UP',
+      remainingMs: options.policeDelayCueTimerMs,
+      durationMs: options.policeDelayCueDurationMs,
+      color: '#93c5fd',
+    });
+    activeEffects.sort((left, right) => right.remainingMs - left.remainingMs);
+  }
 
   return {
     score: options.score,
@@ -56,16 +83,6 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     }),
     pageBestScore: Math.max(options.pageBestScore, options.score),
     lifetimeBestScore: Math.max(options.lifetimeBestScore, options.score),
-    activeEffects: getActiveEffectsForHud({
-      magnetTimerMs: options.magnetTimerMs,
-      ghostTimerMs: options.ghostTimerMs,
-      invertTimerMs: options.invertTimerMs,
-      blackoutTimerMs: options.blackoutTimerMs,
-      comboTimerMs: options.comboTimerMs,
-      pickupComboCount: options.pickupComboCount,
-      policeRemainingMs: options.policeRemainingMs,
-      policeDurationMs: options.policeDurationMs,
-      currentSurface: options.currentSurface,
-    }),
+    activeEffects,
   };
 }

@@ -1,4 +1,5 @@
-import type { PlaneBonusEventState } from './gameStateTypes';
+import type { WorldPickup } from '../shared/types';
+import type { PlaneBonusEventState, PlaneCoinTrailState } from './gameStateTypes';
 
 interface PlaneDropDispatchHandlers {
   spawnBonusDrop: (x: number, y: number) => void;
@@ -7,6 +8,11 @@ interface PlaneDropDispatchHandlers {
   spawnSpotlight: (x: number, y: number) => boolean;
   spawnLuckyWind: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnPoliceDelay: () => boolean;
+}
+
+export interface PlaneCoinTrailStep {
+  worldPickups: WorldPickup[];
+  planeCoinTrail: PlaneCoinTrailState | null;
 }
 
 export function dispatchPlaneDropWithFallback(
@@ -69,4 +75,45 @@ export function dispatchPlaneDropWithFallback(
     case 'bonus-drop':
       bonusDrop();
   }
+}
+
+export function advancePlaneCoinTrailState(
+  worldPickups: WorldPickup[],
+  planeCoinTrail: PlaneCoinTrailState | null,
+  dtSeconds: number,
+): PlaneCoinTrailStep {
+  if (!planeCoinTrail) {
+    return {
+      worldPickups,
+      planeCoinTrail: null,
+    };
+  }
+
+  const nextTtlMs = Math.max(0, planeCoinTrail.ttlMs - dtSeconds * 1000);
+  const livePickupIds = new Set(worldPickups.map((pickup) => pickup.id));
+  const liveTrailCoinIds = planeCoinTrail.coinIds.filter((id) => livePickupIds.has(id));
+
+  if (nextTtlMs > 0 && liveTrailCoinIds.length > 0) {
+    return {
+      worldPickups,
+      planeCoinTrail: {
+        ...planeCoinTrail,
+        ttlMs: nextTtlMs,
+        coinIds: liveTrailCoinIds,
+      },
+    };
+  }
+
+  if (liveTrailCoinIds.length === 0) {
+    return {
+      worldPickups,
+      planeCoinTrail: null,
+    };
+  }
+
+  const expiredIds = new Set(liveTrailCoinIds);
+  return {
+    worldPickups: worldPickups.filter((pickup) => !expiredIds.has(pickup.id)),
+    planeCoinTrail: null,
+  };
 }
