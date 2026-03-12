@@ -1,0 +1,16 @@
+{
+  "name": "dom-racer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "brand": "python3 branding/generate_assets.py",
+    "dev": "vite build --watch",
+    "build": "tsc && vite build",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1"
+  }
+}
