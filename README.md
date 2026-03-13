@@ -118,7 +118,7 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Phase | Status | Goal |
 |---|---|---|
 | Core money loop | Mostly done | Lock the collectible loop |
-| Overgrowth difficulty | Planned | Trees and bushes that grow over time |
+| Overgrowth difficulty | Done | Trees and bushes that grow over time |
 | Airplane event | Mostly done | Rare stylish world events |
 | Indie juice | Planned | Near-miss bonuses, page moods, police escalation |
 | Production hardening | In progress | Tests, structure, release readiness |

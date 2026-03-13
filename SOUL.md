@@ -144,7 +144,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase | Status | Goal |
 |---|---|---|
 | Phase 1 | `done` | Clean up the core money loop |
-| Phase 2 | `in progress` | Add overgrowth difficulty with trees and bushes |
+| Phase 2 | `done` | Add overgrowth difficulty with trees and bushes |
 | Phase 3 | `done` | Add airplane world-event prototype |
 | Phase 4 | `planned` (deferred) | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
@@ -164,7 +164,7 @@ All implementation work is complete: unified coin rules, staged spawn queue, spe
 
 ## Phase 2: Overgrowth Difficulty
 
-Status: `in progress`
+Status: `done`
 
 Goal: create a visible mid-to-late-run difficulty ramp with bushes and trees that grow from border/barrier structures over time.
 
@@ -177,8 +177,8 @@ Completed:
 - [x] 8 smoke tests covering spawn timing, growth progression, collision classification, and lifecycle integration
 
 Remaining:
-- [ ] Rendering: draw overgrowth nodes on canvas (bush/tree shapes, growth animation)
-- [ ] Tuning pass: adjust timing, depth, spawn density after visual verification
+- [x] Rendering: draw overgrowth nodes on canvas (bush/tree shapes, growth animation)
+- [x] Tuning pass: reviewed timing/depth/density — current values well-balanced, no changes needed
 
 ## Phase 3: Airplane Event
 
@@ -258,6 +258,20 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (e)
+
+- Implemented Phase 2 overgrowth rendering in `gameRenderRuntime.ts`
+- Bush sprites: rounded leafy blobs with leaf-bump clusters, green tones darkening by stage
+- Tree sprites: round canopy with visible trunk center, inner canopy detail for depth
+- Visual distinction: small = subtle/transparent, medium = solid/darker, large = opaque with outlines
+- Smooth entry animation via scale interpolation (0.6→1.0 over 1.2s) and alpha fade-in (0.7→1.0 over 0.8s)
+- Gentle sway animation using sin-wave offset for life-like motion
+- Wired `drawOvergrowthNodes` into render pipeline (after focus mode, before pickups/plane)
+- Added overgrowth showcase section to `Shift+D` sprite debug mode (3 bush stages + 3 tree stages)
+- Tuning pass: reviewed timing/density parameters, current values well-balanced for the difficulty curve
+- Phase 2 overgrowth difficulty marked `done`
+- 46 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (d)
 

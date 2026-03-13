@@ -39,11 +39,11 @@ First, read:
 
 ## Current State
 
-All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth data model and spawn logic are implemented; rendering is next.
+All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth difficulty is fully implemented (data model, spawn logic, rendering, tuning). Phase 4 indie juice is next.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
 2. **Phase 1 — New specials prototyping: `done`.** `COOLDOWN` and `LURE` are implemented and tested.
-3. **Phase 2 — Overgrowth difficulty: `in progress`.** Data model, spawn logic, growth stages, and collision handling are complete. THIS SESSION should implement rendering: draw overgrowth nodes on canvas with readable bush/tree shapes, growth animation, and clear visual distinction between stages. Then do a tuning pass (timing, depth, density).
+3. **Phase 2 — Overgrowth difficulty: `done`.** Data model, spawn logic, growth stages, collision handling, and rendering are complete. Tuning reviewed and confirmed balanced.
 4. **Phase 4 — Indie juice (pick one per session):** near-miss bonus (score for close calls with walls/police), micro-objectives (small per-run goals like "collect 10 coins in 20s"), rare jackpot pickup. Skip police helicopter, daily modifiers, page moods for now.
 
 ## Current Known Context
@@ -61,11 +61,14 @@ All hardening, presentation, and branding tasks are complete. Phase 1 new specia
 - Scanner detects YouTube/Vimeo iframes via `src` URL match and classifies them as `ice`.
 - `window.__domRacerDebug` must not exist in source/build.
 - Overgrowth data model and spawn logic live in `src/game/overgrowthRuntime.ts`.
+- Overgrowth rendering lives in `gameRenderRuntime.ts` (`drawOvergrowthNodes`), called from `Game.ts` render pipeline.
 - Overgrowth spawns from barrier/obstacle edges after 35s run threshold, 9-15s spawn interval, max 8 nodes.
 - Overgrowth stages: small (10px depth, slow zone) -> medium (20px, slow zone, after 6s) -> large (32px, obstacle/wall, after 10s more).
-- Overgrowth kinds: bush (55% chance) and tree (45% chance) — visual distinction is rendering-only (next session).
+- Overgrowth kinds: bush (55% chance, leafy blob clusters) and tree (45% chance, round canopy with trunk center).
+- Overgrowth rendering: green palette darkening by stage, smooth entry scale/alpha animation, gentle sin-wave sway, large-stage outline for readability.
 - Overgrowth collision: small/medium stages merged into player slow zones, large stages merged into player obstacles and pickup spawn blockers.
 - Overgrowth state resets on beginRun and stop.
+- Overgrowth sprites shown in `Shift+D` showcase (3 bush stages + 3 tree stages).
 - README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.
 - Smoke tests currently pass (`npm run test` -> 46 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
@@ -83,6 +86,6 @@ All hardening, presentation, and branding tasks are complete. Phase 1 new specia
 ## Constraints To Preserve
 
 - No screen shake
-- No broad mechanic expansion (overgrowth is a planned phase, not a broad expansion)
+- No broad mechanic expansion
 - Playful, readable, non-violent tone
 - Keep controls/core loop stable

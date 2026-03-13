@@ -41,6 +41,7 @@ import {
   advanceFocusModeAlpha,
   advanceSpecialSpawnCues,
   drawFocusModeLayer,
+  drawOvergrowthNodes,
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
@@ -578,6 +579,7 @@ export class Game {
       this.player ? rectCenter(this.player.getBounds()) : null,
       this.focusModeAlpha,
     );
+    drawOvergrowthNodes(ctx, this.overgrowthNodes, performance.now());
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
     drawPickups(ctx, this.world.pickups, this.comboTimerMs, this.pickupComboCount, performance.now());
