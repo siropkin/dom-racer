@@ -122,7 +122,7 @@ describe('micro-objective smoke invariants', () => {
       target: 8,
       timeRemainingMs: 200,
       timeLimitMs: 20_000,
-      bonus: 35,
+      bonus: 30,
       multiplierLabel: 'x3',
     };
 
@@ -151,7 +151,7 @@ describe('micro-objective smoke invariants', () => {
       target: 8,
       timeRemainingMs: 200,
       timeLimitMs: 20_000,
-      bonus: 35,
+      bonus: 30,
       multiplierLabel: 'x3',
     };
 

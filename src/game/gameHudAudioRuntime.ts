@@ -63,19 +63,6 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     viewportScaleFactor: options.viewportScaleFactor,
   });
   if (
-    options.planeWarningActive &&
-    options.planeWarningRemainingMs !== null &&
-    options.planeWarningDurationMs !== null
-  ) {
-    activeEffects.push({
-      effect: 'encounter',
-      label: 'NYOOM',
-      remainingMs: options.planeWarningRemainingMs,
-      durationMs: options.planeWarningDurationMs,
-      color: '#f9a8d4',
-    });
-  }
-  if (
     options.policeDelayCueTimerMs > 0 &&
     options.policeDelayCueDurationMs > 0 &&
     !options.policeActive

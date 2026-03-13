@@ -96,8 +96,7 @@ describe('near-miss detection, scoring smoke invariants', () => {
       flavorIndex: 0,
     });
     expect(step.triggered).toBe(true);
-    expect(step.scoreBonus).toBeGreaterThanOrEqual(3);
-    expect(step.scoreBonus).toBeLessThanOrEqual(5);
+    expect(step.scoreBonus).toBe(0);
     expect(step.cooldownMs).toBe(NEAR_MISS_COOLDOWN_MS);
     expect(step.messageText.length).toBeGreaterThan(0);
   });
@@ -114,7 +113,7 @@ describe('near-miss detection, scoring smoke invariants', () => {
       flavorIndex: 0,
     });
     expect(step.triggered).toBe(true);
-    expect(step.scoreBonus).toBeGreaterThanOrEqual(3);
+    expect(step.scoreBonus).toBe(0);
   });
 
   it('resets near-miss state on beginRun', () => {

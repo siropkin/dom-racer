@@ -71,7 +71,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     label: '8 COINS',
     target: 8,
     timeLimitMs: 20_000,
-    bonus: 35,
+    bonus: 30,
     multiplierLabel: 'x3',
   },
   {
@@ -79,7 +79,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     label: '6 COINS',
     target: 6,
     timeLimitMs: 14_000,
-    bonus: 35,
+    bonus: 30,
     multiplierLabel: 'x3',
   },
   {
@@ -87,7 +87,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     label: '12 COINS',
     target: 12,
     timeLimitMs: 18_000,
-    bonus: 50,
+    bonus: 40,
     multiplierLabel: 'x4',
   },
   {
@@ -95,7 +95,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     label: '10 COINS',
     target: 10,
     timeLimitMs: 12_000,
-    bonus: 50,
+    bonus: 40,
     multiplierLabel: 'x4',
   },
 ];

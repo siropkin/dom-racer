@@ -196,7 +196,7 @@ describe('special effects, jackpot, blur, oil_slick, reverse, mystery smoke inva
     expect(bonus.timerMs).toBe(0);
     expect(bonus.setInverted).toBe(false);
     expect(bonus.setBlur).toBe(false);
-    expect(bonus.messageText).toContain('BON');
+    expect(bonus.messageText).toBe('+40');
 
     const magnet = resolveSpecialEffectActivation('magnet', brightSurface);
     expect(magnet.resolvedEffect).toBe('magnet');
@@ -232,7 +232,7 @@ describe('special effects, jackpot, blur, oil_slick, reverse, mystery smoke inva
     expect(oilSlick.timerMs).toBe(3500);
     expect(oilSlick.setInverted).toBe(false);
     expect(oilSlick.setBlur).toBe(false);
-    expect(oilSlick.messageText).toContain('OIL');
+    expect(oilSlick.messageText).toBe('OIL SLICK');
   });
 
   it('resolves reverse activation with timer', () => {
@@ -243,7 +243,7 @@ describe('special effects, jackpot, blur, oil_slick, reverse, mystery smoke inva
     expect(reverse.timerMs).toBe(3500);
     expect(reverse.setInverted).toBe(false);
     expect(reverse.setBlur).toBe(false);
-    expect(reverse.messageText).toContain('REV');
+    expect(reverse.messageText).toBe('REVERSE');
   });
 
   it('resolves mystery activation as a random other effect', () => {
@@ -294,7 +294,8 @@ describe('special effects, jackpot, blur, oil_slick, reverse, mystery smoke inva
     expect(jackpot.timerMs).toBe(0);
     expect(jackpot.setInverted).toBe(false);
     expect(jackpot.setBlur).toBe(false);
-    expect(jackpot.messageText).toBe('JACKPOT!');
+    expect(jackpot.messageText).toMatch(/^\+\d+$/);
+    expect(jackpot.scoreBonus % 10).toBe(0);
   });
 
   it('uses jackpot spawn chance constant within expected range', () => {

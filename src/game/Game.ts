@@ -109,7 +109,6 @@ import {
   getDailyModifier,
   getNextUnlockedVehicleDesign,
   getSpecialColor,
-  getSpecialDropMessage,
   getSpecialLabel,
   getVehicleDesignLabel,
   isSpecialPickup,
@@ -144,7 +143,6 @@ import {
 import { resolveNearMissStep, NEAR_MISS_COLOR, NEAR_MISS_TOAST_TTL_MS } from './nearMissRuntime';
 import {
   createInitialObjectiveState,
-  getObjectiveCompletionWord,
   OBJECTIVE_COMPLETION_COLOR,
   resolveObjectiveTickStep,
   type MicroObjective,
@@ -866,6 +864,9 @@ export class Game {
         const nextVehicleDesign = getNextUnlockedVehicleDesign(this.vehicleDesign, effectiveTotal);
         this.setVehicleDesign(nextVehicleDesign);
         this.onVehicleDesignChange(nextVehicleDesign);
+        this.toastSystem.dismissMatching(
+          (text) => text === 'COUPE' || text === 'BUGGY' || text === 'TRUCK',
+        );
         this.spawnEffectMessage(getVehicleDesignLabel(nextVehicleDesign), '#f8fafc', 'low');
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -1077,12 +1078,7 @@ export class Game {
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playObjectiveChime();
-      const word = getObjectiveCompletionWord(step.completedCount - 1);
-      this.spawnEffectMessage(
-        `${word} +${step.completedBonus}`,
-        OBJECTIVE_COMPLETION_COLOR,
-        'high',
-      );
+      this.spawnEffectMessage(`+${step.completedBonus}`, OBJECTIVE_COMPLETION_COLOR, 'high');
       if (this.player) {
         this.player.triggerCelebration();
         const pb = this.player.getBounds();
@@ -1175,7 +1171,6 @@ export class Game {
     this.world.pickups.push(clonePickup(pickup));
     this.enqueueSpecialSpawnCue(pickup);
     this.audio.playPlaneDrop();
-    this.spawnEffectMessage(getSpecialDropMessage('bonus'), getSpecialColor('bonus'), 'high');
     return true;
   }
 
@@ -1219,7 +1214,6 @@ export class Game {
 
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
-    this.spawnEffectMessage('COIN TRAIL', '#facc15', 'high');
     return true;
   }
 
@@ -1243,7 +1237,6 @@ export class Game {
     this.enqueueSpecialSpawnCue(target, PLANE.SPOTLIGHT_CUE_DURATION_MS);
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
-    this.spawnEffectMessage('SPOTLIGHT', '#fde047', 'high');
     return true;
   }
 
@@ -1259,7 +1252,6 @@ export class Game {
     this.policeDelayCueTimerMs = delayCue.policeDelayCueTimerMs;
     this.policeDelayCueDurationMs = delayCue.policeDelayCueDurationMs;
     this.audio.playPlaneDrop();
-    this.spawnEffectMessage('HOLD-UP', '#93c5fd', 'high');
     return true;
   }
 
@@ -1281,7 +1273,6 @@ export class Game {
 
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
-    this.spawnEffectMessage('L-WIND', '#86efac', 'high');
     return true;
   }
 
@@ -1356,7 +1347,7 @@ export class Game {
     const pickup: WorldPickup = {
       id: `special:${effect}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
       rect,
-      value: isJackpot ? 0 : 25,
+      value: 0,
       kind: 'special',
       effect,
       accentColor: getSpecialColor(effect),

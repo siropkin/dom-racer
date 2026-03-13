@@ -20,7 +20,7 @@ export const TIMING = {
 // ---------------------------------------------------------------------------
 
 export const TOAST = {
-  MAX_CHARS: 8,
+  MAX_CHARS: 9,
   MAX_VISIBLE: 8,
   DUPLICATE_WINDOW_MS: 260,
   PICKUP_TTL_MS: 1_200,
@@ -175,8 +175,8 @@ export const OVERGROWTH = {
 export const NEAR_MISS = {
   COOLDOWN_MS: 800,
   THRESHOLD_PX: 5,
-  SCORE_MIN: 3,
-  SCORE_MAX: 5,
+  SCORE_MIN: 0,
+  SCORE_MAX: 0,
   COLOR: '#fb923c',
   TOAST_TTL_MS: 600,
 } as const;

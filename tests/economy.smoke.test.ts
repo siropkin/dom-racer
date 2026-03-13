@@ -93,7 +93,7 @@ describe('economy and game lifecycle smoke invariants', () => {
     expect(spawned).toBe(true);
     expect(regularAfter).toBe(regularBefore);
     expect(specialsAfter.length).toBeGreaterThan(0);
-    expect(specialsAfter[0].value).toBe(25);
+    expect(specialsAfter[0].value).toBe(0);
     expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
   });
 

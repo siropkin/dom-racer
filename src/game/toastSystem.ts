@@ -39,6 +39,10 @@ export class ToastSystem {
     this.messages = [];
   }
 
+  dismissMatching(predicate: (text: string) => boolean): void {
+    this.messages = this.messages.filter((msg) => !predicate(msg.text));
+  }
+
   enqueue(message: ToastMessageInput): void {
     const now = performance.now();
     const normalized: ToastMessageInput = {

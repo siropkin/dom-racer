@@ -1,12 +1,7 @@
 import type { HudState, SpecialEffect, Vector2, WorldPickup } from '../shared/types';
 import { EFFECTS, JACKPOT, SPECIALS } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
-import {
-  getSpecialActivationMessage,
-  getSpecialColor,
-  getSpecialHudLabel,
-  randomBetween,
-} from './gameRuntime';
+import { getSpecialActivationMessage, getSpecialColor, getSpecialHudLabel } from './gameRuntime';
 
 interface EffectTimerState {
   magnetTimerMs: number;
@@ -188,12 +183,14 @@ export function resolveSpecialEffectActivation(
       };
     }
     case 'jackpot': {
-      const jackpotBonus = Math.floor(randomBetween(JACKPOT.SCORE_MIN, JACKPOT.SCORE_MAX));
+      const minSteps = Math.floor(JACKPOT.SCORE_MIN / 10);
+      const maxSteps = Math.floor(JACKPOT.SCORE_MAX / 10);
+      const jackpotBonus = (minSteps + Math.floor(Math.random() * (maxSteps - minSteps + 1))) * 10;
       return {
         resolvedEffect: 'jackpot',
         scoreBonus: jackpotBonus,
         timerMs: 0,
-        messageText: getSpecialActivationMessage('jackpot'),
+        messageText: `+${jackpotBonus}`,
         messageColor: getSpecialColor('jackpot'),
         setInverted: false,
         setBlur: false,

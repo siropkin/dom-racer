@@ -25,33 +25,28 @@ export const PICKUP_COLORS = [
 ] as const;
 export const SHOWCASE_TOAST_MESSAGES = [
   '+10',
-  '+50',
+  '+20',
+  '+30',
   '+40',
+  '+50',
   'SYNCED',
   'SHIPPED',
   'CACHE',
-  'C-MAG',
-  'P-INV',
-  'V-GHO',
-  'P-BLR',
-  'S-OIL',
-  'O-REV',
-  'R-BON+40',
+  'MAGNET',
+  'INVERT',
+  'GHOST',
+  'BLUR',
+  'OIL SLICK',
+  'REVERSE',
   'MYSTERY',
   'ESCAPED',
   'COUPE',
   'BUGGY',
   'TRUCK',
-  'NYOOM',
   'CLOSE!',
   'TIGHT!',
   'RAZOR!',
   'WHEW!',
-  'NAILED!',
-  'DONE!',
-  'CLEAR!',
-  'CHECK!',
-  'JACKPOT!',
   'NEW BEST!',
   'RUN #42',
 ] as const;
@@ -273,38 +268,38 @@ export function getSpecialHudLabel(
 ): string {
   switch (effect) {
     case 'magnet':
-      return 'MAGNET CYAN';
+      return 'MAGNET';
     case 'invert':
-      return 'INVERT PINK';
+      return 'INVERT';
     case 'ghost':
-      return 'GHOST VIOLET';
+      return 'GHOST';
     case 'blur':
-      return 'BLUR PURPLE';
+      return 'BLUR';
     case 'oil_slick':
-      return 'OIL SLATE';
+      return 'OIL SLICK';
     case 'reverse':
-      return 'REVERSE ORANGE';
+      return 'REVERSE';
   }
 }
 
 export function getSpecialActivationMessage(effect: SpecialEffect): string {
   switch (effect) {
     case 'bonus':
-      return `R-BON+${SPECIALS.BONUS_SCORE}`;
+      return `+${SPECIALS.BONUS_SCORE}`;
     case 'magnet':
-      return 'C-MAG';
+      return 'MAGNET';
     case 'invert':
-      return 'P-INV';
+      return 'INVERT';
     case 'ghost':
-      return 'V-GHO';
+      return 'GHOST';
     case 'jackpot':
-      return 'JACKPOT!';
+      return 'JACKPOT';
     case 'blur':
-      return 'P-BLR';
+      return 'BLUR';
     case 'oil_slick':
-      return 'S-OIL';
+      return 'OIL SLICK';
     case 'reverse':
-      return 'O-REV';
+      return 'REVERSE';
     case 'mystery':
       return 'MYSTERY';
   }
