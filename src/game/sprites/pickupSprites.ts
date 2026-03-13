@@ -8,13 +8,12 @@ export function drawRegularCoinSprite(
     centerY: number;
     radius: number;
     width: number;
-    isFlowCoin: boolean;
   },
 ): void {
-  const { centerX, centerY, radius, width, isFlowCoin } = options;
-  const fillColor = isFlowCoin ? '#60a5fa' : '#f59e0b';
-  const strokeColor = isFlowCoin ? '#1e3a8a' : '#7c2d12';
-  const innerColor = isFlowCoin ? '#eff6ff' : '#fff7ed';
+  const { centerX, centerY, radius, width } = options;
+  const fillColor = '#f59e0b';
+  const strokeColor = '#7c2d12';
+  const innerColor = '#fff7ed';
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
   ctx.beginPath();

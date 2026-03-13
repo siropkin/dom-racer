@@ -10,7 +10,7 @@ Most browser extensions add features. This one turns your tab into a game.
 
 The magic is that every page plays differently. A docs page is a maze of text walls. A dashboard is an open racetrack with scattered buttons. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you press the hotkey.
 
-Then: coins to chase, power-ups to grab, a combo system that rewards greed, police cars that punish staying too long, and a propeller plane that drops route moments across the map. The difficulty curve is simple: the longer you survive, the weirder it gets.
+Then: coins to chase, power-ups to grab, police cars that punish staying too long, and a propeller plane that drops route moments across the map. The difficulty curve is simple: the longer you survive, the weirder it gets.
 
 ## Store-Friendly Pitch
 
@@ -49,7 +49,6 @@ npm run build
 - Reactive visual surfaces become speed-up zones
 - Links and buttons spawn money pickups
 - Ambient special pickups spawn independently from normal money
-- `FLOW` streaks recolor regular coins to make the streak state obvious
 - Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with siren flash, edge warnings, and a proper `GAME OVER` screen
@@ -120,7 +119,7 @@ Stack enough near-misses in a single run and the flavor text starts roasting you
 
 ## Micro-Objectives
 
-Each run quietly assigns you a mini-goal a few seconds in: collect 5 coins, survive 20 seconds, land 3 close calls, hit a FLOW x5 streak, and so on. There are eight templates in the pool, and you only see one at a time.
+Each run quietly assigns you a mini-goal a few seconds in: collect 5 coins, reach a score threshold, land 3 close calls, grab a special, and so on. There are six templates in the pool, and you only see one at a time.
 
 Complete a goal and you get a +25 score bonus plus a satisfying violet toast. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time (if timed) in a compact bottom-center panel.
 

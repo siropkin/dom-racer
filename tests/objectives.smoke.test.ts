@@ -60,7 +60,6 @@ describe('micro-objective smoke invariants', () => {
       specialsCollectedThisFrame: 0,
       nearMissTriggeredThisFrame: false,
       currentScore: 0,
-      currentComboCount: 0,
     };
     const initial = createInitialObjectiveState();
     expect(initial.assignDelayMs).toBeGreaterThan(0);
@@ -109,7 +108,6 @@ describe('micro-objective smoke invariants', () => {
         specialsCollectedThisFrame: 0,
         nearMissTriggeredThisFrame: false,
         currentScore: 50,
-        currentComboCount: 0,
       },
       dtSeconds: 0.016,
     });
@@ -141,7 +139,6 @@ describe('micro-objective smoke invariants', () => {
         specialsCollectedThisFrame: 0,
         nearMissTriggeredThisFrame: false,
         currentScore: 30,
-        currentComboCount: 0,
       },
       dtSeconds: 0.5,
     });
@@ -173,7 +170,6 @@ describe('micro-objective smoke invariants', () => {
         specialsCollectedThisFrame: 0,
         nearMissTriggeredThisFrame: false,
         currentScore: 60,
-        currentComboCount: 0,
       },
       dtSeconds: 0.5,
     });
@@ -216,7 +212,6 @@ describe('micro-objective smoke invariants', () => {
         specialsCollectedThisFrame: 0,
         nearMissTriggeredThisFrame: true,
         currentScore: 40,
-        currentComboCount: 0,
       },
       dtSeconds: 0.016,
     });
@@ -307,7 +302,7 @@ describe('micro-objective smoke invariants', () => {
   });
 
   it('has at least 8 objective templates in the pool', () => {
-    expect(OBJECTIVE_TEMPLATES.length).toBeGreaterThanOrEqual(7);
+    expect(OBJECTIVE_TEMPLATES.length).toBeGreaterThanOrEqual(6);
     const ids = OBJECTIVE_TEMPLATES.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
   });

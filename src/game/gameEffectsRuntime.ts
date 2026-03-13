@@ -1,5 +1,5 @@
 import type { HudState, SpecialEffect, Vector2, WorldPickup } from '../shared/types';
-import { EFFECTS, JACKPOT, SPECIALS, TIMING } from './gameConfig';
+import { EFFECTS, JACKPOT, SPECIALS } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
 import {
   adaptBlackoutEffectForSurface,
@@ -15,8 +15,6 @@ interface EffectTimerState {
   invertTimerMs: number;
   blackoutTimerMs: number;
   lureTimerMs: number;
-  comboTimerMs: number;
-  pickupComboCount: number;
 }
 
 interface EffectTimerUpdateResult extends EffectTimerState {
@@ -30,18 +28,9 @@ interface ActiveEffectsInput {
   invertTimerMs: number;
   blackoutTimerMs: number;
   lureTimerMs: number;
-  comboTimerMs: number;
-  pickupComboCount: number;
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
   currentSurface: SurfaceSample;
-}
-
-interface PickupComboResult {
-  pickupComboCount: number;
-  comboTimerMs: number;
-  bonus: number;
-  flowTier: number | null;
 }
 
 /** Decrements all active effect timers and flags any that just expired. */
@@ -52,7 +41,6 @@ export function tickEffectTimers(
   const deltaMs = dtSeconds * 1000;
   const nextInvertTimerMs = Math.max(0, state.invertTimerMs - deltaMs);
   const nextBlackoutTimerMs = Math.max(0, state.blackoutTimerMs - deltaMs);
-  const nextComboTimerMs = Math.max(0, state.comboTimerMs - deltaMs);
 
   return {
     magnetTimerMs: Math.max(0, state.magnetTimerMs - deltaMs),
@@ -60,27 +48,8 @@ export function tickEffectTimers(
     invertTimerMs: nextInvertTimerMs,
     blackoutTimerMs: nextBlackoutTimerMs,
     lureTimerMs: Math.max(0, state.lureTimerMs - deltaMs),
-    comboTimerMs: nextComboTimerMs,
-    pickupComboCount: nextComboTimerMs === 0 ? 0 : state.pickupComboCount,
     invertExpired: state.invertTimerMs > 0 && nextInvertTimerMs === 0,
     blackoutExpired: state.blackoutTimerMs > 0 && nextBlackoutTimerMs === 0,
-  };
-}
-
-/** Updates the pickup combo chain and returns the bonus score for this collection. */
-export function applyPickupComboState(
-  comboTimerMs: number,
-  pickupComboCount: number,
-): PickupComboResult {
-  const nextPickupComboCount = comboTimerMs > 0 ? pickupComboCount + 1 : 1;
-  const bonus = nextPickupComboCount < 3 ? 0 : Math.min(14, 2 + (nextPickupComboCount - 3) * 2);
-  const flowTier = [3, 5, 8, 12].includes(nextPickupComboCount) ? nextPickupComboCount : null;
-
-  return {
-    pickupComboCount: nextPickupComboCount,
-    comboTimerMs: TIMING.COMBO_WINDOW_MS,
-    bonus,
-    flowTier,
   };
 }
 
@@ -320,16 +289,6 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       remainingMs: input.policeRemainingMs,
       durationMs: input.policeDurationMs,
       color: '#60a5fa',
-    });
-  }
-
-  if (input.comboTimerMs > 0 && input.pickupComboCount >= 3) {
-    effects.push({
-      effect: 'flow',
-      label: `FLOW x${input.pickupComboCount}`,
-      remainingMs: input.comboTimerMs,
-      durationMs: TIMING.COMBO_WINDOW_MS,
-      color: '#fb7185',
     });
   }
 

@@ -26,8 +26,6 @@ interface BuildHudStateOptions {
   lureTimerMs: number;
   policeDelayCueTimerMs: number;
   policeDelayCueDurationMs: number;
-  comboTimerMs: number;
-  pickupComboCount: number;
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
   planeActive: boolean;
@@ -59,8 +57,6 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     invertTimerMs: options.invertTimerMs,
     blackoutTimerMs: options.blackoutTimerMs,
     lureTimerMs: options.lureTimerMs,
-    comboTimerMs: options.comboTimerMs,
-    pickupComboCount: options.pickupComboCount,
     policeRemainingMs: null,
     policeDurationMs: null,
     currentSurface: options.currentSurface,

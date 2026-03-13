@@ -5,8 +5,7 @@ export type ObjectiveTracker =
   | 'coins_collected'
   | 'specials_collected'
   | 'near_misses'
-  | 'score_threshold'
-  | 'combo_threshold';
+  | 'score_threshold';
 
 export interface ObjectiveTemplate {
   id: string;
@@ -31,7 +30,6 @@ export interface ObjectiveTickEvents {
   specialsCollectedThisFrame: number;
   nearMissTriggeredThisFrame: boolean;
   currentScore: number;
-  currentComboCount: number;
 }
 
 export interface ObjectiveTickResult {
@@ -84,13 +82,6 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     target: 1,
     timeLimitMs: 30_000,
     tracker: 'specials_collected',
-  },
-  {
-    id: 'flow_x5',
-    label: 'FLOW X5',
-    target: 5,
-    timeLimitMs: 30_000,
-    tracker: 'combo_threshold',
   },
   {
     id: 'collect_12',
@@ -219,9 +210,6 @@ function advanceObjectiveProgress(
       break;
     case 'score_threshold':
       nextProgress = events.currentScore;
-      break;
-    case 'combo_threshold':
-      nextProgress = Math.max(nextProgress, events.currentComboCount);
       break;
   }
 

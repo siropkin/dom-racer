@@ -35,7 +35,7 @@ The game runs as a content-script overlay on top of real websites.
 - visible UI becomes loot and geometry
 - the run starts clean and readable
 - over time the page becomes stranger, denser, and more dangerous
-- the player chases score, combos, specials, and survival
+- the player chases score, specials, and survival
 
 ### Intended Vibe
 
@@ -499,7 +499,7 @@ When this roadmap is working, a good run should feel like this:
 ### Session — 2026-03-12 (g)
 
 - Implemented Phase 4 micro-objectives system in `src/game/microObjectiveRuntime.ts`
-- Pool of 8 objective templates: collect 5/8/12 coins, 8 coins in 20s (timed), reach 80 pts, 3 close calls, grab special, survive 20s, FLOW x5
+- Pool of 6 objective templates: collect 5/8/12 coins, reach 80 pts, 3 close calls, grab special
 - One active objective at a time, assigned after 6-10s initial delay, then 4-8s between completions
 - On completion: +25 score bonus, rotating toast (NAILED!/DONE!/CLEAR!/CHECK!) in violet
 - On failure/timeout: objective silently expires, new one assigned after 3-5s

@@ -28,13 +28,7 @@ export interface ClearedEffectState {
   lureTimerMs: number;
 }
 
-export interface ClearedComboState {
-  pickupComboCount: number;
-  comboTimerMs: number;
-}
-
-export interface BeginRunState
-  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
+export interface BeginRunState extends ClearedEncounterState, ClearedEffectState {
   dynamicPickups: WorldPickup[];
   coinSpawnQueue: WorldPickup[];
   coinSpawnIdCounter: number;
@@ -51,15 +45,13 @@ export interface BeginRunState
   lastFrameMs: number;
 }
 
-export interface CaughtGameOverTransitionState
-  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
+export interface CaughtGameOverTransitionState extends ClearedEncounterState, ClearedEffectState {
   gameOverState: GameOverState;
   spriteShowcaseActive: boolean;
   startTimeMs: number;
 }
 
-export interface SpriteShowcaseTransitionState
-  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
+export interface SpriteShowcaseTransitionState extends ClearedEncounterState, ClearedEffectState {
   spriteShowcaseActive: boolean;
 }
 
@@ -91,19 +83,11 @@ export function createClearedEffectState(): ClearedEffectState {
   };
 }
 
-export function createClearedComboState(): ClearedComboState {
-  return {
-    pickupComboCount: 0,
-    comboTimerMs: 0,
-  };
-}
-
 /** Produces a fresh game state snapshot for starting a new run. */
 export function createBeginRunState(nowMs: number): BeginRunState {
   return {
     ...createClearedEncounterState(),
     ...createClearedEffectState(),
-    ...createClearedComboState(),
     dynamicPickups: [],
     coinSpawnQueue: [],
     coinSpawnIdCounter: 0,
@@ -136,7 +120,6 @@ export function createCaughtGameOverTransitionState(
   return {
     ...createClearedEncounterState(),
     ...createClearedEffectState(),
-    ...createClearedComboState(),
     gameOverState: {
       reason: 'caught',
       startedAtMs: nowMs,
@@ -154,7 +137,6 @@ export function createSpriteShowcaseTransitionState(): SpriteShowcaseTransitionS
   return {
     ...createClearedEncounterState(),
     ...createClearedEffectState(),
-    ...createClearedComboState(),
     spriteShowcaseActive: true,
   };
 }

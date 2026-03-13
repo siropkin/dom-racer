@@ -167,14 +167,12 @@ export function drawSpriteShowcaseOverlay({
     centerY: pickupsY,
     radius: coinRadius,
     width: Math.max(3.5, coinRadius * (0.3 + coinSpinA * 0.7)),
-    isFlowCoin: false,
   });
   drawRegularCoinSprite(ctx, {
     centerX: 102,
     centerY: pickupsY,
     radius: coinRadius,
     width: Math.max(3.5, coinRadius * (0.3 + coinSpinB * 0.7)),
-    isFlowCoin: true,
   });
 
   const specialEffects: SpecialEffect[] = [

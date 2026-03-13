@@ -506,8 +506,6 @@ describe('police, plane, encounter stagger smoke invariants', () => {
       lureTimerMs: 0,
       policeDelayCueTimerMs: 0,
       policeDelayCueDurationMs: 0,
-      comboTimerMs: 0,
-      pickupComboCount: 0,
       policeRemainingMs: null,
       policeDurationMs: null,
       planeActive: false,

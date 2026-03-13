@@ -56,7 +56,6 @@ import {
 import {
   applyLurePullToPickups,
   applyMagnetPullToPickups,
-  applyPickupComboState,
   resolveSpecialEffectActivation,
   tickEffectTimers,
 } from './gameEffectsRuntime';
@@ -64,7 +63,6 @@ import { buildHudState, isDriveInputActive } from './gameHudAudioRuntime';
 import {
   createBeginRunState,
   createCaughtGameOverTransitionState,
-  createClearedComboState,
   createClearedEffectState,
   createClearedEncounterState,
   resolveFocusPauseTransitionState,
@@ -210,8 +208,6 @@ export class Game {
   private policeWarning: PoliceWarningState | null;
   private planeWarning: PlaneWarningState | null;
   private policeSpawnTimerMs: number;
-  private pickupComboCount: number;
-  private comboTimerMs: number;
   private gameOverState: GameOverState | null;
   private paused: boolean;
   private pausedStartedAtMs: number;
@@ -312,8 +308,6 @@ export class Game {
       POLICE.INITIAL_SPAWN_MIN_MS,
       POLICE.INITIAL_SPAWN_MAX_MS,
     );
-    this.pickupComboCount = 0;
-    this.comboTimerMs = 0;
     this.gameOverState = null;
     this.paused = false;
     this.pausedStartedAtMs = 0;
@@ -382,7 +376,6 @@ export class Game {
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
-    this.resetComboState();
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
     this.nearMissCooldownMs = 0;
@@ -615,7 +608,6 @@ export class Game {
       } else {
         this.spawnCoinPickupMessage(pickup);
         this.coinsCollectedTotal += 1;
-        this.score += this.applyPickupComboBonus();
         this.coinRefillBoostTimerMs = COINS.REFILL_BOOST_MS;
       }
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
@@ -635,7 +627,6 @@ export class Game {
         specialsCollectedThisFrame,
         nearMissTriggeredThisFrame: this.nearMissCount > nearMissCountBefore,
         currentScore: this.score,
-        currentComboCount: this.pickupComboCount,
       },
       dtSeconds,
     );
@@ -698,13 +689,7 @@ export class Game {
     drawOvergrowthNodes(ctx, this.overgrowthNodes, performance.now());
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
-    drawPickups(
-      ctx,
-      this.world.pickups,
-      this.comboTimerMs,
-      this.pickupComboCount,
-      performance.now(),
-    );
+    drawPickups(ctx, this.world.pickups, performance.now());
     drawVfxParticles(ctx, this.vfxParticles);
     const renderSpeed = this.player.getLastStepDiagnostics().speed;
     drawSpeedLines(
@@ -748,8 +733,6 @@ export class Game {
       lureTimerMs: this.lureTimerMs,
       policeDelayCueTimerMs: this.policeDelayCueTimerMs,
       policeDelayCueDurationMs: this.policeDelayCueDurationMs,
-      comboTimerMs: this.comboTimerMs,
-      pickupComboCount: this.pickupComboCount,
       policeRemainingMs,
       policeDurationMs,
       planeActive: Boolean(this.planeBonusEvent),
@@ -1508,16 +1491,6 @@ export class Game {
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
   }
 
-  private applyPickupComboBonus(): number {
-    const nextComboState = applyPickupComboState(this.comboTimerMs, this.pickupComboCount);
-    this.pickupComboCount = nextComboState.pickupComboCount;
-    this.comboTimerMs = nextComboState.comboTimerMs;
-    if (nextComboState.flowTier !== null) {
-      this.spawnEffectMessage(`FLOW x${nextComboState.flowTier}`, '#fb7185', 'medium');
-    }
-    return nextComboState.bonus;
-  }
-
   private updatePoliceChase(dtSeconds: number): {
     active: boolean;
     urgency: number;
@@ -1631,8 +1604,6 @@ export class Game {
         invertTimerMs: this.invertTimerMs,
         blackoutTimerMs: this.blackoutTimerMs,
         lureTimerMs: this.lureTimerMs,
-        comboTimerMs: this.comboTimerMs,
-        pickupComboCount: this.pickupComboCount,
       },
       dtSeconds,
     );
@@ -1641,8 +1612,6 @@ export class Game {
     this.invertTimerMs = timers.invertTimerMs;
     this.blackoutTimerMs = timers.blackoutTimerMs;
     this.lureTimerMs = timers.lureTimerMs;
-    this.comboTimerMs = timers.comboTimerMs;
-    this.pickupComboCount = timers.pickupComboCount;
 
     if (timers.invertExpired) {
       this.setInverted(false);
@@ -1759,12 +1728,6 @@ export class Game {
     this.lureTimerMs = cleared.lureTimerMs;
   }
 
-  private resetComboState(): void {
-    const cleared = createClearedComboState();
-    this.pickupComboCount = cleared.pickupComboCount;
-    this.comboTimerMs = cleared.comboTimerMs;
-  }
-
   private beginRun(): void {
     this.runNumber += 1;
     this.pageBestScoreAtRunStart = this.pageBestScore;
@@ -1788,7 +1751,6 @@ export class Game {
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
     this.policeSpawnTimerMs = nextRunState.policeSpawnTimerMs;
-    this.resetComboState();
     this.gameOverState = nextRunState.gameOverState;
     this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
     this.overgrowthNodes = [];
@@ -1837,7 +1799,6 @@ export class Game {
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
-    this.resetComboState();
     this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.toastSystem.clear();
     this.resetInput();
@@ -1855,7 +1816,6 @@ export class Game {
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
-    this.resetComboState();
     this.toastSystem.clear();
     this.resetInput();
   }

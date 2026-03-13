@@ -7,8 +7,6 @@ import type { PlaneBonusEventState, SpecialSpawnCue, SurfaceSample } from './gam
 export function drawPickups(
   ctx: CanvasRenderingContext2D,
   pickups: WorldPickup[],
-  comboTimerMs: number,
-  pickupComboCount: number,
   nowMs: number,
 ): void {
   ctx.save();
@@ -31,13 +29,11 @@ export function drawPickups(
       continue;
     }
 
-    const isFlowCoin = comboTimerMs > 0 && pickupComboCount >= 3;
     drawRegularCoinSprite(ctx, {
       centerX,
       centerY,
       radius,
       width,
-      isFlowCoin,
     });
   }
 
