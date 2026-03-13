@@ -32,6 +32,7 @@ interface ActiveEffectsInput {
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
   currentSurface: SurfaceSample;
+  viewportScaleFactor?: number;
 }
 
 /** Decrements all active effect timers and flags any that just expired. */
@@ -203,13 +204,14 @@ export function resolveSpecialEffectActivation(
 
 export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['activeEffects'] {
   const effects: HudState['activeEffects'] = [];
+  const sf = input.viewportScaleFactor ?? 1;
 
   if (input.magnetTimerMs > 0) {
     effects.push({
       effect: 'magnet',
       label: getSpecialHudLabel('magnet'),
       remainingMs: input.magnetTimerMs,
-      durationMs: EFFECTS.MAGNET_DURATION_MS,
+      durationMs: EFFECTS.MAGNET_DURATION_MS * sf,
       color: getSpecialColor('magnet'),
     });
   }
@@ -219,7 +221,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'invert',
       label: getSpecialHudLabel('invert'),
       remainingMs: input.invertTimerMs,
-      durationMs: EFFECTS.INVERT_DURATION_MS,
+      durationMs: EFFECTS.INVERT_DURATION_MS * sf,
       color: getSpecialColor('invert'),
     });
   }
@@ -229,7 +231,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'ghost',
       label: getSpecialHudLabel('ghost'),
       remainingMs: input.ghostTimerMs,
-      durationMs: EFFECTS.GHOST_DURATION_MS,
+      durationMs: EFFECTS.GHOST_DURATION_MS * sf,
       color: getSpecialColor('ghost'),
     });
   }
@@ -239,7 +241,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'blur',
       label: getSpecialHudLabel('blur'),
       remainingMs: input.blurTimerMs,
-      durationMs: EFFECTS.BLUR_DURATION_MS,
+      durationMs: EFFECTS.BLUR_DURATION_MS * sf,
       color: getSpecialColor('blur'),
     });
   }
@@ -249,7 +251,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'oil_slick',
       label: getSpecialHudLabel('oil_slick'),
       remainingMs: input.oilSlickTimerMs,
-      durationMs: EFFECTS.OIL_SLICK_DURATION_MS,
+      durationMs: EFFECTS.OIL_SLICK_DURATION_MS * sf,
       color: getSpecialColor('oil_slick'),
     });
   }
@@ -259,7 +261,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'reverse',
       label: getSpecialHudLabel('reverse'),
       remainingMs: input.reverseTimerMs,
-      durationMs: EFFECTS.REVERSE_DURATION_MS,
+      durationMs: EFFECTS.REVERSE_DURATION_MS * sf,
       color: getSpecialColor('reverse'),
     });
   }

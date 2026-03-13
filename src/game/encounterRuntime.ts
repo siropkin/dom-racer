@@ -164,13 +164,14 @@ export function createPoliceChase(
   viewport: World['viewport'],
   edge?: PoliceEdge,
   runElapsedMs = 0,
+  viewportScaleFactor = 1,
 ): PoliceChaseState {
   const spawnEdge = edge ?? getRandomPoliceEdge();
   const spawn = getPoliceSpawn(viewport, spawnEdge);
   const escalation = Math.min(1, runElapsedMs / 180_000);
   const minMs = POLICE.CHASE_DURATION_MIN_MS + escalation * 3_000;
   const maxMs = POLICE.CHASE_DURATION_MAX_MS + escalation * 4_000;
-  const durationMs = randomBetween(minMs, maxMs);
+  const durationMs = randomBetween(minMs, maxMs) * viewportScaleFactor;
   return {
     ...spawn,
     remainingMs: durationMs,
@@ -514,6 +515,7 @@ export interface PoliceChaseTickInput {
   hasRunProgress: boolean;
   runElapsedMs: number;
   dtSeconds: number;
+  viewportScaleFactor?: number;
 }
 
 export interface PoliceChaseTickResult {
@@ -591,7 +593,12 @@ export function resolvePoliceChaseTickStep(input: PoliceChaseTickInput): PoliceC
     }
 
     if (countdown.shouldSpawn) {
-      policeChase = createPoliceChase(input.viewport, policeWarning?.edge, input.runElapsedMs);
+      policeChase = createPoliceChase(
+        input.viewport,
+        policeWarning?.edge,
+        input.runElapsedMs,
+        input.viewportScaleFactor ?? 1,
+      );
       policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS);
       policeWarning = null;
       events.push('chase-spawned');

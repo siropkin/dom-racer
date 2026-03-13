@@ -108,15 +108,27 @@ function toggleGame(): void {
     return;
   }
 
-  activate();
+  void activate();
 }
 
-function activate(): void {
+async function activate(): Promise<void> {
   if (active) {
     return;
   }
 
   active = true;
+
+  try {
+    soundEnabled = await loadSoundEnabledSetting();
+  } catch {
+    /* keep current */
+  }
+  try {
+    vehicleDesign = await loadVehicleDesignSetting();
+  } catch {
+    /* keep current */
+  }
+
   const activeElement = document.activeElement;
   if (activeElement instanceof HTMLElement) {
     activeElement.blur();

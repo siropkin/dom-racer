@@ -41,6 +41,7 @@ interface BuildHudStateOptions {
   objectivesCompleted: number;
   objectiveActive: MicroObjective | null;
   currentSurface: SurfaceSample;
+  viewportScaleFactor?: number;
 }
 
 export function isDriveInputActive(input: InputState): boolean {
@@ -59,6 +60,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     policeRemainingMs: null,
     policeDurationMs: null,
     currentSurface: options.currentSurface,
+    viewportScaleFactor: options.viewportScaleFactor,
   });
   if (
     options.planeWarningActive &&

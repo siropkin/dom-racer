@@ -373,6 +373,13 @@ export function getNextUnlockedVehicleDesign(
   return unlocked[(idx + 1) % unlocked.length];
 }
 
+const VIEWPORT_SCALE_REFERENCE_AREA = 1280 * 720;
+
+export function computeViewportScaleFactor(viewport: { width: number; height: number }): number {
+  const area = viewport.width * viewport.height;
+  return clamp(Math.sqrt(area / VIEWPORT_SCALE_REFERENCE_AREA), 0.6, 2.5);
+}
+
 export function isModifierKey(code: string): boolean {
   return (
     code === 'ShiftLeft' ||

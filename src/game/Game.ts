@@ -103,6 +103,7 @@ import { Player } from './player';
 import {
   clonePickup,
   cloneWorld,
+  computeViewportScaleFactor,
   type DailyModifier,
   getDailyModifier,
   getNextUnlockedVehicleDesign,
@@ -236,6 +237,7 @@ export class Game {
   private firstPlayHintTimerMs: number;
   private dailyModifier: DailyModifier;
   private lifetimeTotalScore: number;
+  private viewportScaleFactor: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -334,6 +336,7 @@ export class Game {
     this.firstPlayHintTimerMs = 0;
     this.dailyModifier = getDailyModifier();
     this.lifetimeTotalScore = options.initialLifetimeTotalScore;
+    this.viewportScaleFactor = 1;
   }
 
   start(): void {
@@ -740,6 +743,7 @@ export class Game {
       objectivesCompleted: this.objectiveCompletedCount,
       objectiveActive: this.objectiveActive,
       currentSurface,
+      viewportScaleFactor: this.viewportScaleFactor,
     });
     drawHud(ctx, this.world.viewport, hudState);
 
@@ -1387,25 +1391,26 @@ export class Game {
   private activateSpecialEffect(effect: SpecialEffect): void {
     const activation = resolveSpecialEffectActivation(effect, this.sampleCurrentSurface());
     this.score += activation.scoreBonus;
+    const scaledTimer = activation.timerMs * this.viewportScaleFactor;
 
     switch (activation.resolvedEffect) {
       case 'invert':
-        this.invertTimerMs = activation.timerMs;
+        this.invertTimerMs = scaledTimer;
         break;
       case 'magnet':
-        this.magnetTimerMs = activation.timerMs;
+        this.magnetTimerMs = scaledTimer;
         break;
       case 'ghost':
-        this.ghostTimerMs = activation.timerMs;
+        this.ghostTimerMs = scaledTimer;
         break;
       case 'blur':
-        this.blurTimerMs = activation.timerMs;
+        this.blurTimerMs = scaledTimer;
         break;
       case 'oil_slick':
-        this.oilSlickTimerMs = activation.timerMs;
+        this.oilSlickTimerMs = scaledTimer;
         break;
       case 'reverse':
-        this.reverseTimerMs = activation.timerMs;
+        this.reverseTimerMs = scaledTimer;
         break;
       case 'bonus':
       case 'jackpot':
@@ -1478,6 +1483,7 @@ export class Game {
         this.coinsCollectedTotal >= POLICE.START_COINS_THRESHOLD,
       runElapsedMs: this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0,
       dtSeconds,
+      viewportScaleFactor: this.viewportScaleFactor,
     });
 
     this.policeChase = step.policeChase;
@@ -1760,6 +1766,10 @@ export class Game {
     this.pageTintColor = this.getPageTintColor?.() ?? null;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
+
+    if (this.world) {
+      this.viewportScaleFactor = computeViewportScaleFactor(this.world.viewport);
+    }
 
     this.dailyModifier = getDailyModifier();
     if (this.dailyModifier.kind === 'FAST_POLICE') {
