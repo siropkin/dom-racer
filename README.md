@@ -44,9 +44,10 @@ That's it. You're racing.
 |---|---|
 | `Shift + Space` / ``Shift + ` `` | Toggle the game on/off |
 | `WASD` / Arrow keys | Drive |
+| `Space` | Nitro boost (3s cooldown) |
+| `V` | Switch vehicle (each drives differently!) |
+| `M` | Toggle music |
 | `R` | Restart run |
-| `V` | Switch vehicle |
-| `M` | Toggle sound |
 | `Esc` | Quit |
 | `Space` (game over) | Restart |
 
@@ -70,7 +71,17 @@ You can also start the game from the extension popup button.
 
 **Daily modifiers.** Every day the rules twist a little: double coins, faster police, slippery surfaces, early overgrowth, extra specials. It's the same page, but today it's different.
 
-**Vehicles unlock.** Three designs — coupe, buggy, truck — unlocked by hitting lifetime score milestones. Swap mid-game with `V`.
+**Nitro boost.** Hit `Space` for a short speed burst. 3 second cooldown between uses. The cooldown varies by vehicle.
+
+**Three vehicles, three feels.** Unlocked by hitting lifetime score milestones. Swap mid-game with `V`.
+
+| | Coupe | Buggy | Truck |
+|---|---|---|---|
+| **Feel** | Balanced | Nimble dart | Freight train |
+| **Speed** | Medium | Slower, but... | Fastest |
+| **Turning** | Normal | Sharp and snappy | Sluggish |
+| **Nitro** | 3.0s cooldown | 2.2s cooldown | 3.8s cooldown |
+| **Unlock** | Default | 500 lifetime score | 1500 lifetime score |
 
 ## The Power-Ups
 
@@ -100,6 +111,15 @@ This is the genuinely cool part. DOM Racer scans your visible page and translate
 - **Empty space** → where specials spawn mid-run
 
 The result is intentionally game-ish, not pixel-perfect. The goal is to preserve the *feel* of the page while making it fun to drive through. A GitHub Issues page plays nothing like a Wikipedia article, and that's the whole point.
+
+## Tips
+
+- **Try different websites** — every page generates a unique track. Wikipedia, GitHub, blogs, news sites, docs all play completely differently.
+- **The buggy** turns fast and recharges nitro quickly — great for tight pages with lots of text walls.
+- **The truck** has raw speed but turns like a boat — best for open pages with long stretches.
+- **Watch for the airplane** — listen for the propeller drone and follow the drop.
+- **After ~35 seconds**, bushes grow from walls and close off routes. Plan your escape lanes early.
+- **Some pages won't work** — heavily iframe'd apps like Gmail or Figma don't have enough scannable content. You'll see a friendly "not enough to race on" screen.
 
 ## Privacy
 
