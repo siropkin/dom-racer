@@ -52,10 +52,17 @@ npm run build
 - `FLOW` streaks recolor regular coins to make the streak state obvious
 - Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
-- Police chases with edge warnings and a proper `GAME OVER` screen
+- Police chases with siren flash, edge warnings, and a proper `GAME OVER` screen
 - Overgrowth difficulty: bushes and trees slowly grow from barriers, narrowing routes over time
-- Near-miss bonus: graze walls and police for extra points and style toasts
-- Micro-objectives: per-run mini-goals that keep each attempt feeling fresh
+- Near-miss bonus: graze walls and police for extra points, with whoosh sound feedback
+- Micro-objectives: per-run mini-goals with completion chime and HUD progress bar
+- Daily modifier: a different rule twist each day (double coins, fast police, slippery, etc.)
+- Run summary with letter grade (S/A/B/C/D) and stats on game-over screen
+- Vehicle unlocks: earn the buggy and truck by hitting lifetime score milestones
+- First-play hint overlay for new players (shows once, never again)
+- Visual juice: tire dust, coin burst particles, speed lines, drift sparks, landing squash
+- Page-reactive tint: each page gets a subtle color wash matching its background
+- Run counter, lifetime milestones, and "NEW BEST!" celebrations
 - Run auto-pauses with a clear overlay when the page/tab loses focus
 - Sound toggle, vehicle design toggle, sprite showcase debug mode
 - Page best and lifetime best scores persist through storage
@@ -150,9 +157,9 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Airplane event | Done | Rare stylish world events |
 | Indie juice | Done | Near-miss bonuses, micro-objectives, rare jackpot |
 | Production hardening | Done | Tests, structure, release readiness |
-| Presentation | In progress | README polish, screenshots, store assets |
+| Presentation | Done | README polish, branding, store assets |
 | Micro-polish | Done | Visual juice, particles, retention tweaks |
-| Player experience | Planned | Onboarding, run summary, daily modifiers, store readiness |
+| Player experience | Done | Onboarding, run summary, daily modifiers, vehicle unlocks |
 
 ## Debug Mode
 
@@ -183,6 +190,7 @@ npm run lint:fix     # ESLint auto-fix
 npm run format       # Prettier format
 npm run format:check # Prettier check (CI-friendly)
 npm run brand        # Regenerate extension icons and marketplace graphics
+npm run package      # Build + create Chrome Web Store ZIP
 ```
 
 ## Stack
