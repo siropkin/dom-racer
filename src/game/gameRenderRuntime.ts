@@ -144,6 +144,16 @@ export function drawPlaneBoostLane(
   ctx.restore();
 }
 
+export function advanceFocusModeAlpha(
+  currentAlpha: number,
+  policeActive: boolean,
+  dtSeconds: number,
+): number {
+  const target = policeActive ? 0 : 1;
+  const rate = target > currentAlpha ? 1.1 : 2.6;
+  return currentAlpha + (target - currentAlpha) * Math.min(1, dtSeconds * rate * 6);
+}
+
 export function drawFocusModeLayer(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,

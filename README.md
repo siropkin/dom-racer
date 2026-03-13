@@ -92,6 +92,17 @@ A propeller plane occasionally crosses the arena and drops one of six route mome
 
 Each mode has its own fallback: if conditions are not right at drop time, the plane safely resolves to a bonus drop instead.
 
+## Screenshots
+
+_Screenshots coming soon._
+
+| Moment | Description |
+|---|---|
+| Normal run | Coins, walls, ice, and boosts on a real page |
+| Special pickup | Ambient special spawning with cue ring |
+| Police chase | Edge warning, active chase, GAME OVER screen |
+| Airplane flyover | Propeller plane crossing the arena with a drop |
+
 ## Persistence
 
 DOM Racer stores sound setting, selected vehicle design, page best score, lifetime best score, and per-page run stats using `chrome.storage.local` (with `localStorage` fallback).

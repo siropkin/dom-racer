@@ -6,7 +6,7 @@ import {
   createPoliceDelayCueState,
 } from '../src/game/planeDropRuntime';
 import { advancePoliceChasing } from '../src/game/encounterRuntime';
-import { advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
+import { advanceFocusModeAlpha, advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
 import {
   resolveFocusPauseTransitionState,
   shouldPauseForPageFocus,
@@ -775,6 +775,19 @@ describe('game economy and police smoke invariants', () => {
     });
 
     expect(text).toContain('Flyover live');
+  });
+
+  it('keeps extracted focus-mode alpha helper behavior unchanged', () => {
+    const relaxed = advanceFocusModeAlpha(0.75, false, 0.5);
+    expect(relaxed).toBeGreaterThan(0.75);
+    expect(relaxed).toBeLessThanOrEqual(1);
+
+    const focused = advanceFocusModeAlpha(0.75, true, 0.5);
+    expect(focused).toBeLessThan(0.75);
+    expect(focused).toBeGreaterThanOrEqual(0);
+
+    const stableAtTarget = advanceFocusModeAlpha(1.0, false, 0.016);
+    expect(Math.abs(stableAtTarget - 1.0)).toBeLessThan(0.01);
   });
 
   it('shows airplane/police warning countdown cues in HUD active effects', () => {

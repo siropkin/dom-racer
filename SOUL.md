@@ -473,6 +473,7 @@ Status: `in progress`
 - [x] Extract focus-loss pause transition state orchestration from `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts` while keeping audio/input side effects in `Game.ts`
 - [x] Extract magnet pull motion orchestration from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without behavior drift
 - [x] Extract ambient special spawn scheduling from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`) without behavior drift
+- [x] Extract focus-mode alpha animation calculation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -518,7 +519,7 @@ Goal: make the project page feel as cool as the game.
 
 ### Presentation Assets
 
-- [ ] Add screenshot section
+- [x] Add screenshot section
 - [ ] Add GIF / motion placeholders
 - [ ] Capture:
   - [ ] normal run
@@ -719,6 +720,12 @@ Session note:
 - Feature delivery: README rewritten with a more indie/playful voice, a "why this is fun" section explaining per-page variety, a living roadmap table, and a dedicated airplane events section covering all six drop modes.
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (25 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded focus-mode alpha extraction plus bounded Phase 6 screenshot placeholder.
+- Hardening delivery: focus-mode alpha animation calculation moved from `Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`), preserving police/warning-driven dimming behavior.
+- Feature delivery: README now includes a screenshot placeholder section with a table of planned captures (normal run, special pickup, police chase, airplane flyover) for future presentation assets.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (26 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 

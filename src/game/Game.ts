@@ -40,6 +40,7 @@ import {
   tickPoliceSpawnCountdown,
 } from './encounterRuntime';
 import {
+  advanceFocusModeAlpha,
   advanceSpecialSpawnCues,
   drawFocusModeLayer,
   drawPickups,
@@ -1438,9 +1439,11 @@ export class Game {
   }
 
   private updateFocusMode(dtSeconds: number): void {
-    const target = this.isPoliceChasing() || this.policeWarning ? 0 : 1;
-    const rate = target > this.focusModeAlpha ? 1.1 : 2.6;
-    this.focusModeAlpha += (target - this.focusModeAlpha) * Math.min(1, dtSeconds * rate * 6);
+    this.focusModeAlpha = advanceFocusModeAlpha(
+      this.focusModeAlpha,
+      this.isPoliceChasing() || Boolean(this.policeWarning),
+      dtSeconds,
+    );
   }
 
   private setInverted(active: boolean): void {

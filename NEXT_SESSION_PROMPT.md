@@ -37,6 +37,7 @@ Current known context:
 - Lucky-wind reroute orchestration remains in `src/game/planeDropRuntime.ts` (`applyPlaneLuckyWindToPickups`).
 - Coin-trail and police-delay cue lifecycles remain in `src/game/planeDropRuntime.ts`.
 - Special-spawn cue lifecycle remains in `src/game/gameRenderRuntime.ts`.
+- Focus-mode alpha animation is extracted to `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`), behavior unchanged.
 - Focus-loss pause transition state orchestration remains in `src/game/gameRunStateRuntime.ts` (`shouldPauseForPageFocus`, `resolveFocusPauseTransitionState`) while `Game.ts` keeps side effects.
 - Magnet pull motion orchestration is extracted to `src/game/gameEffectsRuntime.ts` (`applyMagnetPullToPickups`), behavior unchanged.
 - Magnet still pulls both regular and special pickups.
@@ -50,8 +51,8 @@ Current known context:
 - Police chase movement still reacts to ice surfaces (smoke-tested).
 - `window.__domRacerDebug` must not exist in source/build.
 - Overgrowth remains intentionally deferred.
-- README now includes indie/playful voice, "why this is fun" section, living roadmap table, and airplane events section.
-- Smoke tests currently pass (`npm run test` -> 25 tests).
+- README now includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshot placeholder section.
+- Smoke tests currently pass (`npm run test` -> 26 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 
 Priority lock for this session:
@@ -65,7 +66,7 @@ Primary goals:
    - Keep run-state and encounter boundaries intact.
 2. Feature target (pick exactly one bounded item):
    - Prefer readability-first follow-up on existing airplane/police beats, or
-   - If gameplay feature scope is unclear, land one bounded Phase 6 presentation/docs polish item (e.g., screenshot placeholders, presentation assets).
+   - If gameplay feature scope is unclear, land one bounded Phase 6 presentation/docs polish item (e.g., actual screenshot captures, GIF placeholders, presentation assets).
 3. Verification:
    - Confirm police catch -> GAME OVER -> Space restart still works.
    - Confirm specials remain independent from regular coin economy.
