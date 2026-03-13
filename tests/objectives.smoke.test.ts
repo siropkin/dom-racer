@@ -57,9 +57,6 @@ describe('micro-objective smoke invariants', () => {
   it('assigns a micro-objective after initial delay expires', () => {
     const noEvent: ObjectiveTickEvents = {
       coinsCollectedThisFrame: 0,
-      specialsCollectedThisFrame: 0,
-      nearMissTriggeredThisFrame: false,
-      currentScore: 0,
     };
     const initial = createInitialObjectiveState();
     expect(initial.assignDelayMs).toBeGreaterThan(0);
@@ -89,25 +86,23 @@ describe('micro-objective smoke invariants', () => {
 
   it('completes a coin-collection objective when target is reached', () => {
     const objective: MicroObjective = {
-      templateId: 'collect_5',
+      templateId: 'easy_5',
       label: '5 COINS',
       progress: 4,
       target: 5,
-      timeRemainingMs: 0,
-      timeLimitMs: 0,
-      tracker: 'coins_collected',
+      timeRemainingMs: 10_000,
+      timeLimitMs: 25_000,
+      bonus: 20,
+      multiplierLabel: 'x2',
     };
 
     const step = resolveObjectiveTickStep({
       active: objective,
       assignDelayMs: 0,
       completedCount: 0,
-      lastTemplateId: 'collect_5',
+      lastTemplateId: 'easy_5',
       events: {
         coinsCollectedThisFrame: 1,
-        specialsCollectedThisFrame: 0,
-        nearMissTriggeredThisFrame: false,
-        currentScore: 50,
       },
       dtSeconds: 0.016,
     });
@@ -120,25 +115,23 @@ describe('micro-objective smoke invariants', () => {
 
   it('expires a timed objective when time runs out without reaching target', () => {
     const objective: MicroObjective = {
-      templateId: 'collect_8_20s',
-      label: '8 COINS 20S',
+      templateId: 'med_8',
+      label: '8 COINS',
       progress: 3,
       target: 8,
       timeRemainingMs: 200,
       timeLimitMs: 20_000,
-      tracker: 'coins_collected',
+      bonus: 35,
+      multiplierLabel: 'x3',
     };
 
     const step = resolveObjectiveTickStep({
       active: objective,
       assignDelayMs: 0,
       completedCount: 0,
-      lastTemplateId: 'collect_8_20s',
+      lastTemplateId: 'med_8',
       events: {
         coinsCollectedThisFrame: 0,
-        specialsCollectedThisFrame: 0,
-        nearMissTriggeredThisFrame: false,
-        currentScore: 30,
       },
       dtSeconds: 0.5,
     });
@@ -151,25 +144,23 @@ describe('micro-objective smoke invariants', () => {
 
   it('expires timed objective when timer runs out before target reached', () => {
     const objective: MicroObjective = {
-      templateId: 'collect_8',
+      templateId: 'med_8',
       label: '8 COINS',
       progress: 3,
       target: 8,
       timeRemainingMs: 200,
       timeLimitMs: 20_000,
-      tracker: 'coins_collected',
+      bonus: 35,
+      multiplierLabel: 'x3',
     };
 
     const step = resolveObjectiveTickStep({
       active: objective,
       assignDelayMs: 0,
       completedCount: 1,
-      lastTemplateId: 'collect_8',
+      lastTemplateId: 'med_8',
       events: {
         coinsCollectedThisFrame: 0,
-        specialsCollectedThisFrame: 0,
-        nearMissTriggeredThisFrame: false,
-        currentScore: 60,
       },
       dtSeconds: 0.5,
     });
@@ -179,58 +170,55 @@ describe('micro-objective smoke invariants', () => {
   });
 
   it('does not repeat the same objective template consecutively', () => {
-    const picked = pickObjectiveTemplate('collect_5', 40);
+    const picked = pickObjectiveTemplate('easy_5', 0);
     expect(picked).not.toBeNull();
-    expect(picked!.id).not.toBe('collect_5');
+    expect(picked!.id).not.toBe('easy_5');
   });
 
-  it('skips score-threshold objectives when score already near target', () => {
-    const picked = pickObjectiveTemplate('', 70);
-    if (picked && picked.tracker === 'score_threshold') {
-      expect(picked.target).toBeGreaterThan(70 / 0.8);
-    }
+  it('always picks a coin-collection objective', () => {
+    const picked = pickObjectiveTemplate('', 0);
+    expect(picked).not.toBeNull();
+    expect(picked!.target).toBeGreaterThan(0);
+    expect(picked!.bonus).toBeGreaterThan(0);
   });
 
-  it('tracks near-miss triggers for objective progress', () => {
+  it('tracks coin collection for objective progress', () => {
     const objective: MicroObjective = {
-      templateId: 'near_3',
-      label: '3 CLOSE CALLS',
-      progress: 1,
-      target: 3,
-      timeRemainingMs: 0,
-      timeLimitMs: 0,
-      tracker: 'near_misses',
+      templateId: 'easy_5',
+      label: '5 COINS',
+      progress: 2,
+      target: 5,
+      timeRemainingMs: 20_000,
+      timeLimitMs: 25_000,
+      bonus: 20,
+      multiplierLabel: 'x2',
     };
 
     const step = resolveObjectiveTickStep({
       active: objective,
       assignDelayMs: 0,
       completedCount: 0,
-      lastTemplateId: 'near_3',
-      events: {
-        coinsCollectedThisFrame: 0,
-        specialsCollectedThisFrame: 0,
-        nearMissTriggeredThisFrame: true,
-        currentScore: 40,
-      },
+      lastTemplateId: 'easy_5',
+      events: { coinsCollectedThisFrame: 2 },
       dtSeconds: 0.016,
     });
 
     expect(step.active).not.toBeNull();
-    expect(step.active!.progress).toBe(2);
+    expect(step.active!.progress).toBe(4);
     expect(step.completed).toBe(false);
   });
 
   it('resets objective state on beginRun', () => {
     (game as any).beginRun('manual');
     (game as any).objectiveActive = {
-      templateId: 'collect_5',
+      templateId: 'easy_5',
       label: '5 COINS',
       progress: 3,
       target: 5,
-      timeRemainingMs: 0,
-      timeLimitMs: 0,
-      tracker: 'coins_collected',
+      timeRemainingMs: 10_000,
+      timeLimitMs: 25_000,
+      bonus: 20,
+      multiplierLabel: 'x2',
     };
     (game as any).objectiveCompletedCount = 4;
 
@@ -242,28 +230,17 @@ describe('micro-objective smoke invariants', () => {
 
   it('formats objective HUD text with progress', () => {
     const coinObj: MicroObjective = {
-      templateId: 'collect_5',
+      templateId: 'easy_5',
       label: '5 COINS',
       progress: 3,
       target: 5,
-      timeRemainingMs: 0,
-      timeLimitMs: 0,
-      tracker: 'coins_collected',
+      timeRemainingMs: 10_000,
+      timeLimitMs: 25_000,
+      bonus: 20,
+      multiplierLabel: 'x2',
     };
     expect(getObjectiveHudText(coinObj)).toBe('5 COINS 3/5');
     expect(getObjectiveProgress(coinObj)).toBeCloseTo(0.6, 1);
-
-    const nearObj: MicroObjective = {
-      templateId: 'near_3',
-      label: '3 NEAR-MISS',
-      progress: 1,
-      target: 3,
-      timeRemainingMs: 15_000,
-      timeLimitMs: 25_000,
-      tracker: 'near_misses',
-    };
-    expect(getObjectiveHudText(nearObj)).toBe('3 NEAR-MISS 1/3');
-    expect(getObjectiveProgress(nearObj)).toBeCloseTo(0.333, 1);
   });
 
   it('cycles through completion words', () => {

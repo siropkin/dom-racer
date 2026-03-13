@@ -139,7 +139,6 @@ import {
   createInitialObjectiveState,
   getObjectiveCompletionWord,
   OBJECTIVE_COMPLETION_COLOR,
-  OBJECTIVE_SCORE_BONUS,
   resolveObjectiveTickStep,
   type MicroObjective,
   type ObjectiveTickEvents,
@@ -584,7 +583,6 @@ export class Game {
       return;
     }
 
-    const nearMissCountBefore = this.nearMissCount;
     this.updateNearMiss(dtSeconds, activeObstacles);
 
     const pickupStep = resolvePickupCollectionStep({
@@ -618,18 +616,7 @@ export class Game {
     const coinsCollectedThisFrame = pickupStep.collectedPickups.filter(
       (p) => !isSpecialPickup(p),
     ).length;
-    const specialsCollectedThisFrame = pickupStep.collectedPickups.filter((p) =>
-      isSpecialPickup(p),
-    ).length;
-    this.updateMicroObjective(
-      {
-        coinsCollectedThisFrame,
-        specialsCollectedThisFrame,
-        nearMissTriggeredThisFrame: this.nearMissCount > nearMissCountBefore,
-        currentScore: this.score,
-      },
-      dtSeconds,
-    );
+    this.updateMicroObjective({ coinsCollectedThisFrame }, dtSeconds);
 
     this.updateRegularCoinSpawns(dtSeconds);
     this.updateAmbientSpecialSpawns(dtSeconds);
@@ -1069,12 +1056,12 @@ export class Game {
     this.objectiveLastTemplateId = step.lastTemplateId;
 
     if (step.completed) {
-      this.score += OBJECTIVE_SCORE_BONUS;
+      this.score += step.completedBonus;
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playObjectiveChime();
       const word = getObjectiveCompletionWord(step.completedCount - 1);
-      this.spawnEffectMessage(`${word} +${OBJECTIVE_SCORE_BONUS}`, OBJECTIVE_COMPLETION_COLOR, 'high');
+      this.spawnEffectMessage(`${word} +${step.completedBonus}`, OBJECTIVE_COMPLETION_COLOR, 'high');
       if (this.player) {
         this.player.triggerCelebration();
         const pb = this.player.getBounds();

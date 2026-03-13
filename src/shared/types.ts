@@ -89,6 +89,7 @@ export interface HudState {
   objectiveProgress: number;
   objectiveTimeRemainingMs: number | null;
   objectiveTimeLimitMs: number | null;
+  objectiveMultiplierLabel: string | null;
   policeChaseRemainingMs: number | null;
   policeChaseDurationMs: number | null;
   activeEffects: Array<{

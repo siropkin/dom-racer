@@ -123,6 +123,9 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       ? options.objectiveActive.timeRemainingMs
       : null,
     objectiveTimeLimitMs: options.objectiveActive ? options.objectiveActive.timeLimitMs : null,
+    objectiveMultiplierLabel: options.objectiveActive
+      ? options.objectiveActive.multiplierLabel
+      : null,
     policeChaseRemainingMs: options.policeActive ? options.policeRemainingMs : null,
     policeChaseDurationMs: options.policeActive ? options.policeDurationMs : null,
     activeEffects,

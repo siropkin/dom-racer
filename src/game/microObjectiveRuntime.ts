@@ -1,18 +1,13 @@
 import { OBJECTIVES } from './gameConfig';
 import { randomBetween } from './gameRuntime';
 
-export type ObjectiveTracker =
-  | 'coins_collected'
-  | 'specials_collected'
-  | 'near_misses'
-  | 'score_threshold';
-
 export interface ObjectiveTemplate {
   id: string;
   label: string;
   target: number;
   timeLimitMs: number;
-  tracker: ObjectiveTracker;
+  bonus: number;
+  multiplierLabel: string;
 }
 
 export interface MicroObjective {
@@ -22,14 +17,12 @@ export interface MicroObjective {
   target: number;
   timeRemainingMs: number;
   timeLimitMs: number;
-  tracker: ObjectiveTracker;
+  bonus: number;
+  multiplierLabel: string;
 }
 
 export interface ObjectiveTickEvents {
   coinsCollectedThisFrame: number;
-  specialsCollectedThisFrame: number;
-  nearMissTriggeredThisFrame: boolean;
-  currentScore: number;
 }
 
 export interface ObjectiveTickResult {
@@ -38,9 +31,12 @@ export interface ObjectiveTickResult {
   completedCount: number;
   lastTemplateId: string;
   completed: boolean;
+  completedBonus: number;
+  completedMultiplier: string;
   expired: boolean;
 }
 
+/** @deprecated Use per-template bonus instead */
 export const OBJECTIVE_SCORE_BONUS = OBJECTIVES.SCORE_BONUS;
 export const OBJECTIVE_INITIAL_DELAY_MIN_MS = OBJECTIVES.INITIAL_DELAY_MIN_MS;
 export const OBJECTIVE_INITIAL_DELAY_MAX_MS = OBJECTIVES.INITIAL_DELAY_MAX_MS;
@@ -54,42 +50,12 @@ export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
 export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
 export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
-  { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 25_000, tracker: 'coins_collected' },
-  {
-    id: 'collect_8',
-    label: '8 COINS',
-    target: 8,
-    timeLimitMs: 20_000,
-    tracker: 'coins_collected',
-  },
-  {
-    id: 'score_80',
-    label: 'REACH 80',
-    target: 80,
-    timeLimitMs: 35_000,
-    tracker: 'score_threshold',
-  },
-  {
-    id: 'near_3',
-    label: '3 NEAR-MISS',
-    target: 3,
-    timeLimitMs: 25_000,
-    tracker: 'near_misses',
-  },
-  {
-    id: 'grab_special',
-    label: 'GRAB SPECIAL',
-    target: 1,
-    timeLimitMs: 30_000,
-    tracker: 'specials_collected',
-  },
-  {
-    id: 'collect_12',
-    label: '12 COINS',
-    target: 12,
-    timeLimitMs: 30_000,
-    tracker: 'coins_collected',
-  },
+  { id: 'easy_5', label: '5 COINS', target: 5, timeLimitMs: 25_000, bonus: 20, multiplierLabel: 'x2' },
+  { id: 'easy_4', label: '4 COINS', target: 4, timeLimitMs: 18_000, bonus: 20, multiplierLabel: 'x2' },
+  { id: 'med_8', label: '8 COINS', target: 8, timeLimitMs: 20_000, bonus: 35, multiplierLabel: 'x3' },
+  { id: 'med_6', label: '6 COINS', target: 6, timeLimitMs: 14_000, bonus: 35, multiplierLabel: 'x3' },
+  { id: 'hard_12', label: '12 COINS', target: 12, timeLimitMs: 18_000, bonus: 50, multiplierLabel: 'x4' },
+  { id: 'hard_10', label: '10 COINS', target: 10, timeLimitMs: 12_000, bonus: 50, multiplierLabel: 'x4' },
 ];
 
 /** Creates the initial objective state with a randomized first-assignment delay. */
@@ -127,6 +93,8 @@ export function resolveObjectiveTickStep(options: {
         completedCount: options.completedCount + 1,
         lastTemplateId: options.lastTemplateId,
         completed: true,
+        completedBonus: options.active!.bonus,
+        completedMultiplier: options.active!.multiplierLabel,
         expired: false,
       };
     }
@@ -138,6 +106,8 @@ export function resolveObjectiveTickStep(options: {
         completedCount: options.completedCount,
         lastTemplateId: options.lastTemplateId,
         completed: false,
+        completedBonus: 0,
+        completedMultiplier: '',
         expired: true,
       };
     }
@@ -148,6 +118,8 @@ export function resolveObjectiveTickStep(options: {
       completedCount: options.completedCount,
       lastTemplateId: options.lastTemplateId,
       completed: false,
+      completedBonus: 0,
+      completedMultiplier: '',
       expired: false,
     };
   }
@@ -160,11 +132,13 @@ export function resolveObjectiveTickStep(options: {
       completedCount: options.completedCount,
       lastTemplateId: options.lastTemplateId,
       completed: false,
+      completedBonus: 0,
+      completedMultiplier: '',
       expired: false,
     };
   }
 
-  const template = pickObjectiveTemplate(options.lastTemplateId, options.events.currentScore);
+  const template = pickObjectiveTemplate(options.lastTemplateId, 0);
   if (!template) {
     return {
       active: null,
@@ -172,6 +146,8 @@ export function resolveObjectiveTickStep(options: {
       completedCount: options.completedCount,
       lastTemplateId: options.lastTemplateId,
       completed: false,
+      completedBonus: 0,
+      completedMultiplier: '',
       expired: false,
     };
   }
@@ -182,6 +158,8 @@ export function resolveObjectiveTickStep(options: {
     completedCount: options.completedCount,
     lastTemplateId: template.id,
     completed: false,
+    completedBonus: 0,
+    completedMultiplier: '',
     expired: false,
   };
 }
@@ -191,27 +169,8 @@ function advanceObjectiveProgress(
   events: ObjectiveTickEvents,
   dtSeconds: number,
 ): MicroObjective {
-  let nextProgress = objective.progress;
-  let nextTimeRemaining = objective.timeRemainingMs;
-
-  if (objective.timeLimitMs > 0) {
-    nextTimeRemaining = Math.max(0, objective.timeRemainingMs - dtSeconds * 1000);
-  }
-
-  switch (objective.tracker) {
-    case 'coins_collected':
-      nextProgress += events.coinsCollectedThisFrame;
-      break;
-    case 'specials_collected':
-      nextProgress += events.specialsCollectedThisFrame;
-      break;
-    case 'near_misses':
-      nextProgress += events.nearMissTriggeredThisFrame ? 1 : 0;
-      break;
-    case 'score_threshold':
-      nextProgress = events.currentScore;
-      break;
-  }
+  const nextTimeRemaining = Math.max(0, objective.timeRemainingMs - dtSeconds * 1000);
+  const nextProgress = objective.progress + events.coinsCollectedThisFrame;
 
   return {
     ...objective,
@@ -232,20 +191,16 @@ function createObjectiveFromTemplate(template: ObjectiveTemplate): MicroObjectiv
     target: template.target,
     timeRemainingMs: template.timeLimitMs,
     timeLimitMs: template.timeLimitMs,
-    tracker: template.tracker,
+    bonus: template.bonus,
+    multiplierLabel: template.multiplierLabel,
   };
 }
 
 export function pickObjectiveTemplate(
   lastTemplateId: string,
-  currentScore: number,
+  _currentScore: number,
 ): ObjectiveTemplate | null {
-  const eligible = OBJECTIVE_TEMPLATES.filter((t) => {
-    if (t.id === lastTemplateId) return false;
-    if (t.tracker === 'score_threshold' && currentScore >= t.target * 0.8) return false;
-    return true;
-  });
-
+  const eligible = OBJECTIVE_TEMPLATES.filter((t) => t.id !== lastTemplateId);
   if (eligible.length === 0) return null;
   return eligible[Math.floor(Math.random() * eligible.length)];
 }

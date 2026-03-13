@@ -233,8 +233,9 @@ function buildGoalEntries(state: HudState): GoalEntry[] {
   }
 
   if (state.objectiveText) {
+    const multiplier = state.objectiveMultiplierLabel ?? '';
     entries.push({
-      label: 'GOAL +25',
+      label: `GOAL ${multiplier}`,
       barText: state.objectiveText,
       barColor: '#a78bfa',
       accentColor: 'rgba(167, 139, 250, 0.82)',
