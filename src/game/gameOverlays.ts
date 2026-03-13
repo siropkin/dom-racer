@@ -5,8 +5,7 @@ import {
   getSpecialColor,
   getSpecialLabel,
 } from './gameRuntime';
-import { drawOvergrowthNodes } from './gameRenderRuntime';
-import type { OvergrowthNode } from './overgrowthRuntime';
+import { drawOvergrowthNodes, type OvergrowthNode } from './overgrowthRuntime';
 import {
   renderPlaneSprite,
   POLICE_CAR_SIZE,

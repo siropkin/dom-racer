@@ -42,20 +42,21 @@ import {
   advanceFocusModeAlpha,
   advanceSpecialSpawnCues,
   drawFocusModeLayer,
-  drawOvergrowthNodes,
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
+  estimatePageLightness,
+} from './gameRenderRuntime';
+import {
   drawSpeedLines,
   drawVfxParticles,
-  estimatePageLightness,
   spawnCoinBurstParticles,
   spawnDriftSparkParticles,
   spawnNewBestBurstParticles,
   spawnTireDustParticles,
   updateVfxParticles,
   type VfxParticle,
-} from './gameRenderRuntime';
+} from './vfxRuntime';
 import {
   applyLurePullToPickups,
   applyMagnetPullToPickups,
@@ -169,6 +170,7 @@ import {
 } from './planeDropRuntime';
 import {
   advanceOvergrowthGrowth,
+  drawOvergrowthNodes,
   getOvergrowthObstacles,
   getOvergrowthRespawnDelayMs,
   getOvergrowthSlowZones,

@@ -566,6 +566,18 @@ When this roadmap is working, a good run should feel like this:
 - 3 new smoke tests: particle expiration/cleanup, coin burst spawn, tire dust surface colors
 - 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
+### Session — 2026-03-12 (q)
+
+- Code organization pass: file splitting and module colocalization
+- Extracted VFX particle system into `src/game/vfxRuntime.ts`: `VfxParticle` interface, `VFX_PARTICLE_CAP`, `updateVfxParticles`, `drawVfxParticles`, `spawnCoinBurstParticles`, `spawnNewBestBurstParticles`, `spawnTireDustParticles`, `spawnDriftSparkParticles`, `drawSpeedLines`
+- Moved overgrowth rendering (`drawOvergrowthNodes`, bush/tree stage styles, entry scale helper) from `gameRenderRuntime.ts` into `overgrowthRuntime.ts` to colocate all overgrowth code
+- `gameRenderRuntime.ts` reduced from 532 to 189 lines (base render utilities only)
+- Split monolithic test file `gameInvariants.smoke.test.ts` (1978 lines, 77 tests) into 7 focused test files: `economy.smoke.test.ts` (15), `specials.smoke.test.ts` (15), `encounters.smoke.test.ts` (15), `overgrowth.smoke.test.ts` (8), `nearMiss.smoke.test.ts` (8), `objectives.smoke.test.ts` (12), `vfx.smoke.test.ts` (4)
+- Created `tests/testHelpers.ts` with shared `createCanvas` and `createWorldWithRegularCoins` helpers
+- Increased ESLint `maximumDefaultProjectFileMatchCount` to 20 for expanded test file count
+- Updated `gameOverlays.ts` import for `drawOvergrowthNodes` to new location in `overgrowthRuntime`
+- 79 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
+
 ### Session — 2026-03-12 (p)
 
 - FINAL Phase 7 micro-polish session: implemented last 3 feel tweaks
