@@ -19,6 +19,7 @@ vi.mock('../src/game/audio', () => {
     playPoliceAlert(): void {}
     playPlaneFlyover(): void {}
     playPlaneDrop(): void {}
+    updatePropellerDrone(): void {}
     async resume(): Promise<void> {}
   }
   return { AudioManager: MockAudioManager };

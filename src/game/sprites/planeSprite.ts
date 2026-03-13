@@ -26,15 +26,15 @@ interface PlaneSpriteRenderOptions {
 }
 
 export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
-  bodyLength: 28,
-  bodyWidth: 12,
-  wingSpan: 28,
+  bodyLength: 32,
+  bodyWidth: 10,
+  wingSpan: 36,
   wingWidth: 7,
-  wingAccentSpan: 22,
+  wingAccentSpan: 30,
   wingAccentWidth: 4.2,
-  tailWidth: 8,
+  tailWidth: 10,
   tailHeight: 8,
-  propellerRadius: 5.6,
+  propellerRadius: 6.4,
 };
 let runtimePlaneSpriteTuning: PlaneSpriteTuning = { ...DEFAULT_PLANE_SPRITE_TUNING };
 
@@ -75,128 +75,194 @@ export function renderPlaneSprite(
   ctx.rotate(pose.angle + wobble);
   ctx.scale(scale, scale);
 
-  const cabinWidth = Math.max(4.4, tuning.bodyWidth * 0.46);
-  const cabinHeight = Math.max(6.4, tuning.bodyWidth * 0.68);
-  const wingOffsetX = tuning.bodyLength * 0.03;
+  const halfBody = tuning.bodyLength / 2;
+  const halfWidth = tuning.bodyWidth / 2;
+  const halfWingSpan = tuning.wingSpan / 2;
+  const noseX = halfBody + 3;
 
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+  // --- shadow ---
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
   ctx.beginPath();
-  ctx.ellipse(-1.0, 6.1, tuning.bodyLength * 0.29, 2.1, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 5.5, tuning.bodyLength * 0.32, 2.4, 0, 0, Math.PI * 2);
   ctx.fill();
 
+  // --- lower wing (behind fuselage) ---
+  const lowerWingX = -1;
   drawBorderedRect(
     ctx,
-    -tuning.bodyLength / 2 - 0.8,
-    -tuning.bodyWidth / 2 - 0.8,
-    tuning.bodyLength + 1.6,
-    tuning.bodyWidth + 1.6,
-    3.5,
-    'rgba(15, 23, 42, 0.72)',
-  );
-
-  drawBorderedRect(
-    ctx,
-    -tuning.bodyLength / 2,
-    -tuning.bodyWidth / 2,
-    tuning.bodyLength,
-    tuning.bodyWidth,
-    3,
-    '#e2e8f0',
+    lowerWingX - tuning.wingWidth / 2,
+    -halfWingSpan,
+    tuning.wingWidth,
+    tuning.wingSpan,
+    1.4,
+    '#7dd3fc',
     '#f8fafc',
-    1.8,
+    1.0,
   );
-
-  ctx.fillStyle = '#1e3a8a';
-  ctx.fillRect(-cabinWidth / 2, -cabinHeight / 2, cabinWidth, cabinHeight);
-
-  ctx.fillStyle = '#93c5fd';
+  ctx.fillStyle = '#0369a1';
   ctx.fillRect(
-    wingOffsetX - tuning.wingWidth / 2,
-    -tuning.wingSpan / 2,
-    tuning.wingWidth,
-    tuning.wingSpan,
-  );
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.2;
-  ctx.strokeRect(
-    wingOffsetX - tuning.wingWidth / 2,
-    -tuning.wingSpan / 2,
-    tuning.wingWidth,
-    tuning.wingSpan,
-  );
-  ctx.fillStyle = '#1e3a8a';
-  ctx.fillRect(
-    wingOffsetX - tuning.wingAccentWidth / 2,
+    lowerWingX - tuning.wingAccentWidth / 2,
     -tuning.wingAccentSpan / 2,
     tuning.wingAccentWidth,
     tuning.wingAccentSpan,
   );
 
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(
-    -tuning.bodyLength / 2 + 2.2,
-    -tuning.tailHeight / 2,
-    tuning.tailWidth,
-    tuning.tailHeight,
-  );
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.0;
-  ctx.strokeRect(
-    -tuning.bodyLength / 2 + 2.2,
-    -tuning.tailHeight / 2,
-    tuning.tailWidth,
-    tuning.tailHeight,
+  // --- fuselage contour (dark outline behind) ---
+  drawBorderedRect(
+    ctx,
+    -halfBody - 1,
+    -halfWidth - 1,
+    tuning.bodyLength + 2,
+    tuning.bodyWidth + 2,
+    3.5,
+    'rgba(15, 23, 42, 0.68)',
   );
 
-  const noseX = tuning.bodyLength / 2 + 2.4;
-  ctx.fillStyle = '#cbd5e1';
+  // --- fuselage body ---
+  drawBorderedRect(
+    ctx,
+    -halfBody,
+    -halfWidth,
+    tuning.bodyLength,
+    tuning.bodyWidth,
+    3,
+    '#e2e8f0',
+    '#f8fafc',
+    1.6,
+  );
+
+  // --- fuselage accent stripe ---
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(-halfBody + 4, -1, tuning.bodyLength - 10, 2);
+
+  // --- cockpit (dark windshield) ---
+  const cockpitW = Math.max(4, halfWidth * 0.9);
+  const cockpitH = Math.max(5.6, tuning.bodyWidth * 0.58);
+  ctx.fillStyle = '#1e3a8a';
   ctx.beginPath();
-  ctx.moveTo(tuning.bodyLength / 2 - 1.2, -tuning.bodyWidth / 2 + 1.1);
-  ctx.lineTo(noseX, 0);
-  ctx.lineTo(tuning.bodyLength / 2 - 1.2, tuning.bodyWidth / 2 - 1.1);
+  ctx.roundRect(-cockpitW / 2 + 1, -cockpitH / 2, cockpitW, cockpitH, 1.6);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(147, 197, 253, 0.5)';
+  ctx.fillRect(-cockpitW / 2 + 1.6, -cockpitH / 2 + 1.2, cockpitW * 0.4, cockpitH - 2.4);
+
+  // --- upper wing (in front of fuselage) ---
+  const upperWingX = 1;
+  drawBorderedRect(
+    ctx,
+    upperWingX - tuning.wingWidth / 2,
+    -halfWingSpan,
+    tuning.wingWidth,
+    tuning.wingSpan,
+    1.4,
+    '#93c5fd',
+    '#f8fafc',
+    1.0,
+  );
+  ctx.fillStyle = '#1e40af';
+  ctx.fillRect(
+    upperWingX - tuning.wingAccentWidth / 2,
+    -tuning.wingAccentSpan / 2,
+    tuning.wingAccentWidth,
+    tuning.wingAccentSpan,
+  );
+
+  // --- wing struts (connecting upper and lower wings) ---
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.2;
+  const strutSpacing = halfWingSpan * 0.55;
+  for (const side of [-1, 1]) {
+    const sy = side * strutSpacing;
+    ctx.beginPath();
+    ctx.moveTo(lowerWingX, sy);
+    ctx.lineTo(upperWingX, sy);
+    ctx.stroke();
+  }
+
+  // --- horizontal stabilizer (tail wings) ---
+  const tailX = -halfBody + 2;
+  drawBorderedRect(
+    ctx,
+    tailX,
+    -tuning.tailHeight / 2,
+    tuning.tailWidth,
+    tuning.tailHeight,
+    1.2,
+    '#475569',
+    '#f8fafc',
+    0.9,
+  );
+
+  // --- vertical stabilizer (tail fin) ---
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.moveTo(tailX, 0);
+  ctx.lineTo(tailX - 4, -halfWidth * 0.6);
+  ctx.lineTo(tailX + 3, -halfWidth * 0.3);
   ctx.closePath();
   ctx.fill();
-
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(tuning.bodyLength / 2 - 1.3, -0.9, 2.1, 1.8);
-
-  ctx.fillStyle = 'rgba(249, 168, 212, 0.58)';
-  ctx.beginPath();
-  ctx.arc(noseX, 0, tuning.propellerRadius, 0, Math.PI * 2);
-  ctx.fill();
-
-  const propPulse = 0.9 + 0.1 * Math.sin(now / 64);
-  ctx.strokeStyle = 'rgba(249, 168, 212, 0.72)';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.arc(noseX, 0, tuning.propellerRadius * propPulse, 0, Math.PI * 2);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // Add light rotating blades so the propeller reads as motion, not only a circle.
-  const bladeAngle = now / 48;
-  const bladeRadius = tuning.propellerRadius * 0.92;
-  ctx.strokeStyle = 'rgba(251, 207, 232, 0.86)';
-  ctx.lineCap = 'round';
-  ctx.lineWidth = 1;
+  // --- nose cone ---
+  ctx.fillStyle = '#cbd5e1';
   ctx.beginPath();
-  ctx.moveTo(noseX - Math.cos(bladeAngle) * bladeRadius, -Math.sin(bladeAngle) * bladeRadius);
-  ctx.lineTo(noseX + Math.cos(bladeAngle) * bladeRadius, Math.sin(bladeAngle) * bladeRadius);
+  ctx.moveTo(halfBody - 1.5, -halfWidth + 1.4);
+  ctx.lineTo(noseX, 0);
+  ctx.lineTo(halfBody - 1.5, halfWidth - 1.4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 0.9;
+  ctx.stroke();
+
+  // --- engine block ---
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(halfBody - 2, -2.6, 3, 5.2);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 0.7;
+  ctx.strokeRect(halfBody - 2, -2.6, 3, 5.2);
+
+  // --- propeller disc (translucent spinning blur) ---
+  const propR = tuning.propellerRadius;
+  ctx.fillStyle = 'rgba(249, 168, 212, 0.42)';
+  ctx.beginPath();
+  ctx.arc(noseX, 0, propR, 0, Math.PI * 2);
+  ctx.fill();
+
+  const propPulse = 0.88 + 0.12 * Math.sin(now / 52);
+  ctx.strokeStyle = 'rgba(249, 168, 212, 0.6)';
+  ctx.lineWidth = 1.0;
+  ctx.beginPath();
+  ctx.arc(noseX, 0, propR * propPulse, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // --- propeller blades ---
+  const bladeAngle = now / 36;
+  const bladeR = propR * 0.94;
+  ctx.strokeStyle = 'rgba(251, 207, 232, 0.92)';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(noseX - Math.cos(bladeAngle) * bladeR, -Math.sin(bladeAngle) * bladeR);
+  ctx.lineTo(noseX + Math.cos(bladeAngle) * bladeR, Math.sin(bladeAngle) * bladeR);
   ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(
-    noseX - Math.cos(bladeAngle + Math.PI / 2) * (bladeRadius * 0.78),
-    -Math.sin(bladeAngle + Math.PI / 2) * (bladeRadius * 0.78),
+    noseX - Math.cos(bladeAngle + Math.PI / 2) * bladeR,
+    -Math.sin(bladeAngle + Math.PI / 2) * bladeR,
   );
   ctx.lineTo(
-    noseX + Math.cos(bladeAngle + Math.PI / 2) * (bladeRadius * 0.78),
-    Math.sin(bladeAngle + Math.PI / 2) * (bladeRadius * 0.78),
+    noseX + Math.cos(bladeAngle + Math.PI / 2) * bladeR,
+    Math.sin(bladeAngle + Math.PI / 2) * bladeR,
   );
   ctx.stroke();
   ctx.lineCap = 'butt';
 
-  ctx.fillStyle = '#fbcfe8';
+  // --- propeller hub ---
+  ctx.fillStyle = '#f9a8d4';
   ctx.beginPath();
-  ctx.arc(noseX, 0, 1.2, 0, Math.PI * 2);
+  ctx.arc(noseX, 0, 1.6, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();

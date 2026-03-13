@@ -1118,6 +1118,11 @@ export class Game {
     if (planeStep.enteredViewport) {
       this.audio.playPlaneFlyover();
     }
+    const droneProgress =
+      this.planeBonusEvent.distancePx > 0
+        ? this.planeBonusEvent.traveledPx / this.planeBonusEvent.distancePx
+        : 0;
+    this.audio.updatePropellerDrone(true, droneProgress);
     if (planeStep.dropReady) {
       const dropSpawned = dispatchPlaneDropWithFallback(this.planeBonusEvent, {
         spawnBonusDrop: (x, y) => this.spawnPlaneBonusDrop(x, y),
@@ -1130,6 +1135,7 @@ export class Game {
     }
 
     if (planeStep.completed) {
+      this.audio.updatePropellerDrone(false, 1);
       this.planeBonusEvent = null;
       this.planeBonusTimerMs = randomBetween(PLANE.RESPAWN_MIN_MS, PLANE.RESPAWN_MAX_MS);
       this.policeSpawnTimerMs = Math.max(

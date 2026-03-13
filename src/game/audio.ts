@@ -15,6 +15,12 @@ export class AudioManager {
   private policeOscillatorB: OscillatorNode | null;
   private policeLfoOscillator: OscillatorNode | null;
   private policeLfoGain: GainNode | null;
+  private droneGain: GainNode | null;
+  private droneFilter: BiquadFilterNode | null;
+  private droneOscillatorA: OscillatorNode | null;
+  private droneOscillatorB: OscillatorNode | null;
+  private droneLfoOscillator: OscillatorNode | null;
+  private droneLfoGain: GainNode | null;
   private enabled: boolean;
 
   constructor(initiallyEnabled: boolean) {
@@ -32,6 +38,12 @@ export class AudioManager {
     this.policeOscillatorB = null;
     this.policeLfoOscillator = null;
     this.policeLfoGain = null;
+    this.droneGain = null;
+    this.droneFilter = null;
+    this.droneOscillatorA = null;
+    this.droneOscillatorB = null;
+    this.droneLfoOscillator = null;
+    this.droneLfoGain = null;
     this.enabled = initiallyEnabled;
   }
 
@@ -51,6 +63,10 @@ export class AudioManager {
       if (this.policeGain) {
         this.policeGain.gain.cancelScheduledValues(now);
         this.policeGain.gain.setTargetAtTime(0, now, 0.02);
+      }
+      if (this.droneGain) {
+        this.droneGain.gain.cancelScheduledValues(now);
+        this.droneGain.gain.setTargetAtTime(0, now, 0.02);
       }
     }
   }
@@ -79,6 +95,10 @@ export class AudioManager {
     if (this.policeGain) {
       this.policeGain.gain.cancelScheduledValues(now);
       this.policeGain.gain.setTargetAtTime(0, now, 0.02);
+    }
+    if (this.droneGain) {
+      this.droneGain.gain.cancelScheduledValues(now);
+      this.droneGain.gain.setTargetAtTime(0, now, 0.02);
     }
   }
 
@@ -281,6 +301,45 @@ export class AudioManager {
     });
   }
 
+  /** Continuous propeller buzz that fades in/out with the airplane's travel progress. */
+  updatePropellerDrone(active: boolean, progress: number): void {
+    if (!this.enabled) {
+      if (this.droneGain && this.context) {
+        const now = this.context.currentTime;
+        this.droneGain.gain.cancelScheduledValues(now);
+        this.droneGain.gain.setTargetAtTime(0, now, 0.03);
+      }
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    const drone = this.ensureDroneNodes();
+
+    const fadeIn = Math.min(1, progress / 0.15);
+    const fadeOut = Math.min(1, (1 - progress) / 0.2);
+    const envelope = active ? fadeIn * fadeOut : 0;
+    const targetGain = envelope * 0.032;
+
+    drone.gain.cancelScheduledValues(now);
+    drone.gain.setTargetAtTime(targetGain, now, 0.06);
+
+    const baseFrequency = 78 + progress * 18;
+    const filterFrequency = 320 + envelope * 460;
+
+    if (this.droneOscillatorA && this.droneOscillatorB) {
+      this.droneOscillatorA.frequency.cancelScheduledValues(now);
+      this.droneOscillatorB.frequency.cancelScheduledValues(now);
+      this.droneOscillatorA.frequency.setTargetAtTime(baseFrequency, now, 0.08);
+      this.droneOscillatorB.frequency.setTargetAtTime(baseFrequency * 2.01, now, 0.08);
+    }
+
+    if (this.droneFilter) {
+      this.droneFilter.frequency.cancelScheduledValues(now);
+      this.droneFilter.frequency.setTargetAtTime(filterFrequency, now, 0.07);
+    }
+  }
+
   playPlaneDrop(): void {
     if (!this.enabled) {
       return;
@@ -290,21 +349,28 @@ export class AudioManager {
     const now = context.currentTime;
     this.playSweepTone({
       time: now,
-      startFrequency: 380,
-      endFrequency: 620,
-      duration: 0.11,
-      type: 'triangle',
-      volume: 0.018,
-      startFilterFrequency: 980,
-      endFilterFrequency: 1500,
-      q: 0.7,
+      startFrequency: 340,
+      endFrequency: 720,
+      duration: 0.14,
+      type: 'sawtooth',
+      volume: 0.032,
+      startFilterFrequency: 900,
+      endFilterFrequency: 2200,
+      q: 0.8,
     });
     this.playTone({
-      time: now + 0.075,
-      frequency: 520,
-      duration: 0.08,
+      time: now + 0.06,
+      frequency: 580,
+      duration: 0.1,
       type: 'triangle',
-      volume: 0.013,
+      volume: 0.028,
+    });
+    this.playTone({
+      time: now + 0.12,
+      frequency: 920,
+      duration: 0.07,
+      type: 'sine',
+      volume: 0.018,
     });
   }
 
@@ -367,7 +433,7 @@ export class AudioManager {
 
     const context = this.ensureContext();
     const gain = context.createGain();
-    gain.gain.value = 0.42;
+    gain.gain.value = 0.68;
     gain.connect(context.destination);
     this.masterGain = gain;
     return gain;
@@ -483,6 +549,62 @@ export class AudioManager {
     this.policeLfoOscillator = lfoOscillator;
     this.policeLfoGain = lfoGain;
     return policeGain;
+  }
+
+  private ensureDroneNodes(): GainNode {
+    if (
+      this.droneGain &&
+      this.droneFilter &&
+      this.droneOscillatorA &&
+      this.droneOscillatorB &&
+      this.droneLfoOscillator &&
+      this.droneLfoGain
+    ) {
+      return this.droneGain;
+    }
+
+    const context = this.ensureContext();
+    const masterGain = this.ensureMasterGain();
+    const droneGain = context.createGain();
+    droneGain.gain.value = 0;
+    const droneFilter = context.createBiquadFilter();
+    droneFilter.type = 'lowpass';
+    droneFilter.frequency.value = 320;
+    droneFilter.Q.value = 1.4;
+
+    const oscillatorA = context.createOscillator();
+    oscillatorA.type = 'sawtooth';
+    oscillatorA.frequency.value = 78;
+
+    const oscillatorB = context.createOscillator();
+    oscillatorB.type = 'triangle';
+    oscillatorB.frequency.value = 157;
+
+    const lfoOscillator = context.createOscillator();
+    lfoOscillator.type = 'sine';
+    lfoOscillator.frequency.value = 14;
+    const lfoGain = context.createGain();
+    lfoGain.gain.value = 6;
+
+    lfoOscillator.connect(lfoGain);
+    lfoGain.connect(oscillatorA.detune);
+    lfoGain.connect(oscillatorB.detune);
+    oscillatorA.connect(droneFilter);
+    oscillatorB.connect(droneFilter);
+    droneFilter.connect(droneGain);
+    droneGain.connect(masterGain);
+
+    lfoOscillator.start();
+    oscillatorA.start();
+    oscillatorB.start();
+
+    this.droneGain = droneGain;
+    this.droneFilter = droneFilter;
+    this.droneOscillatorA = oscillatorA;
+    this.droneOscillatorB = oscillatorB;
+    this.droneLfoOscillator = lfoOscillator;
+    this.droneLfoGain = lfoGain;
+    return droneGain;
   }
 
   private playTone(options: {
