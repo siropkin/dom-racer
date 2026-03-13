@@ -197,6 +197,7 @@ Completed:
 - 32 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior
 - Release build profile (sourcemaps off), permissions doc, release checklist
 - No `__domRacerDebug` in source or build
+- Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
 
 ## Phase 6: README / Presentation
 
@@ -211,22 +212,17 @@ Indie/playful voice, "why this is fun" section, living roadmap table, airplane e
 - [x] Normal run screenshot captured
 - [ ] Capture: special pickup, police chase, police GAME OVER, overgrowth state
 
-### Branding Refresh — `planned`
+### Branding Refresh — `done`
 
 Goal: make extension icon and store assets match the actual in-game vehicles instead of using a generic placeholder car.
 
-Current problem:
-- `branding/dom-racer-icon.svg`, `dom-racer-store-tile.svg`, and `dom-racer-store-cover.svg` all use a pink/red car with orange headlights and a smiley-face grill that does not exist in the game
-- The actual in-game vehicles are: blue coupe, orange buggy, green truck (see `src/game/playerSprite.ts`)
-- The branding car style clashes with the pixel-tight top-down sprites used in gameplay
-
-Plan:
-- [ ] Redesign `dom-racer-icon.svg` using the blue coupe (default vehicle)
-- [ ] Update `dom-racer-store-tile.svg` to match
-- [ ] Update `dom-racer-store-cover.svg` to show the real car in gameplay context
-- [ ] Keep top-down perspective consistent with in-game look
-- [ ] Update `generate_assets.py` if SVG structure changes
-- [ ] Regenerate PNGs via `npm run brand`
+Completed:
+- [x] Redesigned `dom-racer-icon.svg` using the blue coupe (default vehicle) with top-down perspective
+- [x] Updated `dom-racer-store-tile.svg` to match (blue coupe with black wheels, white borders)
+- [x] Updated `dom-racer-store-cover.svg` to show the real car in gameplay context
+- [x] Top-down perspective consistent with in-game look (body #2563EB, roof #1D4ED8, wheels #111827 with #F8FAFC border)
+- [x] Updated `generate_assets.py` to read SVGs from disk instead of embedding duplicate strings
+- [ ] Regenerate PNGs via `npm run brand` (requires macOS `sips` tool)
 
 ## Practical Learnings
 
