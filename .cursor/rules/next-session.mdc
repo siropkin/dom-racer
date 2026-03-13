@@ -7,10 +7,10 @@ alwaysApply: true
 Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
 
 First, read:
+- `SOUL.md` (project context for AI agents)
 - `README.md`
-- `SOUL.md`
+- `.cursor/rules/phases.mdc` (development phases and learnings)
 - `docs/release-checklist.md`
-- `docs/permissions-host-scope.md`
 - `src/game/Game.ts`
 - `src/game/gameConfig.ts`
 - `src/game/gameRuntime.ts`
