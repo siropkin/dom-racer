@@ -1,0 +1,88 @@
+---
+description: DOM Racer session context and handoff state for the next AI session
+alwaysApply: true
+---
+
+# DOM Racer - Next Session Context
+
+Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
+
+First, read:
+- `README.md`
+- `SOUL.md`
+- `docs/release-checklist.md`
+- `docs/permissions-host-scope.md`
+- `src/game/Game.ts`
+- `src/game/gameRuntime.ts`
+- `src/game/gameStateTypes.ts`
+- `src/game/gameRunStateRuntime.ts`
+- `src/game/gameEconomyRuntime.ts`
+- `src/game/pickupSpawnRuntime.ts`
+- `src/game/encounterRuntime.ts`
+- `src/game/planeDropRuntime.ts`
+- `src/game/gameRenderRuntime.ts`
+- `src/game/gameOverlays.ts`
+- `src/game/gameHudAudioRuntime.ts`
+- `src/game/gameInputRuntime.ts`
+- `src/game/gameEffectsRuntime.ts`
+- `src/game/planeSprite.ts`
+- `src/game/overgrowthRuntime.ts`
+- `src/content/domScanner.ts`
+- `src/content/main.ts`
+- `src/content/worldBuilder.ts`
+- `src/shared/types.ts`
+- `src/shared/color.ts`
+- `vite.config.ts`
+- `package.json`
+- `tests/gameInvariants.smoke.test.ts`
+- `tests/scannerWorld.smoke.test.ts`
+
+## Current State
+
+All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth data model and spawn logic are implemented; rendering is next.
+
+1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
+2. **Phase 1 — New specials prototyping: `done`.** `COOLDOWN` and `LURE` are implemented and tested.
+3. **Phase 2 — Overgrowth difficulty: `in progress`.** Data model, spawn logic, growth stages, and collision handling are complete. THIS SESSION should implement rendering: draw overgrowth nodes on canvas with readable bush/tree shapes, growth animation, and clear visual distinction between stages. Then do a tuning pass (timing, depth, density).
+4. **Phase 4 — Indie juice (pick one per session):** near-miss bonus (score for close calls with walls/police), micro-objectives (small per-run goals like "collect 10 coins in 20s"), rare jackpot pickup. Skip police helicopter, daily modifiers, page moods for now.
+
+## Current Known Context
+
+- Airplane drop modes remain: bonus drop, coin trail, spotlight, lucky wind, police delay (boost lane removed as confusing).
+- Plane drop dispatch/fallback remains in `src/game/planeDropRuntime.ts` and is retry-safe.
+- Plane drop coordinates center directly under the airplane (no y-offset).
+- Plane flyover sound plays when the plane enters the viewport (`flyoverSoundPlayed` flag), not at encounter creation.
+- All encounter/effect/spawn orchestration is extracted to focused runtime helpers.
+- `Game.ts` retains only side-effect orchestration, core loop, and render assembly.
+- Police car wheels match player car style (black boxes with white border).
+- Police car body and airplane contours have white borders for bright-page visibility.
+- Airplane sprite: narrower wings (wingSpan 28), wider body (bodyWidth 12, bodyLength 28), wider tail (tailWidth 8, tailHeight 8).
+- Scanner classifies `img`, `picture`, `video`, `canvas` as `ice`; `svg` remains `boost`.
+- Scanner detects YouTube/Vimeo iframes via `src` URL match and classifies them as `ice`.
+- `window.__domRacerDebug` must not exist in source/build.
+- Overgrowth data model and spawn logic live in `src/game/overgrowthRuntime.ts`.
+- Overgrowth spawns from barrier/obstacle edges after 35s run threshold, 9-15s spawn interval, max 8 nodes.
+- Overgrowth stages: small (10px depth, slow zone) -> medium (20px, slow zone, after 6s) -> large (32px, obstacle/wall, after 10s more).
+- Overgrowth kinds: bush (55% chance) and tree (45% chance) — visual distinction is rendering-only (next session).
+- Overgrowth collision: small/medium stages merged into player slow zones, large stages merged into player obstacles and pickup spawn blockers.
+- Overgrowth state resets on beginRun and stop.
+- README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.
+- Smoke tests currently pass (`npm run test` -> 46 tests).
+- Release build profile remains active (`npm run build`, sourcemaps off by default).
+- `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).
+- `cloneRect` is shared from `gameRuntime.ts` (removed duplicate from `pickupSpawnRuntime.ts`).
+- Branding SVGs use body-inside-cabin car layout (no cross pattern): body #2563EB outline, cabin #1D4ED8 inside, windshield/rear window as horizontal glass bands, red taillights #EF4444.
+- Tile text fits within 440x280 bounds (subtitle: "Every page is a racetrack.", feature pills centered with text-anchor).
+- `generate_assets.py` reads SVGs directly from disk instead of embedding duplicate SVG strings.
+- Branding PNGs regenerated (icon16–512, promo tile 440x280, store cover 1280x800).
+- New specials: `COOLDOWN` (instant, pushes police timer 5.4-8.2s, +15 score, teal color) and `LURE` (timed 5.4s, 300px radius gentle coin pull, amber color).
+- `LURE` pull only affects regular coins (not specials), distinguishing it from `MAGNET` which pulls all pickups.
+- `COOLDOWN` reuses existing police delay cue infrastructure for HUD display.
+- Preferred-effect bias in `pickSpecialEffect` reduced from 58% to 52% to accommodate 6-effect pool.
+
+## Constraints To Preserve
+
+- No screen shake
+- No broad mechanic expansion (overgrowth is a planned phase, not a broad expansion)
+- Playful, readable, non-violent tone
+- Keep controls/core loop stable

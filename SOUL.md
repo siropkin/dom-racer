@@ -144,7 +144,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase | Status | Goal |
 |---|---|---|
 | Phase 1 | `done` | Clean up the core money loop |
-| Phase 2 | `planned` (deferred) | Add overgrowth difficulty with trees and bushes |
+| Phase 2 | `in progress` | Add overgrowth difficulty with trees and bushes |
 | Phase 3 | `done` | Add airplane world-event prototype |
 | Phase 4 | `planned` (deferred) | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
@@ -164,11 +164,21 @@ All implementation work is complete: unified coin rules, staged spawn queue, spe
 
 ## Phase 2: Overgrowth Difficulty
 
-Status: `planned` (intentionally deferred)
+Status: `in progress`
 
 Goal: create a visible mid-to-late-run difficulty ramp with bushes and trees that grow from border/barrier structures over time.
 
-Not started. Deferred until Phase 1 manual verification is complete and scope is explicitly re-activated.
+Completed:
+- [x] Data model: `OvergrowthNode` with kind (bush/tree), stage (small/medium/large), anchor edge, growth timer
+- [x] Spawn logic: time-gated (35s threshold), interval-based (9-15s), capped at 8 nodes, spawns from barrier/obstacle edges
+- [x] Growth stages: small (10px depth) -> medium (20px, after 6s) -> large (32px, after 10s more)
+- [x] Collision: small/medium stages act as slow zones, large stage acts as wall/obstacle
+- [x] Integrated into Game.ts tick loop, beginRun reset, stop cleanup, and pickup spawn blockers
+- [x] 8 smoke tests covering spawn timing, growth progression, collision classification, and lifecycle integration
+
+Remaining:
+- [ ] Rendering: draw overgrowth nodes on canvas (bush/tree shapes, growth animation)
+- [ ] Tuning pass: adjust timing, depth, spawn density after visual verification
 
 ## Phase 3: Airplane Event
 
@@ -194,7 +204,7 @@ All bounded structural cleanup extractions from `Game.ts` are complete (17 extra
 
 Completed:
 - Debug API removed, scanner/runtime drift resolved, stale branches cleaned
-- 38 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior, cooldown/lure activation and pull
+- 46 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior, cooldown/lure activation and pull, overgrowth spawn/growth/collision
 - Release build profile (sourcemaps off), permissions doc, release checklist
 - No `__domRacerDebug` in source or build
 - Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
@@ -248,6 +258,18 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (d)
+
+- Implemented Phase 2 overgrowth data model and spawn logic in `src/game/overgrowthRuntime.ts`
+- `OvergrowthNode` type with bush/tree kinds, small/medium/large growth stages, anchor edge tracking
+- Spawn from barrier/obstacle edges after 35s run threshold, 9-15s interval, max 8 nodes
+- Growth progression: small (10px, 6s) -> medium (20px, 10s) -> large (32px wall)
+- Collision: small/medium = slow zones, large = obstacles (integrated into player movement and pickup spawn blockers)
+- Wired into Game.ts: tick update, beginRun reset, stop cleanup
+- 8 new smoke tests (spawn timing, cap, barrier spawn, growth stages, collision classification, lifecycle)
+- 46 tests pass, build clean, no `__domRacerDebug` in source or dist
+- Rendering deferred to next session
 
 ### Session — 2026-03-12 (c)
 

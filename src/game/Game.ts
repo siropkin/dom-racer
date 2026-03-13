@@ -151,6 +151,15 @@ import {
   createPoliceDelayCueState,
   dispatchPlaneDropWithFallback,
 } from './planeDropRuntime';
+import {
+  advanceOvergrowthGrowth,
+  getOvergrowthObstacles,
+  getOvergrowthRespawnDelayMs,
+  getOvergrowthSlowZones,
+  resolveOvergrowthSpawnStep,
+  trySpawnOvergrowthNode,
+  type OvergrowthNode,
+} from './overgrowthRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -219,6 +228,8 @@ export class Game {
   private spriteShowcaseActive: boolean;
   private spriteShowcaseThemeIndex: number;
   private spriteShowcasePageLightness: number;
+  private overgrowthNodes: OvergrowthNode[];
+  private overgrowthSpawnTimerMs: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -295,6 +306,8 @@ export class Game {
     this.spriteShowcaseActive = false;
     this.spriteShowcaseThemeIndex = 0;
     this.spriteShowcasePageLightness = 0.5;
+    this.overgrowthNodes = [];
+    this.overgrowthSpawnTimerMs = 0;
   }
 
   start(): void {
@@ -340,6 +353,8 @@ export class Game {
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
     this.resetComboState();
+    this.overgrowthNodes = [];
+    this.overgrowthSpawnTimerMs = 0;
     this.gameOverState = null;
     this.paused = false;
     this.pausedStartedAtMs = 0;
@@ -461,14 +476,16 @@ export class Game {
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce = isOnIceZone(currentBounds, this.world.iceZones);
-    const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, this.world.slowZones);
+    const activeObstacles = [...this.world.obstacles, ...getOvergrowthObstacles(this.overgrowthNodes)];
+    const activeSlowZones = [...this.world.slowZones, ...getOvergrowthSlowZones(this.overgrowthNodes)];
+    const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, activeSlowZones);
 
     const activeInput = this.getActiveInput();
     this.player.update({
       input: activeInput,
       dtSeconds,
       viewport: this.world.viewport,
-      obstacles: this.world.obstacles,
+      obstacles: activeObstacles,
       boosting,
       slowed,
       onIce,
@@ -518,6 +535,7 @@ export class Game {
     this.updateRegularCoinSpawns(dtSeconds);
     this.updateAmbientSpecialSpawns(dtSeconds);
     this.updatePlaneBonusEvent(dtSeconds);
+    this.updateOvergrowth(dtSeconds);
     this.applyMagnet(dtSeconds);
     this.applyLure(dtSeconds);
     this.updateUiEffects();
@@ -821,6 +839,37 @@ export class Game {
       const spawned = this.spawnSpecialPickup();
       this.specialSpawnTimerMs = getSpecialSpawnRespawnDelayMs(spawned);
     }
+  }
+
+  private updateOvergrowth(dtSeconds: number): void {
+    if (!this.world) {
+      return;
+    }
+
+    const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+    const step = resolveOvergrowthSpawnStep({
+      overgrowthSpawnTimerMs: this.overgrowthSpawnTimerMs,
+      runElapsedMs,
+      existingNodeCount: this.overgrowthNodes.length,
+      dtSeconds,
+    });
+    this.overgrowthSpawnTimerMs = step.overgrowthSpawnTimerMs;
+
+    if (step.shouldSpawn) {
+      const anchors = [...this.world.obstacles];
+      const playerBounds = this.player ? this.player.getBounds() : null;
+      const spawnBlockers = [
+        ...(playerBounds ? [playerBounds] : []),
+        ...this.world.pickups.map((pickup) => pickup.rect),
+      ];
+      const node = trySpawnOvergrowthNode(anchors, this.overgrowthNodes, spawnBlockers, runElapsedMs);
+      if (node) {
+        this.overgrowthNodes.push(node);
+      }
+      this.overgrowthSpawnTimerMs = getOvergrowthRespawnDelayMs();
+    }
+
+    advanceOvergrowthGrowth(this.overgrowthNodes, dtSeconds);
   }
 
   private updatePlaneBonusEvent(dtSeconds: number): void {
@@ -1132,7 +1181,7 @@ export class Game {
     return {
       viewport: this.world.viewport,
       player: this.player.getBounds(),
-      obstacles: this.world.obstacles,
+      obstacles: [...this.world.obstacles, ...getOvergrowthObstacles(this.overgrowthNodes)],
       deadSpots: this.world.deadSpots,
       hazards: this.world.hazards,
       pickups: this.world.pickups.map((pickup) => pickup.rect),
@@ -1512,6 +1561,8 @@ export class Game {
     this.resetComboState();
     this.gameOverState = nextRunState.gameOverState;
     this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
+    this.overgrowthNodes = [];
+    this.overgrowthSpawnTimerMs = 0;
     this.startTimeMs = nextRunState.startTimeMs;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
