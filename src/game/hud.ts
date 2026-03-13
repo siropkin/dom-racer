@@ -62,9 +62,9 @@ export function drawHud(
     drawActiveEffects(ctx, viewport, state);
   }
 
-  const goalEntries = buildGoalEntries(state);
-  if (goalEntries.length > 0) {
-    drawGoalPanel(ctx, viewport, goalEntries);
+  const goalRows = buildGoalRows(state);
+  if (goalRows.length > 0) {
+    drawGoalPanel(ctx, viewport, goalRows);
   }
 
   if (state.pageBestScore > 0 || state.lifetimeBestScore > 0) {
@@ -209,93 +209,84 @@ function drawActiveEffects(
   });
 }
 
-interface GoalEntry {
-  label: string;
-  barText: string;
-  barColor: string;
-  accentColor: string;
+interface GoalBarRow {
+  text: string;
+  color: string;
   timeRemainingMs: number;
   timeLimitMs: number;
 }
 
-function buildGoalEntries(state: HudState): GoalEntry[] {
-  const entries: GoalEntry[] = [];
+function buildGoalRows(state: HudState): GoalBarRow[] {
+  const rows: GoalBarRow[] = [];
 
   if (state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null) {
-    entries.push({
-      label: 'POLICE - ESCAPE!',
-      barText: 'POLICE - ESCAPE!',
-      barColor: '#f87171',
-      accentColor: 'rgba(248, 113, 113, 0.88)',
+    rows.push({
+      text: 'ESCAPE!',
+      color: '#f87171',
       timeRemainingMs: state.policeChaseRemainingMs,
       timeLimitMs: state.policeChaseDurationMs,
     });
   }
 
   if (state.objectiveText) {
-    const multiplier = state.objectiveMultiplierLabel ?? '';
-    entries.push({
-      label: `GOAL ${multiplier}`,
-      barText: state.objectiveText,
-      barColor: '#a78bfa',
-      accentColor: 'rgba(167, 139, 250, 0.82)',
+    const mult = state.objectiveMultiplierLabel ?? '';
+    rows.push({
+      text: `${state.objectiveText} ${mult}`,
+      color: '#a78bfa',
       timeRemainingMs: state.objectiveTimeRemainingMs ?? 0,
       timeLimitMs: state.objectiveTimeLimitMs ?? 1,
     });
   }
 
-  return entries;
+  return rows;
 }
 
 function drawGoalPanel(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
-  entries: GoalEntry[],
+  rows: GoalBarRow[],
 ): void {
   const panelWidth = 210;
   const rowHeight = 28;
-  const panelHeight = entries.length * (20 + rowHeight);
+  const panelHeight = 20 + rows.length * rowHeight;
   const panelX = Math.round(viewport.width / 2 - panelWidth / 2);
   const panelY = viewport.height - panelHeight - HUD_MARGIN;
 
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-  ctx.fillStyle = entries[0].accentColor;
+  ctx.fillStyle = 'rgba(167, 139, 250, 0.82)';
   ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
-  entries.forEach((entry, index) => {
-    const sectionY = panelY + index * (20 + rowHeight);
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_MUTED;
+  ctx.fillText('GOAL', panelX + 12, panelY + 8);
 
-    ctx.font = HUD_FONT;
-    ctx.fillStyle = HUD_TEXT_MUTED;
-    ctx.fillText(entry.label, panelX + 12, sectionY + 8);
-
-    const barX = panelX + 10;
-    const barY = sectionY + 22;
-    const barWidth = panelWidth - 20;
-    const barHeight = 18;
-
-    const timeFill = Math.max(0, Math.min(1, entry.timeRemainingMs / Math.max(1, entry.timeLimitMs)));
-    const fillW = barWidth * timeFill;
+  rows.forEach((row, index) => {
+    const ry = panelY + 22 + index * rowHeight;
+    const bx = panelX + 10;
+    const bw = panelWidth - 20;
+    const bh = 18;
+    const timeFill = Math.max(0, Math.min(1, row.timeRemainingMs / Math.max(1, row.timeLimitMs)));
+    const fillW = bw * timeFill;
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
+    ctx.fillRect(bx, ry, bw, bh);
     if (fillW > 0) {
-      ctx.fillStyle = entry.barColor;
-      ctx.fillRect(barX, barY, fillW, barHeight);
+      ctx.fillStyle = row.color;
+      ctx.fillRect(bx, ry, fillW, bh);
     }
 
     ctx.font = HUD_FONT;
     drawBarText(
-      ctx, entry.barText, barX + 6, barY + 4,
-      barX, barY, barWidth, barHeight, fillW,
+      ctx, row.text, bx + 6, ry + 4,
+      bx, ry, bw, bh, fillW,
       BAR_TEXT_ON_FILL, BAR_TEXT_ON_EMPTY,
     );
 
-    const remainingSec = Math.max(0, entry.timeRemainingMs) / 1000;
+    const sec = Math.max(0, row.timeRemainingMs) / 1000;
     drawBarText(
-      ctx, `${remainingSec.toFixed(0)}s`, barX + barWidth - 30, barY + 4,
-      barX, barY, barWidth, barHeight, fillW,
+      ctx, `${sec.toFixed(0)}s`, bx + bw - 30, ry + 4,
+      bx, ry, bw, bh, fillW,
       '#ffffff', BAR_TEXT_ON_EMPTY,
     );
   });

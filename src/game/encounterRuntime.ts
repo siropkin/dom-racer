@@ -163,10 +163,14 @@ export function tickPoliceSpawnCountdown(
 export function createPoliceChase(
   viewport: World['viewport'],
   edge?: PoliceEdge,
+  runElapsedMs = 0,
 ): PoliceChaseState {
   const spawnEdge = edge ?? getRandomPoliceEdge();
   const spawn = getPoliceSpawn(viewport, spawnEdge);
-  const durationMs = randomBetween(POLICE.CHASE_DURATION_MIN_MS, POLICE.CHASE_DURATION_MAX_MS);
+  const escalation = Math.min(1, runElapsedMs / 180_000);
+  const minMs = POLICE.CHASE_DURATION_MIN_MS + escalation * 3_000;
+  const maxMs = POLICE.CHASE_DURATION_MAX_MS + escalation * 4_000;
+  const durationMs = randomBetween(minMs, maxMs);
   return {
     ...spawn,
     remainingMs: durationMs,
@@ -587,7 +591,7 @@ export function resolvePoliceChaseTickStep(input: PoliceChaseTickInput): PoliceC
     }
 
     if (countdown.shouldSpawn) {
-      policeChase = createPoliceChase(input.viewport, policeWarning?.edge);
+      policeChase = createPoliceChase(input.viewport, policeWarning?.edge, input.runElapsedMs);
       policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS);
       policeWarning = null;
       events.push('chase-spawned');
