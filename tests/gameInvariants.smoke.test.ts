@@ -12,7 +12,7 @@ import {
   shouldPauseForPageFocus,
 } from '../src/game/gameRunStateRuntime';
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
-import { applyMagnetPullToPickups } from '../src/game/gameEffectsRuntime';
+import { applyMagnetPullToPickups, resolveSpecialEffectActivation } from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs, resolveRegularCoinSpawnStep } from '../src/game/pickupSpawnRuntime';
 
@@ -965,6 +965,49 @@ describe('game economy and police smoke invariants', () => {
     expect(ready.shouldSpawn).toBe(true);
     expect(ready.coinRefillTimerMs).toBe(0);
     expect(ready.coinRefillBoostTimerMs).toBe(0);
+  });
+
+  it('keeps extracted special-effect activation resolution unchanged', () => {
+    const brightSurface = { lightness: 0.7, saturation: 0.2, hasGradient: false };
+    const darkSurface = { lightness: 0.2, saturation: 0.1, hasGradient: false };
+
+    const bonus = resolveSpecialEffectActivation('bonus', brightSurface);
+    expect(bonus.resolvedEffect).toBe('bonus');
+    expect(bonus.scoreBonus).toBe(40);
+    expect(bonus.timerMs).toBe(0);
+    expect(bonus.setInverted).toBe(false);
+    expect(bonus.setBlackout).toBe(false);
+    expect(bonus.messageText).toContain('BON');
+
+    const magnet = resolveSpecialEffectActivation('magnet', brightSurface);
+    expect(magnet.resolvedEffect).toBe('magnet');
+    expect(magnet.scoreBonus).toBe(0);
+    expect(magnet.timerMs).toBeGreaterThan(0);
+    expect(magnet.setInverted).toBe(false);
+    expect(magnet.setBlackout).toBe(false);
+
+    const invert = resolveSpecialEffectActivation('invert', brightSurface);
+    expect(invert.resolvedEffect).toBe('invert');
+    expect(invert.timerMs).toBeGreaterThan(0);
+    expect(invert.setInverted).toBe(true);
+    expect(invert.setBlackout).toBe(false);
+
+    const ghost = resolveSpecialEffectActivation('ghost', brightSurface);
+    expect(ghost.resolvedEffect).toBe('ghost');
+    expect(ghost.timerMs).toBeGreaterThan(0);
+    expect(ghost.setInverted).toBe(false);
+    expect(ghost.setBlackout).toBe(false);
+
+    const blackout = resolveSpecialEffectActivation('blackout', brightSurface);
+    expect(blackout.resolvedEffect).toBe('blackout');
+    expect(blackout.timerMs).toBeGreaterThan(0);
+    expect(blackout.setInverted).toBe(false);
+    expect(blackout.setBlackout).toBe(true);
+
+    const blackoutOnDark = resolveSpecialEffectActivation('blackout', darkSurface);
+    expect(blackoutOnDark.resolvedEffect).toBe('invert');
+    expect(blackoutOnDark.setInverted).toBe(true);
+    expect(blackoutOnDark.setBlackout).toBe(false);
   });
 
   it('keeps extracted page lightness estimation unchanged', () => {

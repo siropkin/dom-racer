@@ -75,7 +75,7 @@ export function renderPlaneSprite(
 
   const cabinWidth = Math.max(4.4, tuning.bodyWidth * 0.46);
   const cabinHeight = Math.max(6.4, tuning.bodyWidth * 0.68);
-  const wingOffsetX = tuning.bodyLength * 0.1;
+  const wingOffsetX = tuning.bodyLength * 0.03;
 
   // Slightly stronger shadow/keyline for readability on bright pages.
   ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';

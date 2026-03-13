@@ -43,6 +43,7 @@ Current known context:
 - Focus-loss pause transition state orchestration remains in `src/game/gameRunStateRuntime.ts` (`shouldPauseForPageFocus`, `resolveFocusPauseTransitionState`) while `Game.ts` keeps side effects.
 - Magnet pull motion orchestration is extracted to `src/game/gameEffectsRuntime.ts` (`applyMagnetPullToPickups`), behavior unchanged.
 - Magnet still pulls both regular and special pickups.
+- Special-effect activation resolution is extracted to `src/game/gameEffectsRuntime.ts` (`resolveSpecialEffectActivation`), computing timer values, score delta, message, and page effects as a pure function while `Game.ts` applies side effects.
 - Ambient special spawn scheduling is extracted to `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`), behavior unchanged.
 - Regular coin spawn step timer logic is extracted to `src/game/pickupSpawnRuntime.ts` (`resolveRegularCoinSpawnStep`), behavior unchanged. `Game.ts` calls the helper and only triggers actual spawn attempts when the step says to.
 - Ambient special pickups no longer spawn a toast notification; the spawn cue ring is sufficient visual feedback.
@@ -54,11 +55,12 @@ Current known context:
 - Scanner now classifies `video` elements as `ice` (consistent with `img`/`picture`); `canvas`/`svg` remain as `boost`.
 - Airplane wing silhouette remains widened for readability (`wingSpan`, `wingAccentSpan`).
 - Airplane tail widened (`tailWidth` from 4.8 to 6.4) for better silhouette balance.
+- Airplane wings moved closer to cabin body (`wingOffsetX` multiplier from 0.1 to 0.03) for more compact, readable silhouette.
 - Police chase movement still reacts to ice surfaces (smoke-tested).
 - `window.__domRacerDebug` must not exist in source/build.
 - Overgrowth remains intentionally deferred.
 - README now includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshot placeholder section.
-- Smoke tests currently pass (`npm run test` -> 31 tests).
+- Smoke tests currently pass (`npm run test` -> 32 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 
 Priority lock for this session:

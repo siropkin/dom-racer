@@ -1,5 +1,12 @@
-import type { HudState, Vector2, WorldPickup } from '../shared/types';
-import { adaptBlackoutEffectForSurface, COMBO_WINDOW_MS, getSpecialColor, getSpecialHudLabel } from './gameRuntime';
+import type { HudState, SpecialEffect, Vector2, WorldPickup } from '../shared/types';
+import {
+  adaptBlackoutEffectForSurface,
+  BONUS_SPECIAL_SCORE,
+  COMBO_WINDOW_MS,
+  getSpecialActivationMessage,
+  getSpecialColor,
+  getSpecialHudLabel,
+} from './gameRuntime';
 import type { SurfaceSample } from './gameRuntime';
 
 export const INVERT_EFFECT_DURATION_MS = 5200;
@@ -95,6 +102,75 @@ export function applyMagnetPullToPickups(
     const moveY = (dy / distance) * pull;
     pickup.rect.x += moveX;
     pickup.rect.y += moveY;
+  }
+}
+
+export interface SpecialEffectActivation {
+  resolvedEffect: SpecialEffect;
+  scoreBonus: number;
+  timerMs: number;
+  messageText: string;
+  messageColor: string;
+  setInverted: boolean;
+  setBlackout: boolean;
+}
+
+export function resolveSpecialEffectActivation(
+  effect: SpecialEffect,
+  surface: SurfaceSample,
+): SpecialEffectActivation {
+  const resolvedEffect = adaptBlackoutEffectForSurface(effect, surface);
+  switch (resolvedEffect) {
+    case 'bonus':
+      return {
+        resolvedEffect,
+        scoreBonus: BONUS_SPECIAL_SCORE,
+        timerMs: 0,
+        messageText: getSpecialActivationMessage('bonus'),
+        messageColor: getSpecialColor('bonus'),
+        setInverted: false,
+        setBlackout: false,
+      };
+    case 'invert':
+      return {
+        resolvedEffect,
+        scoreBonus: 0,
+        timerMs: INVERT_EFFECT_DURATION_MS,
+        messageText: getSpecialActivationMessage('invert'),
+        messageColor: getSpecialColor('invert'),
+        setInverted: true,
+        setBlackout: false,
+      };
+    case 'magnet':
+      return {
+        resolvedEffect,
+        scoreBonus: 0,
+        timerMs: MAGNET_EFFECT_DURATION_MS,
+        messageText: getSpecialActivationMessage('magnet'),
+        messageColor: getSpecialColor('magnet'),
+        setInverted: false,
+        setBlackout: false,
+      };
+    case 'ghost':
+      return {
+        resolvedEffect,
+        scoreBonus: 0,
+        timerMs: GHOST_EFFECT_DURATION_MS,
+        messageText: getSpecialActivationMessage('ghost'),
+        messageColor: getSpecialColor('ghost'),
+        setInverted: false,
+        setBlackout: false,
+      };
+    case 'blackout':
+      return {
+        resolvedEffect,
+        scoreBonus: 0,
+        timerMs: BLACKOUT_EFFECT_DURATION_MS,
+        messageText: getSpecialActivationMessage('blackout'),
+        messageColor: getSpecialColor('blackout'),
+        setInverted: false,
+        setBlackout: true,
+      };
   }
 }
 

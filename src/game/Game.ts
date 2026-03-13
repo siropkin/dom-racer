@@ -47,12 +47,9 @@ import {
   estimatePageLightness,
 } from './gameRenderRuntime';
 import {
-  BLACKOUT_EFFECT_DURATION_MS,
   applyMagnetPullToPickups,
   applyPickupComboState,
-  GHOST_EFFECT_DURATION_MS,
-  INVERT_EFFECT_DURATION_MS,
-  MAGNET_EFFECT_DURATION_MS,
+  resolveSpecialEffectActivation,
   tickEffectTimers,
 } from './gameEffectsRuntime';
 import { buildHudState, isDriveInputActive } from './gameHudAudioRuntime';
@@ -85,12 +82,10 @@ import { drawCaughtGameOverOverlay, drawPausedOverlay, drawSpriteShowcaseOverlay
 import { Player } from './player';
 import {
   adaptBlackoutEffectForSurface,
-  BONUS_SPECIAL_SCORE,
   clonePickup,
   cloneWorld,
   ENCOUNTER_STAGGER_MS,
   getNextVehicleDesign,
-  getSpecialActivationMessage,
   getSpecialColor,
   getSpecialDropMessage,
   getSpecialLabel,
@@ -1138,31 +1133,32 @@ export class Game {
   }
 
   private activateSpecialEffect(effect: SpecialEffect): void {
-    const resolvedEffect = adaptBlackoutEffectForSurface(effect, this.sampleCurrentSurface());
-    switch (resolvedEffect) {
-      case 'bonus':
-        this.score += BONUS_SPECIAL_SCORE;
-        this.spawnEffectMessage(getSpecialActivationMessage('bonus'), getSpecialColor('bonus'), 'high');
-        return;
+    const activation = resolveSpecialEffectActivation(effect, this.sampleCurrentSurface());
+    this.score += activation.scoreBonus;
+
+    switch (activation.resolvedEffect) {
       case 'invert':
-        this.invertTimerMs = INVERT_EFFECT_DURATION_MS;
-        this.setInverted(true);
-        this.spawnEffectMessage(getSpecialActivationMessage('invert'), getSpecialColor('invert'), 'high');
-        return;
+        this.invertTimerMs = activation.timerMs;
+        break;
       case 'magnet':
-        this.magnetTimerMs = MAGNET_EFFECT_DURATION_MS;
-        this.spawnEffectMessage(getSpecialActivationMessage('magnet'), getSpecialColor('magnet'), 'high');
-        return;
+        this.magnetTimerMs = activation.timerMs;
+        break;
       case 'ghost':
-        this.ghostTimerMs = GHOST_EFFECT_DURATION_MS;
-        this.spawnEffectMessage(getSpecialActivationMessage('ghost'), getSpecialColor('ghost'), 'high');
-        return;
+        this.ghostTimerMs = activation.timerMs;
+        break;
       case 'blackout':
-        this.blackoutTimerMs = BLACKOUT_EFFECT_DURATION_MS;
-        this.setBlackout(true);
-        this.spawnEffectMessage(getSpecialActivationMessage('blackout'), getSpecialColor('blackout'), 'high');
-        return;
+        this.blackoutTimerMs = activation.timerMs;
+        break;
     }
+
+    if (activation.setInverted) {
+      this.setInverted(true);
+    }
+    if (activation.setBlackout) {
+      this.setBlackout(true);
+    }
+
+    this.spawnEffectMessage(activation.messageText, activation.messageColor, 'high');
   }
 
   private sampleCurrentSurface(): SurfaceSample {

@@ -403,7 +403,7 @@ Status: `done`
 - [x] Implement one `bonus drop` pickup event (`BON`) with rarity/cooldown timing
 - [x] Add airplane edge warning indicator (`NYOOM`) before entry
 - [x] Stabilize and tune airplane sprite readability in gameplay (shape, propeller, contrast, placement)
-- [ ] Move airplane wings closer to cabin for a more compact, readable silhouette
+- [x] Move airplane wings closer to cabin for a more compact, readable silhouette
 - [x] Widen airplane tail for better silhouette balance and readability
 - [x] Add and tune a "cool" airplane sound profile that is noticeable without becoming noisy
 - [x] Stagger airplane and police cadence to reduce same-time overlap noise
@@ -480,6 +480,7 @@ Status: `in progress`
 - [x] Extract focus-mode alpha animation calculation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`) without behavior drift
 - [x] Extract page lightness estimation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`estimatePageLightness`) without behavior drift
 - [x] Extract regular coin spawn step timer logic from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveRegularCoinSpawnStep`) without behavior drift
+- [x] Extract special-effect activation resolution from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` (`resolveSpecialEffectActivation`) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -750,6 +751,12 @@ Session note:
 - Feature delivery: scanned `video` elements now classify as `ice` (consistent with `img`/`picture`), while `canvas`/`svg` remain as `boost`; closes the Phase 1 Surface Behavior Refresh video-to-ice item.
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (31 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded special-effect activation extraction plus bounded Phase 3 airplane wing readability follow-up.
+- Hardening delivery: special-effect activation resolution moved from `Game.ts` into `src/game/gameEffectsRuntime.ts` (`resolveSpecialEffectActivation`), computing timer values, score delta, message text, and page effects as a pure function while `Game.ts` keeps side-effect application.
+- Feature delivery: airplane sprite wing placement moved closer to the cabin body (`wingOffsetX` multiplier reduced from `0.1` to `0.03`) for a more compact, readable silhouette; closes the Phase 3 wing-placement readability item.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (32 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 
