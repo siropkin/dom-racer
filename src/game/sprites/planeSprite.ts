@@ -32,8 +32,8 @@ export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
   wingWidth: 7,
   wingAccentSpan: 30,
   wingAccentWidth: 4.2,
-  tailWidth: 10,
-  tailHeight: 8,
+  tailWidth: 16,
+  tailHeight: 5,
   propellerRadius: 6.4,
 };
 let runtimePlaneSpriteTuning: PlaneSpriteTuning = { ...DEFAULT_PLANE_SPRITE_TUNING };
@@ -194,12 +194,12 @@ export function renderPlaneSprite(
     0.9,
   );
 
-  // --- vertical stabilizer (tail fin) ---
+  // --- vertical stabilizer (tail fin — subtle dorsal ridge) ---
   ctx.fillStyle = '#334155';
   ctx.beginPath();
-  ctx.moveTo(tailX, 0);
-  ctx.lineTo(tailX - 4, -halfWidth * 0.6);
-  ctx.lineTo(tailX + 3, -halfWidth * 0.3);
+  ctx.moveTo(tailX + tuning.tailHeight, 0);
+  ctx.lineTo(tailX - 1, -halfWidth * 0.45);
+  ctx.lineTo(tailX - 1, halfWidth * 0.15);
   ctx.closePath();
   ctx.fill();
   ctx.strokeStyle = '#f8fafc';

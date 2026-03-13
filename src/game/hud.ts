@@ -72,7 +72,7 @@ export function drawHud(
 function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
   const hasBests = state.pageBestScore > 0 || state.lifetimeBestScore > 0;
   const w = 170;
-  const h = hasBests ? 82 : 48;
+  const h = hasBests ? 68 : 48;
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, h);
   ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
