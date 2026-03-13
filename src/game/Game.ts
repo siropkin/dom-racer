@@ -18,6 +18,7 @@ import type {
   SpecialSpawnCue,
 } from './gameStateTypes';
 import { AudioManager } from './audio';
+import { PLAYER } from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
 import { isBoosting, isOnDeadSpot, isOnIceZone, isOnSlowZone } from './pickups';
@@ -45,9 +46,11 @@ import {
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
+  drawSpeedLines,
   drawVfxParticles,
   estimatePageLightness,
   spawnCoinBurstParticles,
+  spawnNewBestBurstParticles,
   spawnTireDustParticles,
   updateVfxParticles,
   type VfxParticle,
@@ -201,6 +204,7 @@ export class Game {
   private onQuit: () => void;
   private onSoundEnabledChange: (enabled: boolean) => void;
   private onVehicleDesignChange: (design: VehicleDesign) => void;
+  private onRunStarted?: (runNumber: number) => void;
   private onRunFinished?: (run: {
     score: number;
     elapsedMs: number;
@@ -264,6 +268,9 @@ export class Game {
   private objectiveCompletedCount: number;
   private objectiveLastTemplateId: string;
   private vfxParticles: VfxParticle[];
+  private runNumber: number;
+  private pageBestScoreAtRunStart: number;
+  private newBestCelebrated: boolean;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -282,6 +289,7 @@ export class Game {
     this.onQuit = options.onQuit;
     this.onSoundEnabledChange = options.onSoundEnabledChange;
     this.onVehicleDesignChange = options.onVehicleDesignChange;
+    this.onRunStarted = options.onRunStarted;
     this.onRunFinished = options.onRunFinished;
     this.soundEnabled = options.initialSoundEnabled;
     this.vehicleDesign = options.initialVehicleDesign;
@@ -356,6 +364,9 @@ export class Game {
     this.objectiveCompletedCount = 0;
     this.objectiveLastTemplateId = '';
     this.vfxParticles = [];
+    this.runNumber = options.initialRunCount;
+    this.pageBestScoreAtRunStart = options.initialPageBestScore;
+    this.newBestCelebrated = false;
   }
 
   start(): void {
@@ -617,6 +628,7 @@ export class Game {
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
     }
+    this.checkNewBestCelebration();
 
     const coinsCollectedThisFrame = pickupStep.collectedPickups.filter(
       (p) => !isSpecialPickup(p),
@@ -693,6 +705,15 @@ export class Game {
       performance.now(),
     );
     drawVfxParticles(ctx, this.vfxParticles);
+    const renderSpeed = this.player.getLastStepDiagnostics().speed;
+    drawSpeedLines(
+      ctx,
+      rectCenter(this.player.getBounds()).x,
+      rectCenter(this.player.getBounds()).y,
+      this.player.getAngle(),
+      renderSpeed,
+      PLAYER.BOOST_SPEED,
+    );
     this.player.draw(ctx, {
       opacity: this.ghostTimerMs > 0 ? 0.46 : 1,
       magnetActive: this.magnetTimerMs > 0,
@@ -1032,6 +1053,7 @@ export class Game {
         color: NEAR_MISS_COLOR,
         priority: 'low',
       });
+      this.checkNewBestCelebration();
     }
   }
 
@@ -1055,6 +1077,7 @@ export class Game {
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       const word = getObjectiveCompletionWord(step.completedCount - 1);
       this.spawnEffectMessage(word, OBJECTIVE_COMPLETION_COLOR, 'high');
+      this.checkNewBestCelebration();
     }
   }
 
@@ -1704,6 +1727,22 @@ export class Game {
     });
   }
 
+  private checkNewBestCelebration(): void {
+    if (
+      this.newBestCelebrated ||
+      this.pageBestScoreAtRunStart <= 0 ||
+      this.score <= this.pageBestScoreAtRunStart
+    ) {
+      return;
+    }
+    this.newBestCelebrated = true;
+    this.spawnEffectMessage('NEW BEST!', '#facc15', 'high');
+    if (this.player) {
+      const b = this.player.getBounds();
+      spawnNewBestBurstParticles(this.vfxParticles, b.x + b.width / 2, b.y + b.height / 2);
+    }
+  }
+
   private enqueueSpecialSpawnCue(pickup: WorldPickup, durationMs = 1200): void {
     if (pickup.kind !== 'special') {
       return;
@@ -1754,6 +1793,10 @@ export class Game {
   }
 
   private beginRun(): void {
+    this.runNumber += 1;
+    this.pageBestScoreAtRunStart = this.pageBestScore;
+    this.newBestCelebrated = false;
+    this.onRunStarted?.(this.runNumber);
     const nextRunState = createBeginRunState(performance.now());
     this.dynamicPickups = nextRunState.dynamicPickups;
     this.coinSpawnQueue = nextRunState.coinSpawnQueue;
@@ -1789,6 +1832,8 @@ export class Game {
     this.startTimeMs = nextRunState.startTimeMs;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
+
+    this.spawnEffectMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
   }
 
   private enterCaughtGameOver(): void {
@@ -1835,6 +1880,7 @@ export class Game {
       nowMs: performance.now(),
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
+      runNumber: this.runNumber,
     });
   }
 

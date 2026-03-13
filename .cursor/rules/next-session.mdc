@@ -53,10 +53,10 @@ All game features (Phases 1-5) and production readiness are complete. Phase 7 mi
    - ~~Police siren flash~~ — DONE: alternating red/blue body fill on 120ms cycle during chase
    - ~~Coin pickup burst~~ — DONE: 4-6 yellow sparkle particles burst outward on collection
    - ~~Tire dust particles~~ — DONE: 1-2 fading surface-colored circles behind car when moving
-   - Run counter (~20 lines) — persistent "RUN #N" on start overlay
-   - "NEW BEST!" celebration (~25 lines) — gold toast + starburst when page best is broken
-   - Speed lines (~20 lines) — thin streaks at high velocity
-   - Landing squash (~15 lines) — squash-and-stretch when car lands from airborne
+   - ~~Run counter~~ — DONE: persistent "RUN #N" toast on start + game-over screen
+   - ~~"NEW BEST!" celebration~~ — DONE: gold toast + 8-10 gold particle burst when page best is broken
+   - ~~Speed lines~~ — DONE: 3-5 thin white streaks at high velocity (>70% max speed)
+   - ~~Landing squash~~ — DONE: 150ms squash-and-stretch (scaleX/scaleY) when car lands from airborne
    - Lifetime milestones (~15 lines) — one-time toasts at 500/1000/2500/5000 lifetime score
    - Page-reactive tint (~15 lines) — faint tint from page's dominant color
    - Drift sparks (~20 lines) — tiny spark particles on sharp turns on boost surfaces
@@ -115,6 +115,13 @@ All game features (Phases 1-5) and production readiness are complete. Phase 7 mi
 - Coin burst: 4-6 yellow (#fde047) 2px particles, 200-300ms lifetime, burst outward from collection point.
 - Tire dust: 1-2 surface-colored particles per frame when speed > 50, 300ms lifetime, 0.4 max alpha fading to 0.
 - `Player.getAngle()` exposes heading angle for tire dust positioning.
+- `Player.getLandingSquashScale()` returns `{ scaleX, scaleY }` for landing squash animation (150ms timer, 1.15x/0.85x ease-back).
+- `landingTimerMs` and `wasAirborneLastFrame` in Player track airborne->grounded transitions for squash-and-stretch.
+- `renderPlayerSprite` accepts optional `scaleX`/`scaleY` for landing squash, applied via `ctx.scale()`.
+- Speed lines: `drawSpeedLines` in `gameRenderRuntime.ts`, 3-5 white streaks when speed > 70% max, drawn before player sprite.
+- Run counter: `runsStarted` field in `DomRacerProfile.lifetime`, `incrementRunCount()` in settings.ts, `onRunStarted` callback in GameOptions.
+- Run number shown as "RUN #N" toast on each beginRun and on the game-over screen.
+- "NEW BEST!" celebration: `pageBestScoreAtRunStart` and `newBestCelebrated` flags in Game, fires gold toast + `spawnNewBestBurstParticles` (8-10 gold particles) once per run.
 - Smoke tests currently pass (`npm run test` -> 75 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).

@@ -265,14 +265,14 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 
 - [x] **Tire dust particles**: tiny fading circles behind the car while driving (1-2 particles per frame, 300ms lifetime, match surface color — gray on normal, white on ice, green on boost). Makes movement feel weighty and grounded. Implementation: VfxParticle system in gameRenderRuntime, ~30 lines.
 - [x] **Coin pickup burst**: 4-6 tiny yellow sparkle particles that burst outward when a coin is collected, then fade over 200-300ms. Makes every coin feel satisfying, not just a score increment. Implementation: spawnCoinBurstParticles in gameRenderRuntime, ~25 lines.
-- [ ] **Speed lines**: thin semi-transparent lines that streak past the car at high velocity (above ~70% max speed). Creates a sense of velocity on boost zones. Implementation: 3-5 lines drawn relative to car heading, ~20 lines.
+- [x] **Speed lines**: thin semi-transparent lines that streak past the car at high velocity (above ~70% max speed). Creates a sense of velocity on boost zones. Implementation: 3-5 lines drawn relative to car heading, ~20 lines.
 - [x] **Police siren flash**: alternating red/blue glow on the police car body (120ms cycle) once it enters chase mode. Reads as "cop car" immediately, builds tension. Already has WEE-OO audio cue — this adds the visual half. Implementation: conditional fill swap in policeSprite, ~10 lines.
-- [ ] **Landing squash**: when the car returns from airborne state (plane drop), brief 150ms squash-and-stretch animation (scale 1.2x wide, 0.8x tall, then bounce back). Classic cartoon weight feel. Implementation: scale transform in playerSprite render, ~15 lines.
+- [x] **Landing squash**: when the car returns from airborne state (plane drop), brief 150ms squash-and-stretch animation (scale 1.2x wide, 0.8x tall, then bounce back). Classic cartoon weight feel. Implementation: scale transform in playerSprite render, ~15 lines.
 
 **Retention & progression (lightweight persistence):**
 
-- [ ] **Run counter**: show "RUN #N" on the start/restart overlay. Increment a persistent counter in `chrome.storage.local` each time the player begins a run. Makes each attempt feel like progress even on bad runs. No gameplay effect. Implementation: one counter in settings, display in gameOverlays, ~20 lines.
-- [ ] **"NEW BEST!" celebration**: when the player beats their page best score, show a celebratory "NEW PAGE BEST!" toast in gold with a brief starburst particle effect. Currently the best score updates silently. Implementation: comparison check in score persistence, toast + particles, ~25 lines.
+- [x] **Run counter**: show "RUN #N" on the start/restart overlay. Increment a persistent counter in `chrome.storage.local` each time the player begins a run. Makes each attempt feel like progress even on bad runs. No gameplay effect. Implementation: one counter in settings, display in gameOverlays, ~20 lines.
+- [x] **"NEW BEST!" celebration**: when the player beats their page best score, show a celebratory "NEW PAGE BEST!" toast in gold with a brief starburst particle effect. Currently the best score updates silently. Implementation: comparison check in score persistence, toast + particles, ~25 lines.
 - [ ] **Lifetime milestones**: at lifetime score milestones (500, 1000, 2500, 5000), show a one-time toast ("MILESTONE: 1000 lifetime!"). Simple `chrome.storage.local` check. Gives long-term players occasional surprise pops. Implementation: ~15 lines.
 
 **Atmosphere (mood without noise):**
@@ -315,6 +315,19 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (o)
+
+- Phase 7 micro-polish: implemented 4 more feel tweaks (run counter, NEW BEST!, speed lines, landing squash)
+- Run counter: persistent `runsStarted` in profile, incremented on `beginRun`, displayed as "RUN #N" toast at run start and on game-over screen
+- "NEW BEST!" celebration: detects when score exceeds `pageBestScoreAtRunStart`, fires gold (#facc15) "NEW BEST!" toast + 8-10 gold particle burst, one-shot per run
+- Speed lines: 3-5 thin white streaks (alpha 0.15-0.25) drawn opposite to heading when speed > 70% of max, ~40-80px long, within ~60px radius of car
+- Landing squash: `landingTimerMs` in Player, detects airborne->grounded transition, 150ms squash-and-stretch (1.15x wide, 0.85x tall easing back to 1.0), applied via `scaleX`/`scaleY` in playerSprite render
+- Added `spawnNewBestBurstParticles` and `drawSpeedLines` to `gameRenderRuntime.ts`
+- Added `incrementRunCount` and `lifetimeRunsStarted` to settings/profile persistence
+- Added `onRunStarted` callback and `initialRunCount` to GameOptions
+- "RUN #N" and "NEW BEST!" added to game-over overlay and toast showcase
+- 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (m)
 

@@ -164,6 +164,8 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'CLEAR!',
   'CHECK!',
   'JACKPOT!',
+  'NEW BEST!',
+  'RUN #42',
 ] as const;
 export const SHOWCASE_THEMES: readonly ShowcaseTheme[] = [
   {

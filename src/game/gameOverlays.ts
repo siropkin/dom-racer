@@ -32,6 +32,7 @@ interface DrawCaughtGameOverOptions {
   nowMs: number;
   startedAtMs: number;
   score: number;
+  runNumber: number;
 }
 
 interface DrawPausedOverlayOptions {
@@ -305,6 +306,7 @@ export function drawCaughtGameOverOverlay({
   nowMs,
   startedAtMs,
   score,
+  runNumber,
 }: DrawCaughtGameOverOptions): void {
   const { width, height } = viewport;
   const flash = Math.sin((nowMs - startedAtMs) / 240) > 0 ? 1 : 0.72;
@@ -315,6 +317,10 @@ export function drawCaughtGameOverOverlay({
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+
+  ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText(`RUN #${runNumber}`, width / 2, height / 2 - 104);
 
   ctx.font = 'bold 18px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.fillStyle = '#f87171';

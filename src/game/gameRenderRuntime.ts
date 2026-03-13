@@ -225,10 +225,7 @@ export function updateVfxParticles(particles: VfxParticle[], dtSeconds: number):
 }
 
 /** Draws all active VFX particles as small filled circles. */
-export function drawVfxParticles(
-  ctx: CanvasRenderingContext2D,
-  particles: VfxParticle[],
-): void {
+export function drawVfxParticles(ctx: CanvasRenderingContext2D, particles: VfxParticle[]): void {
   if (particles.length === 0) return;
   ctx.save();
   for (const p of particles) {
@@ -242,11 +239,7 @@ export function drawVfxParticles(
 }
 
 /** Spawns 4-6 tiny yellow sparkle particles bursting outward from a collection point. */
-export function spawnCoinBurstParticles(
-  particles: VfxParticle[],
-  x: number,
-  y: number,
-): void {
+export function spawnCoinBurstParticles(particles: VfxParticle[], x: number, y: number): void {
   const count = 4 + Math.floor(Math.random() * 3);
   for (let i = 0; i < count; i += 1) {
     const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
@@ -263,6 +256,31 @@ export function spawnCoinBurstParticles(
       maxLifetimeMs: lifetime,
       radius: 2,
       color: '#fde047',
+    });
+  }
+  if (particles.length > VFX_PARTICLE_CAP) {
+    particles.splice(0, particles.length - VFX_PARTICLE_CAP);
+  }
+}
+
+/** Spawns 8-10 gold sparkle particles for the "NEW BEST!" celebration. */
+export function spawnNewBestBurstParticles(particles: VfxParticle[], x: number, y: number): void {
+  const count = 8 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+    const speed = 50 + Math.random() * 70;
+    const lifetime = 350 + Math.random() * 200;
+    particles.push({
+      x,
+      y,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed,
+      alpha: 1,
+      maxAlpha: 1,
+      lifetimeMs: lifetime,
+      maxLifetimeMs: lifetime,
+      radius: 2.5,
+      color: '#facc15',
     });
   }
   if (particles.length > VFX_PARTICLE_CAP) {
@@ -299,6 +317,42 @@ export function spawnTireDustParticles(
   if (particles.length > VFX_PARTICLE_CAP) {
     particles.splice(0, particles.length - VFX_PARTICLE_CAP);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Speed lines
+// ---------------------------------------------------------------------------
+
+/** Draws 3-5 thin motion-blur streaks around the car at high speed. */
+export function drawSpeedLines(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  angle: number,
+  speed: number,
+  maxSpeed: number,
+): void {
+  if (speed < maxSpeed * 0.7) return;
+
+  const count = 3 + Math.floor(Math.random() * 3);
+  const oppositeAngle = angle + Math.PI;
+  ctx.save();
+  ctx.lineWidth = 1;
+  for (let i = 0; i < count; i += 1) {
+    const spread = (Math.random() - 0.5) * 1.4;
+    const lineAngle = oppositeAngle + spread;
+    const dist = 10 + Math.random() * 50;
+    const sx = cx + Math.cos(lineAngle + Math.PI / 2) * (Math.random() - 0.5) * 60;
+    const sy = cy + Math.sin(lineAngle + Math.PI / 2) * (Math.random() - 0.5) * 60;
+    const len = 40 + Math.random() * 40;
+    ctx.globalAlpha = 0.15 + Math.random() * 0.1;
+    ctx.strokeStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(sx + Math.cos(lineAngle) * dist, sy + Math.sin(lineAngle) * dist);
+    ctx.lineTo(sx + Math.cos(lineAngle) * (dist + len), sy + Math.sin(lineAngle) * (dist + len));
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 // ---------------------------------------------------------------------------

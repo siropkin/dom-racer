@@ -43,6 +43,7 @@ export interface DomRacerProfile {
     bestScore: number;
     totalScore: number;
     totalRuns: number;
+    runsStarted: number;
     updatedAt: number;
   };
   pages: Record<string, DomRacerPageStats>;
@@ -59,6 +60,7 @@ export interface PageRunSnapshot {
 export interface ScoreSummary {
   pageBestScore: number;
   lifetimeBestScore: number;
+  lifetimeRunsStarted: number;
 }
 
 export async function loadSoundEnabledSetting(): Promise<boolean> {
@@ -127,7 +129,17 @@ export async function loadScoreSummary(url: string): Promise<ScoreSummary> {
   return {
     pageBestScore: page?.highScore ?? 0,
     lifetimeBestScore: profile.lifetime.bestScore,
+    lifetimeRunsStarted: profile.lifetime.runsStarted,
   };
+}
+
+export async function incrementRunCount(): Promise<number> {
+  let next = 0;
+  await updateDomRacerProfile((profile) => {
+    profile.lifetime.runsStarted += 1;
+    next = profile.lifetime.runsStarted;
+  });
+  return next;
 }
 
 async function readNormalizedProfile(): Promise<DomRacerProfile> {
@@ -304,6 +316,7 @@ function normalizeProfile(
       bestScore: toNumber(rawLifetime.bestScore),
       totalScore: toNumber(rawLifetime.totalScore),
       totalRuns: toNumber(rawLifetime.totalRuns),
+      runsStarted: toNumber(rawLifetime.runsStarted),
       updatedAt: toNumber(rawLifetime.updatedAt),
     },
     pages,

@@ -164,6 +164,7 @@ describe('game economy and police smoke invariants', () => {
       onVehicleDesignChange: () => undefined,
       initialPageBestScore: 0,
       initialLifetimeBestScore: 0,
+      initialRunCount: 0,
       onRunFinished: (run) => runReasons.push(run.reason),
     });
   });

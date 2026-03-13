@@ -11,6 +11,8 @@ interface RenderPlayerSpriteOptions {
   opacity: number;
   nowMs: number;
   airborne?: boolean;
+  scaleX?: number;
+  scaleY?: number;
 }
 
 export function renderPlayerSprite(
@@ -18,10 +20,15 @@ export function renderPlayerSprite(
   options: RenderPlayerSpriteOptions,
 ): void {
   const airborne = options.airborne ?? false;
+  const sx = options.scaleX ?? 1;
+  const sy = options.scaleY ?? 1;
 
   ctx.save();
   ctx.translate(options.centerX, options.centerY);
   ctx.rotate(options.angle);
+  if (sx !== 1 || sy !== 1) {
+    ctx.scale(sx, sy);
+  }
   ctx.globalAlpha = options.opacity;
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';

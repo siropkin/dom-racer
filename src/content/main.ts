@@ -2,6 +2,7 @@ import overlayCss from '../styles/overlay.css?inline';
 import { Game } from '../game/Game';
 import type { VehicleDesign } from '../shared/types';
 import {
+  incrementRunCount,
   loadScoreSummary,
   loadSoundEnabledSetting,
   loadVehicleDesignSetting,
@@ -33,6 +34,7 @@ let soundEnabled = true;
 let vehicleDesign: VehicleDesign = 'coupe';
 let pageBestScore = 0;
 let lifetimeBestScore = 0;
+let lifetimeRunsStarted = 0;
 let lastMagnetUiUpdateAt = 0;
 const magnetizedElements = new Set<HTMLElement>();
 
@@ -54,6 +56,7 @@ void loadScoreSummary(window.location.href)
   .then((summary) => {
     pageBestScore = summary.pageBestScore;
     lifetimeBestScore = summary.lifetimeBestScore;
+    lifetimeRunsStarted = summary.lifetimeRunsStarted;
   })
   .catch(() => undefined);
 
@@ -153,6 +156,8 @@ function activate(): void {
     onVehicleDesignChange: handleVehicleDesignChange,
     initialPageBestScore: pageBestScore,
     initialLifetimeBestScore: lifetimeBestScore,
+    initialRunCount: lifetimeRunsStarted,
+    onRunStarted: handleRunStarted,
     onRunFinished: handleRunFinished,
   });
   game.start();
@@ -192,6 +197,11 @@ function handleSoundEnabledChange(enabled: boolean): void {
 function handleVehicleDesignChange(design: VehicleDesign): void {
   vehicleDesign = design;
   void saveVehicleDesignSetting(design).catch(() => undefined);
+}
+
+function handleRunStarted(runNumber: number): void {
+  lifetimeRunsStarted = runNumber;
+  void incrementRunCount().catch(() => undefined);
 }
 
 function handleRunFinished(run: {

@@ -35,6 +35,8 @@ export class Player {
   private vehicleDesign: VehicleDesign;
   private boostTimerMs: number;
   private onIceLastFrame: boolean;
+  private wasAirborneLastFrame: boolean;
+  private landingTimerMs: number;
   private iceEntryBoostMs: number;
   private iceDriftDirection: Vector2;
   private iceDriftRetargetMs: number;
@@ -47,6 +49,8 @@ export class Player {
     this.vehicleDesign = vehicleDesign;
     this.boostTimerMs = 0;
     this.onIceLastFrame = false;
+    this.wasAirborneLastFrame = false;
+    this.landingTimerMs = 0;
     this.iceEntryBoostMs = 0;
     this.iceDriftDirection = { x: 0, y: 0 };
     this.iceDriftRetargetMs = 0;
@@ -59,6 +63,8 @@ export class Player {
     this.angle = -Math.PI / 2;
     this.boostTimerMs = 0;
     this.onIceLastFrame = false;
+    this.wasAirborneLastFrame = false;
+    this.landingTimerMs = 0;
     this.iceEntryBoostMs = 0;
     this.iceDriftDirection = { x: 0, y: 0 };
     this.iceDriftRetargetMs = 0;
@@ -67,6 +73,14 @@ export class Player {
 
   update(context: PlayerUpdateContext): void {
     const { input, dtSeconds, viewport, obstacles, boosting, slowed, onIce } = context;
+
+    const currentlyAirborne = this.isAirborne();
+    if (this.wasAirborneLastFrame && !currentlyAirborne) {
+      this.landingTimerMs = 150;
+    }
+    this.wasAirborneLastFrame = currentlyAirborne;
+    this.landingTimerMs = Math.max(0, this.landingTimerMs - dtSeconds * 1000);
+
     const direction = getInputDirection(input);
 
     if (boosting) {
@@ -206,6 +220,12 @@ export class Player {
     return this.angle;
   }
 
+  getLandingSquashScale(): { scaleX: number; scaleY: number } {
+    if (this.landingTimerMs <= 0) return { scaleX: 1, scaleY: 1 };
+    const t = this.landingTimerMs / 150;
+    return { scaleX: 1 + 0.15 * t, scaleY: 1 - 0.15 * t };
+  }
+
   getLastStepDiagnostics(): LastStepDiagnostics {
     return this.lastStepDiagnostics;
   }
@@ -216,6 +236,7 @@ export class Player {
   ): void {
     const bounds = this.getBounds();
     const opacity = Math.max(0.2, Math.min(1, options?.opacity ?? 1));
+    const squash = this.getLandingSquashScale();
     renderPlayerSprite(ctx, {
       centerX: bounds.x + bounds.width / 2,
       centerY: bounds.y + bounds.height / 2,
@@ -226,6 +247,8 @@ export class Player {
       opacity,
       nowMs: performance.now(),
       airborne: false,
+      scaleX: squash.scaleX,
+      scaleY: squash.scaleY,
     });
   }
 }
