@@ -292,11 +292,6 @@ export function getObjectiveHudText(objective: MicroObjective): string {
   }
 
   const progress = Math.min(objective.progress, objective.target);
-  if (objective.timeLimitMs > 0) {
-    const remaining = Math.ceil(objective.timeRemainingMs / 1000);
-    return `${objective.label} ${progress}/${objective.target} ${remaining}s`;
-  }
-
   return `${objective.label} ${progress}/${objective.target}`;
 }
 

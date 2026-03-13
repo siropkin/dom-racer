@@ -168,12 +168,14 @@ function drawActiveEffects(
     const bx = panelX + 10;
     const bw = panelWidth - 20;
     const bh = 18;
-    const fillW = Math.max(10, bw * progress);
+    const fillW = bw * progress;
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
     ctx.fillRect(bx, rowY, bw, bh);
-    ctx.fillStyle = effect.color;
-    ctx.fillRect(bx, rowY, fillW, bh);
+    if (fillW > 0) {
+      ctx.fillStyle = effect.color;
+      ctx.fillRect(bx, rowY, fillW, bh);
+    }
 
     ctx.font = HUD_FONT;
     const labelColorOnFill = effect.effect === 'blackout' ? '#f8fafc' : BAR_TEXT_ON_FILL;
@@ -237,12 +239,14 @@ function drawObjectivePanel(
   const timeRemaining = state.objectiveTimeRemainingMs ?? 0;
   const timeLimit = state.objectiveTimeLimitMs ?? 1;
   const timeFill = Math.max(0, Math.min(1, timeRemaining / Math.max(1, timeLimit)));
-  const fillW = Math.max(10, barWidth * timeFill);
+  const fillW = barWidth * timeFill;
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
-  ctx.fillStyle = '#a78bfa';
-  ctx.fillRect(barX, barY, fillW, barHeight);
+  if (fillW > 0) {
+    ctx.fillStyle = '#a78bfa';
+    ctx.fillRect(barX, barY, fillW, barHeight);
+  }
 
   ctx.font = HUD_FONT;
   drawBarText(
