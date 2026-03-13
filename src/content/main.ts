@@ -79,7 +79,7 @@ window.addEventListener(
       return;
     }
 
-    const togglePressed = event.shiftKey && (event.code === 'KeyR' || event.code === 'Backquote');
+    const togglePressed = event.shiftKey && (event.code === 'Space' || event.code === 'Backquote');
     if (!togglePressed && isTypingTarget(event.target)) {
       return;
     }
@@ -92,6 +92,17 @@ window.addEventListener(
   },
   true,
 );
+
+{
+  const g = globalThis as typeof globalThis & {
+    chrome?: { runtime?: { onMessage?: { addListener?: (cb: (msg: unknown) => void) => void } } };
+  };
+  g.chrome?.runtime?.onMessage?.addListener?.((msg: unknown) => {
+    if (msg && typeof msg === 'object' && (msg as { action?: string }).action === 'toggle-game') {
+      toggleGame();
+    }
+  });
+}
 
 window.addEventListener('resize', () => {
   if (!active || !game) {

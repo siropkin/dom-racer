@@ -54,9 +54,7 @@ export function drawHud(
   ctx.save();
   ctx.textBaseline = 'top';
 
-  drawScorePanel(ctx, state);
-
-  drawControlsHint(ctx, viewport, state);
+  drawInfoBlock(ctx, state);
 
   if (state.activeEffects.length > 0) {
     drawActiveEffects(ctx, viewport, state);
@@ -67,16 +65,13 @@ export function drawHud(
     drawGoalPanel(ctx, viewport, goalRows);
   }
 
-  if (state.pageBestScore > 0 || state.lifetimeBestScore > 0) {
-    drawScoreMemory(ctx, viewport, state);
-  }
-
   ctx.restore();
 }
 
-function drawScorePanel(ctx: CanvasRenderingContext2D, state: HudState): void {
-  const w = 150;
-  const h = 48;
+function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
+  const hasBests = state.pageBestScore > 0 || state.lifetimeBestScore > 0;
+  const w = 170;
+  const h = hasBests ? 82 : 48;
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, h);
   ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
@@ -84,37 +79,30 @@ function drawScorePanel(ctx: CanvasRenderingContext2D, state: HudState): void {
 
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_COLOR;
-  ctx.fillText(`TIME  ${formatElapsed(state.elapsedMs)}`, HUD_MARGIN + 12, HUD_MARGIN + 12);
   ctx.fillText(
-    `SCORE ${state.score.toString().padStart(4, '0')}`,
+    `SCORE ${state.score.toString().padStart(4, '0')}  ${formatElapsed(state.elapsedMs)}`,
+    HUD_MARGIN + 10,
     HUD_MARGIN + 12,
-    HUD_MARGIN + 30,
   );
-}
 
-function drawControlsHint(
-  ctx: CanvasRenderingContext2D,
-  viewport: ViewportSize,
-  state: HudState,
-): void {
-  const w = 250;
-  const h = 56;
-  const x = viewport.width - w - HUD_MARGIN;
-  const y = viewport.height - h - HUD_MARGIN;
+  if (hasBests) {
+    ctx.fillStyle = HUD_TEXT_DIM;
+    ctx.fillText(
+      `BEST ${state.pageBestScore.toString().padStart(4, '0')}  LIFE ${state.lifetimeBestScore.toString().padStart(4, '0')}`,
+      HUD_MARGIN + 10,
+      HUD_MARGIN + 30,
+    );
 
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.44)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.fillStyle = 'rgba(168, 85, 247, 0.82)';
-  ctx.fillRect(x, y, w, HUD_ACCENT_HEIGHT);
-
-  ctx.font = HUD_FONT;
-  ctx.fillStyle = HUD_TEXT_DIM;
-  const soundLabel = state.soundEnabled ? 'MUSIC ON' : 'MUSIC OFF';
-  ctx.fillText(`V CAR  |  ${soundLabel}`, x + 12, y + 10);
-  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', x + 12, y + 30);
+    const HUD_MODIFIER_FONT = '10px "SFMono-Regular", "JetBrains Mono", monospace';
+    ctx.font = HUD_MODIFIER_FONT;
+    ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 52);
+  } else {
+    const HUD_MODIFIER_FONT = '10px "SFMono-Regular", "JetBrains Mono", monospace';
+    ctx.font = HUD_MODIFIER_FONT;
+    ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 32);
+  }
 }
 
 function drawActiveEffects(
@@ -282,33 +270,4 @@ function drawGoalPanel(
       BAR_TEXT_ON_EMPTY,
     );
   });
-}
-
-function drawScoreMemory(
-  ctx: CanvasRenderingContext2D,
-  viewport: ViewportSize,
-  state: HudState,
-): void {
-  const panelWidth = 180;
-  const panelHeight = 48;
-  const panelX = HUD_MARGIN;
-  const panelY = viewport.height - panelHeight - HUD_MARGIN;
-
-  ctx.fillStyle = HUD_PANEL_BG;
-  ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-  ctx.fillStyle = 'rgba(34, 211, 238, 0.84)';
-  ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
-
-  ctx.font = HUD_FONT;
-  ctx.fillStyle = HUD_TEXT_DIM;
-  ctx.fillText(
-    `PAGE BEST ${state.pageBestScore.toString().padStart(4, '0')}`,
-    panelX + 12,
-    panelY + 10,
-  );
-  ctx.fillText(
-    `LIFE BEST ${state.lifetimeBestScore.toString().padStart(4, '0')}`,
-    panelX + 12,
-    panelY + 28,
-  );
 }

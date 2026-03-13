@@ -86,6 +86,7 @@ export interface HudState {
   flavorText: string;
   pageBestScore: number;
   lifetimeBestScore: number;
+  dailyModifierLabel: string;
   objectiveText: string | null;
   objectiveProgress: number;
   objectiveTimeRemainingMs: number | null;

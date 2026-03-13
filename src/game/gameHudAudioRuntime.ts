@@ -19,6 +19,7 @@ interface BuildHudStateOptions {
   soundEnabled: boolean;
   pageBestScore: number;
   lifetimeBestScore: number;
+  dailyModifierLabel: string;
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
@@ -86,6 +87,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     airborne: options.airborne,
     boostActive: options.boostActive,
     soundEnabled: options.soundEnabled,
+    dailyModifierLabel: options.dailyModifierLabel,
     flavorText: getFlavorText({
       score: options.score,
       airborne: options.airborne,

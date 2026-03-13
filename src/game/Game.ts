@@ -721,6 +721,7 @@ export class Game {
       soundEnabled: this.soundEnabled,
       pageBestScore: this.pageBestScore,
       lifetimeBestScore: this.lifetimeBestScore,
+      dailyModifierLabel: this.dailyModifier.label,
       magnetTimerMs: this.magnetTimerMs,
       ghostTimerMs: this.ghostTimerMs,
       invertTimerMs: this.invertTimerMs,
@@ -1785,7 +1786,6 @@ export class Game {
 
     this.firstPlayHintTimerMs = this.runNumber === 1 ? 4500 : 0;
     this.spawnRunStartMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
-    this.spawnRunStartMessage(`TODAY: ${this.dailyModifier.label}`, '#67e8f9', 'low');
   }
 
   private enterCaughtGameOver(): void {
