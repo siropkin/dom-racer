@@ -9,6 +9,43 @@ const HUD_TEXT_COLOR = '#f8fafc';
 const HUD_TEXT_DIM = '#e2e8f0';
 const HUD_TEXT_MUTED = '#cbd5e1';
 
+const BAR_TEXT_ON_FILL = '#020617';
+const BAR_TEXT_ON_EMPTY = '#e2e8f0';
+
+/**
+ * Draws text that splits color at a bar's fill edge.
+ * Over the filled portion: dark color. Over the empty portion: light color.
+ */
+function drawBarText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  textX: number,
+  textY: number,
+  barX: number,
+  barY: number,
+  barWidth: number,
+  barHeight: number,
+  fillWidth: number,
+  colorOnFill: string,
+  colorOnEmpty: string,
+): void {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(barX, barY, fillWidth, barHeight);
+  ctx.clip();
+  ctx.fillStyle = colorOnFill;
+  ctx.fillText(text, textX, textY);
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(barX + fillWidth, barY, barWidth - fillWidth, barHeight);
+  ctx.clip();
+  ctx.fillStyle = colorOnEmpty;
+  ctx.fillText(text, textX, textY);
+  ctx.restore();
+}
+
 export function drawHud(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
@@ -128,16 +165,44 @@ function drawActiveEffects(
     const remainingSeconds = Math.max(0, effect.remainingMs) / 1000;
     const progress = Math.max(0, Math.min(1, effect.remainingMs / Math.max(1, effect.durationMs)));
 
+    const bx = panelX + 10;
+    const bw = panelWidth - 20;
+    const bh = 18;
+    const fillW = Math.max(10, bw * progress);
+
     ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-    ctx.fillRect(panelX + 10, rowY, panelWidth - 20, 18);
+    ctx.fillRect(bx, rowY, bw, bh);
     ctx.fillStyle = effect.color;
-    ctx.fillRect(panelX + 10, rowY, Math.max(10, (panelWidth - 20) * progress), 18);
+    ctx.fillRect(bx, rowY, fillW, bh);
 
     ctx.font = HUD_FONT;
-    ctx.fillStyle = effect.effect === 'blackout' ? '#f8fafc' : '#020617';
-    ctx.fillText(effect.label, panelX + 16, rowY + 4);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(`${remainingSeconds.toFixed(1)}s`, panelX + panelWidth - 48, rowY + 4);
+    const labelColorOnFill = effect.effect === 'blackout' ? '#f8fafc' : BAR_TEXT_ON_FILL;
+    drawBarText(
+      ctx,
+      effect.label,
+      bx + 6,
+      rowY + 4,
+      bx,
+      rowY,
+      bw,
+      bh,
+      fillW,
+      labelColorOnFill,
+      BAR_TEXT_ON_EMPTY,
+    );
+    drawBarText(
+      ctx,
+      `${remainingSeconds.toFixed(1)}s`,
+      bx + bw - 38,
+      rowY + 4,
+      bx,
+      rowY,
+      bw,
+      bh,
+      fillW,
+      '#ffffff',
+      BAR_TEXT_ON_EMPTY,
+    );
   });
 }
 
@@ -172,19 +237,42 @@ function drawObjectivePanel(
   const timeRemaining = state.objectiveTimeRemainingMs ?? 0;
   const timeLimit = state.objectiveTimeLimitMs ?? 1;
   const timeFill = Math.max(0, Math.min(1, timeRemaining / Math.max(1, timeLimit)));
+  const fillW = Math.max(10, barWidth * timeFill);
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
   ctx.fillStyle = '#a78bfa';
-  ctx.fillRect(barX, barY, Math.max(10, barWidth * timeFill), barHeight);
+  ctx.fillRect(barX, barY, fillW, barHeight);
 
   ctx.font = HUD_FONT;
-  ctx.fillStyle = '#020617';
-  ctx.fillText(state.objectiveText, barX + 6, barY + 4);
+  drawBarText(
+    ctx,
+    state.objectiveText,
+    barX + 6,
+    barY + 4,
+    barX,
+    barY,
+    barWidth,
+    barHeight,
+    fillW,
+    BAR_TEXT_ON_FILL,
+    BAR_TEXT_ON_EMPTY,
+  );
 
   const remainingSec = Math.max(0, timeRemaining) / 1000;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(`${remainingSec.toFixed(0)}s`, barX + barWidth - 30, barY + 4);
+  drawBarText(
+    ctx,
+    `${remainingSec.toFixed(0)}s`,
+    barX + barWidth - 30,
+    barY + 4,
+    barX,
+    barY,
+    barWidth,
+    barHeight,
+    fillW,
+    '#ffffff',
+    BAR_TEXT_ON_EMPTY,
+  );
 }
 
 function drawScoreMemory(
