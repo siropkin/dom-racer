@@ -151,6 +151,8 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Indie juice | Done | Near-miss bonuses, micro-objectives, rare jackpot |
 | Production hardening | Done | Tests, structure, release readiness |
 | Presentation | In progress | README polish, screenshots, store assets |
+| Micro-polish | Done | Visual juice, particles, retention tweaks |
+| Player experience | Planned | Onboarding, run summary, daily modifiers, store readiness |
 
 ## Debug Mode
 

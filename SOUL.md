@@ -152,6 +152,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `done` | README / presentation / branding pass |
 | Phase 7 | `done` | Micro-polish & feel tweaks |
+| Phase 8 | `planned` | Player experience & store readiness |
 
 ## Phase 1: Core Money Loop
 
@@ -292,6 +293,66 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 8. Lifetime milestones (15 lines, long-term surprise)
 9. Page-reactive tint (15 lines, unique feel per page)
 10. Drift sparks (20 lines, advanced feel)
+
+## Phase 8: Player Experience & Store Readiness
+
+Status: `planned`
+
+These are the gaps between "good game" and "game people actually want to keep installed." Identified by looking at what happens during a real player's first 5 minutes and first 5 days.
+
+### The First 10 Seconds Problem
+
+Right now: press Shift+R, game starts, no context. 79% of players abandon games within 30 seconds if confused (PlayGama 2025 research). The fix is tiny:
+
+- [ ] **First-play hint overlay**: On the VERY FIRST run ever (check `runsStarted === 1` in persistence), show a 3-line semi-transparent overlay for 4 seconds: "WASD to drive / Collect coins / Avoid police". Then fade out. Never shows again. This is the cheapest possible onboarding with the highest abandon-rate reduction.
+
+### The "Why Should I Play Again?" Problem
+
+Right now: you die, you see your score, you press Space. But you don't know HOW the run went. Was it good? Was it interesting? Every roguelike and arcade game that retains players shows a run summary.
+
+- [ ] **Run summary on game-over screen**: Below the score, show 3-4 compact stats from the run: time survived, coins collected, near-misses landed, objectives completed. Just text, no fancy UI. Takes ~30 lines. Makes every run feel like it told a story — "wow I had 12 near-misses that time" is a reason to play again.
+- [ ] **Run grade**: Based on score + time + near-misses, assign a simple letter grade (D, C, B, A, S) shown big on game-over. Players will chase S-rank on their favorite pages. One-line formula, enormous replay motivation.
+
+### The "One More Day" Problem
+
+Run counter and milestones help, but there's no reason to come back TOMORROW specifically. The js13kgames research says daily variety is the cheapest retention mechanic.
+
+- [ ] **Daily modifier**: Each calendar day, deterministically pick one small rule twist from a pool of 5-6: "Double coins", "Fast police", "Extra specials", "Slippery everywhere", "Overgrowth starts early", "Jackpot luck +3x". Show the daily modifier name on the start overlay ("TODAY: DOUBLE COINS"). Uses `new Date().toDateString()` as seed — no server needed. Gives every day a reason to check in.
+
+### Sound Enrichment
+
+The game has a sound toggle but the audio layer is thin. Sound reaches the brain faster than visuals (Creator Sounds Pro research) and is the fastest way to add juice.
+
+- [ ] **Coin collect sound variation**: Slightly randomize pitch (±10%) on each coin pickup so it doesn't feel repetitive. One line change if the audio system supports it.
+- [ ] **Near-miss whoosh**: A brief, quiet "fwip" sound on near-miss trigger. Confirms the close call before the toast even appears.
+- [ ] **Objective completion chime**: A small "ding" on micro-objective completion. Pairs with the violet toast for a satisfying double-feedback moment.
+
+### Vehicle Unlocks (Cosmetic Progression)
+
+The game has 3 vehicle designs (coupe, buggy, truck) but they're all available from the start. Unlocking through play creates a reason to keep going.
+
+- [ ] **Score-gated vehicle unlocks**: Start with only the coupe. Unlock buggy at 500 lifetime score, truck at 1500. Show a "VEHICLE UNLOCKED: BUGGY" toast on the run where you cross the threshold. Tiny persistence check, huge "reward for playing" feel.
+- [ ] **Color variants** (stretch): At higher milestones (3000, 5000), unlock gold or chrome color variants of existing designs. Reuse the same sprite drawing with different fill colors.
+
+### Chrome Web Store Readiness
+
+- [ ] **License file**: Add MIT license (or chosen license)
+- [ ] **Privacy policy**: Simple static page or README section explaining: no data collection, no analytics, all data stays in local storage, no network requests
+- [ ] **Manifest description update**: Current description is functional ("Turn visible page elements...") but the store-friendly pitch in README is better. Update manifest description to match.
+- [ ] **Version bump**: Move from 0.1.0 to 1.0.0 when all pre-release items are resolved
+
+### Priority Order
+
+1. First-play hint overlay (biggest abandon-rate fix, ~15 lines)
+2. Run summary stats on game-over (~30 lines)
+3. Run grade (S/A/B/C/D) on game-over (~15 lines)
+4. Daily modifier (~40 lines, needs careful design but enormous retention value)
+5. Coin collect pitch variation (~5 lines)
+6. Near-miss whoosh sound (~10 lines)
+7. Objective completion chime (~10 lines)
+8. Score-gated vehicle unlocks (~25 lines)
+9. License + privacy policy + manifest (docs only)
+10. Version bump to 1.0.0 (last step before store submission)
 
 ## Practical Learnings
 
