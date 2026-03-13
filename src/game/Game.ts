@@ -1800,13 +1800,7 @@ export class Game {
   }
 
   private enterCaughtGameOver(): void {
-    const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
-    const transition = createCaughtGameOverTransitionState(performance.now(), {
-      runElapsedMs,
-      coinsCollected: this.coinsCollectedTotal,
-      nearMisses: this.nearMissCount,
-      objectivesCompleted: this.objectiveCompletedCount,
-    });
+    const transition = createCaughtGameOverTransitionState(performance.now());
     this.finishCurrentRun('caught');
     this.startTimeMs = transition.startTimeMs;
     this.setInverted(false);
@@ -1848,10 +1842,6 @@ export class Game {
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
       runNumber: this.runNumber,
-      runElapsedMs: this.gameOverState.runElapsedMs,
-      coinsCollected: this.gameOverState.coinsCollected,
-      nearMisses: this.gameOverState.nearMisses,
-      objectivesCompleted: this.gameOverState.objectivesCompleted,
     });
   }
 
@@ -1877,6 +1867,10 @@ export class Game {
       return;
     }
 
+    if (this.gameOverState) {
+      return;
+    }
+
     const pauseTransition = resolveFocusPauseTransitionState({
       paused: this.paused,
       pausedStartedAtMs: this.pausedStartedAtMs,
@@ -1895,6 +1889,10 @@ export class Game {
     }
 
     if (pauseTransition.transition === 'exit') {
+      const pauseDurationMs = performance.now() - this.pausedStartedAtMs;
+      if (this.startTimeMs > 0) {
+        this.startTimeMs += pauseDurationMs;
+      }
       this.resetInput();
     }
   }

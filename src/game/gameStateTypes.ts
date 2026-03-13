@@ -62,10 +62,6 @@ export interface PlaneWarningState {
 export interface GameOverState {
   reason: 'caught';
   startedAtMs: number;
-  runElapsedMs: number;
-  coinsCollected: number;
-  nearMisses: number;
-  objectivesCompleted: number;
 }
 
 export interface GameOptions {

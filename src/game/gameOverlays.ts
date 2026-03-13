@@ -1,5 +1,4 @@
 import type { SpecialEffect, VehicleDesign, ViewportSize, WorldPickup } from '../shared/types';
-import { formatElapsed } from '../shared/utils';
 import {
   SHOWCASE_THEMES,
   SHOWCASE_TOAST_MESSAGES,
@@ -33,10 +32,6 @@ interface DrawCaughtGameOverOptions {
   startedAtMs: number;
   score: number;
   runNumber: number;
-  runElapsedMs: number;
-  coinsCollected: number;
-  nearMisses: number;
-  objectivesCompleted: number;
 }
 
 interface DrawFirstPlayHintOptions {
@@ -308,15 +303,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.restore();
 }
 
-function computeRunGrade(score: number, timeSeconds: number): { letter: string; color: string } {
-  if (score >= 200 && timeSeconds >= 60) return { letter: 'S', color: '#fbbf24' };
-  if (score >= 120 || timeSeconds >= 45) return { letter: 'A', color: '#34d399' };
-  if (score >= 60 || timeSeconds >= 30) return { letter: 'B', color: '#60a5fa' };
-  if (score >= 25 || timeSeconds >= 15) return { letter: 'C', color: '#94a3b8' };
-  return { letter: 'D', color: '#64748b' };
-}
-
-/** Renders the "BUSTED BY POLICE — GAME OVER" screen with score, stats, grade, and restart prompt. */
+/** Renders the "BUSTED BY POLICE — GAME OVER" screen with score and restart prompt. */
 export function drawCaughtGameOverOverlay({
   ctx,
   viewport,
@@ -324,61 +311,52 @@ export function drawCaughtGameOverOverlay({
   startedAtMs,
   score,
   runNumber,
-  runElapsedMs,
-  coinsCollected,
-  nearMisses,
-  objectivesCompleted,
 }: DrawCaughtGameOverOptions): void {
   const { width, height } = viewport;
   const flash = Math.sin((nowMs - startedAtMs) / 240) > 0 ? 1 : 0.72;
-  const timeSeconds = Math.max(0, runElapsedMs / 1000);
-  const grade = computeRunGrade(score, timeSeconds);
 
   ctx.save();
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.94)';
-  ctx.fillRect(0, 0, width, height);
-
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
 
   ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillText(`RUN #${runNumber}`, width / 2, height / 2 - 104);
+  strokeThenFill(ctx, '#94a3b8', `RUN #${runNumber}`, width / 2, height / 2 - 84);
 
   ctx.font = 'bold 18px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#f87171';
-  ctx.fillText('BUSTED BY POLICE', width / 2, height / 2 - 82);
+  strokeThenFill(ctx, '#f87171', 'BUSTED BY POLICE', width / 2, height / 2 - 62);
 
   ctx.font = 'bold 48px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.strokeText('GAME OVER', width / 2 + 3, height / 2 + 4);
+  ctx.strokeText('GAME OVER', width / 2 - 3, height / 2 + 4);
+  ctx.strokeText('GAME OVER', width / 2, height / 2 + 2);
   ctx.fillStyle = 'rgba(96, 165, 250, 0.72)';
-  ctx.fillText('GAME OVER', width / 2 + 3, height / 2 - 16);
+  ctx.fillText('GAME OVER', width / 2 + 3, height / 2 + 4);
   ctx.fillStyle = 'rgba(251, 113, 133, 0.78)';
-  ctx.fillText('GAME OVER', width / 2 - 3, height / 2 - 16);
+  ctx.fillText('GAME OVER', width / 2 - 3, height / 2 + 4);
   ctx.fillStyle = '#f8fafc';
-  ctx.fillText('GAME OVER', width / 2, height / 2 - 18);
+  ctx.fillText('GAME OVER', width / 2, height / 2 + 2);
 
   ctx.font = 'bold 16px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#fde68a';
-  ctx.fillText(`SCORE ${score.toString().padStart(4, '0')}`, width / 2, height / 2 + 32);
-
-  ctx.font = 'bold 28px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = grade.color;
-  ctx.fillText(grade.letter, width / 2, height / 2 + 58);
-
-  const statsY = height / 2 + 82;
-  ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillText(
-    `${formatElapsed(runElapsedMs)}  ${coinsCollected} COINS  ${nearMisses} NEAR-MISS  ${objectivesCompleted} GOALS`,
+  strokeThenFill(
+    ctx,
+    '#fde68a',
+    `SCORE ${score.toString().padStart(4, '0')}`,
     width / 2,
-    statsY,
+    height / 2 + 48,
   );
 
   ctx.font = 'bold 14px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = `rgba(226, 232, 240, ${flash})`;
-  ctx.fillText('PRESS SPACE TO RESTART', width / 2, statsY + 28);
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
-  ctx.fillText('ESC TO QUIT', width / 2, statsY + 52);
+  strokeThenFill(
+    ctx,
+    `rgba(226, 232, 240, ${flash})`,
+    'PRESS SPACE TO RESTART',
+    width / 2,
+    height / 2 + 78,
+  );
+  strokeThenFill(ctx, 'rgba(148, 163, 184, 0.9)', 'ESC TO QUIT', width / 2, height / 2 + 102);
   ctx.restore();
 }
 
@@ -414,26 +392,42 @@ export function drawPausedOverlay({
   startedAtMs,
 }: DrawPausedOverlayOptions): void {
   const { width, height } = viewport;
-  const pulse = 0.72 + Math.sin((nowMs - startedAtMs) / 360) * 0.2;
+  const flash = Math.sin((nowMs - startedAtMs) / 240) > 0 ? 1 : 0.72;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
-  ctx.fillRect(0, 0, width, height);
-
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
 
   ctx.font = 'bold 44px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillText('PAUSED', width / 2, height / 2 - 14);
+  strokeThenFill(ctx, '#e2e8f0', 'PAUSED', width / 2, height / 2 - 14, 5);
 
   ctx.font = 'bold 13px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = '#93c5fd';
-  ctx.fillText('PAGE NOT IN FOCUS', width / 2, height / 2 + 24);
+  strokeThenFill(ctx, '#93c5fd', 'PAGE NOT IN FOCUS', width / 2, height / 2 + 24);
 
   ctx.font = 'bold 12px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillStyle = `rgba(226, 232, 240, ${pulse})`;
-  ctx.fillText('RETURN TO THE TAB TO RESUME', width / 2, height / 2 + 50);
+  strokeThenFill(
+    ctx,
+    `rgba(226, 232, 240, ${flash})`,
+    'RETURN TO THE TAB TO RESUME',
+    width / 2,
+    height / 2 + 50,
+  );
 
   ctx.restore();
+}
+
+function strokeThenFill(
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  text: string,
+  x: number,
+  y: number,
+  lineWidth = 3,
+): void {
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
 }
