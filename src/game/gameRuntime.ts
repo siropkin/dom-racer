@@ -14,15 +14,6 @@ export interface ShowcaseTheme {
   toastStroke: string;
   toastText: string;
 }
-export const PICKUP_WORDS = ['LGTM', 'MERGED', 'GREEN', 'SYNCED', 'SHIPPED', 'CACHE'] as const;
-export const PICKUP_COLORS = [
-  '#fde047',
-  '#f9a8d4',
-  '#67e8f9',
-  '#fca5a5',
-  '#86efac',
-  '#c4b5fd',
-] as const;
 export const SHOWCASE_TOAST_MESSAGES = [
   '+10',
   '+20',
@@ -127,7 +118,6 @@ const SPECIAL_COLORS: Readonly<Record<SpecialEffect, string>> = {
   reverse: '#fb923c',
   mystery: '#e879f9',
 };
-const VEHICLE_DESIGNS: readonly VehicleDesign[] = ['coupe', 'buggy', 'truck'];
 const VEHICLE_LABELS: Readonly<Record<VehicleDesign, string>> = {
   coupe: 'COUPE',
   buggy: 'BUGGY',
@@ -283,12 +273,6 @@ export function getSpecialActivationMessage(effect: SpecialEffect): string {
     case 'mystery':
       return 'MYSTERY';
   }
-}
-
-export function getNextVehicleDesign(current: VehicleDesign): VehicleDesign {
-  const currentIndex = VEHICLE_DESIGNS.indexOf(current);
-  const nextIndex = (currentIndex + 1) % VEHICLE_DESIGNS.length;
-  return VEHICLE_DESIGNS[nextIndex];
 }
 
 export function getVehicleDesignLabel(design: VehicleDesign): string {

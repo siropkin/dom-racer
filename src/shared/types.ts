@@ -31,7 +31,7 @@ export type SpecialEffect =
   | 'oil_slick'
   | 'reverse'
   | 'mystery';
-export type HudEffectKind = SpecialEffect | 'police' | 'encounter';
+export type HudEffectKind = SpecialEffect | 'police';
 
 export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';
 
