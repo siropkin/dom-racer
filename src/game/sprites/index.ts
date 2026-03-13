@@ -1,4 +1,12 @@
-export { drawBorderedRect, drawWheel, drawContourOutline, traceStarPath } from './spriteHelpers';
+export {
+  drawBorderedRect,
+  drawWheel,
+  drawContourOutline,
+  traceStarPath,
+  setPageLightnessForSprites,
+  applyAdaptiveShadow,
+  clearAdaptiveShadow,
+} from './spriteHelpers';
 export { renderPlayerSprite } from './playerSprite';
 export {
   POLICE_CAR_SIZE,

@@ -2,6 +2,7 @@ import type { Rect } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
 import { OVERGROWTH } from './gameConfig';
 import { cloneRect, randomBetween } from './gameRuntime';
+import { applyAdaptiveShadow } from './sprites';
 
 export type OvergrowthKind = 'bush' | 'tree';
 export type OvergrowthStage = 'small' | 'medium' | 'large';
@@ -325,6 +326,7 @@ function drawOvergrowthBush(
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
+  applyAdaptiveShadow(ctx);
   ctx.fillStyle = style.fill;
 
   ctx.beginPath();
@@ -373,6 +375,7 @@ function drawOvergrowthTree(
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
+  applyAdaptiveShadow(ctx);
 
   const trunkRadius = Math.max(2.5, Math.min(hw, hh) * 0.22);
   ctx.fillStyle = style.trunk;

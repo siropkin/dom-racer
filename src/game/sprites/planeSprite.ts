@@ -1,4 +1,4 @@
-import { drawBorderedRect } from './spriteHelpers';
+import { applyAdaptiveShadow, drawBorderedRect } from './spriteHelpers';
 
 export interface PlaneSpritePose {
   x: number;
@@ -85,6 +85,8 @@ export function renderPlaneSprite(
   ctx.beginPath();
   ctx.ellipse(0, 5.5, tuning.bodyLength * 0.32, 2.4, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  applyAdaptiveShadow(ctx);
 
   // --- lower wing (behind fuselage) ---
   const lowerWingX = -1;

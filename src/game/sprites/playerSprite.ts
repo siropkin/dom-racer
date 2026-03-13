@@ -1,5 +1,10 @@
 import type { VehicleDesign } from '../../shared/types';
-import { drawBorderedRect, drawContourOutline, drawWheel } from './spriteHelpers';
+import {
+  applyAdaptiveShadow,
+  drawBorderedRect,
+  drawContourOutline,
+  drawWheel,
+} from './spriteHelpers';
 
 interface RenderPlayerSpriteOptions {
   centerX: number;
@@ -66,6 +71,7 @@ export function renderPlayerSprite(
   }
 
   ctx.globalAlpha = options.opacity;
+  applyAdaptiveShadow(ctx);
   drawWheel(ctx, -5, -10);
   drawWheel(ctx, 5, -10);
   drawWheel(ctx, -5, 10);

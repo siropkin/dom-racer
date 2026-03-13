@@ -200,6 +200,10 @@ The extension requests `storage` permission for local game data and `<all_urls>`
 - The game runs on top of the current page and blocks native interaction while active
 - Host scope uses `<all_urls>` because the core interaction model requires running on arbitrary pages
 
+## Support
+
+If you enjoy DOM Racer, consider [buying me a coffee](https://buymeacoffee.com/ivan.seredkin) ☕
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

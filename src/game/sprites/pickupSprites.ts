@@ -1,5 +1,10 @@
 import type { WorldPickup } from '../../shared/types';
-import { drawBorderedRect, traceStarPath } from './spriteHelpers';
+import {
+  applyAdaptiveShadow,
+  clearAdaptiveShadow,
+  drawBorderedRect,
+  traceStarPath,
+} from './spriteHelpers';
 
 export function drawRegularCoinSprite(
   ctx: CanvasRenderingContext2D,
@@ -19,6 +24,8 @@ export function drawRegularCoinSprite(
   ctx.beginPath();
   ctx.ellipse(centerX, centerY + 2, width + 2, radius + 1, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  applyAdaptiveShadow(ctx);
 
   ctx.fillStyle = fillColor;
   ctx.beginPath();
@@ -44,6 +51,8 @@ export function drawRegularCoinSprite(
   ctx.moveTo(centerX - width * 0.55, centerY - radius * 0.4);
   ctx.lineTo(centerX - width * 0.2, centerY - radius * 0.75);
   ctx.stroke();
+
+  clearAdaptiveShadow(ctx);
 }
 
 export function drawSpecialPickupSprite(
@@ -75,6 +84,7 @@ export function drawSpecialPickupSprite(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(Math.sin(nowMs / 420) * 0.18);
+  applyAdaptiveShadow(ctx);
   drawBorderedRect(ctx, -half, -half, half * 2, half * 2, 5, accent, '#ffffff', 1.4);
 
   const labelColor = pickup.effect === 'oil_slick' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
@@ -115,6 +125,7 @@ function drawJackpotPickupSprite(
 
   ctx.translate(centerX, centerY);
   ctx.rotate(Math.sin(nowMs / 340) * 0.12);
+  applyAdaptiveShadow(ctx);
 
   const points = 6;
   const outerR = r;

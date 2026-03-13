@@ -1,5 +1,5 @@
 import type { ViewportSize } from '../../shared/types';
-import { drawBorderedRect, drawWheel } from './spriteHelpers';
+import { applyAdaptiveShadow, drawBorderedRect, drawWheel } from './spriteHelpers';
 
 export type PoliceEdge = 'top' | 'right' | 'bottom' | 'left';
 
@@ -107,6 +107,7 @@ export function renderPoliceCarSprite(
   ctx.fillStyle = 'rgba(15, 23, 42, 0.36)';
   ctx.fillRect(-11.5, -5.5, 23, 11);
 
+  applyAdaptiveShadow(ctx);
   drawWheel(ctx, -6, -10, 1.8);
   drawWheel(ctx, 6, -10, 1.8);
   drawWheel(ctx, -6, 10, 1.8);

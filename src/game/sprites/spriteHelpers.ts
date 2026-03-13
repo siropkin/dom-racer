@@ -92,3 +92,39 @@ export function traceStarPath(
   }
   ctx.closePath();
 }
+
+// ---------------------------------------------------------------------------
+// Adaptive sprite contrast — page-lightness-aware outline / glow
+// ---------------------------------------------------------------------------
+
+let _pageLightness = 0.5;
+
+export function setPageLightnessForSprites(lightness: number): void {
+  _pageLightness = lightness;
+}
+
+export function getPageLightnessForSprites(): number {
+  return _pageLightness;
+}
+
+/**
+ * Sets canvas shadow to provide adaptive contrast against the page surface.
+ * Bright pages get a dark outline; dark pages get a light glow.
+ * Strength scales with how far the lightness deviates from neutral (0.5).
+ */
+export function applyAdaptiveShadow(ctx: CanvasRenderingContext2D): void {
+  const deviation = Math.abs(_pageLightness - 0.5) * 2;
+  const alpha = 0.3 + deviation * 0.3;
+  const blur = 2.5 + deviation * 1.5;
+
+  ctx.shadowColor =
+    _pageLightness > 0.5 ? `rgba(15, 23, 42, ${alpha})` : `rgba(248, 250, 252, ${alpha})`;
+  ctx.shadowBlur = blur;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+export function clearAdaptiveShadow(ctx: CanvasRenderingContext2D): void {
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+}

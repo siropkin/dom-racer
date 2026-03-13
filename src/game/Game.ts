@@ -82,6 +82,7 @@ import {
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
+  setPageLightnessForSprites,
 } from './sprites';
 import {
   getCoinRefillDelayMs,
@@ -238,6 +239,7 @@ export class Game {
   private dailyModifier: DailyModifier;
   private lifetimeTotalScore: number;
   private viewportScaleFactor: number;
+  private pageLightness: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -337,6 +339,7 @@ export class Game {
     this.dailyModifier = getDailyModifier();
     this.lifetimeTotalScore = options.initialLifetimeTotalScore;
     this.viewportScaleFactor = 1;
+    this.pageLightness = 0.5;
   }
 
   start(): void {
@@ -668,6 +671,7 @@ export class Game {
       return;
     }
 
+    setPageLightnessForSprites(this.pageLightness);
     ctx.save();
     if (this.pageTintColor) {
       ctx.fillStyle = this.pageTintColor;
@@ -761,6 +765,7 @@ export class Game {
     if (!this.world) {
       return;
     }
+    setPageLightnessForSprites(this.spriteShowcasePageLightness);
     drawSpriteShowcaseOverlay({
       ctx: this.context,
       viewport: this.world.viewport,
@@ -1776,6 +1781,8 @@ export class Game {
     if (this.world) {
       this.viewportScaleFactor = computeViewportScaleFactor(this.world.viewport);
     }
+
+    this.pageLightness = this.estimatePageLightness();
 
     this.dailyModifier = getDailyModifier();
     if (this.dailyModifier.kind === 'FAST_POLICE') {
