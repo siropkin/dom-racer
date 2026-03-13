@@ -17,36 +17,39 @@
   <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#bg)"/>
   <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#grid)"/>
 
-  <!-- Car (front=top, centered at ~512,478) -->
+  <!-- Top-down coupe (cross-shaped silhouette, facing up, centered ~512,476) -->
   <g filter="url(#sh)">
-    <!-- Wheels (extend beyond body edges) -->
-    <rect x="348" y="312" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
-    <rect x="624" y="312" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
-    <rect x="348" y="612" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
-    <rect x="624" y="612" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <!-- Wheels (4 corners, outside body but inside cabin width) -->
+    <rect x="340" y="326" width="24" height="54" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="660" y="326" width="24" height="54" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="340" y="570" width="24" height="54" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="660" y="570" width="24" height="54" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
 
-    <!-- Body -->
-    <rect x="376" y="268" width="272" height="416" rx="86" fill="#2563eb" stroke="#f8fafc" stroke-width="9"/>
+    <!-- Body (narrower vertical bar of the cross) -->
+    <rect x="392" y="308" width="240" height="352" rx="80" fill="#2563eb" stroke="#f8fafc" stroke-width="9"/>
 
-    <!-- Cabin roof (inside body, darker) -->
-    <rect x="412" y="336" width="200" height="280" rx="48" fill="#1d4ed8"/>
+    <!-- Cabin roof (wider horizontal bar — extends past body, forming the cross) -->
+    <rect x="344" y="388" width="336" height="192" rx="56" fill="#1d4ed8" stroke="#f8fafc" stroke-width="7"/>
 
-    <!-- Windshield (front glass, upper cabin area) -->
-    <rect x="416" y="362" width="192" height="44" rx="10" fill="#dbeafe"/>
+    <!-- Center stripe (vertical along car length) -->
+    <rect x="492" y="368" width="40" height="232" rx="4" fill="#e2e8f0"/>
 
-    <!-- Rear window (lower cabin area) -->
-    <rect x="426" y="558" width="172" height="36" rx="10" fill="#dbeafe" fill-opacity="0.6"/>
+    <!-- Windshield (front glass, upper-center of cabin) -->
+    <rect x="402" y="420" width="220" height="64" rx="16" fill="#dbeafe"/>
 
-    <!-- Headlights (front = top of car) -->
-    <rect x="404" y="282" width="30" height="26" rx="8" fill="#cbd5e1"/>
-    <rect x="590" y="282" width="30" height="26" rx="8" fill="#cbd5e1"/>
+    <!-- Rear window (lower-center of cabin) -->
+    <rect x="418" y="508" width="188" height="44" rx="12" fill="#dbeafe" fill-opacity="0.55"/>
 
-    <!-- Taillights (rear = bottom of car) -->
-    <rect x="404" y="648" width="30" height="26" rx="8" fill="#ef4444"/>
-    <rect x="590" y="648" width="30" height="26" rx="8" fill="#ef4444"/>
+    <!-- Headlights (front of car = top) -->
+    <rect x="430" y="314" width="30" height="26" rx="8" fill="#cbd5e1"/>
+    <rect x="564" y="314" width="30" height="26" rx="8" fill="#cbd5e1"/>
 
-    <!-- Body keyline -->
-    <rect x="376" y="268" width="272" height="416" rx="86" stroke="rgba(15,23,42,0.5)" stroke-width="4" fill="none"/>
+    <!-- Taillights (rear of car = bottom) -->
+    <rect x="430" y="628" width="30" height="26" rx="8" fill="#ef4444"/>
+    <rect x="564" y="628" width="30" height="26" rx="8" fill="#ef4444"/>
+
+    <!-- Body contour keyline -->
+    <rect x="392" y="308" width="240" height="352" rx="80" stroke="rgba(15,23,42,0.5)" stroke-width="4" fill="none"/>
   </g>
 
   <!-- Coin -->
