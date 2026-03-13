@@ -93,17 +93,19 @@ Each mode has its own fallback: if conditions are not right at drop time, the pl
 
 ## Screenshots & Motion
 
-_Captures coming soon._
+![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
 
-| Moment | Type | Description |
+_More captures coming soon._
+
+| Moment | Type | Status |
 |---|---|---|
-| Normal run | Screenshot | Coins, walls, ice, and boosts on a real page |
-| Special pickup | Screenshot | Ambient special spawning with cue ring |
-| Police chase | GIF | Edge warning, active chase, GAME OVER screen |
-| Police GAME OVER | Screenshot | Caught screen with score and restart prompt |
-| Airplane flyover | GIF | Propeller plane crossing the arena with a drop |
-| Coin trail | GIF | Short-lived coin line spawning along the flight path |
-| Lucky wind | GIF | Nearby coins gently nudging into a readable route |
+| Normal run | Screenshot | Done |
+| Special pickup | Screenshot | Planned |
+| Police chase | GIF | Planned |
+| Police GAME OVER | Screenshot | Planned |
+| Airplane flyover | GIF | Planned |
+| Coin trail | GIF | Planned |
+| Lucky wind | GIF | Planned |
 
 ## Persistence
 
