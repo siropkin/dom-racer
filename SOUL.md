@@ -470,6 +470,7 @@ Status: `in progress`
 - [x] Extract special-spawn cue timer lifecycle from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` without behavior drift
 - [x] Extract airplane lucky-wind coin-reroute orchestration from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
 - [x] Keep airplane drop completion retry-safe when a drop path fails in-frame (do not mark `dropped` until a spawn actually succeeds)
+- [x] Extract focus-loss pause transition state orchestration from `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts` while keeping audio/input side effects in `Game.ts`
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -509,7 +510,7 @@ Goal: make the project page feel as cool as the game.
 - [ ] Make the voice more indie and playful
 - [ ] Add a sharp “why this is fun” section
 - [ ] Add a living roadmap section
-- [ ] Add a short store-friendly pitch block
+- [x] Add a short store-friendly pitch block
 
 ### Presentation Assets
 
@@ -601,6 +602,12 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands the locked hybrid pair in one pass: bounded focus-pause run-state extraction plus bounded Phase 6 docs polish.
+- Hardening delivery: focus-loss pause transition state calculation moved from `Game.ts` into `src/game/gameRunStateRuntime.ts` (`shouldPauseForPageFocus`, `resolveFocusPauseTransitionState`), while audio stop and input reset side effects remain orchestrated in `Game.ts`.
+- Feature delivery: README now includes a concise store-friendly pitch block that matches current gameplay tone and scope.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation unchanged, and adds smoke coverage for the extracted pause helper.
+- Verification this session: `npm run test` (22 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands a focused hardening + UX reliability pass from manual feedback: plane-drop retry safety, magnet-on-specials, toggle-key fallback reliability, scanner pickup robustness for app-like pages, scroll-lock layout-jump mitigation, and immediate focus-loss pause state.
 - Hardening delivery: airplane drop dispatch now reports spawn success and `Game.ts` keeps `planeBonusEvent.dropped` false until a drop actually spawns, preventing flyovers that appear to drop nothing due to in-frame spawn failure.

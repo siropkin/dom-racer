@@ -62,7 +62,9 @@ import {
   createClearedComboState,
   createClearedEffectState,
   createClearedEncounterState,
+  resolveFocusPauseTransitionState,
   createSpriteShowcaseTransitionState,
+  shouldPauseForPageFocus,
 } from './gameRunStateRuntime';
 import {
   renderEdgeWarningIndicator,
@@ -1648,32 +1650,25 @@ export class Game {
       return;
     }
 
-    const shouldPause = document.visibilityState !== 'visible' || !document.hasFocus();
-    if (shouldPause) {
-      this.enterPausedState();
-      return;
-    }
-    this.exitPausedState();
-  }
+    const pauseTransition = resolveFocusPauseTransitionState({
+      paused: this.paused,
+      pausedStartedAtMs: this.pausedStartedAtMs,
+      lastFrameMs: this.lastFrameMs,
+      shouldPause: shouldPauseForPageFocus(document.visibilityState, document.hasFocus()),
+      nowMs: performance.now(),
+    });
+    this.paused = pauseTransition.paused;
+    this.pausedStartedAtMs = pauseTransition.pausedStartedAtMs;
+    this.lastFrameMs = pauseTransition.lastFrameMs;
 
-  private enterPausedState(): void {
-    if (this.paused) {
-      return;
-    }
-
-    this.paused = true;
-    this.pausedStartedAtMs = performance.now();
-    this.audio.stop();
-    this.resetInput();
-  }
-
-  private exitPausedState(): void {
-    if (!this.paused) {
+    if (pauseTransition.transition === 'enter') {
+      this.audio.stop();
+      this.resetInput();
       return;
     }
 
-    this.paused = false;
-    this.lastFrameMs = performance.now();
-    this.resetInput();
+    if (pauseTransition.transition === 'exit') {
+      this.resetInput();
+    }
   }
 }

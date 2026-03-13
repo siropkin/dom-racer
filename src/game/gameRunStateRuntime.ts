@@ -74,6 +74,13 @@ export interface SpriteShowcaseTransitionState
   spriteShowcaseActive: boolean;
 }
 
+export interface FocusPauseTransitionState {
+  paused: boolean;
+  pausedStartedAtMs: number;
+  lastFrameMs: number;
+  transition: 'none' | 'enter' | 'exit';
+}
+
 export function createClearedEncounterState(): ClearedEncounterState {
   return {
     policeChase: null,
@@ -144,5 +151,54 @@ export function createSpriteShowcaseTransitionState(): SpriteShowcaseTransitionS
     ...createClearedEffectState(),
     ...createClearedComboState(),
     spriteShowcaseActive: true,
+  };
+}
+
+export function shouldPauseForPageFocus(
+  visibilityState: DocumentVisibilityState,
+  hasFocus: boolean,
+): boolean {
+  return visibilityState !== 'visible' || !hasFocus;
+}
+
+export function resolveFocusPauseTransitionState(options: {
+  paused: boolean;
+  pausedStartedAtMs: number;
+  lastFrameMs: number;
+  shouldPause: boolean;
+  nowMs: number;
+}): FocusPauseTransitionState {
+  if (options.shouldPause) {
+    if (options.paused) {
+      return {
+        paused: true,
+        pausedStartedAtMs: options.pausedStartedAtMs,
+        lastFrameMs: options.lastFrameMs,
+        transition: 'none',
+      };
+    }
+
+    return {
+      paused: true,
+      pausedStartedAtMs: options.nowMs,
+      lastFrameMs: options.lastFrameMs,
+      transition: 'enter',
+    };
+  }
+
+  if (!options.paused) {
+    return {
+      paused: false,
+      pausedStartedAtMs: options.pausedStartedAtMs,
+      lastFrameMs: options.lastFrameMs,
+      transition: 'none',
+    };
+  }
+
+  return {
+    paused: false,
+    pausedStartedAtMs: options.pausedStartedAtMs,
+    lastFrameMs: options.nowMs,
+    transition: 'exit',
   };
 }

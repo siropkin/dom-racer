@@ -15,6 +15,10 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 - Dodge police chases and survive long enough to push your page best
 - Keep your settings, vehicle choice, and score history between runs
 
+## Store-Friendly Pitch
+
+DOM Racer turns every page into a tiny arcade track: dash through live UI, scoop coin lines, trigger weird specials, and survive cleanly telegraphed police pressure without leaving your tab.
+
 ## Current Features
 
 - `Shift + R` (or alternate ``Shift + ` ``) toggles the game on any page

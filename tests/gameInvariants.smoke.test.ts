@@ -7,6 +7,10 @@ import {
 } from '../src/game/planeDropRuntime';
 import { advancePoliceChasing } from '../src/game/encounterRuntime';
 import { advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
+import {
+  resolveFocusPauseTransitionState,
+  shouldPauseForPageFocus,
+} from '../src/game/gameRunStateRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 
 vi.mock('../src/game/audio', () => {
@@ -599,6 +603,36 @@ describe('game economy and police smoke invariants', () => {
 
     visibilitySpy.mockRestore();
     hasFocusSpy.mockRestore();
+  });
+
+  it('keeps extracted focus-pause transition helper behavior unchanged', () => {
+    expect(shouldPauseForPageFocus('hidden', true)).toBe(true);
+    expect(shouldPauseForPageFocus('visible', false)).toBe(true);
+    expect(shouldPauseForPageFocus('visible', true)).toBe(false);
+
+    const entered = resolveFocusPauseTransitionState({
+      paused: false,
+      pausedStartedAtMs: 0,
+      lastFrameMs: 2400,
+      shouldPause: true,
+      nowMs: 3600,
+    });
+    expect(entered.transition).toBe('enter');
+    expect(entered.paused).toBe(true);
+    expect(entered.pausedStartedAtMs).toBe(3600);
+    expect(entered.lastFrameMs).toBe(2400);
+
+    const exited = resolveFocusPauseTransitionState({
+      paused: true,
+      pausedStartedAtMs: entered.pausedStartedAtMs,
+      lastFrameMs: entered.lastFrameMs,
+      shouldPause: false,
+      nowMs: 4200,
+    });
+    expect(exited.transition).toBe('exit');
+    expect(exited.paused).toBe(false);
+    expect(exited.pausedStartedAtMs).toBe(entered.pausedStartedAtMs);
+    expect(exited.lastFrameMs).toBe(4200);
   });
 
   it('surfaces police-warning pre-chase flavor text', () => {

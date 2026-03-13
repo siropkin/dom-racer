@@ -22,6 +22,7 @@ First, read:
 - `src/game/gameInputRuntime.ts`
 - `src/game/gameEffectsRuntime.ts`
 - `src/content/domScanner.ts`
+- `src/content/main.ts`
 - `src/content/worldBuilder.ts`
 - `src/shared/types.ts`
 - `vite.config.ts`
@@ -51,10 +52,12 @@ Current known context:
 - Toggle now supports `Shift + R` and alternate ``Shift + ` `` for pages where site shortcuts intercept.
 - Active-page scroll lock now preserves scrollbar gutter width to reduce layout jumps when starting/stopping a run.
 - Run now auto-pauses immediately when page focus is lost (`blur`/hidden tab) and shows a dedicated pause overlay until focus returns.
+- Focus-loss pause transition state orchestration is extracted from `Game.ts` into `src/game/gameRunStateRuntime.ts` (`shouldPauseForPageFocus`, `resolveFocusPauseTransitionState`); `Game.ts` still owns audio/input side effects on pause transitions.
 - Airplane sprite wings were widened (`wingSpan`, `wingAccentSpan`) for clearer silhouette readability; behavior/mechanics unchanged.
+- README now includes a bounded Phase 6 store-friendly pitch block.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
-- Baseline smoke tests are in place and currently passing (`npm run test` -> 21 tests).
+- Baseline smoke tests are in place and currently passing (`npm run test` -> 22 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
