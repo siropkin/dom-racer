@@ -527,7 +527,7 @@ Goal: make the project page feel as cool as the game.
 ### Presentation Assets
 
 - [x] Add screenshot section
-- [ ] Add GIF / motion placeholders
+- [x] Add GIF / motion placeholders
 - [ ] Capture:
   - [ ] normal run
   - [ ] special pickup
@@ -755,6 +755,13 @@ Session note:
 - Current session lands the locked hybrid pair in one pass: bounded special-effect activation extraction plus bounded Phase 3 airplane wing readability follow-up.
 - Hardening delivery: special-effect activation resolution moved from `Game.ts` into `src/game/gameEffectsRuntime.ts` (`resolveSpecialEffectActivation`), computing timer values, score delta, message text, and page effects as a pure function while `Game.ts` keeps side-effect application.
 - Feature delivery: airplane sprite wing placement moved closer to the cabin body (`wingOffsetX` multiplier reduced from `0.1` to `0.03`) for a more compact, readable silhouette; closes the Phase 3 wing-placement readability item.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (32 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session: final assessment pass. All "Remaining Structural Cleanup (Bounded)" items in Phase 5 are complete. No more meaningful extraction targets remain in `Game.ts` — remaining methods are side-effect orchestration, core loop, and render assembly that correctly live in the Game class.
+- Hardening delivery: none available — all bounded extraction targets have been landed across previous sessions.
+- Feature delivery: README screenshot section expanded into "Screenshots & Motion" with GIF/motion placeholders for police chase, airplane flyover, coin trail, and lucky wind captures; closes the Phase 6 GIF/motion placeholders item.
+- All remaining unchecked items in SOUL.md are either blocked (require interactive browser session for manual testing) or explicitly deferred (overgrowth, Phase 4 indie juice).
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (32 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 

@@ -91,16 +91,19 @@ A propeller plane occasionally crosses the arena and drops one of five route mom
 
 Each mode has its own fallback: if conditions are not right at drop time, the plane safely resolves to a bonus drop instead.
 
-## Screenshots
+## Screenshots & Motion
 
-_Screenshots coming soon._
+_Captures coming soon._
 
-| Moment | Description |
-|---|---|
-| Normal run | Coins, walls, ice, and boosts on a real page |
-| Special pickup | Ambient special spawning with cue ring |
-| Police chase | Edge warning, active chase, GAME OVER screen |
-| Airplane flyover | Propeller plane crossing the arena with a drop |
+| Moment | Type | Description |
+|---|---|---|
+| Normal run | Screenshot | Coins, walls, ice, and boosts on a real page |
+| Special pickup | Screenshot | Ambient special spawning with cue ring |
+| Police chase | GIF | Edge warning, active chase, GAME OVER screen |
+| Police GAME OVER | Screenshot | Caught screen with score and restart prompt |
+| Airplane flyover | GIF | Propeller plane crossing the arena with a drop |
+| Coin trail | GIF | Short-lived coin line spawning along the flight path |
+| Lucky wind | GIF | Nearby coins gently nudging into a readable route |
 
 ## Persistence
 
