@@ -135,6 +135,10 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'TIGHT!',
   'RAZOR!',
   'WHEW!',
+  'NAILED!',
+  'DONE!',
+  'CLEAR!',
+  'CHECK!',
 ] as const;
 export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   {
@@ -415,6 +419,7 @@ export function getFlavorText(state: {
   policeWarningActive: boolean;
   policeDelayActive: boolean;
   nearMissCount: number;
+  objectivesCompleted: number;
 }): string {
   if (state.policeActive) {
     return 'Sirens up. Do not get audited by the law.';
@@ -470,6 +475,14 @@ export function getFlavorText(state: {
 
   if (state.nearMissCount >= 4) {
     return 'Living on the edge. Literally.';
+  }
+
+  if (state.objectivesCompleted >= 6) {
+    return 'Objective machine. HR wants a word.';
+  }
+
+  if (state.objectivesCompleted >= 3) {
+    return 'Checking boxes like a pro.';
   }
 
   if (state.score >= 150) {

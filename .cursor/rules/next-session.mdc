@@ -28,6 +28,7 @@ First, read:
 - `src/game/planeSprite.ts`
 - `src/game/overgrowthRuntime.ts`
 - `src/game/nearMissRuntime.ts`
+- `src/game/microObjectiveRuntime.ts`
 - `src/content/domScanner.ts`
 - `src/content/main.ts`
 - `src/content/worldBuilder.ts`
@@ -40,12 +41,12 @@ First, read:
 
 ## Current State
 
-All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth difficulty is fully implemented. Phase 4 indie juice near-miss bonus is done.
+All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth difficulty is fully implemented. Phase 4 indie juice: near-miss bonus and micro-objectives are done.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
 2. **Phase 1 — New specials prototyping: `done`.** `COOLDOWN` and `LURE` are implemented and tested.
 3. **Phase 2 — Overgrowth difficulty: `done`.** Data model, spawn logic, growth stages, collision handling, and rendering are complete.
-4. **Phase 4 — Indie juice (pick one per session):** near-miss bonus is done. Remaining: micro-objectives (small per-run goals like "collect 10 coins in 20s"), rare jackpot pickup. Skip police helicopter, daily modifiers, page moods for now.
+4. **Phase 4 — Indie juice (pick one per session):** near-miss bonus and micro-objectives are done. Remaining: rare jackpot pickup. Skip police helicopter, daily modifiers, page moods for now.
 
 ## Current Known Context
 
@@ -78,8 +79,18 @@ All hardening, presentation, and branding tasks are complete. Phase 1 new specia
 - Near-miss flavor text at 4+ ("Living on the edge. Literally.") and 8+ ("Thread the needle much?") count thresholds.
 - Near-miss state (cooldownMs, count, flavorIndex) resets on beginRun and stop.
 - Near-miss toast words added to sprite showcase debug mode.
+- Micro-objective logic lives in `src/game/microObjectiveRuntime.ts`.
+- 8 objective templates: collect 5/8/12 coins, 8 coins in 20s, reach 80 pts, 3 close calls, grab special, survive 20s, FLOW x5.
+- One active objective at a time, assigned after 6-10s initial delay, then 4-8s between completions, 3-5s after expiry.
+- On completion: +25 score bonus, rotating toast (NAILED!/DONE!/CLEAR!/CHECK!) in violet (#a78bfa).
+- On failure/timeout: silently expires, new objective assigned after short delay.
+- Survive-duration objectives succeed when timer expires (player stayed alive).
+- HUD: bottom-center panel with ★ label, progress text, thin violet progress bar.
+- Objective state (active, delay, completed count, last template) resets on beginRun and stop.
+- Flavor text at 3+ objectives ("Checking boxes like a pro.") and 6+ ("Objective machine. HR wants a word.").
+- No duplicate template assignment in a row; score-threshold skip if score ≥80% of target.
 - README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.
-- Smoke tests currently pass (`npm run test` -> 54 tests).
+- Smoke tests currently pass (`npm run test` -> 66 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).
 - `cloneRect` is shared from `gameRuntime.ts` (removed duplicate from `pickupSpawnRuntime.ts`).

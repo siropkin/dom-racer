@@ -166,6 +166,15 @@ import {
   NEAR_MISS_COLOR,
   NEAR_MISS_TOAST_TTL_MS,
 } from './nearMissRuntime';
+import {
+  createInitialObjectiveState,
+  getObjectiveCompletionWord,
+  OBJECTIVE_COMPLETION_COLOR,
+  OBJECTIVE_SCORE_BONUS,
+  resolveObjectiveTickStep,
+  type MicroObjective,
+  type ObjectiveTickEvents,
+} from './microObjectiveRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -239,6 +248,10 @@ export class Game {
   private nearMissCooldownMs: number;
   private nearMissCount: number;
   private nearMissFlavorIndex: number;
+  private objectiveActive: MicroObjective | null;
+  private objectiveAssignDelayMs: number;
+  private objectiveCompletedCount: number;
+  private objectiveLastTemplateId: string;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -320,6 +333,10 @@ export class Game {
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;
+    this.objectiveActive = null;
+    this.objectiveAssignDelayMs = 0;
+    this.objectiveCompletedCount = 0;
+    this.objectiveLastTemplateId = '';
   }
 
   start(): void {
@@ -370,6 +387,10 @@ export class Game {
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;
+    this.objectiveActive = null;
+    this.objectiveAssignDelayMs = 0;
+    this.objectiveCompletedCount = 0;
+    this.objectiveLastTemplateId = '';
     this.gameOverState = null;
     this.paused = false;
     this.pausedStartedAtMs = 0;
@@ -525,6 +546,7 @@ export class Game {
       return;
     }
 
+    const nearMissCountBefore = this.nearMissCount;
     this.updateNearMiss(dtSeconds, activeObstacles);
 
     const pickupStep = resolvePickupCollectionStep({
@@ -548,6 +570,23 @@ export class Game {
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
     }
+
+    const coinsCollectedThisFrame = pickupStep.collectedPickups.filter(
+      (p) => !isSpecialPickup(p),
+    ).length;
+    const specialsCollectedThisFrame = pickupStep.collectedPickups.filter(
+      (p) => isSpecialPickup(p),
+    ).length;
+    this.updateMicroObjective(
+      {
+        coinsCollectedThisFrame,
+        specialsCollectedThisFrame,
+        nearMissTriggeredThisFrame: this.nearMissCount > nearMissCountBefore,
+        currentScore: this.score,
+        currentComboCount: this.pickupComboCount,
+      },
+      dtSeconds,
+    );
 
     this.updateRegularCoinSpawns(dtSeconds);
     this.updateAmbientSpecialSpawns(dtSeconds);
@@ -645,6 +684,8 @@ export class Game {
       policeWarningDurationMs:
         this.policeWarning && !this.isPoliceChasing() ? this.policeWarning.durationMs : null,
       nearMissCount: this.nearMissCount,
+      objectivesCompleted: this.objectiveCompletedCount,
+      objectiveActive: this.objectiveActive,
       currentSurface,
     });
     drawHud(ctx, this.world.viewport, hudState);
@@ -927,6 +968,29 @@ export class Game {
         color: NEAR_MISS_COLOR,
         priority: 'low',
       });
+    }
+  }
+
+  private updateMicroObjective(events: ObjectiveTickEvents, dtSeconds: number): void {
+    const step = resolveObjectiveTickStep({
+      active: this.objectiveActive,
+      assignDelayMs: this.objectiveAssignDelayMs,
+      completedCount: this.objectiveCompletedCount,
+      lastTemplateId: this.objectiveLastTemplateId,
+      events,
+      dtSeconds,
+    });
+    this.objectiveActive = step.active;
+    this.objectiveAssignDelayMs = step.assignDelayMs;
+    this.objectiveCompletedCount = step.completedCount;
+    this.objectiveLastTemplateId = step.lastTemplateId;
+
+    if (step.completed) {
+      this.score += OBJECTIVE_SCORE_BONUS;
+      this.pageBestScore = Math.max(this.pageBestScore, this.score);
+      this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
+      const word = getObjectiveCompletionWord(step.completedCount - 1);
+      this.spawnEffectMessage(word, OBJECTIVE_COMPLETION_COLOR, 'high');
     }
   }
 
@@ -1624,6 +1688,11 @@ export class Game {
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;
+    const objState = createInitialObjectiveState();
+    this.objectiveActive = null;
+    this.objectiveAssignDelayMs = objState.assignDelayMs;
+    this.objectiveCompletedCount = 0;
+    this.objectiveLastTemplateId = '';
     this.startTimeMs = nextRunState.startTimeMs;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;

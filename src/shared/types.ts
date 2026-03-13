@@ -77,6 +77,8 @@ export interface HudState {
   flavorText: string;
   pageBestScore: number;
   lifetimeBestScore: number;
+  objectiveText: string | null;
+  objectiveProgress: number;
   activeEffects: Array<{
     effect: HudEffectKind;
     label: string;

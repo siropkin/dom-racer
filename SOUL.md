@@ -146,7 +146,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 1 | `done` | Clean up the core money loop |
 | Phase 2 | `done` | Add overgrowth difficulty with trees and bushes |
 | Phase 3 | `done` | Add airplane world-event prototype |
-| Phase 4 | `planned` (deferred) | Add research-driven indie juice systems |
+| Phase 4 | `in progress` | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `in progress` | README / presentation / branding pass |
 
@@ -196,9 +196,9 @@ Candidate ideas: near-miss bonus, police helicopter escalation, risk-lane opport
 
 Completed:
 - [x] Near-miss bonus: detect close calls with obstacles/police, award +3-5 score, show floating "CLOSE!" / "TIGHT!" / "RAZOR!" / "WHEW!" toast, 800ms cooldown, flavor text at 4+ and 8+ near-misses
+- [x] Micro-objectives: per-run mini-goals with 8 template pool, HUD panel, +25 score bonus on completion, flavor text at 3+ and 6+ completed
 
 Remaining (pick one per session):
-- [ ] Micro-objectives (small per-run goals like "collect 10 coins in 20s")
 - [ ] Rare jackpot pickup
 
 ## Phase 5: Production Hardening
@@ -263,6 +263,24 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (g)
+
+- Implemented Phase 4 micro-objectives system in `src/game/microObjectiveRuntime.ts`
+- Pool of 8 objective templates: collect 5/8/12 coins, 8 coins in 20s (timed), reach 80 pts, 3 close calls, grab special, survive 20s, FLOW x5
+- One active objective at a time, assigned after 6-10s initial delay, then 4-8s between completions
+- On completion: +25 score bonus, rotating toast (NAILED!/DONE!/CLEAR!/CHECK!) in violet
+- On failure/timeout: objective silently expires, new one assigned after 3-5s
+- Survive-duration objectives succeed when timer expires (player stayed alive)
+- Timed objectives (8 coins 20s) expire/fail when timer runs out before target reached
+- No duplicate template assignment in a row; score-threshold objectives skip if score already ≥80% of target
+- HUD: bottom-center panel with ★ label, progress text, thin progress bar (violet #a78bfa accent)
+- Objective data flows through buildHudState: `objectiveText`, `objectiveProgress` fields on HudState
+- Flavor text at 3+ objectives ("Checking boxes like a pro.") and 6+ ("Objective machine. HR wants a word.")
+- Objective completion words added to sprite showcase toast messages
+- State resets on beginRun and stop
+- 12 new smoke tests (assignment delay, coin completion, timed expiry, survive completion, no-repeat template, score threshold skip, near-miss tracking, beginRun reset, HUD text format, completion words, flavor text, template pool)
+- 66 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (f)
 

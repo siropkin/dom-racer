@@ -2,6 +2,11 @@ import type { HudState, InputState } from '../shared/types';
 import { getActiveEffectsForHud } from './gameEffectsRuntime';
 import { adaptBlackoutEffectForSurface, getFlavorText } from './gameRuntime';
 import type { SurfaceSample } from './gameRuntime';
+import {
+  getObjectiveHudText,
+  getObjectiveProgress,
+  type MicroObjective,
+} from './microObjectiveRuntime';
 
 interface BuildHudStateOptions {
   score: number;
@@ -34,6 +39,8 @@ interface BuildHudStateOptions {
   policeWarningRemainingMs: number | null;
   policeWarningDurationMs: number | null;
   nearMissCount: number;
+  objectivesCompleted: number;
+  objectiveActive: MicroObjective | null;
   currentSurface: SurfaceSample;
 }
 
@@ -118,6 +125,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
       lureActive: options.lureTimerMs > 0,
       nearMissCount: options.nearMissCount,
+      objectivesCompleted: options.objectivesCompleted,
       planeActive: options.planeActive,
       planeWarningActive: options.planeWarningActive,
       policeActive: options.policeActive,
@@ -126,6 +134,8 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     }),
     pageBestScore: Math.max(options.pageBestScore, options.score),
     lifetimeBestScore: Math.max(options.lifetimeBestScore, options.score),
+    objectiveText: options.objectiveActive ? getObjectiveHudText(options.objectiveActive) : null,
+    objectiveProgress: options.objectiveActive ? getObjectiveProgress(options.objectiveActive) : 0,
     activeEffects,
   };
 }

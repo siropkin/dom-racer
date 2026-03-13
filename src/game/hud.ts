@@ -38,6 +38,10 @@ export function drawHud(
     drawActiveEffects(ctx, viewport, state);
   }
 
+  if (state.objectiveText) {
+    drawObjectivePanel(ctx, viewport, state);
+  }
+
   if (state.pageBestScore > 0 || state.lifetimeBestScore > 0) {
     drawScoreMemory(ctx, viewport, state);
   }
@@ -97,6 +101,35 @@ function drawActiveEffects(ctx: CanvasRenderingContext2D, viewport: ViewportSize
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`${remainingSeconds.toFixed(1)}s`, panelX + panelWidth - 48, rowY + 4);
   });
+}
+
+function drawObjectivePanel(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {
+  if (!state.objectiveText) {
+    return;
+  }
+
+  const panelWidth = 196;
+  const panelHeight = 28;
+  const panelX = Math.round(viewport.width / 2 - panelWidth / 2);
+  const panelY = viewport.height - 42;
+
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
+  ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+  ctx.fillStyle = 'rgba(167, 139, 250, 0.82)';
+  ctx.fillRect(panelX, panelY, panelWidth, 2);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText(`\u2605 ${state.objectiveText}`, panelX + 8, panelY + 10);
+
+  const barX = panelX + 8;
+  const barY = panelY + 22;
+  const barWidth = panelWidth - 16;
+  const barHeight = 3;
+  ctx.fillStyle = 'rgba(100, 116, 139, 0.3)';
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+  ctx.fillStyle = '#a78bfa';
+  ctx.fillRect(barX, barY, Math.max(2, barWidth * Math.min(1, state.objectiveProgress)), barHeight);
 }
 
 function drawScoreMemory(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {
