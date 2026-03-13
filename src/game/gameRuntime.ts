@@ -131,6 +131,10 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'BUGGY',
   'TRUCK',
   'NYOOM',
+  'CLOSE!',
+  'TIGHT!',
+  'RAZOR!',
+  'WHEW!',
 ] as const;
 export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   {
@@ -410,6 +414,7 @@ export function getFlavorText(state: {
   policeActive: boolean;
   policeWarningActive: boolean;
   policeDelayActive: boolean;
+  nearMissCount: number;
 }): string {
   if (state.policeActive) {
     return 'Sirens up. Do not get audited by the law.';
@@ -457,6 +462,14 @@ export function getFlavorText(state: {
 
   if (state.boostActive) {
     return 'Turbo engaged. HR is nervous.';
+  }
+
+  if (state.nearMissCount >= 8) {
+    return 'Thread the needle much?';
+  }
+
+  if (state.nearMissCount >= 4) {
+    return 'Living on the edge. Literally.';
   }
 
   if (state.score >= 150) {

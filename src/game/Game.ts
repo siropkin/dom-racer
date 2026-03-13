@@ -161,6 +161,11 @@ import {
   trySpawnOvergrowthNode,
   type OvergrowthNode,
 } from './overgrowthRuntime';
+import {
+  resolveNearMissStep,
+  NEAR_MISS_COLOR,
+  NEAR_MISS_TOAST_TTL_MS,
+} from './nearMissRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
 import { rectCenter, rectsIntersect } from '../shared/utils';
 
@@ -231,6 +236,9 @@ export class Game {
   private spriteShowcasePageLightness: number;
   private overgrowthNodes: OvergrowthNode[];
   private overgrowthSpawnTimerMs: number;
+  private nearMissCooldownMs: number;
+  private nearMissCount: number;
+  private nearMissFlavorIndex: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -309,6 +317,9 @@ export class Game {
     this.spriteShowcasePageLightness = 0.5;
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
+    this.nearMissCooldownMs = 0;
+    this.nearMissCount = 0;
+    this.nearMissFlavorIndex = 0;
   }
 
   start(): void {
@@ -356,6 +367,9 @@ export class Game {
     this.resetComboState();
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
+    this.nearMissCooldownMs = 0;
+    this.nearMissCount = 0;
+    this.nearMissFlavorIndex = 0;
     this.gameOverState = null;
     this.paused = false;
     this.pausedStartedAtMs = 0;
@@ -511,6 +525,8 @@ export class Game {
       return;
     }
 
+    this.updateNearMiss(dtSeconds, activeObstacles);
+
     const pickupStep = resolvePickupCollectionStep({
       playerBounds,
       worldPickups: this.world.pickups,
@@ -628,6 +644,7 @@ export class Game {
         this.policeWarning && !this.isPoliceChasing() ? this.policeWarning.remainingMs : null,
       policeWarningDurationMs:
         this.policeWarning && !this.isPoliceChasing() ? this.policeWarning.durationMs : null,
+      nearMissCount: this.nearMissCount,
       currentSurface,
     });
     drawHud(ctx, this.world.viewport, hudState);
@@ -872,6 +889,45 @@ export class Game {
     }
 
     advanceOvergrowthGrowth(this.overgrowthNodes, dtSeconds);
+  }
+
+  private updateNearMiss(dtSeconds: number, activeObstacles: Rect[]): void {
+    if (!this.world || !this.player) {
+      return;
+    }
+
+    if (this.player.isAirborne() || this.ghostTimerMs > 0) {
+      this.nearMissCooldownMs = Math.max(0, this.nearMissCooldownMs - dtSeconds * 1000);
+      return;
+    }
+
+    const policeRect =
+      this.policeChase?.phase === 'chasing' ? getPoliceRect(this.policeChase) : null;
+    const step = resolveNearMissStep({
+      playerBounds: this.player.getBounds(),
+      obstacles: activeObstacles,
+      policeRect,
+      cooldownMs: this.nearMissCooldownMs,
+      dtSeconds,
+      flavorIndex: this.nearMissFlavorIndex,
+    });
+    this.nearMissCooldownMs = step.cooldownMs;
+
+    if (step.triggered) {
+      this.score += step.scoreBonus;
+      this.nearMissCount += 1;
+      this.nearMissFlavorIndex += 1;
+      this.pageBestScore = Math.max(this.pageBestScore, this.score);
+      this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
+      this.toastSystem.enqueue({
+        x: this.player.getBounds().x + this.player.getBounds().width / 2,
+        y: this.player.getBounds().y - 18,
+        text: step.messageText,
+        ttlMs: NEAR_MISS_TOAST_TTL_MS,
+        color: NEAR_MISS_COLOR,
+        priority: 'low',
+      });
+    }
   }
 
   private updatePlaneBonusEvent(dtSeconds: number): void {
@@ -1565,6 +1621,9 @@ export class Game {
     this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
+    this.nearMissCooldownMs = 0;
+    this.nearMissCount = 0;
+    this.nearMissFlavorIndex = 0;
     this.startTimeMs = nextRunState.startTimeMs;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;

@@ -190,11 +190,16 @@ Airplane sprite has been tuned for readability: compact silhouette, white contou
 
 ## Phase 4: Indie Juice Research Pass
 
-Status: `planned` (deferred)
+Status: `in progress`
 
 Candidate ideas: near-miss bonus, police helicopter escalation, risk-lane opportunities, page mood variants, micro-objectives, rare jackpot, daily modifiers.
 
-Not started. Deferred until Phase 1 verification and overgrowth are further along.
+Completed:
+- [x] Near-miss bonus: detect close calls with obstacles/police, award +3-5 score, show floating "CLOSE!" / "TIGHT!" / "RAZOR!" / "WHEW!" toast, 800ms cooldown, flavor text at 4+ and 8+ near-misses
+
+Remaining (pick one per session):
+- [ ] Micro-objectives (small per-run goals like "collect 10 coins in 20s")
+- [ ] Rare jackpot pickup
 
 ## Phase 5: Production Hardening
 
@@ -258,6 +263,21 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (f)
+
+- Implemented Phase 4 near-miss bonus system in `src/game/nearMissRuntime.ts`
+- Near-miss detection: expand player rect by 5px threshold, check intersection without collision
+- Awards +3 to +5 score per near-miss, with 800ms cooldown to prevent spamming
+- Checks against active obstacles (barriers + large overgrowth) and police car (when chasing)
+- Skips detection when player is airborne or ghost mode is active
+- Four rotating toast messages: CLOSE!, TIGHT!, RAZOR!, WHEW! in orange (#fb923c)
+- Near-miss flavor text: "Living on the edge. Literally." at 4+ misses, "Thread the needle much?" at 8+
+- Near-miss count and cooldown reset on beginRun and stop
+- Near-miss toast words added to sprite showcase debug mode
+- Wired into Game.ts tick loop after dead spot check, before pickup collection
+- 8 new smoke tests (isNearMiss true/false/far, cooldown blocking, trigger with score, police rect, beginRun reset, flavor text)
+- 54 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (e)
 

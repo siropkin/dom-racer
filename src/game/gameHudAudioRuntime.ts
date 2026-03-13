@@ -33,6 +33,7 @@ interface BuildHudStateOptions {
   policeWarningActive: boolean;
   policeWarningRemainingMs: number | null;
   policeWarningDurationMs: number | null;
+  nearMissCount: number;
   currentSurface: SurfaceSample;
 }
 
@@ -116,6 +117,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
       lureActive: options.lureTimerMs > 0,
+      nearMissCount: options.nearMissCount,
       planeActive: options.planeActive,
       planeWarningActive: options.planeWarningActive,
       policeActive: options.policeActive,
