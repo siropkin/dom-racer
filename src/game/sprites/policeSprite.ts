@@ -74,9 +74,11 @@ export function renderEdgeWarningIndicator(
       drawWarningTriangle(ctx, viewport.width - padding, viewport.height / 2, 'left');
       ctx.fillText(options.label, viewport.width - 54, viewport.height / 2 + 20);
       break;
-    case 'bottom':
-      drawWarningTriangle(ctx, viewport.width / 2, viewport.height - padding, 'up');
-      ctx.fillText(options.label, viewport.width / 2, viewport.height - padding - 24);
+    case 'bottom': {
+      const bottomPad = Math.max(padding, 70);
+      drawWarningTriangle(ctx, viewport.width / 2, viewport.height - bottomPad, 'up');
+      ctx.fillText(options.label, viewport.width / 2, viewport.height - bottomPad - 24);
+    }
       break;
     case 'left':
       drawWarningTriangle(ctx, padding, viewport.height / 2, 'right');
