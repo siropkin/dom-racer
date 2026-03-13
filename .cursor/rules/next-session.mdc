@@ -54,23 +54,18 @@ First, read:
 
 ## Current State
 
-Goal: publish to Chrome Web Store. Implementing Phase 8 player experience + store preparation.
+All phases 1-8 complete. Version 1.0.0. Ready for Chrome Web Store submission.
 
-1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. **Phase 8 — Player experience:** ALL DONE
-   - ~~First-play hint overlay~~ — DONE
-   - ~~Run summary stats on game-over~~ — DONE
-   - ~~Run grade S/A/B/C/D on game-over~~ — DONE
-   - ~~Daily modifier~~ — DONE (5 modifiers, deterministic from date hash)
-   - ~~Sound enrichment~~ — DONE (coin pitch ±10%, near-miss whoosh, objective chime)
-   - ~~Score-gated vehicle unlocks~~ — DONE (buggy@500, truck@1500 lifetime total)
-3. **Store preparation (only remaining work):**
-   - Add MIT LICENSE file
-   - Add privacy policy section to README
-   - Update manifest.json description to store-friendly pitch
-   - Add `npm run package` script to build and create dist ZIP
-   - Version bump to 1.0.0
-   - Final build + test + lint verification
+<!-- ALL_TASKS_DONE -->
+
+1. **Manual steps remaining (for the user):**
+   - Play-test the extension on real pages (load `dist/` as unpacked extension)
+   - Capture screenshots/GIFs for store listing
+   - Create Chrome Web Store developer account ($5 one-time)
+   - Run `npm run package` to generate `dom-racer-1.0.0.zip`
+   - Upload ZIP + screenshots to Chrome Web Store
+   - Fill in store listing (use README content for description)
+   - Submit for review
 
 ## Essential Context
 

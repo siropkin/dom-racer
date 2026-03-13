@@ -152,7 +152,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `done` | README / presentation / branding pass |
 | Phase 7 | `done` | Micro-polish & feel tweaks |
-| Phase 8 | `in progress` | Player experience & store readiness |
+| Phase 8 | `done` | Player experience & store readiness |
 
 ## Phase 1: Core Money Loop
 
@@ -296,7 +296,7 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 
 ## Phase 8: Player Experience & Store Readiness
 
-Status: `in progress`
+Status: `done`
 
 These are the gaps between "good game" and "game people actually want to keep installed." Identified by looking at what happens during a real player's first 5 minutes and first 5 days.
 
@@ -336,10 +336,11 @@ The game has 3 vehicle designs (coupe, buggy, truck) but they're all available f
 
 ### Chrome Web Store Readiness
 
-- [ ] **License file**: Add MIT license (or chosen license)
-- [ ] **Privacy policy**: Simple static page or README section explaining: no data collection, no analytics, all data stays in local storage, no network requests
-- [ ] **Manifest description update**: Current description is functional ("Turn visible page elements...") but the store-friendly pitch in README is better. Update manifest description to match.
-- [ ] **Version bump**: Move from 0.1.0 to 1.0.0 when all pre-release items are resolved
+- [x] **License file**: MIT license added
+- [x] **Privacy policy**: Added to README — no data collection, no analytics, no network requests, all local storage
+- [x] **Manifest description update**: Updated to "Turn any webpage into a tiny arcade track — collect coins, dodge police, and survive the overgrowth."
+- [x] **Version bump**: 0.1.0 -> 1.0.0 in manifest.json and package.json
+- [x] **Package script**: `npm run package` builds and creates `dom-racer-1.0.0.zip` ready for Chrome Web Store upload
 
 ### Priority Order
 
@@ -403,6 +404,14 @@ When this roadmap is working, a good run should feel like this:
 - Ran full lint:fix + format pass — zero issues
 - 72 tests pass, build clean, lint clean, format clean, no `__domRacerDebug` in source or dist
 - All production readiness tasks (items 2-6 in next-session) marked complete
+
+### Session — 2026-03-13 (t)
+
+- Chrome Web Store preparation: MIT LICENSE, privacy policy in README, manifest description update, version bump 0.1.0 → 1.0.0
+- Added `npm run package` script (builds + zips dist/ into dom-racer-1.0.0.zip)
+- Added *.zip to .gitignore
+- Phase 8 marked `done` — all player experience and store readiness items complete
+- 79 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-13 (s)
 

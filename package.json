@@ -1,7 +1,7 @@
 {
   "name": "dom-racer",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "brand": "python3 branding/generate_assets.py",
@@ -14,7 +14,8 @@
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts' '*.config.*' '*.json' '.prettierrc'",
-    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts' '*.config.*' '*.json' '.prettierrc'"
+    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts' '*.config.*' '*.json' '.prettierrc'",
+    "package": "npm run build && cd dist && zip -r ../dom-racer-1.0.0.zip . && echo 'Packaged: dom-racer-1.0.0.zip'"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

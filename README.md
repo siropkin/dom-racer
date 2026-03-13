@@ -189,6 +189,12 @@ npm run brand        # Regenerate extension icons and marketplace graphics
 
 Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API, ESLint, Prettier.
 
+## Privacy
+
+DOM Racer collects **no data** and makes **no network requests**. All game state (scores, settings, run history) is stored locally on your device using `chrome.storage.local`. Nothing leaves your browser. There is no analytics, no telemetry, no tracking, and no remote services of any kind.
+
+The extension requests `storage` permission for local game data and `<all_urls>` host access because the game needs to run on any page you choose.
+
 ## Notes
 
 - The extension only requests `storage` permission
@@ -197,4 +203,4 @@ Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API, ESLint, Prettier.
 
 ## License
 
-No license file is included yet.
+MIT — see [LICENSE](LICENSE).
