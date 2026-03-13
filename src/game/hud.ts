@@ -216,7 +216,7 @@ function drawGoalPanel(
   const isPoliceChase =
     state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null;
 
-  const label = isPoliceChase ? 'ESCAPE' : 'GOAL';
+  const label = isPoliceChase ? 'ESCAPE' : 'GOAL +25';
   const barText = isPoliceChase ? 'ESCAPE' : (state.objectiveText ?? '');
   const accentColor = isPoliceChase ? 'rgba(248, 113, 113, 0.88)' : 'rgba(167, 139, 250, 0.82)';
   const barColor = isPoliceChase ? '#f87171' : '#a78bfa';

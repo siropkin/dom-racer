@@ -1091,7 +1091,7 @@ export class Game {
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playObjectiveChime();
       const word = getObjectiveCompletionWord(step.completedCount - 1);
-      this.spawnEffectMessage(word, OBJECTIVE_COMPLETION_COLOR, 'high');
+      this.spawnEffectMessage(`${word} +${OBJECTIVE_SCORE_BONUS}`, OBJECTIVE_COMPLETION_COLOR, 'high');
       if (this.player) {
         this.player.triggerCelebration();
         const pb = this.player.getBounds();
