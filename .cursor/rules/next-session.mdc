@@ -46,21 +46,22 @@ First, read:
 
 ## Current State
 
-All game features (Phases 1-5) and production readiness are complete. Phase 7 micro-polish is now active.
+All game features (Phases 1-7) are complete. All micro-polish items are done.
+
+<!-- ALL_TASKS_DONE -->
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. **Phase 7 — Micro-polish & feel tweaks (pick one per session, priority order):**
-   - ~~Police siren flash~~ — DONE: alternating red/blue body fill on 120ms cycle during chase
-   - ~~Coin pickup burst~~ — DONE: 4-6 yellow sparkle particles burst outward on collection
-   - ~~Tire dust particles~~ — DONE: 1-2 fading surface-colored circles behind car when moving
-   - ~~Run counter~~ — DONE: persistent "RUN #N" toast on start + game-over screen
-   - ~~"NEW BEST!" celebration~~ — DONE: gold toast + 8-10 gold particle burst when page best is broken
-   - ~~Speed lines~~ — DONE: 3-5 thin white streaks at high velocity (>70% max speed)
-   - ~~Landing squash~~ — DONE: 150ms squash-and-stretch (scaleX/scaleY) when car lands from airborne
-   - Lifetime milestones (~15 lines) — one-time toasts at 500/1000/2500/5000 lifetime score
-   - Page-reactive tint (~15 lines) — faint tint from page's dominant color
-   - Drift sparks (~20 lines) — tiny spark particles on sharp turns on boost surfaces
-   See `SOUL.md` Phase 7 for full descriptions and implementation notes.
+2. **Phase 7 — Micro-polish & feel tweaks: ALL DONE**
+   - ~~Police siren flash~~ — DONE
+   - ~~Coin pickup burst~~ — DONE
+   - ~~Tire dust particles~~ — DONE
+   - ~~Run counter~~ — DONE
+   - ~~"NEW BEST!" celebration~~ — DONE
+   - ~~Speed lines~~ — DONE
+   - ~~Landing squash~~ — DONE
+   - ~~Lifetime milestones~~ — DONE: one-time toasts at 500/1000/2500/5000/10000 lifetime score
+   - ~~Page-reactive tint~~ — DONE: faint 6% opacity tint from page's dominant color
+   - ~~Drift sparks~~ — DONE: 2-3 white/yellow spark particles on sharp turns on boost surfaces
 
 ## Current Known Context
 
@@ -122,6 +123,14 @@ All game features (Phases 1-5) and production readiness are complete. Phase 7 mi
 - Run counter: `runsStarted` field in `DomRacerProfile.lifetime`, `incrementRunCount()` in settings.ts, `onRunStarted` callback in GameOptions.
 - Run number shown as "RUN #N" toast on each beginRun and on the game-over screen.
 - "NEW BEST!" celebration: `pageBestScoreAtRunStart` and `newBestCelebrated` flags in Game, fires gold toast + `spawnNewBestBurstParticles` (8-10 gold particles) once per run.
+- Lifetime milestones: `shownMilestones: number[]` in `DomRacerProfile.lifetime`, checked via `checkAndMarkMilestones()` after `recordPageRun`.
+- Milestones at 500/1000/2500/5000/10000 lifetime score, each fires once ever, "LT 1000!" toast in cyan (#22d3ee).
+- `Game.showMilestoneToast(milestone)` is a public method for external milestone toast injection.
+- Page-reactive tint: `getPageTintColor` callback in GameOptions, sampled on `beginRun`, stored as `pageTintColor`.
+- Tint drawn as a fillRect at 6% opacity before focus mode layer in the render pipeline.
+- `getPageTintColor()` in `main.ts` samples center of page background and returns `rgba(r,g,b,0.06)`.
+- Drift sparks: `previousAngle` in Player, `getAngularDelta()` returns absolute wrapped angular delta.
+- Sparks emitted when on boost + angular delta > 0.08 rad: `spawnDriftSparkParticles` in `gameRenderRuntime.ts`.
 - Smoke tests currently pass (`npm run test` -> 75 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).

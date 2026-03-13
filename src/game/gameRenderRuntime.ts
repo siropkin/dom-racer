@@ -319,6 +319,36 @@ export function spawnTireDustParticles(
   }
 }
 
+/** Spawns 2-3 tiny white/yellow spark particles at the car's rear on sharp turns over boost. */
+export function spawnDriftSparkParticles(
+  particles: VfxParticle[],
+  cx: number,
+  cy: number,
+  angle: number,
+): void {
+  const count = 2 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < count; i += 1) {
+    const side = Math.random() > 0.5 ? 1 : -1;
+    const sideAngle = angle + Math.PI + side * (0.6 + Math.random() * 0.6);
+    const speed = 30 + Math.random() * 40;
+    particles.push({
+      x: cx + Math.cos(angle + Math.PI) * 8,
+      y: cy + Math.sin(angle + Math.PI) * 8,
+      dx: Math.cos(sideAngle) * speed,
+      dy: Math.sin(sideAngle) * speed,
+      alpha: 0.9,
+      maxAlpha: 0.9,
+      lifetimeMs: 150,
+      maxLifetimeMs: 150,
+      radius: 1.2 + Math.random() * 0.6,
+      color: Math.random() > 0.5 ? '#fde047' : '#f8fafc',
+    });
+  }
+  if (particles.length > VFX_PARTICLE_CAP) {
+    particles.splice(0, particles.length - VFX_PARTICLE_CAP);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Speed lines
 // ---------------------------------------------------------------------------

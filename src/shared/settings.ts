@@ -44,6 +44,7 @@ export interface DomRacerProfile {
     totalScore: number;
     totalRuns: number;
     runsStarted: number;
+    shownMilestones: number[];
     updatedAt: number;
   };
   pages: Record<string, DomRacerPageStats>;
@@ -140,6 +141,21 @@ export async function incrementRunCount(): Promise<number> {
     next = profile.lifetime.runsStarted;
   });
   return next;
+}
+
+const LIFETIME_MILESTONES = [500, 1_000, 2_500, 5_000, 10_000] as const;
+
+export async function checkAndMarkMilestones(): Promise<number[]> {
+  const profile = await loadDomRacerProfile();
+  const totalScore = profile.lifetime.totalScore;
+  const shown = profile.lifetime.shownMilestones;
+  const newMilestones = LIFETIME_MILESTONES.filter((m) => totalScore >= m && !shown.includes(m));
+  if (newMilestones.length > 0) {
+    await updateDomRacerProfile((p) => {
+      p.lifetime.shownMilestones = [...p.lifetime.shownMilestones, ...newMilestones];
+    });
+  }
+  return [...newMilestones];
 }
 
 async function readNormalizedProfile(): Promise<DomRacerProfile> {
@@ -317,6 +333,11 @@ function normalizeProfile(
       totalScore: toNumber(rawLifetime.totalScore),
       totalRuns: toNumber(rawLifetime.totalRuns),
       runsStarted: toNumber(rawLifetime.runsStarted),
+      shownMilestones: Array.isArray(rawLifetime.shownMilestones)
+        ? (rawLifetime.shownMilestones as number[]).filter(
+            (v) => typeof v === 'number' && Number.isFinite(v),
+          )
+        : [],
       updatedAt: toNumber(rawLifetime.updatedAt),
     },
     pages,

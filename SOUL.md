@@ -151,7 +151,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 4 | `done` | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `done` | README / presentation / branding pass |
-| Phase 7 | `planned` | Micro-polish & feel tweaks |
+| Phase 7 | `done` | Micro-polish & feel tweaks |
 
 ## Phase 1: Core Money Loop
 
@@ -248,7 +248,7 @@ Completed:
 
 ## Phase 7: Micro-Polish & Feel Tweaks
 
-Status: `active`
+Status: `done`
 
 Small, high-impact tweaks drawn from indie game juice research. Each item is independently shippable in one bounded session. None change core mechanics — they add feedback, atmosphere, and retention.
 
@@ -273,12 +273,12 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 
 - [x] **Run counter**: show "RUN #N" on the start/restart overlay. Increment a persistent counter in `chrome.storage.local` each time the player begins a run. Makes each attempt feel like progress even on bad runs. No gameplay effect. Implementation: one counter in settings, display in gameOverlays, ~20 lines.
 - [x] **"NEW BEST!" celebration**: when the player beats their page best score, show a celebratory "NEW PAGE BEST!" toast in gold with a brief starburst particle effect. Currently the best score updates silently. Implementation: comparison check in score persistence, toast + particles, ~25 lines.
-- [ ] **Lifetime milestones**: at lifetime score milestones (500, 1000, 2500, 5000), show a one-time toast ("MILESTONE: 1000 lifetime!"). Simple `chrome.storage.local` check. Gives long-term players occasional surprise pops. Implementation: ~15 lines.
+- [x] **Lifetime milestones**: at lifetime score milestones (500, 1000, 2500, 5000, 10000), show a one-time toast. Simple `chrome.storage.local` check. Gives long-term players occasional surprise pops. Implementation: ~15 lines.
 
 **Atmosphere (mood without noise):**
 
-- [ ] **Page-reactive tint**: instead of pure transparent overlay, very subtly tint the game arena based on the page's dominant color (5-10% opacity wash). A blue-dominant page gets a faint blue tint. Makes each page feel unique beyond just geometry. Uses existing `parseCssColor` infrastructure. Implementation: sample page bg color, apply faint overlay rect, ~15 lines.
-- [ ] **Drift sparks**: when the car changes direction sharply on boost surfaces (angular velocity > threshold), emit 2-3 tiny white spark particles. Signals the speed zone is active and rewards aggressive cornering visually. Implementation: angular velocity check + particle emit, ~20 lines.
+- [x] **Page-reactive tint**: instead of pure transparent overlay, very subtly tint the game arena based on the page's dominant color (6% opacity wash). A blue-dominant page gets a faint blue tint. Makes each page feel unique beyond just geometry. Uses existing `parseCssColor` infrastructure. Implementation: sample page bg color, apply faint overlay rect, ~15 lines.
+- [x] **Drift sparks**: when the car changes direction sharply on boost surfaces (angular velocity > 0.08 rad), emit 2-3 tiny white/yellow spark particles. Signals the speed zone is active and rewards aggressive cornering visually. Implementation: angular velocity check + particle emit, ~20 lines.
 
 ### Priority Order (recommended)
 
@@ -503,6 +503,19 @@ When this roadmap is working, a good run should feel like this:
 - Particles render between pickups and player sprite in the draw pipeline
 - VFX particles reset on `beginRun` and `stop`
 - 3 new smoke tests: particle expiration/cleanup, coin burst spawn, tire dust surface colors
+- 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
+
+### Session — 2026-03-12 (p)
+
+- FINAL Phase 7 micro-polish session: implemented last 3 feel tweaks
+- Lifetime milestones: `shownMilestones` array in profile's `lifetime` object, checked after each `recordPageRun` via `checkAndMarkMilestones()`
+- Milestones at 500/1000/2500/5000/10000 lifetime score, each fires once ever, "LT 1000!" toast in cyan (#22d3ee)
+- Page-reactive tint: `getPageTintColor()` samples page center background color, returns `rgba(r,g,b,0.06)` string
+- Tint sampled once on `beginRun`, stored as `pageTintColor`, drawn as fillRect before focus mode layer
+- Drift sparks: `previousAngle` in Player, `getAngularDelta()` returns absolute wrapped delta
+- Sparks emit when on boost + angular delta > 0.08 rad: 2-3 white/yellow particles, 150ms lifetime, scatter sideways from rear
+- `spawnDriftSparkParticles` added to `gameRenderRuntime.ts`
+- Phase 7 marked `done` — all 10 micro-polish items complete
 - 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ## Notes For Future Models

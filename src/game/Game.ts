@@ -50,6 +50,7 @@ import {
   drawVfxParticles,
   estimatePageLightness,
   spawnCoinBurstParticles,
+  spawnDriftSparkParticles,
   spawnNewBestBurstParticles,
   spawnTireDustParticles,
   updateVfxParticles,
@@ -271,6 +272,8 @@ export class Game {
   private runNumber: number;
   private pageBestScoreAtRunStart: number;
   private newBestCelebrated: boolean;
+  private getPageTintColor: (() => string | null) | undefined;
+  private pageTintColor: string | null;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -291,6 +294,7 @@ export class Game {
     this.onVehicleDesignChange = options.onVehicleDesignChange;
     this.onRunStarted = options.onRunStarted;
     this.onRunFinished = options.onRunFinished;
+    this.getPageTintColor = options.getPageTintColor;
     this.soundEnabled = options.initialSoundEnabled;
     this.vehicleDesign = options.initialVehicleDesign;
     this.pageBestScore = options.initialPageBestScore;
@@ -367,6 +371,7 @@ export class Game {
     this.runNumber = options.initialRunCount;
     this.pageBestScoreAtRunStart = options.initialPageBestScore;
     this.newBestCelebrated = false;
+    this.pageTintColor = null;
   }
 
   start(): void {
@@ -442,6 +447,12 @@ export class Game {
   setVehicleDesign(design: VehicleDesign): void {
     this.vehicleDesign = design;
     this.player?.setVehicleDesign(design);
+  }
+
+  showMilestoneToast(milestone: number): void {
+    if (!this.player || !this.running) return;
+    const text = milestone >= 10_000 ? `LT${milestone}!` : `LT ${milestone}!`;
+    this.spawnEffectMessage(text, '#22d3ee', 'high');
   }
 
   private restartWithReason(reason: 'manual' | 'deadSpot' | 'caught'): void {
@@ -582,6 +593,15 @@ export class Game {
         dustSurface,
       );
     }
+    if (boosting && !this.player.isAirborne() && this.player.getAngularDelta() > 0.08) {
+      const pBounds = this.player.getBounds();
+      spawnDriftSparkParticles(
+        this.vfxParticles,
+        pBounds.x + pBounds.width / 2,
+        pBounds.y + pBounds.height / 2,
+        this.player.getAngle(),
+      );
+    }
 
     const policeStep = this.updatePoliceChase(dtSeconds);
     void this.audio.updatePoliceSiren(policeStep.active, policeStep.urgency);
@@ -688,6 +708,10 @@ export class Game {
     }
 
     ctx.save();
+    if (this.pageTintColor) {
+      ctx.fillStyle = this.pageTintColor;
+      ctx.fillRect(0, 0, width, height);
+    }
     drawFocusModeLayer(
       ctx,
       this.world.viewport,
@@ -1830,6 +1854,7 @@ export class Game {
     this.objectiveCompletedCount = 0;
     this.objectiveLastTemplateId = '';
     this.startTimeMs = nextRunState.startTimeMs;
+    this.pageTintColor = this.getPageTintColor?.() ?? null;
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
 

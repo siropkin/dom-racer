@@ -81,4 +81,5 @@ export interface GameOptions {
     elapsedMs: number;
     reason: 'manual' | 'deadSpot' | 'caught' | 'quit';
   }) => void;
+  getPageTintColor?: () => string | null;
 }

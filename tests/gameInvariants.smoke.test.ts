@@ -15,6 +15,7 @@ import {
   estimatePageLightness,
   updateVfxParticles,
   spawnCoinBurstParticles,
+  spawnDriftSparkParticles,
   spawnTireDustParticles,
   type VfxParticle,
 } from '../src/game/gameRenderRuntime';
@@ -192,7 +193,9 @@ describe('game economy and police smoke invariants', () => {
     ).length;
     const queueBefore = (game as any).coinSpawnQueue.length;
 
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
     const spawned = (game as any).spawnSpecialPickup() as boolean;
+    randomSpy.mockRestore();
     const runtimeWorldAfter = (game as any).world as World;
     const regularAfter = runtimeWorldAfter.pickups.filter(
       (pickup) => pickup.kind !== 'special',
@@ -1909,5 +1912,67 @@ describe('game economy and police smoke invariants', () => {
     particles.length = 0;
     spawnTireDustParticles(particles, 100, 100, 0, 'boost');
     expect(particles.every((p) => p.color === '#86efac')).toBe(true);
+  });
+
+  it('spawns drift spark particles with short lifetime', () => {
+    const particles: VfxParticle[] = [];
+    spawnDriftSparkParticles(particles, 200, 300, Math.PI / 4);
+
+    expect(particles.length).toBeGreaterThanOrEqual(2);
+    expect(particles.length).toBeLessThanOrEqual(3);
+    expect(particles.every((p) => p.maxLifetimeMs === 150)).toBe(true);
+    expect(
+      particles.every((p) => p.color === '#fde047' || p.color === '#f8fafc'),
+    ).toBe(true);
+  });
+
+  it('persists shownMilestones array in profile structure', () => {
+    (game as any).beginRun('manual');
+    const profile = {
+      version: 1,
+      soundEnabled: true,
+      vehicleDesign: 'coupe',
+      lifetime: {
+        bestScore: 0,
+        totalScore: 600,
+        totalRuns: 5,
+        runsStarted: 5,
+        shownMilestones: [500],
+        updatedAt: 0,
+      },
+      pages: {},
+    };
+    expect(profile.lifetime.shownMilestones).toEqual([500]);
+    expect(profile.lifetime.totalScore).toBe(600);
+  });
+
+  it('stores page tint color from getPageTintColor callback', () => {
+    const tintGame = new Game({
+      canvas: createCanvas(),
+      createWorld: () => createWorldWithRegularCoins(14),
+      getPageTitle: () => 'Tint Test',
+      sampleSurfaceAt: () => ({ lightness: 0.6, saturation: 0.2, hasGradient: false }),
+      setPageInverted: () => undefined,
+      setPageBlackout: () => undefined,
+      setMagnetUiState: () => undefined,
+      onQuit: () => undefined,
+      initialSoundEnabled: false,
+      onSoundEnabledChange: () => undefined,
+      initialVehicleDesign: 'coupe',
+      onVehicleDesignChange: () => undefined,
+      initialPageBestScore: 0,
+      initialLifetimeBestScore: 0,
+      initialRunCount: 0,
+      getPageTintColor: () => 'rgba(30, 60, 200, 0.06)',
+    });
+    (tintGame as any).beginRun('manual');
+    expect((tintGame as any).pageTintColor).toBe('rgba(30, 60, 200, 0.06)');
+  });
+
+  it('exposes angular delta from Player for drift spark detection', () => {
+    (game as any).beginRun('manual');
+    const player = (game as any).player;
+    expect(player).toBeTruthy();
+    expect(player.getAngularDelta()).toBe(0);
   });
 });

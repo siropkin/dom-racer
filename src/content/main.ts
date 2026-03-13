@@ -2,6 +2,7 @@ import overlayCss from '../styles/overlay.css?inline';
 import { Game } from '../game/Game';
 import type { VehicleDesign } from '../shared/types';
 import {
+  checkAndMarkMilestones,
   incrementRunCount,
   loadScoreSummary,
   loadSoundEnabledSetting,
@@ -159,6 +160,7 @@ function activate(): void {
     initialRunCount: lifetimeRunsStarted,
     onRunStarted: handleRunStarted,
     onRunFinished: handleRunFinished,
+    getPageTintColor,
   });
   game.start();
 }
@@ -217,7 +219,14 @@ function handleRunFinished(run: {
     score: run.score,
     elapsedMs: run.elapsedMs,
     reason: run.reason,
-  }).catch(() => undefined);
+  })
+    .then(() => checkAndMarkMilestones())
+    .then((milestones) => {
+      for (const m of milestones) {
+        game?.showMilestoneToast(m);
+      }
+    })
+    .catch(() => undefined);
 }
 
 function preventScrollWhileActive(event: Event): void {
@@ -422,6 +431,22 @@ function isMagnetizableElement(element: HTMLElement): boolean {
 
 function clampToViewport(value: number, max: number): number {
   return Math.max(1, Math.min(max - 1, value));
+}
+
+function getPageTintColor(): string | null {
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  const stack = document.elementsFromPoint(cx, cy);
+  for (const el of stack) {
+    if (!(el instanceof HTMLElement)) continue;
+    if (el === overlay.root || overlay.root.contains(el)) continue;
+    const style = window.getComputedStyle(el);
+    const parsed = parseCssColor(style.backgroundColor);
+    if (parsed && parsed.alpha > 0.08) {
+      return `rgba(${Math.round(parsed.r)}, ${Math.round(parsed.g)}, ${Math.round(parsed.b)}, 0.06)`;
+    }
+  }
+  return null;
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {

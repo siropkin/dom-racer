@@ -32,6 +32,7 @@ export class Player {
   private position: Vector2;
   private velocity: Vector2;
   private angle: number;
+  private previousAngle: number;
   private vehicleDesign: VehicleDesign;
   private boostTimerMs: number;
   private onIceLastFrame: boolean;
@@ -46,6 +47,7 @@ export class Player {
     this.position = { ...spawnPoint };
     this.velocity = { x: 0, y: 0 };
     this.angle = -Math.PI / 2;
+    this.previousAngle = -Math.PI / 2;
     this.vehicleDesign = vehicleDesign;
     this.boostTimerMs = 0;
     this.onIceLastFrame = false;
@@ -61,6 +63,7 @@ export class Player {
     this.position = { ...spawnPoint };
     this.velocity = { x: 0, y: 0 };
     this.angle = -Math.PI / 2;
+    this.previousAngle = -Math.PI / 2;
     this.boostTimerMs = 0;
     this.onIceLastFrame = false;
     this.wasAirborneLastFrame = false;
@@ -73,6 +76,7 @@ export class Player {
 
   update(context: PlayerUpdateContext): void {
     const { input, dtSeconds, viewport, obstacles, boosting, slowed, onIce } = context;
+    this.previousAngle = this.angle;
 
     const currentlyAirborne = this.isAirborne();
     if (this.wasAirborneLastFrame && !currentlyAirborne) {
@@ -218,6 +222,13 @@ export class Player {
 
   getAngle(): number {
     return this.angle;
+  }
+
+  getAngularDelta(): number {
+    let delta = this.angle - this.previousAngle;
+    while (delta > Math.PI) delta -= Math.PI * 2;
+    while (delta < -Math.PI) delta += Math.PI * 2;
+    return Math.abs(delta);
   }
 
   getLandingSquashScale(): { scaleX: number; scaleY: number } {
