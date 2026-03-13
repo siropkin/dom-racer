@@ -2,7 +2,6 @@
 description: DOM Racer session context and handoff state for the next AI session
 alwaysApply: true
 ---
-<!-- ALL_TASKS_DONE -->
 # DOM Racer - Next Session Context
 
 Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
@@ -42,12 +41,14 @@ First, read:
 
 ## Current State
 
-All game feature phases (1-5) are complete. All documentation is up to date. Only screenshot/GIF captures remain, blocked on interactive browser.
+All game features are complete. Now doing a production readiness pass focused on code quality, organization, and reusability.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. **README:** Fully updated with all gameplay features (overgrowth, near-miss, micro-objectives, jackpot), accurate roadmap, and screenshot placeholders.
-3. **SOUL.md:** Phase 6 reflects README work done, only screenshots blocked.
-4. **Release checklist:** Includes late-run systems smoke section (overgrowth, near-miss, micro-objectives, jackpot).
+2. ~~**Production readiness — Sprite consolidation:**~~ **Done.** Shared canvas drawing helpers extracted into `src/game/spriteHelpers.ts` (`drawBorderedRect`, `drawWheel`, `drawContourOutline`, `traceStarPath`). All sprite files refactored to use helpers. Overgrowth rendering uses ellipses and was left unchanged.
+3. **Production readiness — Constants organization:** Magic numbers scattered across runtime files (timing thresholds, distances, sizes, colors, probabilities). Extract gameplay constants into organized config objects or a `src/game/gameConfig.ts` so tuning is centralized and discoverable.
+4. **Production readiness — File structure:** The `src/game/` directory has 24 files. Consider whether any should be grouped into subdirectories (e.g., `sprites/`, `runtime/`). Evaluate barrel exports. Ensure consistent naming conventions.
+5. **Production readiness — Code quality sweep:** Dead code removal, unused imports, consistent error handling, JSDoc on public APIs, `readonly` on arrays/objects that shouldn't mutate, consistent function signatures across runtime modules.
+6. **Production readiness — Lint hardening:** Tighten ESLint rules where beneficial (e.g., `no-magic-numbers` for sprite/timing code, `prefer-const`, stricter type checks). Run full lint + format pass after all changes.
 
 ## Current Known Context
 
@@ -107,6 +108,9 @@ All game feature phases (1-5) are complete. All documentation is up to date. Onl
 - New specials: `COOLDOWN` (instant, pushes police timer 5.4-8.2s, +15 score, teal color) and `LURE` (timed 5.4s, 300px radius gentle coin pull, amber color).
 - `LURE` pull only affects regular coins (not specials), distinguishing it from `MAGNET` which pulls all pickups.
 - `COOLDOWN` reuses existing police delay cue infrastructure for HUD display.
+- Shared canvas drawing helpers live in `src/game/spriteHelpers.ts`: `drawBorderedRect`, `drawWheel`, `drawContourOutline`, `traceStarPath`.
+- All sprite files (`playerSprite.ts`, `policeSprite.ts`, `planeSprite.ts`, `pickupSprites.ts`) import from `spriteHelpers.ts`.
+- Overgrowth rendering in `gameRenderRuntime.ts` uses ellipses (not rounded rects) and does not use sprite helpers.
 - Preferred-effect bias in `pickSpecialEffect` reduced from 58% to 52% to accommodate 6-effect pool.
 - ESLint (flat config, typescript-eslint, eslint-config-prettier) and Prettier are configured.
 - Lint scripts: `npm run lint`, `npm run lint:fix`. Format scripts: `npm run format`, `npm run format:check`.

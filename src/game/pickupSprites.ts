@@ -1,4 +1,5 @@
 import type { WorldPickup } from '../shared/types';
+import { drawBorderedRect, traceStarPath } from './spriteHelpers';
 
 export function drawRegularCoinSprite(
   ctx: CanvasRenderingContext2D,
@@ -75,13 +76,7 @@ export function drawSpecialPickupSprite(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(Math.sin(nowMs / 420) * 0.18);
-  ctx.fillStyle = accent;
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  ctx.roundRect(-half, -half, half * 2, half * 2, 5);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -half, -half, half * 2, half * 2, 5, accent, '#ffffff', 1.4);
 
   const labelColor = pickup.effect === 'blackout' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
   ctx.fillStyle = labelColor;
@@ -125,17 +120,7 @@ function drawJackpotPickupSprite(
   const points = 6;
   const outerR = r;
   const innerR = r * 0.48;
-  ctx.beginPath();
-  for (let i = 0; i < points * 2; i += 1) {
-    const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
-    const rad = i % 2 === 0 ? outerR : innerR;
-    if (i === 0) {
-      ctx.moveTo(Math.cos(angle) * rad, Math.sin(angle) * rad);
-    } else {
-      ctx.lineTo(Math.cos(angle) * rad, Math.sin(angle) * rad);
-    }
-  }
-  ctx.closePath();
+  traceStarPath(ctx, points, outerR, innerR);
   ctx.fillStyle = '#facc15';
   ctx.fill();
   ctx.strokeStyle = '#eab308';
@@ -146,17 +131,7 @@ function drawJackpotPickupSprite(
   ctx.lineWidth = 1;
   const innerStarR = outerR * 0.68;
   const innerStarInner = innerR * 0.72;
-  ctx.beginPath();
-  for (let i = 0; i < points * 2; i += 1) {
-    const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
-    const rad = i % 2 === 0 ? innerStarR : innerStarInner;
-    if (i === 0) {
-      ctx.moveTo(Math.cos(angle) * rad, Math.sin(angle) * rad);
-    } else {
-      ctx.lineTo(Math.cos(angle) * rad, Math.sin(angle) * rad);
-    }
-  }
-  ctx.closePath();
+  traceStarPath(ctx, points, innerStarR, innerStarInner);
   ctx.stroke();
 
   const sparkleCount = 4;

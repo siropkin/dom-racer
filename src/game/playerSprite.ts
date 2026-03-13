@@ -1,4 +1,5 @@
 import type { VehicleDesign } from '../shared/types';
+import { drawBorderedRect, drawContourOutline, drawWheel } from './spriteHelpers';
 
 interface RenderPlayerSpriteOptions {
   centerX: number;
@@ -84,16 +85,6 @@ export function renderPlayerSprite(
   ctx.restore();
 }
 
-function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-  ctx.fillStyle = '#111827';
-  ctx.beginPath();
-  ctx.roundRect(x - 3.5, y - 1.75, 7, 3.5, 1.4);
-  ctx.fill();
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.1;
-  ctx.stroke();
-}
-
 function drawVehicleBody(
   ctx: CanvasRenderingContext2D,
   design: VehicleDesign,
@@ -113,27 +104,14 @@ function drawVehicleBody(
 }
 
 function drawCoupeBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.fillStyle = airborne ? '#60a5fa' : '#2563eb';
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.roundRect(-11.5, -7.5, 22, 15, 5);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -11.5, -7.5, 22, 15, 5, airborne ? '#60a5fa' : '#2563eb', '#f8fafc', 1.8);
 
-  ctx.fillStyle = '#1d4ed8';
-  ctx.beginPath();
-  ctx.roundRect(-6.5, -10.5, 12, 21, 4);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -6.5, -10.5, 12, 21, 4, '#1d4ed8', '#f8fafc', 1.8);
 
   ctx.fillStyle = '#e2e8f0';
   ctx.fillRect(-7, -1.5, 13, 3);
 
-  ctx.fillStyle = '#dbeafe';
-  ctx.beginPath();
-  ctx.roundRect(-1.5, -6, 5, 12, 2);
-  ctx.fill();
+  drawBorderedRect(ctx, -1.5, -6, 5, 12, 2, '#dbeafe');
 
   ctx.fillStyle = '#111827';
   ctx.fillRect(10.5, -3, 2, 2);
@@ -143,21 +121,11 @@ function drawCoupeBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
   ctx.fillRect(-12.5, -3, 2, 2);
   ctx.fillRect(-12.5, 1, 2, 2);
 
-  ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(-11.5, -7.5, 22, 15, 5);
-  ctx.stroke();
+  drawContourOutline(ctx, -11.5, -7.5, 22, 15, 5, 'rgba(15, 23, 42, 0.85)', 1);
 }
 
 function drawBuggyBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.6;
-  ctx.fillStyle = airborne ? '#fb923c' : '#f97316';
-  ctx.beginPath();
-  ctx.roundRect(-10.5, -7, 20, 14, 4);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -10.5, -7, 20, 14, 4, airborne ? '#fb923c' : '#f97316', '#f8fafc', 1.6);
 
   ctx.fillStyle = '#7c2d12';
   ctx.fillRect(-7, -8.5, 9, 17);
@@ -180,19 +148,9 @@ function drawBuggyBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
 }
 
 function drawTruckBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.7;
-  ctx.fillStyle = airborne ? '#34d399' : '#059669';
-  ctx.beginPath();
-  ctx.roundRect(-12, -7.5, 24, 15, 4);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -12, -7.5, 24, 15, 4, airborne ? '#34d399' : '#059669', '#f8fafc', 1.7);
 
-  ctx.fillStyle = '#064e3b';
-  ctx.beginPath();
-  ctx.roundRect(-1.5, -7.5, 12.5, 15, 4);
-  ctx.fill();
-  ctx.stroke();
+  drawBorderedRect(ctx, -1.5, -7.5, 12.5, 15, 4, '#064e3b', '#f8fafc', 1.7);
 
   ctx.fillStyle = '#d1fae5';
   ctx.fillRect(1.5, -4.5, 6.5, 4);
@@ -206,9 +164,5 @@ function drawTruckBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
   ctx.fillRect(-12.5, -2.5, 2, 2);
   ctx.fillRect(-12.5, 0.5, 2, 2);
 
-  ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(-12, -7.5, 24, 15, 4);
-  ctx.stroke();
+  drawContourOutline(ctx, -12, -7.5, 24, 15, 4, 'rgba(15, 23, 42, 0.85)', 1);
 }

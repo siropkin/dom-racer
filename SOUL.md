@@ -263,6 +263,18 @@ When this roadmap is working, a good run should feel like this:
 
 ## Session Notes
 
+### Session — 2026-03-12 (k)
+
+- Production readiness: sprite drawing consolidation
+- Created `src/game/spriteHelpers.ts` with 4 reusable canvas drawing primitives: `drawBorderedRect`, `drawWheel`, `drawContourOutline`, `traceStarPath`
+- Refactored `playerSprite.ts`: removed local `drawWheel`, replaced 7 rounded-rect patterns and 2 contour outlines with helpers
+- Refactored `policeSprite.ts`: removed local `drawPoliceWheel`, replaced 4 rounded-rect patterns with helpers, parameterized wheel halfHeight (1.8 vs 1.75)
+- Refactored `planeSprite.ts`: replaced body shadow and body bordered-rect patterns with helpers
+- Refactored `pickupSprites.ts`: replaced special pickup body pattern and 2 star path loops with helpers
+- Overgrowth rendering in `gameRenderRuntime.ts` uses ellipses (not rounded rects), so no helper overlap — left unchanged
+- Visual output is identical — pure refactor, no design changes
+- 72 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
+
 ### Session — 2026-03-12 (j)
 
 - Added ESLint (flat config with typescript-eslint) and Prettier to the project

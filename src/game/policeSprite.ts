@@ -1,4 +1,5 @@
 import type { ViewportSize } from '../shared/types';
+import { drawBorderedRect, drawWheel } from './spriteHelpers';
 
 export type PoliceEdge = 'top' | 'right' | 'bottom' | 'left';
 
@@ -102,36 +103,19 @@ export function renderPoliceCarSprite(
   ctx.fillStyle = 'rgba(15, 23, 42, 0.36)';
   ctx.fillRect(-11.5, -5.5, 23, 11);
 
-  drawPoliceWheel(ctx, -6, -10);
-  drawPoliceWheel(ctx, 6, -10);
-  drawPoliceWheel(ctx, -6, 10);
-  drawPoliceWheel(ctx, 6, 10);
+  drawWheel(ctx, -6, -10, 1.8);
+  drawWheel(ctx, 6, -10, 1.8);
+  drawWheel(ctx, -6, 10, 1.8);
+  drawWheel(ctx, 6, 10, 1.8);
 
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
-  ctx.beginPath();
-  ctx.roundRect(-12.9, -7.9, 25.8, 15.8, 4.6);
-  ctx.fill();
-
-  ctx.fillStyle = '#e5e7eb';
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.roundRect(-12, -7, 24, 14, 4);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#111827';
-  ctx.beginPath();
-  ctx.roundRect(-6.5, -9.5, 12, 19, 4);
-  ctx.fill();
+  drawBorderedRect(ctx, -12.9, -7.9, 25.8, 15.8, 4.6, 'rgba(15, 23, 42, 0.78)');
+  drawBorderedRect(ctx, -12, -7, 24, 14, 4, '#e5e7eb', '#f8fafc', 1.8);
+  drawBorderedRect(ctx, -6.5, -9.5, 12, 19, 4, '#111827');
 
   ctx.fillStyle = '#dbeafe';
   ctx.fillRect(-1.5, -5.5, 6, 11);
 
-  ctx.fillStyle = '#0f172a';
-  ctx.beginPath();
-  ctx.roundRect(-2.2, -6.9, 4.4, 13.8, 1.8);
-  ctx.fill();
+  drawBorderedRect(ctx, -2.2, -6.9, 4.4, 13.8, 1.8, '#0f172a');
 
   ctx.fillStyle = pulse ? '#93c5fd' : '#1d4ed8';
   ctx.fillRect(-1.45, -6.0, 2.9, 5.2);
@@ -178,15 +162,5 @@ function drawWarningTriangle(
   }
   ctx.closePath();
   ctx.fill();
-  ctx.stroke();
-}
-
-function drawPoliceWheel(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-  ctx.fillStyle = '#111827';
-  ctx.beginPath();
-  ctx.roundRect(x - 3.5, y - 1.8, 7, 3.6, 1.4);
-  ctx.fill();
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.1;
   ctx.stroke();
 }

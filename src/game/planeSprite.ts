@@ -1,3 +1,5 @@
+import { drawBorderedRect } from './spriteHelpers';
+
 export interface PlaneSpritePose {
   x: number;
   y: number;
@@ -77,36 +79,32 @@ export function renderPlaneSprite(
   const cabinHeight = Math.max(6.4, tuning.bodyWidth * 0.68);
   const wingOffsetX = tuning.bodyLength * 0.03;
 
-  // Slightly stronger shadow/keyline for readability on bright pages.
   ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
   ctx.beginPath();
   ctx.ellipse(-1.0, 6.1, tuning.bodyLength * 0.29, 2.1, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
-  ctx.beginPath();
-  ctx.roundRect(
+  drawBorderedRect(
+    ctx,
     -tuning.bodyLength / 2 - 0.8,
     -tuning.bodyWidth / 2 - 0.8,
     tuning.bodyLength + 1.6,
     tuning.bodyWidth + 1.6,
     3.5,
+    'rgba(15, 23, 42, 0.72)',
   );
-  ctx.fill();
 
-  ctx.fillStyle = '#e2e8f0';
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.roundRect(
+  drawBorderedRect(
+    ctx,
     -tuning.bodyLength / 2,
     -tuning.bodyWidth / 2,
     tuning.bodyLength,
     tuning.bodyWidth,
     3,
+    '#e2e8f0',
+    '#f8fafc',
+    1.8,
   );
-  ctx.fill();
-  ctx.stroke();
 
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(-cabinWidth / 2, -cabinHeight / 2, cabinWidth, cabinHeight);
