@@ -320,7 +320,7 @@ Status: `done`
 Goal: make image-heavy pages feel playful without replacing route decisions with raw speed.
 
 - [x] Change scanned `img` / `picture` surfaces from `boost` to `ice`
-- [ ] Change scanned `video` surfaces from `boost` to `ice` (consistent with `img` / `picture`)
+- [x] Change scanned `video` surfaces from `boost` to `ice` (consistent with `img` / `picture`)
 - [x] Keep visually reactive UI surfaces as `boost` so boost moments remain readable and intentional
 - [x] Implement `ice` handling with low grip + low friction + tiny entry speed burst + subtle drift
 - [x] Make police chase movement react to `ice` surfaces too
@@ -479,6 +479,7 @@ Status: `in progress`
 - [x] Extract ambient special spawn scheduling from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`) without behavior drift
 - [x] Extract focus-mode alpha animation calculation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`) without behavior drift
 - [x] Extract page lightness estimation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`estimatePageLightness`) without behavior drift
+- [x] Extract regular coin spawn step timer logic from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveRegularCoinSpawnStep`) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -743,6 +744,12 @@ Session note:
 - Feature delivery: airplane sprite `tailWidth` widened from `4.8` to `6.4` for a more readable tail silhouette, closing the Phase 3 tail-balance readability item.
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (29 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded regular-coin spawn timer extraction plus bounded Phase 1 video surface follow-up.
+- Hardening delivery: regular coin spawn step timer logic (boost timer decay, visible cap check, refill timer countdown) moved from `Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveRegularCoinSpawnStep`), preserving coin refill scheduling behavior.
+- Feature delivery: scanned `video` elements now classify as `ice` (consistent with `img`/`picture`), while `canvas`/`svg` remain as `boost`; closes the Phase 1 Surface Behavior Refresh video-to-ice item.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (31 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 

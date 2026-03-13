@@ -11,6 +11,7 @@ import {
   REGULAR_COIN_REFILL_MAX_MS,
   REGULAR_COIN_REFILL_MIN_MS,
   REGULAR_COIN_SCORE,
+  REGULAR_COIN_VISIBLE_CAP,
   SPECIAL_CAP_RETRY_MAX_MS,
   SPECIAL_CAP_RETRY_MIN_MS,
   SPECIAL_RESPAWN_MAX_MS,
@@ -285,6 +286,53 @@ export function getSpecialSpawnRespawnDelayMs(spawned: boolean): number {
   return spawned
     ? randomBetween(SPECIAL_RESPAWN_MIN_MS, SPECIAL_RESPAWN_MAX_MS)
     : randomBetween(SPECIAL_RETRY_MIN_MS, SPECIAL_RETRY_MAX_MS);
+}
+
+export interface RegularCoinSpawnStep {
+  coinRefillBoostTimerMs: number;
+  coinRefillTimerMs: number;
+  shouldSpawn: boolean;
+}
+
+export function resolveRegularCoinSpawnStep(options: {
+  coinRefillBoostTimerMs: number;
+  coinRefillTimerMs: number;
+  coinSpawnQueueEmpty: boolean;
+  visibleRegularCoins: number;
+  dtSeconds: number;
+}): RegularCoinSpawnStep {
+  if (options.coinSpawnQueueEmpty) {
+    return {
+      coinRefillBoostTimerMs: options.coinRefillBoostTimerMs,
+      coinRefillTimerMs: options.coinRefillTimerMs,
+      shouldSpawn: false,
+    };
+  }
+
+  const nextBoostMs = Math.max(0, options.coinRefillBoostTimerMs - options.dtSeconds * 1000);
+
+  if (options.visibleRegularCoins >= REGULAR_COIN_VISIBLE_CAP) {
+    return {
+      coinRefillBoostTimerMs: nextBoostMs,
+      coinRefillTimerMs: options.coinRefillTimerMs,
+      shouldSpawn: false,
+    };
+  }
+
+  const nextRefillMs = Math.max(0, options.coinRefillTimerMs - options.dtSeconds * 1000);
+  if (nextRefillMs > 0) {
+    return {
+      coinRefillBoostTimerMs: nextBoostMs,
+      coinRefillTimerMs: nextRefillMs,
+      shouldSpawn: false,
+    };
+  }
+
+  return {
+    coinRefillBoostTimerMs: nextBoostMs,
+    coinRefillTimerMs: 0,
+    shouldSpawn: true,
+  };
 }
 
 function cloneRect(rect: Rect): Rect {

@@ -78,4 +78,32 @@ describe('scanner -> world smoke', () => {
     expect(world.spawnPoint.x).toBeGreaterThanOrEqual(0);
     expect(world.spawnPoint.y).toBeGreaterThanOrEqual(0);
   });
+
+  it('classifies video elements as ice (consistent with img/picture)', () => {
+    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
+    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+
+    const video = document.createElement('video');
+    video.style.opacity = '1';
+    setRect(video, { x: 200, y: 200, width: 320, height: 180 });
+    document.body.appendChild(video);
+
+    const canvas = document.createElement('canvas');
+    canvas.style.opacity = '1';
+    setRect(canvas, { x: 600, y: 200, width: 300, height: 200 });
+    document.body.appendChild(canvas);
+
+    const scanned = scanVisibleDom(null);
+    const videoElements = scanned.filter((entry) => entry.tagName === 'video');
+    const canvasElements = scanned.filter((entry) => entry.tagName === 'canvas');
+
+    expect(videoElements.length).toBeGreaterThanOrEqual(1);
+    expect(videoElements.every((entry) => entry.kind === 'ice')).toBe(true);
+    expect(canvasElements.length).toBeGreaterThanOrEqual(1);
+    expect(canvasElements.every((entry) => entry.kind === 'boost')).toBe(true);
+
+    const world = buildWorld(scanned, { width: 1200, height: 800 });
+    expect(world.iceZones.length).toBeGreaterThan(0);
+    expect(world.boosts.length).toBeGreaterThan(0);
+  });
 });

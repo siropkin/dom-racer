@@ -14,7 +14,7 @@ import {
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
 import { applyMagnetPullToPickups } from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
-import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs } from '../src/game/pickupSpawnRuntime';
+import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs, resolveRegularCoinSpawnStep } from '../src/game/pickupSpawnRuntime';
 
 vi.mock('../src/game/audio', () => {
   class MockAudioManager {
@@ -920,6 +920,51 @@ describe('game economy and police smoke invariants', () => {
 
     const toastMessages = (game as any).toastSystem['messages'] as Array<{ text: string }>;
     expect(toastMessages).toHaveLength(0);
+  });
+
+  it('keeps extracted regular coin spawn step timer logic unchanged', () => {
+    const emptyQueue = resolveRegularCoinSpawnStep({
+      coinRefillBoostTimerMs: 1200,
+      coinRefillTimerMs: 800,
+      coinSpawnQueueEmpty: true,
+      visibleRegularCoins: 3,
+      dtSeconds: 0.5,
+    });
+    expect(emptyQueue.shouldSpawn).toBe(false);
+    expect(emptyQueue.coinRefillBoostTimerMs).toBe(1200);
+    expect(emptyQueue.coinRefillTimerMs).toBe(800);
+
+    const atCap = resolveRegularCoinSpawnStep({
+      coinRefillBoostTimerMs: 1200,
+      coinRefillTimerMs: 800,
+      coinSpawnQueueEmpty: false,
+      visibleRegularCoins: 11,
+      dtSeconds: 0.5,
+    });
+    expect(atCap.shouldSpawn).toBe(false);
+    expect(atCap.coinRefillBoostTimerMs).toBe(700);
+
+    const waiting = resolveRegularCoinSpawnStep({
+      coinRefillBoostTimerMs: 1200,
+      coinRefillTimerMs: 1600,
+      coinSpawnQueueEmpty: false,
+      visibleRegularCoins: 5,
+      dtSeconds: 0.5,
+    });
+    expect(waiting.shouldSpawn).toBe(false);
+    expect(waiting.coinRefillTimerMs).toBe(1100);
+    expect(waiting.coinRefillBoostTimerMs).toBe(700);
+
+    const ready = resolveRegularCoinSpawnStep({
+      coinRefillBoostTimerMs: 200,
+      coinRefillTimerMs: 300,
+      coinSpawnQueueEmpty: false,
+      visibleRegularCoins: 5,
+      dtSeconds: 0.5,
+    });
+    expect(ready.shouldSpawn).toBe(true);
+    expect(ready.coinRefillTimerMs).toBe(0);
+    expect(ready.coinRefillBoostTimerMs).toBe(0);
   });
 
   it('keeps extracted page lightness estimation unchanged', () => {

@@ -142,7 +142,11 @@ function classifyElement(
     return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
   }
 
-  if (['video', 'canvas', 'svg'].includes(tag)) {
+  if (tag === 'video') {
+    return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
+  }
+
+  if (['canvas', 'svg'].includes(tag)) {
     return area >= 400 ? [toScannedElement('boost', element, rect, fixed)] : [];
   }
 

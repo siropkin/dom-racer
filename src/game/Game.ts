@@ -78,6 +78,7 @@ import {
   findFreePickupRect,
   findFreePickupRectNear,
   resolveAmbientSpecialSpawnStep,
+  resolveRegularCoinSpawnStep,
   spawnQueuedCoinsFromAnchors,
 } from './pickupSpawnRuntime';
 import { drawCaughtGameOverOverlay, drawPausedOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
@@ -129,7 +130,6 @@ import {
   REGULAR_COIN_RETRY_MIN_MS,
   REGULAR_COIN_SCORE,
   REGULAR_COIN_STARTING_BATCH,
-  REGULAR_COIN_VISIBLE_CAP,
   SHOWCASE_THEMES,
   shufflePickups,
   SPECIAL_INITIAL_SPAWN_MAX_MS,
@@ -779,28 +779,29 @@ export class Game {
   }
 
   private updateRegularCoinSpawns(dtSeconds: number): void {
-    if (!this.world || this.coinSpawnQueue.length === 0) {
+    if (!this.world) {
       return;
     }
 
-    this.coinRefillBoostTimerMs = Math.max(0, this.coinRefillBoostTimerMs - dtSeconds * 1000);
-    const visibleRegularCoins = this.world.pickups.filter((pickup) => !isSpecialPickup(pickup)).length;
-    if (visibleRegularCoins >= REGULAR_COIN_VISIBLE_CAP) {
-      return;
-    }
+    const step = resolveRegularCoinSpawnStep({
+      coinRefillBoostTimerMs: this.coinRefillBoostTimerMs,
+      coinRefillTimerMs: this.coinRefillTimerMs,
+      coinSpawnQueueEmpty: this.coinSpawnQueue.length === 0,
+      visibleRegularCoins: this.world.pickups.filter((pickup) => !isSpecialPickup(pickup)).length,
+      dtSeconds,
+    });
+    this.coinRefillBoostTimerMs = step.coinRefillBoostTimerMs;
+    this.coinRefillTimerMs = step.coinRefillTimerMs;
 
-    this.coinRefillTimerMs = Math.max(0, this.coinRefillTimerMs - dtSeconds * 1000);
-    if (this.coinRefillTimerMs > 0) {
-      return;
+    if (step.shouldSpawn) {
+      const spawned = this.spawnQueuedCoins(1);
+      const visibleRegularCoinsAfterSpawn = this.world.pickups.filter(
+        (pickup) => !isSpecialPickup(pickup),
+      ).length;
+      this.coinRefillTimerMs = spawned
+        ? getCoinRefillDelayMs(visibleRegularCoinsAfterSpawn, this.coinRefillBoostTimerMs)
+        : randomBetween(REGULAR_COIN_RETRY_MIN_MS, REGULAR_COIN_RETRY_MAX_MS);
     }
-
-    const spawned = this.spawnQueuedCoins(1);
-    const visibleRegularCoinsAfterSpawn = this.world.pickups.filter(
-      (pickup) => !isSpecialPickup(pickup),
-    ).length;
-    this.coinRefillTimerMs = spawned
-      ? getCoinRefillDelayMs(visibleRegularCoinsAfterSpawn, this.coinRefillBoostTimerMs)
-      : randomBetween(REGULAR_COIN_RETRY_MIN_MS, REGULAR_COIN_RETRY_MAX_MS);
   }
 
   private updateAmbientSpecialSpawns(dtSeconds: number): void {
