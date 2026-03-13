@@ -24,11 +24,11 @@ import {
   ENCOUNTER,
   JACKPOT,
   PLANE,
-  PLAYER,
   POLICE,
   SPECIALS,
   TIMING,
   TOAST,
+  VEHICLE_STATS,
 } from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
@@ -547,7 +547,7 @@ export class Game {
 
     if (activeInput.nitro && this.nitroCooldownMs <= 0 && this.nitroActiveMs <= 0) {
       this.nitroActiveMs = TIMING.NITRO_DURATION_MS;
-      this.nitroCooldownMs = TIMING.NITRO_COOLDOWN_MS;
+      this.nitroCooldownMs = VEHICLE_STATS[this.vehicleDesign].nitroCooldownMs;
       activeInput.nitro = false;
     }
     this.nitroActiveMs = Math.max(0, this.nitroActiveMs - dtSeconds * 1000);
@@ -709,7 +709,7 @@ export class Game {
       rectCenter(this.player.getBounds()).y,
       this.player.getAngle(),
       renderSpeed,
-      PLAYER.BOOST_SPEED,
+      VEHICLE_STATS[this.vehicleDesign].boostSpeed,
     );
     this.player.draw(ctx, {
       opacity: this.ghostTimerMs > 0 ? 0.46 : 1,

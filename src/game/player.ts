@@ -8,7 +8,7 @@ import {
 } from '../shared/types';
 import { clamp } from '../shared/utils';
 import { moveWithCollisions } from './collisions';
-import { PLAYER, TIMING } from './gameConfig';
+import { PLAYER, TIMING, VEHICLE_STATS } from './gameConfig';
 import { randomBetween } from './gameRuntime';
 import { renderPlayerSprite } from './sprites';
 
@@ -120,17 +120,18 @@ export class Player {
       this.iceDriftDirection = { x: 0, y: 0 };
     }
 
+    const stats = VEHICLE_STATS[this.vehicleDesign];
     const iceEntryMultiplier =
       onIce && this.iceEntryBoostMs > 0 ? PLAYER.ICE_ENTRY_BURST_MULTIPLIER : 1;
     const extraMultiplier = context.speedMultiplier ?? 1;
     const topSpeed =
-      (this.boostTimerMs > 0 ? PLAYER.BOOST_SPEED : PLAYER.BASE_SPEED) *
+      (this.boostTimerMs > 0 ? stats.boostSpeed : stats.baseSpeed) *
       (slowed ? PLAYER.SLOW_ZONE_MULTIPLIER : 1) *
       (onIce ? PLAYER.ICE_TOP_SPEED_MULTIPLIER : 1) *
       iceEntryMultiplier *
       extraMultiplier;
-    const response = onIce ? PLAYER.ICE_RESPONSE : PLAYER.RESPONSE;
-    const friction = onIce ? PLAYER.ICE_FRICTION : PLAYER.FRICTION;
+    const response = onIce ? PLAYER.ICE_RESPONSE : stats.response;
+    const friction = onIce ? PLAYER.ICE_FRICTION : stats.friction;
 
     if (direction.x !== 0 || direction.y !== 0) {
       let steerDirection = direction;

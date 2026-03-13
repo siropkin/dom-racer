@@ -14,7 +14,6 @@ export const TIMING = {
   PLANE_WARNING_MS: 900,
   BOOST_HOLD_MS: 400,
   NITRO_DURATION_MS: 400,
-  NITRO_COOLDOWN_MS: 3_000,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -206,15 +205,32 @@ export const VEHICLES = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Player physics
+// Per-vehicle physics profiles
+// ---------------------------------------------------------------------------
+
+export const VEHICLE_STATS: Readonly<
+  Record<
+    string,
+    {
+      baseSpeed: number;
+      boostSpeed: number;
+      response: number;
+      friction: number;
+      nitroCooldownMs: number;
+    }
+  >
+> = {
+  coupe: { baseSpeed: 250, boostSpeed: 360, response: 11, friction: 7, nitroCooldownMs: 3_000 },
+  buggy: { baseSpeed: 235, boostSpeed: 340, response: 15, friction: 5, nitroCooldownMs: 2_200 },
+  truck: { baseSpeed: 275, boostSpeed: 395, response: 8, friction: 9, nitroCooldownMs: 3_800 },
+};
+
+// ---------------------------------------------------------------------------
+// Player physics (shared across all vehicles)
 // ---------------------------------------------------------------------------
 
 export const PLAYER = {
-  BASE_SPEED: 250,
-  BOOST_SPEED: 360,
   SLOW_ZONE_MULTIPLIER: 0.62,
-  RESPONSE: 11,
-  FRICTION: 7,
   ICE_RESPONSE: 1.5,
   ICE_FRICTION: 0.25,
   ICE_TOP_SPEED_MULTIPLIER: 1.08,
