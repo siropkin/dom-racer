@@ -20,7 +20,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 
 - Three vehicle designs (coupe, buggy, truck) with score-gated unlocks
 - Page scanning: text → walls, images → ice, links → coins, SVG → boost
-- HUD: POWER panel (top-right), GOAL panel (bottom-center), score/time (top-left), bests (bottom-left)
+- HUD: POWER panel (top-right), GOAL panel (bottom-center), merged info block (top-left: score/time, bests, daily modifier)
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
 - Police chases with escalating duration and siren flash
 - Airplane flyovers with five drop modes
@@ -33,14 +33,16 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Viewport-proportional scaling for effect durations and police chase timers
 - Global sound/vehicle preferences via chrome.storage.local
 - Adaptive sprite contrast: dark outlines on bright pages, light glow on dark pages
-- Extension popup with game info, controls, power-ups, and Buy Me a Coffee link
+- Extension popup with game info, controls, power-ups, "Start Game" button, and Buy Me a Coffee link
+- Unsupported page detection: sleeping-car sad screen for pages with too few elements to race on
+- Scrollbar-gutter approach prevents content jump when game activates
 - Propeller biplane sprite with spinning blades and continuous drone audio
 - Increased master audio gain (0.68) with punchier plane drop SFX
 - Sound enrichment, auto-pause, first-play hint, run counter, lifetime milestones
 
 ## Controls
 
-`Shift+R` toggle | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase | Game over: `Space` restart
+`Shift+Space` toggle (or `Shift+Backtick`) | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase | Game over: `Space` restart | Extension popup "Start Game" button also toggles
 
 ## Architecture
 

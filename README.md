@@ -26,13 +26,14 @@ npm run build
 1. Open Chrome or Edge extensions page
 2. Enable Developer Mode
 3. Click `Load unpacked` and select the `dist/` directory
-4. Open any page and press `Shift + R` (or ``Shift + ` ``)
+4. Open any page and press `Shift + Space` (or ``Shift + ` ``)
 
 ## Controls
 
 | Context | Key | Action |
 |---|---|---|
-| Anywhere | `Shift + R` or ``Shift + ` `` | Toggle DOM Racer |
+| Anywhere | `Shift + Space` or ``Shift + ` `` | Toggle DOM Racer |
+| Anywhere | Extension popup "Start Game" button | Toggle DOM Racer |
 | In game | `WASD` / arrow keys | Drive |
 | In game | `R` | Restart run |
 | In game | `V` | Switch vehicle design |
@@ -55,7 +56,8 @@ npm run build
 - Three vehicle designs unlocked by reaching lifetime score milestones
 - Run counter, page bests, lifetime bests, milestone celebrations
 - Adaptive sprite contrast — dark outlines on bright pages, bright glow on dark pages
-- Extension popup with game info, controls reference, and power-up list
+- Extension popup with game info, controls reference, power-up list, and "Start Game" button
+- Unsupported page detection — friendly sad-screen message for pages with too few elements
 - Classic propeller biplane sprite with continuous drone audio during flyovers
 - Auto-pause when you switch tabs, sound toggle, and a hint overlay for first-time players
 
@@ -157,6 +159,7 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Play-test polish | Done | Specials overhaul, toast system, pause fixes, overlay polish |
 | Audio & visuals | Done | Adaptive contrast, biplane sprite, drone audio, popup |
 | Scoring & naming | Done | Scoring rework, toast simplification, police chase tuning |
+| HUD & compatibility | Done | HUD redesign, hotkey change, scrollbar fix, unsupported page detection |
 
 ## Debug Mode
 
