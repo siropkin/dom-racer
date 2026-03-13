@@ -21,15 +21,17 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Three vehicle designs (coupe, buggy, truck) with score-gated unlocks
 - Page scanning: text → walls, images → ice, links → coins, SVG → boost
 - HUD: POWER panel (top-right), GOAL panel (bottom-center), score/time (top-left), bests (bottom-left)
-- Seven power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, rare `JACKPOT`
+- Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
 - Police chases with escalating duration and siren flash
 - Airplane flyovers with five drop modes
 - Overgrowth: bushes/trees grow from barriers after ~35s, narrowing routes
 - Near-miss bonus for grazing obstacles
 - Coin-collection goals with x2/x3/x4 multiplier tiers and countdown timers
 - Daily modifier (5 rule twists, deterministic from date)
-- Run grade (S/A/B/C/D) and stats on game-over
+- Simplified game-over screen (score, run number, restart/quit)
 - VFX particles, page-reactive tint, celebration animations
+- Viewport-proportional scaling for effect durations and police chase timers
+- Global sound/vehicle preferences via chrome.storage.local
 - Sound enrichment, auto-pause, first-play hint, run counter, lifetime milestones
 
 ## Controls
@@ -67,7 +69,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 79 smoke tests across 8 focused test files
+- 80 smoke tests across 8 focused test files
 
 ## Research References
 

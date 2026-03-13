@@ -45,14 +45,13 @@ npm run build
 ## Current Features
 
 - Every page becomes a unique track — text is walls, images are ice, links are coins
-- Seven power-ups to collect: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, and a rare golden `JACKPOT`
+- Nine power-ups to collect: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, and a rare golden `JACKPOT`
 - Police chases with flashing sirens — the longer you survive, the longer they chase
 - Airplane flyovers that drop bonus coins, specials, and lucky wind across the map
 - Overgrowth: bushes and trees grow from walls over time, narrowing your routes
 - Coin-collection goals with x2, x3, x4 bonus multipliers and countdown timers
 - Near-miss bonus for grazing walls and police without crashing
 - A different daily modifier every day — double coins, fast police, slippery surfaces, and more
-- Letter grade (S/A/B/C/D) and run stats on the game-over screen
 - Three vehicle designs unlocked by reaching lifetime score milestones
 - Run counter, page bests, lifetime bests, milestone celebrations
 - Auto-pause when you switch tabs, sound toggle, and a hint overlay for first-time players
@@ -76,9 +75,10 @@ The result is intentionally game-ish rather than perfectly literal. The goal is 
 - `MAGNET`: pulls coins and specials toward the player
 - `INVERT`: flips page colors
 - `GHOST`: temporarily relaxes movement pressure and blocks police lock
-- `BLACKOUT`: darkens the page for a short high-pressure stretch (adapts to `INVERT` on dark surfaces)
-- `COOLDOWN`: pushes back police spawn timing and gives a small score bonus
-- `LURE`: gently attracts distant coins toward the player (wider range, softer pull than `MAGNET`)
+- `BLUR`: applies a CSS blur to the page for a short hazy stretch
+- `OIL_SLICK`: dramatically slows the car for a few seconds
+- `REVERSE`: flips steering controls for a disorienting stretch
+- `MYSTERY`: randomly activates any other effect (good or bad)
 - `JACKPOT`: very rare golden star that awards a large instant score bonus (+50–100)
 
 The active power-up panel in the top-right HUD shows remaining duration.
@@ -88,7 +88,7 @@ The active power-up panel in the top-right HUD shows remaining duration.
 A propeller plane occasionally crosses the arena and drops one of five route moments:
 
 - **Bonus drop**: a special pickup appears at the drop point
-- **Coin trail**: a short-lived line of regular coins spawns along the flight path
+- **Coin trail**: a line of regular coins spawns behind the plane along its flight path
 - **Spotlight**: an existing special pickup gets highlighted with a longer cue
 - **Lucky wind**: nearby coins are gently nudged into a readable route
 - **Police delay**: police spawn timing is briefly pushed back
