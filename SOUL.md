@@ -261,7 +261,7 @@ Status: `in progress`
 - [x] Improve police and airplane sprite contrast for bright-page readability
 - [x] Show sound state (`ON` / `OFF`) in the same HUD hint line as `M` and `SOUND`
 - [x] Run a toast stacking readability pass (overlap/spacing/legibility when multiple messages are active)
-- [ ] Remove toast notification messages when special pickups spawn (spawn cue ring is sufficient, toast adds noise)
+- [x] Remove toast notification messages when special pickups spawn (spawn cue ring is sufficient, toast adds noise)
 - [ ] Verify the map still reads quickly without adding visual noise
 
 ### 7. Verification Pass
@@ -730,6 +730,12 @@ Session note:
 - Feature delivery: README now includes a screenshot placeholder section with a table of planned captures (normal run, special pickup, police chase, airplane flyover) for future presentation assets.
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (26 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded plane encounter scheduling extraction plus bounded Phase 1 visual clarity follow-up.
+- Hardening delivery: plane encounter scheduling logic (run-progress check, police stagger, timer countdown) moved from `Game.ts` into `src/game/encounterRuntime.ts` (`resolvePlaneEncounterSchedulingStep`), preserving encounter stagger and timer semantics.
+- Feature delivery: ambient special pickups no longer spawn a toast notification message; the existing spawn cue ring provides sufficient visual feedback, reducing HUD noise.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (28 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 

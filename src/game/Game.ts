@@ -32,6 +32,7 @@ import {
   createPlaneCoinTrailRects,
   getPoliceRect,
   isPoliceOffscreen,
+  resolvePlaneEncounterSchedulingStep,
   tickPlaneWarningState,
   tickPoliceChaseDuration,
   tickPoliceSpawnCountdown,
@@ -851,27 +852,21 @@ export class Game {
     }
 
     if (!this.planeBonusEvent) {
-      const hasRunProgress = this.score >= PLANE_EVENT_MIN_SCORE || this.coinsCollectedTotal >= 4;
-      if (!hasRunProgress) {
-        return;
-      }
+      const schedulingStep = resolvePlaneEncounterSchedulingStep({
+        planeBonusTimerMs: this.planeBonusTimerMs,
+        hasRunProgress: this.score >= PLANE_EVENT_MIN_SCORE || this.coinsCollectedTotal >= 4,
+        policeOrWarningActive: Boolean(this.policeChase) || Boolean(this.policeWarning),
+        dtSeconds,
+      });
+      this.planeBonusTimerMs = schedulingStep.planeBonusTimerMs;
 
-      // Keep police and plane as separate beats, not stacked chaos.
-      if (this.policeChase || this.policeWarning) {
-        this.planeBonusTimerMs = Math.max(this.planeBonusTimerMs, ENCOUNTER_STAGGER_MS);
-        return;
+      if (schedulingStep.shouldStartEncounter) {
+        const encounter = createPlaneBonusEncounter(this.world.viewport);
+        this.planeBonusEvent = encounter.planeBonusEvent;
+        this.planeWarning = encounter.planeWarning;
+        this.audio.playPlaneFlyover();
+        this.spawnEffectMessage('PLANE', '#93c5fd', 'medium');
       }
-
-      this.planeBonusTimerMs = Math.max(0, this.planeBonusTimerMs - dtSeconds * 1000);
-      if (this.planeBonusTimerMs > 0) {
-        return;
-      }
-
-      const encounter = createPlaneBonusEncounter(this.world.viewport);
-      this.planeBonusEvent = encounter.planeBonusEvent;
-      this.planeWarning = encounter.planeWarning;
-      this.audio.playPlaneFlyover();
-      this.spawnEffectMessage('PLANE', '#93c5fd', 'medium');
       return;
     }
 
@@ -1131,7 +1126,6 @@ export class Game {
     this.dynamicPickups.push(pickup);
     this.world.pickups.push(clonePickup(pickup));
     this.enqueueSpecialSpawnCue(pickup);
-    this.spawnEffectMessage(getSpecialDropMessage(effect), getSpecialColor(effect), 'high');
     return true;
   }
 

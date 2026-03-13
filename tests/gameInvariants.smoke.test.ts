@@ -5,7 +5,7 @@ import {
   applyPlaneLuckyWindToPickups,
   createPoliceDelayCueState,
 } from '../src/game/planeDropRuntime';
-import { advancePoliceChasing } from '../src/game/encounterRuntime';
+import { advancePoliceChasing, resolvePlaneEncounterSchedulingStep } from '../src/game/encounterRuntime';
 import { advanceFocusModeAlpha, advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
 import {
   resolveFocusPauseTransitionState,
@@ -868,5 +868,57 @@ describe('game economy and police smoke invariants', () => {
     const retryDelay = getSpecialSpawnRespawnDelayMs(false);
     expect(retryDelay).toBeGreaterThan(0);
     expect(respawnDelay).toBeGreaterThanOrEqual(retryDelay * 0.5);
+  });
+
+  it('keeps extracted plane encounter scheduling unchanged', () => {
+    const noProgress = resolvePlaneEncounterSchedulingStep({
+      planeBonusTimerMs: 8000,
+      hasRunProgress: false,
+      policeOrWarningActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(noProgress.shouldStartEncounter).toBe(false);
+    expect(noProgress.planeBonusTimerMs).toBe(8000);
+
+    const staggered = resolvePlaneEncounterSchedulingStep({
+      planeBonusTimerMs: 1200,
+      hasRunProgress: true,
+      policeOrWarningActive: true,
+      dtSeconds: 0.5,
+    });
+    expect(staggered.shouldStartEncounter).toBe(false);
+    expect(staggered.planeBonusTimerMs).toBeGreaterThanOrEqual(3800);
+
+    const waiting = resolvePlaneEncounterSchedulingStep({
+      planeBonusTimerMs: 5000,
+      hasRunProgress: true,
+      policeOrWarningActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(waiting.shouldStartEncounter).toBe(false);
+    expect(waiting.planeBonusTimerMs).toBe(4500);
+
+    const ready = resolvePlaneEncounterSchedulingStep({
+      planeBonusTimerMs: 300,
+      hasRunProgress: true,
+      policeOrWarningActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(ready.shouldStartEncounter).toBe(true);
+    expect(ready.planeBonusTimerMs).toBe(0);
+  });
+
+  it('does not toast when ambient specials spawn (spawn cue ring only)', () => {
+    (game as any).beginRun('manual');
+    (game as any).toastSystem.clear();
+
+    const spawned = (game as any).spawnSpecialPickup() as boolean;
+    expect(spawned).toBe(true);
+
+    const cues = (game as any).specialSpawnCues as Array<{ label: string }>;
+    expect(cues.length).toBeGreaterThan(0);
+
+    const toastMessages = (game as any).toastSystem['messages'] as Array<{ text: string }>;
+    expect(toastMessages).toHaveLength(0);
   });
 });

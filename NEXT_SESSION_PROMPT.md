@@ -34,6 +34,7 @@ First, read:
 Current known context:
 - Airplane drop modes remain: bonus drop, coin trail, spotlight, lucky wind, police delay (boost lane removed as confusing).
 - Plane drop dispatch/fallback remains in `src/game/planeDropRuntime.ts` and is retry-safe (`dispatchPlaneDropWithFallback` returns success; `Game.ts` only marks `dropped` on actual spawn).
+- Plane encounter scheduling (run-progress check, police stagger, timer countdown) is extracted to `src/game/encounterRuntime.ts` (`resolvePlaneEncounterSchedulingStep`), behavior unchanged.
 - Lucky-wind reroute orchestration remains in `src/game/planeDropRuntime.ts` (`applyPlaneLuckyWindToPickups`).
 - Coin-trail and police-delay cue lifecycles remain in `src/game/planeDropRuntime.ts`.
 - Special-spawn cue lifecycle remains in `src/game/gameRenderRuntime.ts`.
@@ -42,6 +43,7 @@ Current known context:
 - Magnet pull motion orchestration is extracted to `src/game/gameEffectsRuntime.ts` (`applyMagnetPullToPickups`), behavior unchanged.
 - Magnet still pulls both regular and special pickups.
 - Ambient special spawn scheduling is extracted to `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`), behavior unchanged. `Game.ts` calls the helper and only triggers actual spawn attempts when the scheduling step says to.
+- Ambient special pickups no longer spawn a toast notification; the spawn cue ring is sufficient visual feedback.
 - HUD active-effects panel now includes warning countdown cues: `WEE-OO` (police warning) and `NYOOM` (plane warning).
 - Toggle hotkeys: `Shift + R` and alternate ``Shift + ` ``.
 - Run auto-pauses immediately on focus loss (`blur` / hidden tab) and shows a pause overlay until focus returns.
@@ -52,7 +54,7 @@ Current known context:
 - `window.__domRacerDebug` must not exist in source/build.
 - Overgrowth remains intentionally deferred.
 - README now includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshot placeholder section.
-- Smoke tests currently pass (`npm run test` -> 26 tests).
+- Smoke tests currently pass (`npm run test` -> 28 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 
 Priority lock for this session:

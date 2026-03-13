@@ -8,6 +8,7 @@ import type {
 import { clamp, rectCenter } from '../shared/utils';
 import {
   blendAngle,
+  ENCOUNTER_STAGGER_MS,
   PLANE_COIN_TRAIL_CHANCE,
   PLANE_COIN_TRAIL_COIN_SIZE_PX,
   PLANE_COIN_TRAIL_LENGTH_PX,
@@ -385,6 +386,36 @@ function getPlaneCornerPoint(viewport: World['viewport'], corner: PlaneCorner): 
         ? { x: randomBetween(-outside, xSpan), y: viewport.height + outside }
         : { x: -outside, y: randomBetween(viewport.height - ySpan, viewport.height + outside) };
   }
+}
+
+export interface PlaneEncounterSchedulingStep {
+  planeBonusTimerMs: number;
+  shouldStartEncounter: boolean;
+}
+
+export function resolvePlaneEncounterSchedulingStep(options: {
+  planeBonusTimerMs: number;
+  hasRunProgress: boolean;
+  policeOrWarningActive: boolean;
+  dtSeconds: number;
+}): PlaneEncounterSchedulingStep {
+  if (!options.hasRunProgress) {
+    return { planeBonusTimerMs: options.planeBonusTimerMs, shouldStartEncounter: false };
+  }
+
+  if (options.policeOrWarningActive) {
+    return {
+      planeBonusTimerMs: Math.max(options.planeBonusTimerMs, ENCOUNTER_STAGGER_MS),
+      shouldStartEncounter: false,
+    };
+  }
+
+  const nextTimerMs = Math.max(0, options.planeBonusTimerMs - options.dtSeconds * 1000);
+  if (nextTimerMs > 0) {
+    return { planeBonusTimerMs: nextTimerMs, shouldStartEncounter: false };
+  }
+
+  return { planeBonusTimerMs: 0, shouldStartEncounter: true };
 }
 
 export function isPointOutsideViewport(
