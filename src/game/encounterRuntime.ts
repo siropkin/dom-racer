@@ -86,14 +86,11 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
       ? 'coin-trail'
       : effectRoll < PLANE_COIN_TRAIL_CHANCE + PLANE_SPOTLIGHT_CHANCE
         ? 'spotlight'
-        : effectRoll <
-            PLANE_COIN_TRAIL_CHANCE +
-              PLANE_SPOTLIGHT_CHANCE +
-              PLANE_LUCKY_WIND_CHANCE
+        : effectRoll < PLANE_COIN_TRAIL_CHANCE + PLANE_SPOTLIGHT_CHANCE + PLANE_LUCKY_WIND_CHANCE
           ? Math.random() < PLANE_POLICE_DELAY_MODE_CHANCE
             ? 'police-delay'
             : 'lucky-wind'
-        : 'bonus-drop';
+          : 'bonus-drop';
 
   return {
     planeBonusEvent: {
@@ -130,18 +127,14 @@ export function advancePlaneBonusEventState(
   planeBonusEvent.y += stepY;
   planeBonusEvent.traveledPx += Math.hypot(stepX, stepY);
 
-  const dropReady = !planeBonusEvent.dropped && planeBonusEvent.traveledPx >= planeBonusEvent.dropAtPx;
+  const dropReady =
+    !planeBonusEvent.dropped && planeBonusEvent.traveledPx >= planeBonusEvent.dropAtPx;
   const onscreen = !isPointOutsideViewport(viewport, planeBonusEvent.x, planeBonusEvent.y, 20);
   const enteredViewport = onscreen && !planeBonusEvent.flyoverSoundPlayed;
   if (enteredViewport) {
     planeBonusEvent.flyoverSoundPlayed = true;
   }
-  const offscreen = isPointOutsideViewport(
-    viewport,
-    planeBonusEvent.x,
-    planeBonusEvent.y,
-    86,
-  );
+  const offscreen = isPointOutsideViewport(viewport, planeBonusEvent.x, planeBonusEvent.y, 86);
   const completed =
     planeBonusEvent.ttlMs === 0 ||
     planeBonusEvent.traveledPx >= planeBonusEvent.distancePx + 24 ||
@@ -180,7 +173,10 @@ export function tickPoliceSpawnCountdown(
   };
 }
 
-export function createPoliceChase(viewport: World['viewport'], edge?: PoliceEdge): PoliceChaseState {
+export function createPoliceChase(
+  viewport: World['viewport'],
+  edge?: PoliceEdge,
+): PoliceChaseState {
   const spawnEdge = edge ?? getRandomPoliceEdge();
   const spawn = getPoliceSpawn(viewport, spawnEdge);
   const durationMs = randomBetween(POLICE_CHASE_DURATION_MIN_MS, POLICE_CHASE_DURATION_MAX_MS);
@@ -430,7 +426,9 @@ export function isPointOutsideViewport(
   y: number,
   padding: number,
 ): boolean {
-  return x < -padding || y < -padding || x > viewport.width + padding || y > viewport.height + padding;
+  return (
+    x < -padding || y < -padding || x > viewport.width + padding || y > viewport.height + padding
+  );
 }
 
 export function createPlaneCoinTrailRects(

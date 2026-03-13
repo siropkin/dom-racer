@@ -6,6 +6,8 @@ Lightweight pre-release pass for local and store-facing builds.
 
 - [ ] Run `npm run test`
 - [ ] Run `npm run build`
+- [ ] Run `npm run lint`
+- [ ] Run `npm run format:check`
 - [ ] Confirm `dist/` is regenerated for this revision
 
 ## Runtime Safety

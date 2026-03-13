@@ -1,5 +1,10 @@
 import type { SpecialEffect, VehicleDesign, ViewportSize, WorldPickup } from '../shared/types';
-import { SHOWCASE_THEMES, SHOWCASE_TOAST_MESSAGES, getSpecialColor, getSpecialLabel } from './gameRuntime';
+import {
+  SHOWCASE_THEMES,
+  SHOWCASE_TOAST_MESSAGES,
+  getSpecialColor,
+  getSpecialLabel,
+} from './gameRuntime';
 import { drawOvergrowthNodes } from './gameRenderRuntime';
 import type { OvergrowthNode } from './overgrowthRuntime';
 import { renderPlaneSprite } from './planeSprite';
@@ -109,12 +114,11 @@ export function drawSpriteShowcaseOverlay({
     });
   });
 
-  renderPlaneSprite(
-    ctx,
-    { x: width * 0.52, y: carsBaseY - 6, angle: 0.48 },
-    nowMs,
-    { wobbleRadians: Math.sin(nowMs / 220) * 0.022, scale: 1.08, snapToPixel: true },
-  );
+  renderPlaneSprite(ctx, { x: width * 0.52, y: carsBaseY - 6, angle: 0.48 }, nowMs, {
+    wobbleRadians: Math.sin(nowMs / 220) * 0.022,
+    scale: 1.08,
+    snapToPixel: true,
+  });
 
   renderPoliceCarSprite(
     ctx,
@@ -160,7 +164,16 @@ export function drawSpriteShowcaseOverlay({
     isFlowCoin: true,
   });
 
-  const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout', 'cooldown', 'lure', 'jackpot'];
+  const specialEffects: SpecialEffect[] = [
+    'bonus',
+    'magnet',
+    'invert',
+    'ghost',
+    'blackout',
+    'cooldown',
+    'lure',
+    'jackpot',
+  ];
   specialEffects.forEach((effect, index) => {
     const pickup: WorldPickup = {
       id: `showcase:${effect}:${index}`,
@@ -185,12 +198,66 @@ export function drawSpriteShowcaseOverlay({
   ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.fillText('OVERGROWTH', 70, overgrowthY - 8);
   const showcaseOvergrowthNodes: OvergrowthNode[] = [
-    { id: 'showcase:bush:small', kind: 'bush', rect: { x: 62, y: overgrowthY, width: 28, height: 10 }, anchorRect: { x: 50, y: overgrowthY + 10, width: 60, height: 20 }, anchorEdge: 'top', stage: 'small', growthMs: 3000, spawnedAtRunMs: 35000 },
-    { id: 'showcase:bush:medium', kind: 'bush', rect: { x: 104, y: overgrowthY - 5, width: 32, height: 20 }, anchorRect: { x: 90, y: overgrowthY + 15, width: 60, height: 20 }, anchorEdge: 'top', stage: 'medium', growthMs: 4000, spawnedAtRunMs: 36000 },
-    { id: 'showcase:bush:large', kind: 'bush', rect: { x: 150, y: overgrowthY - 8, width: 36, height: 32 }, anchorRect: { x: 136, y: overgrowthY + 24, width: 60, height: 20 }, anchorEdge: 'top', stage: 'large', growthMs: 6000, spawnedAtRunMs: 37000 },
-    { id: 'showcase:tree:small', kind: 'tree', rect: { x: 206, y: overgrowthY, width: 28, height: 10 }, anchorRect: { x: 196, y: overgrowthY + 10, width: 60, height: 20 }, anchorEdge: 'top', stage: 'small', growthMs: 3000, spawnedAtRunMs: 35000 },
-    { id: 'showcase:tree:medium', kind: 'tree', rect: { x: 248, y: overgrowthY - 5, width: 32, height: 20 }, anchorRect: { x: 236, y: overgrowthY + 15, width: 60, height: 20 }, anchorEdge: 'top', stage: 'medium', growthMs: 4000, spawnedAtRunMs: 36000 },
-    { id: 'showcase:tree:large', kind: 'tree', rect: { x: 294, y: overgrowthY - 8, width: 36, height: 32 }, anchorRect: { x: 280, y: overgrowthY + 24, width: 60, height: 20 }, anchorEdge: 'top', stage: 'large', growthMs: 6000, spawnedAtRunMs: 37000 },
+    {
+      id: 'showcase:bush:small',
+      kind: 'bush',
+      rect: { x: 62, y: overgrowthY, width: 28, height: 10 },
+      anchorRect: { x: 50, y: overgrowthY + 10, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'small',
+      growthMs: 3000,
+      spawnedAtRunMs: 35000,
+    },
+    {
+      id: 'showcase:bush:medium',
+      kind: 'bush',
+      rect: { x: 104, y: overgrowthY - 5, width: 32, height: 20 },
+      anchorRect: { x: 90, y: overgrowthY + 15, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'medium',
+      growthMs: 4000,
+      spawnedAtRunMs: 36000,
+    },
+    {
+      id: 'showcase:bush:large',
+      kind: 'bush',
+      rect: { x: 150, y: overgrowthY - 8, width: 36, height: 32 },
+      anchorRect: { x: 136, y: overgrowthY + 24, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'large',
+      growthMs: 6000,
+      spawnedAtRunMs: 37000,
+    },
+    {
+      id: 'showcase:tree:small',
+      kind: 'tree',
+      rect: { x: 206, y: overgrowthY, width: 28, height: 10 },
+      anchorRect: { x: 196, y: overgrowthY + 10, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'small',
+      growthMs: 3000,
+      spawnedAtRunMs: 35000,
+    },
+    {
+      id: 'showcase:tree:medium',
+      kind: 'tree',
+      rect: { x: 248, y: overgrowthY - 5, width: 32, height: 20 },
+      anchorRect: { x: 236, y: overgrowthY + 15, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'medium',
+      growthMs: 4000,
+      spawnedAtRunMs: 36000,
+    },
+    {
+      id: 'showcase:tree:large',
+      kind: 'tree',
+      rect: { x: 294, y: overgrowthY - 8, width: 36, height: 32 },
+      anchorRect: { x: 280, y: overgrowthY + 24, width: 60, height: 20 },
+      anchorEdge: 'top',
+      stage: 'large',
+      growthMs: 6000,
+      spawnedAtRunMs: 37000,
+    },
   ];
   drawOvergrowthNodes(ctx, showcaseOvergrowthNodes, nowMs);
 

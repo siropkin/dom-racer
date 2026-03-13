@@ -4,16 +4,7 @@ import { parseCssColor, rgbToHsl } from '../shared/color';
 const MAX_RESULTS = 220;
 const MAX_PICKUPS = 56;
 const MIN_DIMENSION = 12;
-const SKIP_TAGS = new Set([
-  'html',
-  'body',
-  'script',
-  'style',
-  'link',
-  'meta',
-  'noscript',
-  'path',
-]);
+const SKIP_TAGS = new Set(['html', 'body', 'script', 'style', 'link', 'meta', 'noscript', 'path']);
 
 export function scanVisibleDom(overlayRoot: HTMLElement | null): ScannedElement[] {
   if (!document.body) {
@@ -274,7 +265,9 @@ function getReactiveSurfaceRect(
     return null;
   }
 
-  const hsl = background ? rgbToHsl(background.r, background.g, background.b) : { lightness: 0.55, saturation: 0.72 };
+  const hsl = background
+    ? rgbToHsl(background.r, background.g, background.b)
+    : { lightness: 0.55, saturation: 0.72 };
   if (!hasGradient && hsl.saturation < 0.36) {
     return null;
   }
@@ -287,7 +280,6 @@ function getReactiveSurfaceRect(
     height: Math.max(10, rect.height - inset * 2),
   };
 }
-
 
 function toScannedElement(
   kind: ScannedKind,
@@ -394,7 +386,9 @@ function isPickupLink(
   }
 
   if (
-    element.closest('header, nav, footer, form, summary, [role="navigation"], [role="tablist"], [role="menu"]')
+    element.closest(
+      'header, nav, footer, form, summary, [role="navigation"], [role="tablist"], [role="menu"]',
+    )
   ) {
     return false;
   }
@@ -435,7 +429,9 @@ function isPickupButton(
   }
 
   if (
-    element.closest('header, nav, footer, summary, [role="navigation"], [role="tablist"], [role="menu"]')
+    element.closest(
+      'header, nav, footer, summary, [role="navigation"], [role="tablist"], [role="menu"]',
+    )
   ) {
     return false;
   }

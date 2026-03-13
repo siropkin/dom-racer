@@ -10,11 +10,20 @@
     "build:debug": "tsc && DOM_RACER_SOURCEMAP=true vite build --mode release",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts' '*.config.*' '*.json' '.prettierrc'",
+    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts' '*.config.*' '*.json' '.prettierrc'"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.57.0",
     "vite": "^7.3.1",
     "vitest": "^4.1.0"
   }

@@ -108,6 +108,10 @@ All game feature phases (1-5) are complete. All documentation is up to date. Onl
 - `LURE` pull only affects regular coins (not specials), distinguishing it from `MAGNET` which pulls all pickups.
 - `COOLDOWN` reuses existing police delay cue infrastructure for HUD display.
 - Preferred-effect bias in `pickSpecialEffect` reduced from 58% to 52% to accommodate 6-effect pool.
+- ESLint (flat config, typescript-eslint, eslint-config-prettier) and Prettier are configured.
+- Lint scripts: `npm run lint`, `npm run lint:fix`. Format scripts: `npm run format`, `npm run format:check`.
+- ESLint rules: consistent-type-imports, no-unused-vars (_ prefix), eqeqeq, no-explicit-any (warn in src, off in tests).
+- Prettier: singleQuote, trailingComma all, printWidth 100.
 
 ## Constraints To Preserve
 

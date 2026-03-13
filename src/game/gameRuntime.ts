@@ -103,7 +103,14 @@ export const POLICE_ICE_SPEED_MULTIPLIER = 1.08;
 export const POLICE_ICE_TURN_RATE = 3.6;
 export const BLACKOUT_INVERT_SWAP_LIGHTNESS = 0.28;
 export const PICKUP_WORDS = ['LGTM', 'MERGED', 'GREEN', 'SYNCED', 'SHIPPED', 'CACHE'] as const;
-export const PICKUP_COLORS = ['#fde047', '#f9a8d4', '#67e8f9', '#fca5a5', '#86efac', '#c4b5fd'] as const;
+export const PICKUP_COLORS = [
+  '#fde047',
+  '#f9a8d4',
+  '#67e8f9',
+  '#fca5a5',
+  '#86efac',
+  '#c4b5fd',
+] as const;
 export const SHOWCASE_TOAST_MESSAGES = [
   'LGTM',
   'MERGED',
@@ -192,7 +199,14 @@ export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   },
 ];
 
-const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = ['invert', 'magnet', 'ghost', 'blackout', 'cooldown', 'lure'];
+const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = [
+  'invert',
+  'magnet',
+  'ghost',
+  'blackout',
+  'cooldown',
+  'lure',
+];
 const SPECIAL_LABELS: Record<SpecialEffect, string> = {
   bonus: 'BON',
   invert: 'INV',
@@ -331,7 +345,10 @@ export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
   return alternatives[Math.floor(Math.random() * alternatives.length)];
 }
 
-export function adaptBlackoutEffectForSurface(effect: SpecialEffect, surface: SurfaceSample): SpecialEffect {
+export function adaptBlackoutEffectForSurface(
+  effect: SpecialEffect,
+  surface: SurfaceSample,
+): SpecialEffect {
   if (effect === 'blackout' && surface.lightness <= BLACKOUT_INVERT_SWAP_LIGHTNESS) {
     return 'invert';
   }
@@ -355,7 +372,9 @@ export function getSpecialDropMessage(effect: SpecialEffect): string {
   return `${colorCode}-${getSpecialLabel(effect)}D`;
 }
 
-export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus' | 'cooldown' | 'jackpot'>): string {
+export function getSpecialHudLabel(
+  effect: Exclude<SpecialEffect, 'bonus' | 'cooldown' | 'jackpot'>,
+): string {
   switch (effect) {
     case 'magnet':
       return 'MAGNET CYAN';

@@ -1,4 +1,11 @@
-import { PLAYER_SIZE, type InputState, type Rect, type Vector2, type VehicleDesign, type ViewportSize } from '../shared/types';
+import {
+  PLAYER_SIZE,
+  type InputState,
+  type Rect,
+  type Vector2,
+  type VehicleDesign,
+  type ViewportSize,
+} from '../shared/types';
 import { clamp } from '../shared/utils';
 import { moveWithCollisions } from './collisions';
 import { renderPlayerSprite } from './playerSprite';
@@ -146,8 +153,10 @@ export class Player {
       const speed = Math.hypot(this.velocity.x, this.velocity.y);
       if (speed > 20) {
         const driftStrength = Math.min(1, speed / 210);
-        this.velocity.x += this.iceDriftDirection.x * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
-        this.velocity.y += this.iceDriftDirection.y * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+        this.velocity.x +=
+          this.iceDriftDirection.x * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+        this.velocity.y +=
+          this.iceDriftDirection.y * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
       }
     }
 
@@ -156,12 +165,7 @@ export class Player {
       y: this.velocity.y * dtSeconds,
     };
     const attemptedSpeed = dtSeconds > 0 ? Math.hypot(movement.x, movement.y) / dtSeconds : 0;
-    const moved = moveWithCollisions(
-      this.position,
-      PLAYER_SIZE,
-      movement,
-      obstacles,
-    );
+    const moved = moveWithCollisions(this.position, PLAYER_SIZE, movement, obstacles);
 
     this.position = {
       x: clamp(moved.position.x, 0, viewport.width - PLAYER_SIZE.width),
@@ -212,7 +216,10 @@ export class Player {
     return this.lastStepDiagnostics;
   }
 
-  draw(ctx: CanvasRenderingContext2D, options?: { opacity?: number; magnetActive?: boolean }): void {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    options?: { opacity?: number; magnetActive?: boolean },
+  ): void {
     const bounds = this.getBounds();
     const opacity = Math.max(0.2, Math.min(1, options?.opacity ?? 1));
     renderPlayerSprite(ctx, {

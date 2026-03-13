@@ -121,7 +121,7 @@ export class ToastSystem {
       const height = 20;
       const halfWidth = width / 2;
       const halfHeight = height / 2;
-      let x = clamp(message.x, halfWidth + 8, ctx.canvas.width - halfWidth - 8);
+      const x = clamp(message.x, halfWidth + 8, ctx.canvas.width - halfWidth - 8);
       let y = clamp(message.y, halfHeight + 8, ctx.canvas.height - halfHeight - 8);
 
       for (let attempt = 0; attempt < 8; attempt += 1) {

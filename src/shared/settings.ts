@@ -91,7 +91,8 @@ export async function loadDomRacerProfile(): Promise<DomRacerProfile> {
 export async function recordPageRun(snapshot: PageRunSnapshot): Promise<void> {
   await updateDomRacerProfile((profile) => {
     const pageKey = buildPageKey(snapshot.url);
-    const existing = profile.pages[pageKey] ?? createEmptyPageStats(pageKey, snapshot.url, snapshot.title);
+    const existing =
+      profile.pages[pageKey] ?? createEmptyPageStats(pageKey, snapshot.url, snapshot.title);
     const previousHighScore = existing.highScore;
     const nextHighScore = Math.max(previousHighScore, snapshot.score);
     const shouldRefreshBestElapsed =
@@ -137,7 +138,9 @@ async function readNormalizedProfile(): Promise<DomRacerProfile> {
   });
 }
 
-async function updateDomRacerProfile(mutator: (profile: DomRacerProfile) => void | Promise<void>): Promise<void> {
+async function updateDomRacerProfile(
+  mutator: (profile: DomRacerProfile) => void | Promise<void>,
+): Promise<void> {
   const operation = profileWriteQueue.then(async () => {
     const profile = await readNormalizedProfile();
     await mutator(profile);
@@ -282,8 +285,11 @@ function normalizeProfile(
 ): DomRacerProfile {
   const raw = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
   const rawLifetime =
-    raw.lifetime && typeof raw.lifetime === 'object' ? (raw.lifetime as Record<string, unknown>) : {};
-  const rawPages = raw.pages && typeof raw.pages === 'object' ? (raw.pages as Record<string, unknown>) : {};
+    raw.lifetime && typeof raw.lifetime === 'object'
+      ? (raw.lifetime as Record<string, unknown>)
+      : {};
+  const rawPages =
+    raw.pages && typeof raw.pages === 'object' ? (raw.pages as Record<string, unknown>) : {};
   const pages: Record<string, DomRacerPageStats> = {};
 
   for (const [key, pageValue] of Object.entries(rawPages)) {
@@ -315,7 +321,9 @@ function normalizePageStats(key: string, value: unknown): DomRacerPageStats {
     totalScore: toNumber(raw.totalScore),
     runs: toNumber(raw.runs),
     bestElapsedMs:
-      typeof raw.bestElapsedMs === 'number' && Number.isFinite(raw.bestElapsedMs) ? raw.bestElapsedMs : null,
+      typeof raw.bestElapsedMs === 'number' && Number.isFinite(raw.bestElapsedMs)
+        ? raw.bestElapsedMs
+        : null,
     lastReason: normalizeRunReason(raw.lastReason),
     updatedAt: toNumber(raw.updatedAt),
   };

@@ -87,8 +87,8 @@ export function trySpawnOvergrowthNode(
       }
 
       const tooClose = existingNodes.some((node) => {
-        const dx = (rect.x + rect.width / 2) - (node.rect.x + node.rect.width / 2);
-        const dy = (rect.y + rect.height / 2) - (node.rect.y + node.rect.height / 2);
+        const dx = rect.x + rect.width / 2 - (node.rect.x + node.rect.width / 2);
+        const dy = rect.y + rect.height / 2 - (node.rect.y + node.rect.height / 2);
         return Math.hypot(dx, dy) < 40;
       });
       if (tooClose) {
@@ -146,9 +146,7 @@ export function getOvergrowthSlowZones(nodes: OvergrowthNode[]): Rect[] {
 }
 
 export function getOvergrowthObstacles(nodes: OvergrowthNode[]): Rect[] {
-  return nodes
-    .filter((node) => node.stage === 'large')
-    .map((node) => cloneRect(node.rect));
+  return nodes.filter((node) => node.stage === 'large').map((node) => cloneRect(node.rect));
 }
 
 function getUsableEdges(anchor: Rect): OvergrowthEdge[] {
@@ -170,12 +168,18 @@ function computeOvergrowthRect(
   depth: number,
   span: number,
 ): Rect | null {
-  const clampedSpan = Math.min(span, edge === 'top' || edge === 'bottom' ? anchor.width : anchor.height);
+  const clampedSpan = Math.min(
+    span,
+    edge === 'top' || edge === 'bottom' ? anchor.width : anchor.height,
+  );
   if (clampedSpan < OVERGROWTH_MIN_SPAN) {
     return null;
   }
 
-  const offsetAlongEdge = randomBetween(0, Math.max(0, (edge === 'top' || edge === 'bottom' ? anchor.width : anchor.height) - clampedSpan));
+  const offsetAlongEdge = randomBetween(
+    0,
+    Math.max(0, (edge === 'top' || edge === 'bottom' ? anchor.width : anchor.height) - clampedSpan),
+  );
 
   switch (edge) {
     case 'top':

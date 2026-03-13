@@ -44,12 +44,7 @@ export function dispatchPlaneDropWithFallback(
 
   switch (planeBonusEvent.effectMode) {
     case 'coin-trail': {
-      const spawned = handlers.spawnCoinTrail(
-        dropX,
-        dropY,
-        planeBonusEvent.vx,
-        planeBonusEvent.vy,
-      );
+      const spawned = handlers.spawnCoinTrail(dropX, dropY, planeBonusEvent.vx, planeBonusEvent.vy);
       if (!spawned) {
         return bonusDrop();
       }
@@ -63,12 +58,7 @@ export function dispatchPlaneDropWithFallback(
       return true;
     }
     case 'lucky-wind': {
-      const spawned = handlers.spawnLuckyWind(
-        dropX,
-        dropY,
-        planeBonusEvent.vx,
-        planeBonusEvent.vy,
-      );
+      const spawned = handlers.spawnLuckyWind(dropX, dropY, planeBonusEvent.vx, planeBonusEvent.vy);
       if (!spawned) {
         return bonusDrop();
       }
@@ -119,7 +109,8 @@ export function applyPlaneLuckyWindToPickups({
         Math.abs(candidate.lateral) <= PLANE_LUCKY_WIND_RADIUS_PX * 0.9,
     )
     .sort(
-      (left, right) => left.distance - right.distance || Math.abs(left.lateral) - Math.abs(right.lateral),
+      (left, right) =>
+        left.distance - right.distance || Math.abs(left.lateral) - Math.abs(right.lateral),
     )
     .slice(0, PLANE_LUCKY_WIND_MAX_COINS);
 
@@ -161,7 +152,11 @@ export function applyPlaneLuckyWindToPickups({
       y: currentCenter.y + (toRouteY / distanceToRoute) * shiftPx,
     };
     const nextRect: Rect = {
-      x: clamp(shiftedCenter.x - candidate.pickup.rect.width / 2, 8, viewport.width - candidate.pickup.rect.width - 8),
+      x: clamp(
+        shiftedCenter.x - candidate.pickup.rect.width / 2,
+        8,
+        viewport.width - candidate.pickup.rect.width - 8,
+      ),
       y: clamp(
         shiftedCenter.y - candidate.pickup.rect.height / 2,
         8,

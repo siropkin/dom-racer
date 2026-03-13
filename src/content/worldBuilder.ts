@@ -1,4 +1,11 @@
-import { PLAYER_SIZE, type Rect, type ScannedElement, type Vector2, type ViewportSize, type World } from '../shared/types';
+import {
+  PLAYER_SIZE,
+  type Rect,
+  type ScannedElement,
+  type Vector2,
+  type ViewportSize,
+  type World,
+} from '../shared/types';
 import { distanceSquared, expandRect, rectCenter, rectsIntersect } from '../shared/utils';
 
 const REGULAR_COIN_SIZE = 16;
@@ -73,11 +80,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
   };
 }
 
-function createPickupRect(
-  rect: Rect,
-  viewport: ViewportSize,
-  blockers: Rect[],
-): Rect | null {
+function createPickupRect(rect: Rect, viewport: ViewportSize, blockers: Rect[]): Rect | null {
   const size = REGULAR_COIN_SIZE;
   const center = rectCenter(rect);
   const spacing = Math.max(18, size + 6);
@@ -165,8 +168,18 @@ function nearestClearance(candidate: Rect, blockers: Rect[], viewport: ViewportS
   let minDistance = Number.POSITIVE_INFINITY;
 
   for (const blocker of blockers) {
-    const dx = axisDistance(candidate.x, candidate.x + candidate.width, blocker.x, blocker.x + blocker.width);
-    const dy = axisDistance(candidate.y, candidate.y + candidate.height, blocker.y, blocker.y + blocker.height);
+    const dx = axisDistance(
+      candidate.x,
+      candidate.x + candidate.width,
+      blocker.x,
+      blocker.x + blocker.width,
+    );
+    const dy = axisDistance(
+      candidate.y,
+      candidate.y + candidate.height,
+      blocker.y,
+      blocker.y + blocker.height,
+    );
     const distance = Math.hypot(dx, dy);
     minDistance = Math.min(minDistance, distance);
   }

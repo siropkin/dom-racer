@@ -212,6 +212,7 @@ Completed:
 - No `__domRacerDebug` in source or build
 - Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
 - Duplicate `cloneRect` removed from `pickupSpawnRuntime.ts`; now imports from `gameRuntime.ts`
+- ESLint (flat config, typescript-eslint) + Prettier added; `npm run lint` and `npm run format` scripts available
 
 ## Phase 6: README / Presentation
 
@@ -261,6 +262,16 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (j)
+
+- Added ESLint (flat config with typescript-eslint) and Prettier to the project
+- ESLint rules: consistent-type-imports, no-unused-vars (with _ prefix ignore), eqeqeq, no-explicit-any (warn in src, off in tests)
+- Prettier: singleQuote, trailingComma all, printWidth 100
+- Formatted entire codebase with Prettier, fixed all ESLint errors
+- Added `lint`, `lint:fix`, `format`, `format:check` npm scripts
+- Updated README Development section with new scripts
+- 72 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (i)
 

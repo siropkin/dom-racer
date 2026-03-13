@@ -36,20 +36,26 @@ let lifetimeBestScore = 0;
 let lastMagnetUiUpdateAt = 0;
 const magnetizedElements = new Set<HTMLElement>();
 
-void loadSoundEnabledSetting().then((value) => {
-  soundEnabled = value;
-  game?.setSoundEnabled(value);
-}).catch(() => undefined);
+void loadSoundEnabledSetting()
+  .then((value) => {
+    soundEnabled = value;
+    game?.setSoundEnabled(value);
+  })
+  .catch(() => undefined);
 
-void loadVehicleDesignSetting().then((value) => {
-  vehicleDesign = value;
-  game?.setVehicleDesign(value);
-}).catch(() => undefined);
+void loadVehicleDesignSetting()
+  .then((value) => {
+    vehicleDesign = value;
+    game?.setVehicleDesign(value);
+  })
+  .catch(() => undefined);
 
-void loadScoreSummary(window.location.href).then((summary) => {
-  pageBestScore = summary.pageBestScore;
-  lifetimeBestScore = summary.lifetimeBestScore;
-}).catch(() => undefined);
+void loadScoreSummary(window.location.href)
+  .then((summary) => {
+    pageBestScore = summary.pageBestScore;
+    lifetimeBestScore = summary.lifetimeBestScore;
+  })
+  .catch(() => undefined);
 
 const rescanWhileActive = debounce(() => {
   if (!active || !game) {
@@ -118,7 +124,8 @@ function activate(): void {
   previousBodyPaddingRight = document.body.style.paddingRight;
   const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
   if (scrollbarWidth > 0) {
-    const computedPaddingRight = Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
+    const computedPaddingRight =
+      Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
     document.body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
   }
   document.documentElement.style.userSelect = 'none';
@@ -219,7 +226,11 @@ function setPageBlackout(active: boolean): void {
   document.body.classList.toggle('dom-racer-blackout', active);
 }
 
-function setMagnetUiState(state: { active: boolean; point: { x: number; y: number } | null; strength: number }): void {
+function setMagnetUiState(state: {
+  active: boolean;
+  point: { x: number; y: number } | null;
+  strength: number;
+}): void {
   if (!state.active || !state.point) {
     clearMagnetizedUi();
     return;
@@ -272,7 +283,10 @@ function setMagnetUiState(state: { active: boolean; point: { x: number; y: numbe
       candidate.classList.add('dom-racer-magnetized');
       candidate.style.setProperty('--dom-racer-magnet-x', `${moveX.toFixed(1)}px`);
       candidate.style.setProperty('--dom-racer-magnet-y', `${moveY.toFixed(1)}px`);
-      candidate.style.setProperty('--dom-racer-magnet-alpha', `${(0.2 + state.strength * 0.45).toFixed(2)}`);
+      candidate.style.setProperty(
+        '--dom-racer-magnet-alpha',
+        `${(0.2 + state.strength * 0.45).toFixed(2)}`,
+      );
       nextElements.add(candidate);
       if (nextElements.size >= 8) {
         break;
@@ -340,7 +354,6 @@ function sampleSurfaceAt(point: { x: number; y: number }): {
   };
 }
 
-
 function injectStyles(): void {
   if (document.getElementById(STYLE_ID)) {
     return;
@@ -385,7 +398,12 @@ function isMagnetizableElement(element: HTMLElement): boolean {
 
   const rect = element.getBoundingClientRect();
   const area = rect.width * rect.height;
-  if (rect.width < 14 || rect.height < 14 || area < 180 || area > window.innerWidth * window.innerHeight * 0.18) {
+  if (
+    rect.width < 14 ||
+    rect.height < 14 ||
+    area < 180 ||
+    area > window.innerWidth * window.innerHeight * 0.18
+  ) {
     return false;
   }
 

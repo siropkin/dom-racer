@@ -55,11 +55,7 @@ export function resolveNearMissStep(options: {
   return { triggered: false, scoreBonus: 0, cooldownMs: 0, messageText: '' };
 }
 
-export function isNearMiss(
-  playerRect: Rect,
-  obstacleRect: Rect,
-  thresholdPx: number,
-): boolean {
+export function isNearMiss(playerRect: Rect, obstacleRect: Rect, thresholdPx: number): boolean {
   if (rectsIntersect(playerRect, obstacleRect)) {
     return false;
   }

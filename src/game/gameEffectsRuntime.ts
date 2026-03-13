@@ -57,7 +57,10 @@ interface PickupComboResult {
   flowTier: number | null;
 }
 
-export function tickEffectTimers(state: EffectTimerState, dtSeconds: number): EffectTimerUpdateResult {
+export function tickEffectTimers(
+  state: EffectTimerState,
+  dtSeconds: number,
+): EffectTimerUpdateResult {
   const deltaMs = dtSeconds * 1000;
   const nextInvertTimerMs = Math.max(0, state.invertTimerMs - deltaMs);
   const nextBlackoutTimerMs = Math.max(0, state.blackoutTimerMs - deltaMs);
@@ -76,10 +79,12 @@ export function tickEffectTimers(state: EffectTimerState, dtSeconds: number): Ef
   };
 }
 
-export function applyPickupComboState(comboTimerMs: number, pickupComboCount: number): PickupComboResult {
+export function applyPickupComboState(
+  comboTimerMs: number,
+  pickupComboCount: number,
+): PickupComboResult {
   const nextPickupComboCount = comboTimerMs > 0 ? pickupComboCount + 1 : 1;
-  const bonus =
-    nextPickupComboCount < 3 ? 0 : Math.min(14, 2 + (nextPickupComboCount - 3) * 2);
+  const bonus = nextPickupComboCount < 3 ? 0 : Math.min(14, 2 + (nextPickupComboCount - 3) * 2);
   const flowTier = [3, 5, 8, 12].includes(nextPickupComboCount) ? nextPickupComboCount : null;
 
   return {

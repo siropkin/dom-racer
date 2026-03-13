@@ -112,10 +112,20 @@ export function renderPlaneSprite(
   ctx.fillRect(-cabinWidth / 2, -cabinHeight / 2, cabinWidth, cabinHeight);
 
   ctx.fillStyle = '#93c5fd';
-  ctx.fillRect(wingOffsetX - tuning.wingWidth / 2, -tuning.wingSpan / 2, tuning.wingWidth, tuning.wingSpan);
+  ctx.fillRect(
+    wingOffsetX - tuning.wingWidth / 2,
+    -tuning.wingSpan / 2,
+    tuning.wingWidth,
+    tuning.wingSpan,
+  );
   ctx.strokeStyle = '#f8fafc';
   ctx.lineWidth = 1.2;
-  ctx.strokeRect(wingOffsetX - tuning.wingWidth / 2, -tuning.wingSpan / 2, tuning.wingWidth, tuning.wingSpan);
+  ctx.strokeRect(
+    wingOffsetX - tuning.wingWidth / 2,
+    -tuning.wingSpan / 2,
+    tuning.wingWidth,
+    tuning.wingSpan,
+  );
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(
     wingOffsetX - tuning.wingAccentWidth / 2,

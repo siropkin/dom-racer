@@ -80,7 +80,11 @@ import {
   resolveRegularCoinSpawnStep,
   spawnQueuedCoinsFromAnchors,
 } from './pickupSpawnRuntime';
-import { drawCaughtGameOverOverlay, drawPausedOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
+import {
+  drawCaughtGameOverOverlay,
+  drawPausedOverlay,
+  drawSpriteShowcaseOverlay,
+} from './gameOverlays';
 import { Player } from './player';
 import {
   adaptBlackoutEffectForSurface,
@@ -163,11 +167,7 @@ import {
   trySpawnOvergrowthNode,
   type OvergrowthNode,
 } from './overgrowthRuntime';
-import {
-  resolveNearMissStep,
-  NEAR_MISS_COLOR,
-  NEAR_MISS_TOAST_TTL_MS,
-} from './nearMissRuntime';
+import { resolveNearMissStep, NEAR_MISS_COLOR, NEAR_MISS_TOAST_TTL_MS } from './nearMissRuntime';
 import {
   createInitialObjectiveState,
   getObjectiveCompletionWord,
@@ -188,7 +188,11 @@ export class Game {
   private sampleSurfaceAt: (point: Vector2) => SurfaceSample;
   private setPageInverted: (active: boolean) => void;
   private setPageBlackout: (active: boolean) => void;
-  private setMagnetUiState: (state: { active: boolean; point: Vector2 | null; strength: number }) => void;
+  private setMagnetUiState: (state: {
+    active: boolean;
+    point: Vector2 | null;
+    strength: number;
+  }) => void;
   private onQuit: () => void;
   private onSoundEnabledChange: (enabled: boolean) => void;
   private onVehicleDesignChange: (design: VehicleDesign) => void;
@@ -309,7 +313,10 @@ export class Game {
     this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
     this.coinsCollectedTotal = 0;
-    this.specialSpawnTimerMs = randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS);
+    this.specialSpawnTimerMs = randomBetween(
+      SPECIAL_INITIAL_SPAWN_MIN_MS,
+      SPECIAL_INITIAL_SPAWN_MAX_MS,
+    );
     this.magnetTimerMs = 0;
     this.ghostTimerMs = 0;
     this.invertTimerMs = 0;
@@ -320,7 +327,10 @@ export class Game {
     this.policeChase = null;
     this.policeWarning = null;
     this.planeWarning = null;
-    this.policeSpawnTimerMs = randomBetween(POLICE_INITIAL_SPAWN_MIN_MS, POLICE_INITIAL_SPAWN_MAX_MS);
+    this.policeSpawnTimerMs = randomBetween(
+      POLICE_INITIAL_SPAWN_MIN_MS,
+      POLICE_INITIAL_SPAWN_MAX_MS,
+    );
     this.pickupComboCount = 0;
     this.comboTimerMs = 0;
     this.gameOverState = null;
@@ -451,14 +461,17 @@ export class Game {
       const blocked = !this.player.isAirborne() && collidesWithAny(currentBounds, world.obstacles);
       const unsafe =
         !this.player.isAirborne() &&
-        (collidesWithAny(currentBounds, world.deadSpots) || collidesWithAny(currentBounds, world.hazards));
+        (collidesWithAny(currentBounds, world.deadSpots) ||
+          collidesWithAny(currentBounds, world.hazards));
       if (blocked || unsafe) {
         this.player.reset(world.spawnPoint);
       }
     }
 
     this.spawnQueuedCoins(REGULAR_COIN_STARTING_BATCH);
-    const visibleRegularCoins = this.world.pickups.filter((pickup) => !isSpecialPickup(pickup)).length;
+    const visibleRegularCoins = this.world.pickups.filter(
+      (pickup) => !isSpecialPickup(pickup),
+    ).length;
     this.coinRefillTimerMs = getCoinRefillDelayMs(visibleRegularCoins, this.coinRefillBoostTimerMs);
     this.coinRefillBoostTimerMs = 0;
   }
@@ -514,8 +527,14 @@ export class Game {
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce = isOnIceZone(currentBounds, this.world.iceZones);
-    const activeObstacles = [...this.world.obstacles, ...getOvergrowthObstacles(this.overgrowthNodes)];
-    const activeSlowZones = [...this.world.slowZones, ...getOvergrowthSlowZones(this.overgrowthNodes)];
+    const activeObstacles = [
+      ...this.world.obstacles,
+      ...getOvergrowthObstacles(this.overgrowthNodes),
+    ];
+    const activeSlowZones = [
+      ...this.world.slowZones,
+      ...getOvergrowthSlowZones(this.overgrowthNodes),
+    ];
     const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, activeSlowZones);
 
     const activeInput = this.getActiveInput();
@@ -576,8 +595,8 @@ export class Game {
     const coinsCollectedThisFrame = pickupStep.collectedPickups.filter(
       (p) => !isSpecialPickup(p),
     ).length;
-    const specialsCollectedThisFrame = pickupStep.collectedPickups.filter(
-      (p) => isSpecialPickup(p),
+    const specialsCollectedThisFrame = pickupStep.collectedPickups.filter((p) =>
+      isSpecialPickup(p),
     ).length;
     this.updateMicroObjective(
       {
@@ -639,7 +658,13 @@ export class Game {
     drawOvergrowthNodes(ctx, this.overgrowthNodes, performance.now());
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
-    drawPickups(ctx, this.world.pickups, this.comboTimerMs, this.pickupComboCount, performance.now());
+    drawPickups(
+      ctx,
+      this.world.pickups,
+      this.comboTimerMs,
+      this.pickupComboCount,
+      performance.now(),
+    );
     this.player.draw(ctx, {
       opacity: this.ghostTimerMs > 0 ? 0.46 : 1,
       magnetActive: this.magnetTimerMs > 0,
@@ -651,8 +676,10 @@ export class Game {
     ctx.restore();
 
     const currentSurface = this.sampleCurrentSurface();
-    const policeRemainingMs = this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null;
-    const policeDurationMs = this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null;
+    const policeRemainingMs =
+      this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null;
+    const policeDurationMs =
+      this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null;
     const hudState = buildHudState({
       score: this.score,
       elapsedMs: performance.now() - this.startTimeMs,
@@ -708,13 +735,14 @@ export class Game {
 
   private cycleSpriteShowcaseTheme(direction: -1 | 1): void {
     const total = SHOWCASE_THEMES.length;
-    this.spriteShowcaseThemeIndex =
-      (this.spriteShowcaseThemeIndex + direction + total) % total;
+    this.spriteShowcaseThemeIndex = (this.spriteShowcaseThemeIndex + direction + total) % total;
   }
 
   private autoPickSpriteShowcaseTheme(): void {
     this.spriteShowcasePageLightness = this.estimatePageLightness();
-    this.spriteShowcaseThemeIndex = pickOppositeShowcaseThemeIndex(this.spriteShowcasePageLightness);
+    this.spriteShowcaseThemeIndex = pickOppositeShowcaseThemeIndex(
+      this.spriteShowcasePageLightness,
+    );
   }
 
   private estimatePageLightness(): number {
@@ -891,7 +919,8 @@ export class Game {
 
     const step = resolveAmbientSpecialSpawnStep({
       specialSpawnTimerMs: this.specialSpawnTimerMs,
-      existingSpecialCount: this.dynamicPickups.filter((pickup) => pickup.kind === 'special').length,
+      existingSpecialCount: this.dynamicPickups.filter((pickup) => pickup.kind === 'special')
+        .length,
       planeRouteActive: Boolean(this.planeCoinTrail),
       dtSeconds,
     });
@@ -924,7 +953,12 @@ export class Game {
         ...(playerBounds ? [playerBounds] : []),
         ...this.world.pickups.map((pickup) => pickup.rect),
       ];
-      const node = trySpawnOvergrowthNode(anchors, this.overgrowthNodes, spawnBlockers, runElapsedMs);
+      const node = trySpawnOvergrowthNode(
+        anchors,
+        this.overgrowthNodes,
+        spawnBlockers,
+        runElapsedMs,
+      );
       if (node) {
         this.overgrowthNodes.push(node);
       }
@@ -1040,7 +1074,10 @@ export class Game {
 
     if (planeStep.completed) {
       this.planeBonusEvent = null;
-      this.planeBonusTimerMs = randomBetween(PLANE_EVENT_RESPAWN_MIN_MS, PLANE_EVENT_RESPAWN_MAX_MS);
+      this.planeBonusTimerMs = randomBetween(
+        PLANE_EVENT_RESPAWN_MIN_MS,
+        PLANE_EVENT_RESPAWN_MAX_MS,
+      );
       this.policeSpawnTimerMs = Math.max(
         this.policeSpawnTimerMs,
         randomBetween(POLICE_AFTER_PLANE_MIN_MS, POLICE_AFTER_PLANE_MAX_MS),
@@ -1251,7 +1288,9 @@ export class Game {
       return false;
     }
 
-    const existingSpecials = this.dynamicPickups.filter((pickup) => pickup.kind === 'special').length;
+    const existingSpecials = this.dynamicPickups.filter(
+      (pickup) => pickup.kind === 'special',
+    ).length;
     if (existingSpecials >= SPECIAL_VISIBLE_CAP) {
       return false;
     }
@@ -1268,7 +1307,7 @@ export class Game {
       y: rect.y + rect.height / 2,
     });
     const effect = isJackpot
-      ? 'jackpot' as const
+      ? ('jackpot' as const)
       : adaptBlackoutEffectForSurface(pickSpecialEffect(surface), surface);
     const pickup: WorldPickup = {
       id: `special:${effect}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
@@ -1478,7 +1517,10 @@ export class Game {
         this.policeChase = null;
         this.policeSpawnTimerMs = randomBetween(POLICE_RESPAWN_MIN_MS, POLICE_RESPAWN_MAX_MS);
         if (!this.planeBonusEvent && !this.planeWarning) {
-          this.planeBonusTimerMs = randomBetween(PLANE_AFTER_POLICE_MIN_MS, PLANE_AFTER_POLICE_MAX_MS);
+          this.planeBonusTimerMs = randomBetween(
+            PLANE_AFTER_POLICE_MIN_MS,
+            PLANE_AFTER_POLICE_MAX_MS,
+          );
         }
       }
 
@@ -1529,7 +1571,12 @@ export class Game {
       return;
     }
 
-    renderPoliceWarningIndicator(this.context, this.world.viewport, this.policeWarning, performance.now());
+    renderPoliceWarningIndicator(
+      this.context,
+      this.world.viewport,
+      this.policeWarning,
+      performance.now(),
+    );
   }
 
   private drawPlaneWarning(): void {
@@ -1602,7 +1649,11 @@ export class Game {
     this.setPageBlackout(active);
   }
 
-  private spawnEffectMessage(text: string, color: string, priority: ToastPriority = 'medium'): void {
+  private spawnEffectMessage(
+    text: string,
+    color: string,
+    priority: ToastPriority = 'medium',
+  ): void {
     if (!this.player) {
       return;
     }

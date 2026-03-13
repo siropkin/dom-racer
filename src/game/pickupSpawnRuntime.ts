@@ -335,4 +335,3 @@ export function resolveRegularCoinSpawnStep(options: {
     shouldSpawn: true,
   };
 }
-

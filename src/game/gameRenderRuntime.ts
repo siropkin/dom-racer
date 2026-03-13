@@ -199,7 +199,10 @@ const BUSH_STAGE_STYLES: Record<OvergrowthStage, OvergrowthStageStyle> = {
   large: { fill: '#22c55e', alpha: 0.88, stroke: '#15803d' },
 };
 
-const TREE_STAGE_STYLES: Record<OvergrowthStage, OvergrowthStageStyle & { trunk: string; inner: string }> = {
+const TREE_STAGE_STYLES: Record<
+  OvergrowthStage,
+  OvergrowthStageStyle & { trunk: string; inner: string }
+> = {
   small: { fill: '#6ee7b7', alpha: 0.36, stroke: '', trunk: '#a16207', inner: '#86efac' },
   medium: { fill: '#34d399', alpha: 0.62, stroke: '', trunk: '#92400e', inner: '#4ade80' },
   large: { fill: '#059669', alpha: 0.88, stroke: '#15803d', trunk: '#78350f', inner: '#22c55e' },

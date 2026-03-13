@@ -40,7 +40,8 @@ export interface ClearedComboState {
   comboTimerMs: number;
 }
 
-export interface BeginRunState extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
+export interface BeginRunState
+  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
   dynamicPickups: WorldPickup[];
   coinSpawnQueue: WorldPickup[];
   coinSpawnIdCounter: number;
@@ -58,18 +59,14 @@ export interface BeginRunState extends ClearedEncounterState, ClearedEffectState
 }
 
 export interface CaughtGameOverTransitionState
-  extends ClearedEncounterState,
-    ClearedEffectState,
-    ClearedComboState {
+  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
   gameOverState: GameOverState;
   spriteShowcaseActive: boolean;
   startTimeMs: number;
 }
 
 export interface SpriteShowcaseTransitionState
-  extends ClearedEncounterState,
-    ClearedEffectState,
-    ClearedComboState {
+  extends ClearedEncounterState, ClearedEffectState, ClearedComboState {
   spriteShowcaseActive: boolean;
 }
 

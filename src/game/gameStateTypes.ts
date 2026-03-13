@@ -1,8 +1,4 @@
-import type {
-  Vector2,
-  VehicleDesign,
-  World,
-} from '../shared/types';
+import type { Vector2, VehicleDesign, World } from '../shared/types';
 import type { SurfaceSample } from './gameRuntime';
 import type { PoliceEdge } from './policeSprite';
 
@@ -27,12 +23,7 @@ export interface PlaneBonusEventState {
   dropAtPx: number;
   dropped: boolean;
   flyoverSoundPlayed: boolean;
-  effectMode:
-    | 'bonus-drop'
-    | 'coin-trail'
-    | 'spotlight'
-    | 'lucky-wind'
-    | 'police-delay';
+  effectMode: 'bonus-drop' | 'coin-trail' | 'spotlight' | 'lucky-wind' | 'police-delay';
 }
 
 export interface PlaneCoinTrailState {

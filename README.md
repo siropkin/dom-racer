@@ -170,16 +170,20 @@ src/styles/      Overlay and page-effect styles
 ## Development
 
 ```bash
-npm run dev       # Rebuild on file changes
-npm run build     # Type-check + production build
-npm run typecheck # TypeScript only
-npm run test      # Run smoke tests
-npm run brand     # Regenerate extension icons and marketplace graphics
+npm run dev          # Rebuild on file changes
+npm run build        # Type-check + production build
+npm run typecheck    # TypeScript only
+npm run test         # Run smoke tests
+npm run lint         # ESLint check
+npm run lint:fix     # ESLint auto-fix
+npm run format       # Prettier format
+npm run format:check # Prettier check (CI-friendly)
+npm run brand        # Regenerate extension icons and marketplace graphics
 ```
 
 ## Stack
 
-Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API.
+Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API, ESLint, Prettier.
 
 ## Notes
 

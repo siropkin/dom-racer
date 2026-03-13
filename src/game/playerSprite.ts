@@ -94,7 +94,11 @@ function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number): void {
   ctx.stroke();
 }
 
-function drawVehicleBody(ctx: CanvasRenderingContext2D, design: VehicleDesign, airborne: boolean): void {
+function drawVehicleBody(
+  ctx: CanvasRenderingContext2D,
+  design: VehicleDesign,
+  airborne: boolean,
+): void {
   switch (design) {
     case 'buggy':
       drawBuggyBody(ctx, airborne);

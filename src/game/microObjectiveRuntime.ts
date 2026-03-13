@@ -57,11 +57,29 @@ export const OBJECTIVE_TOAST_TTL_MS = 800;
 
 export const OBJECTIVE_TEMPLATES: ObjectiveTemplate[] = [
   { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 0, tracker: 'coins_collected' },
-  { id: 'collect_8_20s', label: '8 COINS 20S', target: 8, timeLimitMs: 20_000, tracker: 'coins_collected' },
+  {
+    id: 'collect_8_20s',
+    label: '8 COINS 20S',
+    target: 8,
+    timeLimitMs: 20_000,
+    tracker: 'coins_collected',
+  },
   { id: 'score_80', label: 'REACH 80', target: 80, timeLimitMs: 0, tracker: 'score_threshold' },
   { id: 'near_3', label: '3 CLOSE CALLS', target: 3, timeLimitMs: 0, tracker: 'near_misses' },
-  { id: 'grab_special', label: 'GRAB SPECIAL', target: 1, timeLimitMs: 0, tracker: 'specials_collected' },
-  { id: 'survive_20', label: 'SURVIVE 20S', target: 20_000, timeLimitMs: 20_000, tracker: 'survive_duration' },
+  {
+    id: 'grab_special',
+    label: 'GRAB SPECIAL',
+    target: 1,
+    timeLimitMs: 0,
+    tracker: 'specials_collected',
+  },
+  {
+    id: 'survive_20',
+    label: 'SURVIVE 20S',
+    target: 20_000,
+    timeLimitMs: 20_000,
+    tracker: 'survive_duration',
+  },
   { id: 'flow_x5', label: 'FLOW X5', target: 5, timeLimitMs: 0, tracker: 'combo_threshold' },
   { id: 'collect_12', label: '12 COINS', target: 12, timeLimitMs: 0, tracker: 'coins_collected' },
 ];
@@ -92,7 +110,10 @@ export function resolveObjectiveTickStep(options: {
     if (isObjectiveCompleted(updated)) {
       return {
         active: null,
-        assignDelayMs: randomBetween(OBJECTIVE_COMPLETE_DELAY_MIN_MS, OBJECTIVE_COMPLETE_DELAY_MAX_MS),
+        assignDelayMs: randomBetween(
+          OBJECTIVE_COMPLETE_DELAY_MIN_MS,
+          OBJECTIVE_COMPLETE_DELAY_MAX_MS,
+        ),
         completedCount: options.completedCount + 1,
         lastTemplateId: options.lastTemplateId,
         completed: true,
@@ -100,7 +121,11 @@ export function resolveObjectiveTickStep(options: {
       };
     }
 
-    if (updated.timeLimitMs > 0 && updated.timeRemainingMs <= 0 && updated.tracker !== 'survive_duration') {
+    if (
+      updated.timeLimitMs > 0 &&
+      updated.timeRemainingMs <= 0 &&
+      updated.tracker !== 'survive_duration'
+    ) {
       return {
         active: null,
         assignDelayMs: randomBetween(OBJECTIVE_EXPIRE_DELAY_MIN_MS, OBJECTIVE_EXPIRE_DELAY_MAX_MS),

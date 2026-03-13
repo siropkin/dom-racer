@@ -71,7 +71,11 @@ function drawSoundStateChip(
   ctx.fillText(label, x + 14, y + 3);
 }
 
-function drawActiveEffects(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {
+function drawActiveEffects(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  state: HudState,
+): void {
   const panelWidth = 164;
   const rowHeight = 28;
   const panelHeight = 20 + state.activeEffects.length * rowHeight;
@@ -103,7 +107,11 @@ function drawActiveEffects(ctx: CanvasRenderingContext2D, viewport: ViewportSize
   });
 }
 
-function drawObjectivePanel(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {
+function drawObjectivePanel(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  state: HudState,
+): void {
   if (!state.objectiveText) {
     return;
   }
@@ -132,7 +140,11 @@ function drawObjectivePanel(ctx: CanvasRenderingContext2D, viewport: ViewportSiz
   ctx.fillRect(barX, barY, Math.max(2, barWidth * Math.min(1, state.objectiveProgress)), barHeight);
 }
 
-function drawScoreMemory(ctx: CanvasRenderingContext2D, viewport: ViewportSize, state: HudState): void {
+function drawScoreMemory(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  state: HudState,
+): void {
   const panelWidth = 210;
   const panelHeight = 52;
   const panelX = 16;
@@ -143,6 +155,14 @@ function drawScoreMemory(ctx: CanvasRenderingContext2D, viewport: ViewportSize, 
   ctx.fillStyle = 'rgba(34, 211, 238, 0.84)';
   ctx.fillRect(panelX, panelY, panelWidth, 2);
   ctx.fillStyle = '#e2e8f0';
-  ctx.fillText(`PAGE BEST ${state.pageBestScore.toString().padStart(4, '0')}`, panelX + 12, panelY + 10);
-  ctx.fillText(`LIFE BEST ${state.lifetimeBestScore.toString().padStart(4, '0')}`, panelX + 12, panelY + 28);
+  ctx.fillText(
+    `PAGE BEST ${state.pageBestScore.toString().padStart(4, '0')}`,
+    panelX + 12,
+    panelY + 10,
+  );
+  ctx.fillText(
+    `LIFE BEST ${state.lifetimeBestScore.toString().padStart(4, '0')}`,
+    panelX + 12,
+    panelY + 28,
+  );
 }

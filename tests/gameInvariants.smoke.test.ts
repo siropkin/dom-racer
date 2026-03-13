@@ -5,16 +5,31 @@ import {
   applyPlaneLuckyWindToPickups,
   createPoliceDelayCueState,
 } from '../src/game/planeDropRuntime';
-import { advancePoliceChasing, resolvePlaneEncounterSchedulingStep } from '../src/game/encounterRuntime';
-import { advanceFocusModeAlpha, advanceSpecialSpawnCues, estimatePageLightness } from '../src/game/gameRenderRuntime';
+import {
+  advancePoliceChasing,
+  resolvePlaneEncounterSchedulingStep,
+} from '../src/game/encounterRuntime';
+import {
+  advanceFocusModeAlpha,
+  advanceSpecialSpawnCues,
+  estimatePageLightness,
+} from '../src/game/gameRenderRuntime';
 import {
   resolveFocusPauseTransitionState,
   shouldPauseForPageFocus,
 } from '../src/game/gameRunStateRuntime';
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
-import { applyLurePullToPickups, applyMagnetPullToPickups, resolveSpecialEffectActivation } from '../src/game/gameEffectsRuntime';
+import {
+  applyLurePullToPickups,
+  applyMagnetPullToPickups,
+  resolveSpecialEffectActivation,
+} from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
-import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs, resolveRegularCoinSpawnStep } from '../src/game/pickupSpawnRuntime';
+import {
+  resolveAmbientSpecialSpawnStep,
+  getSpecialSpawnRespawnDelayMs,
+  resolveRegularCoinSpawnStep,
+} from '../src/game/pickupSpawnRuntime';
 import {
   advanceOvergrowthGrowth,
   getOvergrowthObstacles,
@@ -38,7 +53,6 @@ import {
   getObjectiveCompletionWord,
   getObjectiveHudText,
   getObjectiveProgress,
-  OBJECTIVE_SCORE_BONUS,
   OBJECTIVE_TEMPLATES,
   pickObjectiveTemplate,
   resolveObjectiveTickStep,
@@ -168,12 +182,16 @@ describe('game economy and police smoke invariants', () => {
   it('spawns specials independently from regular coin economy', () => {
     (game as any).beginRun('manual');
     const runtimeWorldBefore = (game as any).world as World;
-    const regularBefore = runtimeWorldBefore.pickups.filter((pickup) => pickup.kind !== 'special').length;
+    const regularBefore = runtimeWorldBefore.pickups.filter(
+      (pickup) => pickup.kind !== 'special',
+    ).length;
     const queueBefore = (game as any).coinSpawnQueue.length;
 
     const spawned = (game as any).spawnSpecialPickup() as boolean;
     const runtimeWorldAfter = (game as any).world as World;
-    const regularAfter = runtimeWorldAfter.pickups.filter((pickup) => pickup.kind !== 'special').length;
+    const regularAfter = runtimeWorldAfter.pickups.filter(
+      (pickup) => pickup.kind !== 'special',
+    ).length;
     const specialsAfter = runtimeWorldAfter.pickups.filter((pickup) => pickup.kind === 'special');
 
     expect(spawned).toBe(true);
@@ -256,7 +274,9 @@ describe('game economy and police smoke invariants', () => {
     const spawned = (game as any).spawnPlaneCoinTrail(620, 280, 1, 0) as boolean;
     expect(spawned).toBe(true);
 
-    const trailCoins = runtimeWorld.pickups.filter((pickup) => pickup.id.startsWith('plane-trail:'));
+    const trailCoins = runtimeWorld.pickups.filter((pickup) =>
+      pickup.id.startsWith('plane-trail:'),
+    );
     expect(trailCoins.length).toBeGreaterThanOrEqual(3);
     expect(trailCoins.every((pickup) => pickup.kind === 'coin')).toBe(true);
     expect(trailCoins.every((pickup) => pickup.value === 10)).toBe(true);
@@ -388,8 +408,14 @@ describe('game economy and police smoke invariants', () => {
       x: after.x + after.width / 2,
       y: after.y + after.height / 2,
     };
-    const beforeDistance = Math.hypot(playerCenter.x - beforeCenter.x, playerCenter.y - beforeCenter.y);
-    const afterDistance = Math.hypot(playerCenter.x - afterCenter.x, playerCenter.y - afterCenter.y);
+    const beforeDistance = Math.hypot(
+      playerCenter.x - beforeCenter.x,
+      playerCenter.y - beforeCenter.y,
+    );
+    const afterDistance = Math.hypot(
+      playerCenter.x - afterCenter.x,
+      playerCenter.y - afterCenter.y,
+    );
 
     expect(afterDistance).toBeLessThan(beforeDistance);
   });
@@ -449,7 +475,9 @@ describe('game economy and police smoke invariants', () => {
     const nearSpecialAfter = after.find((entry) => entry.id === 'special:near');
     const farCoinBefore = before.find((entry) => entry.id === 'coin:far');
     const farCoinAfter = after.find((entry) => entry.id === 'coin:far');
-    expect(nearCoinAfter?.distance).toBeLessThan(nearCoinBefore?.distance ?? Number.POSITIVE_INFINITY);
+    expect(nearCoinAfter?.distance).toBeLessThan(
+      nearCoinBefore?.distance ?? Number.POSITIVE_INFINITY,
+    );
     expect(nearSpecialAfter?.distance).toBeLessThan(
       nearSpecialBefore?.distance ?? Number.POSITIVE_INFINITY,
     );
@@ -518,17 +546,21 @@ describe('game economy and police smoke invariants', () => {
       center: { x: 560, y: 300 },
       direction: { x: 1, y: 0 },
     });
-    const movedRegularCoins = pickups.filter((pickup) => pickup.kind !== 'special').filter((pickup) => {
-      const center = {
-        x: pickup.rect.x + pickup.rect.width / 2,
-        y: pickup.rect.y + pickup.rect.height / 2,
-      };
-      const beforeCenter = regularCentersBefore.get(pickup.id);
-      if (!beforeCenter) {
-        return false;
-      }
-      return Math.abs(center.x - beforeCenter.x) > 0.01 || Math.abs(center.y - beforeCenter.y) > 0.01;
-    });
+    const movedRegularCoins = pickups
+      .filter((pickup) => pickup.kind !== 'special')
+      .filter((pickup) => {
+        const center = {
+          x: pickup.rect.x + pickup.rect.width / 2,
+          y: pickup.rect.y + pickup.rect.height / 2,
+        };
+        const beforeCenter = regularCentersBefore.get(pickup.id);
+        if (!beforeCenter) {
+          return false;
+        }
+        return (
+          Math.abs(center.x - beforeCenter.x) > 0.01 || Math.abs(center.y - beforeCenter.y) > 0.01
+        );
+      });
     const specialAfter = pickups.find((pickup) => pickup.kind === 'special');
 
     expect(applied).toBe(true);
@@ -605,7 +637,9 @@ describe('game economy and police smoke invariants', () => {
     const runtimeWorld = (game as any).world as World;
     const queueBefore = (game as any).coinSpawnQueue.length;
     const cuesBefore = (game as any).specialSpawnCues.length;
-    const specialCountBefore = runtimeWorld.pickups.filter((pickup) => pickup.kind === 'special').length;
+    const specialCountBefore = runtimeWorld.pickups.filter(
+      (pickup) => pickup.kind === 'special',
+    ).length;
 
     runtimeWorld.pickups.push({
       id: 'special:magnet:test',
@@ -618,7 +652,9 @@ describe('game economy and police smoke invariants', () => {
     });
 
     const spawned = (game as any).spawnPlaneSpotlight(560, 260) as boolean;
-    const specialCountAfter = runtimeWorld.pickups.filter((pickup) => pickup.kind === 'special').length;
+    const specialCountAfter = runtimeWorld.pickups.filter(
+      (pickup) => pickup.kind === 'special',
+    ).length;
     const cuesAfter = (game as any).specialSpawnCues as Array<{ label: string; ttlMs: number }>;
 
     expect(spawned).toBe(true);
@@ -1279,16 +1315,18 @@ describe('game economy and police smoke invariants', () => {
   });
 
   it('grows overgrowth from small to medium to large', () => {
-    const nodes: OvergrowthNode[] = [{
-      id: 'test:overgrowth:1',
-      kind: 'bush',
-      rect: { x: 50, y: 60, width: 30, height: 10 },
-      anchorRect: { x: 0, y: 0, width: 200, height: 60 },
-      anchorEdge: 'bottom',
-      stage: 'small',
-      growthMs: 0,
-      spawnedAtRunMs: 35_000,
-    }];
+    const nodes: OvergrowthNode[] = [
+      {
+        id: 'test:overgrowth:1',
+        kind: 'bush',
+        rect: { x: 50, y: 60, width: 30, height: 10 },
+        anchorRect: { x: 0, y: 0, width: 200, height: 60 },
+        anchorEdge: 'bottom',
+        stage: 'small',
+        growthMs: 0,
+        spawnedAtRunMs: 35_000,
+      },
+    ];
 
     advanceOvergrowthGrowth(nodes, OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS / 1000 + 0.1);
     expect(nodes[0].stage).toBe('medium');
@@ -1343,16 +1381,18 @@ describe('game economy and police smoke invariants', () => {
 
   it('resets overgrowth state on beginRun and respawns timer on update', () => {
     (game as any).beginRun('manual');
-    (game as any).overgrowthNodes = [{
-      id: 'stale:overgrowth',
-      kind: 'bush',
-      rect: { x: 50, y: 60, width: 30, height: 10 },
-      anchorRect: { x: 0, y: 0, width: 200, height: 60 },
-      anchorEdge: 'bottom',
-      stage: 'small',
-      growthMs: 0,
-      spawnedAtRunMs: 35_000,
-    }];
+    (game as any).overgrowthNodes = [
+      {
+        id: 'stale:overgrowth',
+        kind: 'bush',
+        rect: { x: 50, y: 60, width: 30, height: 10 },
+        anchorRect: { x: 0, y: 0, width: 200, height: 60 },
+        anchorEdge: 'bottom',
+        stage: 'small',
+        growthMs: 0,
+        spawnedAtRunMs: 35_000,
+      },
+    ];
 
     (game as any).beginRun('manual');
     expect((game as any).overgrowthNodes).toHaveLength(0);
