@@ -62,8 +62,9 @@ export function drawHud(
     drawActiveEffects(ctx, viewport, state);
   }
 
-  if (state.policeChaseRemainingMs !== null || state.objectiveText) {
-    drawGoalPanel(ctx, viewport, state);
+  const goalEntries = buildGoalEntries(state);
+  if (goalEntries.length > 0) {
+    drawGoalPanel(ctx, viewport, goalEntries);
   }
 
   if (state.pageBestScore > 0 || state.lifetimeBestScore > 0) {
@@ -208,84 +209,95 @@ function drawActiveEffects(
   });
 }
 
+interface GoalEntry {
+  label: string;
+  barText: string;
+  barColor: string;
+  accentColor: string;
+  timeRemainingMs: number;
+  timeLimitMs: number;
+}
+
+function buildGoalEntries(state: HudState): GoalEntry[] {
+  const entries: GoalEntry[] = [];
+
+  if (state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null) {
+    entries.push({
+      label: 'POLICE - ESCAPE!',
+      barText: 'POLICE - ESCAPE!',
+      barColor: '#f87171',
+      accentColor: 'rgba(248, 113, 113, 0.88)',
+      timeRemainingMs: state.policeChaseRemainingMs,
+      timeLimitMs: state.policeChaseDurationMs,
+    });
+  }
+
+  if (state.objectiveText) {
+    entries.push({
+      label: 'GOAL +25',
+      barText: state.objectiveText,
+      barColor: '#a78bfa',
+      accentColor: 'rgba(167, 139, 250, 0.82)',
+      timeRemainingMs: state.objectiveTimeRemainingMs ?? 0,
+      timeLimitMs: state.objectiveTimeLimitMs ?? 1,
+    });
+  }
+
+  return entries;
+}
+
 function drawGoalPanel(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
-  state: HudState,
+  entries: GoalEntry[],
 ): void {
-  const isPoliceChase =
-    state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null;
-
-  const label = isPoliceChase ? 'ESCAPE' : 'GOAL +25';
-  const barText = isPoliceChase ? 'ESCAPE' : (state.objectiveText ?? '');
-  const accentColor = isPoliceChase ? 'rgba(248, 113, 113, 0.88)' : 'rgba(167, 139, 250, 0.82)';
-  const barColor = isPoliceChase ? '#f87171' : '#a78bfa';
-
-  const timeRemaining = isPoliceChase
-    ? state.policeChaseRemainingMs!
-    : (state.objectiveTimeRemainingMs ?? 0);
-  const timeLimit = isPoliceChase
-    ? state.policeChaseDurationMs!
-    : (state.objectiveTimeLimitMs ?? 1);
-
-  const panelWidth = 200;
-  const panelHeight = 46;
+  const panelWidth = 210;
+  const rowHeight = 28;
+  const panelHeight = entries.length * (20 + rowHeight);
   const panelX = Math.round(viewport.width / 2 - panelWidth / 2);
   const panelY = viewport.height - panelHeight - HUD_MARGIN;
 
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-  ctx.fillStyle = accentColor;
+  ctx.fillStyle = entries[0].accentColor;
   ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
-  ctx.font = HUD_FONT;
-  ctx.fillStyle = HUD_TEXT_MUTED;
-  ctx.fillText(label, panelX + 12, panelY + 8);
+  entries.forEach((entry, index) => {
+    const sectionY = panelY + index * (20 + rowHeight);
 
-  const barX = panelX + 10;
-  const barY = panelY + 24;
-  const barWidth = panelWidth - 20;
-  const barHeight = 18;
+    ctx.font = HUD_FONT;
+    ctx.fillStyle = HUD_TEXT_MUTED;
+    ctx.fillText(entry.label, panelX + 12, sectionY + 8);
 
-  const timeFill = Math.max(0, Math.min(1, timeRemaining / Math.max(1, timeLimit)));
-  const fillW = barWidth * timeFill;
+    const barX = panelX + 10;
+    const barY = sectionY + 22;
+    const barWidth = panelWidth - 20;
+    const barHeight = 18;
 
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-  ctx.fillRect(barX, barY, barWidth, barHeight);
-  if (fillW > 0) {
-    ctx.fillStyle = barColor;
-    ctx.fillRect(barX, barY, fillW, barHeight);
-  }
+    const timeFill = Math.max(0, Math.min(1, entry.timeRemainingMs / Math.max(1, entry.timeLimitMs)));
+    const fillW = barWidth * timeFill;
 
-  ctx.font = HUD_FONT;
-  drawBarText(
-    ctx,
-    barText,
-    barX + 6,
-    barY + 4,
-    barX,
-    barY,
-    barWidth,
-    barHeight,
-    fillW,
-    BAR_TEXT_ON_FILL,
-    BAR_TEXT_ON_EMPTY,
-  );
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    if (fillW > 0) {
+      ctx.fillStyle = entry.barColor;
+      ctx.fillRect(barX, barY, fillW, barHeight);
+    }
 
-  const remainingSec = Math.max(0, timeRemaining) / 1000;
-  drawBarText(
-    ctx,
-    `${remainingSec.toFixed(0)}s`,
-    barX + barWidth - 30,
-    barY + 4,
-    barX,
-    barY,
-    barWidth,
-    barHeight,
-    fillW,
-    '#ffffff',
-    BAR_TEXT_ON_EMPTY,
-  );
+    ctx.font = HUD_FONT;
+    drawBarText(
+      ctx, entry.barText, barX + 6, barY + 4,
+      barX, barY, barWidth, barHeight, fillW,
+      BAR_TEXT_ON_FILL, BAR_TEXT_ON_EMPTY,
+    );
+
+    const remainingSec = Math.max(0, entry.timeRemainingMs) / 1000;
+    drawBarText(
+      ctx, `${remainingSec.toFixed(0)}s`, barX + barWidth - 30, barY + 4,
+      barX, barY, barWidth, barHeight, fillW,
+      '#ffffff', BAR_TEXT_ON_EMPTY,
+    );
+  });
 }
 
 function drawScoreMemory(
