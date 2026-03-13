@@ -55,6 +55,7 @@ export function drawHud(
   ctx.textBaseline = 'top';
 
   drawInfoBlock(ctx, state);
+  drawControlsHint(ctx, viewport, state);
 
   if (state.activeEffects.length > 0) {
     drawActiveEffects(ctx, viewport, state);
@@ -99,6 +100,31 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
     ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 30);
   }
+}
+
+function drawControlsHint(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  state: HudState,
+): void {
+  const w = 250;
+  const h = 56;
+  const x = viewport.width - w - HUD_MARGIN;
+  const y = viewport.height - h - HUD_MARGIN;
+
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.44)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(168, 85, 247, 0.82)';
+  ctx.fillRect(x, y, w, HUD_ACCENT_HEIGHT);
+
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_DIM;
+  const soundLabel = state.soundEnabled ? 'MUSIC ON' : 'MUSIC OFF';
+  ctx.fillText(`V CAR  |  ${soundLabel}`, x + 12, y + 10);
+  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', x + 12, y + 30);
 }
 
 function drawActiveEffects(
