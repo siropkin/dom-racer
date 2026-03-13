@@ -44,28 +44,18 @@ npm run build
 
 ## Current Features
 
-- Page text is scanned into readable wall geometry
-- Images and pictures become slippery ice zones
-- Reactive visual surfaces become speed-up zones
-- Links and buttons spawn money pickups
-- Ambient special pickups spawn independently from normal money
-- Power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
-- Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
-- Police chases with siren flash, edge warnings, and a proper `GAME OVER` screen
-- Overgrowth difficulty: bushes and trees slowly grow from barriers, narrowing routes over time
-- Near-miss bonus: graze walls and police for extra points, with whoosh sound feedback
-- Micro-objectives: per-run coin-collection goals with x2/x3/x4 multiplier tiers, completion chime, and HUD progress bar
-- Daily modifier: a different rule twist each day (double coins, fast police, slippery, etc.)
-- Run summary with letter grade (S/A/B/C/D) and stats on game-over screen
-- Vehicle unlocks: earn the buggy and truck by hitting lifetime score milestones
-- First-play hint overlay for new players (shows once, never again)
-- Visual juice: tire dust, coin burst particles, speed lines, drift sparks, landing squash
-- Page-reactive tint: each page gets a subtle color wash matching its background
-- Run counter, lifetime milestones, and "NEW BEST!" celebrations
-- Run auto-pauses with a clear overlay when the page/tab loses focus
-- Coin pickup pitch variation, near-miss whoosh, objective completion chime
-- Sound toggle, vehicle design toggle, sprite showcase debug mode
-- Page best and lifetime best scores persist through storage
+- Every page becomes a unique track — text is walls, images are ice, links are coins
+- Seven power-ups to collect: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, and a rare golden `JACKPOT`
+- Police chases with flashing sirens — the longer you survive, the longer they chase
+- Airplane flyovers that drop bonus coins, specials, and lucky wind across the map
+- Overgrowth: bushes and trees grow from walls over time, narrowing your routes
+- Coin-collection goals with x2, x3, x4 bonus multipliers and countdown timers
+- Near-miss bonus for grazing walls and police without crashing
+- A different daily modifier every day — double coins, fast police, slippery surfaces, and more
+- Letter grade (S/A/B/C/D) and run stats on the game-over screen
+- Three vehicle designs unlocked by reaching lifetime score milestones
+- Run counter, page bests, lifetime bests, milestone celebrations
+- Auto-pause when you switch tabs, sound toggle, and a hint overlay for first-time players
 
 ## How The World Is Built
 
