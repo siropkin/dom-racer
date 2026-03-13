@@ -3,7 +3,6 @@ description: DOM Racer session context and handoff state for the next AI session
 alwaysApply: true
 ---
 <!-- ALL_TASKS_DONE -->
-
 # DOM Racer - Next Session Context
 
 Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
@@ -43,12 +42,12 @@ First, read:
 
 ## Current State
 
-All phases are complete. No remaining actionable tasks.
+All game feature phases (1-5) are complete. All documentation is up to date. Only screenshot/GIF captures remain, blocked on interactive browser.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. **Phase 1 — New specials prototyping: `done`.** `COOLDOWN` and `LURE` are implemented and tested.
-3. **Phase 2 — Overgrowth difficulty: `done`.** Data model, spawn logic, growth stages, collision handling, and rendering are complete.
-4. **Phase 4 — Indie juice: `done`.** Near-miss bonus, micro-objectives, and rare jackpot pickup are all implemented and tested.
+2. **README:** Fully updated with all gameplay features (overgrowth, near-miss, micro-objectives, jackpot), accurate roadmap, and screenshot placeholders.
+3. **SOUL.md:** Phase 6 reflects README work done, only screenshots blocked.
+4. **Release checklist:** Includes late-run systems smoke section (overgrowth, near-miss, micro-objectives, jackpot).
 
 ## Current Known Context
 
@@ -96,7 +95,7 @@ All phases are complete. No remaining actionable tasks.
 - Jackpot is NOT in `RANDOM_SPECIAL_EFFECTS`; spawns via separate chance roll before `pickSpecialEffect`.
 - Jackpot has longer spawn cue ring (1800ms vs 1200ms) and `value: 0` (score comes from activation).
 - 8 special effects total: bonus, magnet, invert, ghost, blackout, cooldown, lure, jackpot.
-- README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.
+- README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, overgrowth/near-miss/micro-objectives sections, and screenshots & motion placeholder section.
 - Smoke tests currently pass (`npm run test` -> 72 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).

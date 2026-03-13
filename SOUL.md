@@ -215,16 +215,16 @@ Completed:
 
 ## Phase 6: README / Presentation
 
-Status: `in progress`
+Status: `in progress` (only screenshot captures remain, blocked on interactive browser)
 
 ### README — `done`
 
-Indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, store-friendly pitch block, screenshot section.
+Indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, store-friendly pitch block, screenshot section. Overgrowth, near-miss, micro-objectives, and jackpot sections added. Roadmap table updated with accurate statuses.
 
-### Presentation Assets — `in progress`
+### Presentation Assets — `blocked`
 
 - [x] Normal run screenshot captured
-- [ ] Capture: special pickup, police chase, police GAME OVER, overgrowth state
+- [ ] Capture: special pickup, police chase, police GAME OVER, overgrowth state, near-miss graze, jackpot, micro-objective HUD — blocked on interactive browser session
 
 ### Branding Refresh — `done`
 
@@ -261,6 +261,20 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (i)
+
+- Updated README.md with full documentation for new gameplay systems
+- Added Overgrowth section: difficulty ramp with bushes/trees growing from barriers
+- Added Near-Miss Bonus section: +3-5 score for grazing walls/police, rotating orange toasts
+- Added Micro-Objectives section: per-run mini-goals, +25 bonus, violet toasts, HUD panel
+- Fixed Roadmap table: all phases 1-5 marked Done (previously had stale "Mostly done" and "In progress")
+- Added 4 new screenshot/GIF placeholders: overgrowth state, near-miss graze, jackpot pickup, micro-objective HUD
+- Added overgrowth, near-miss, micro-objectives to Current Features list
+- Updated SOUL.md Phase 6 status to reflect README work is done, only screenshots blocked
+- Updated release checklist with new systems (overgrowth, near-miss, micro-objectives, jackpot)
+- Updated next-session handoff context
+- 72 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (h)
 

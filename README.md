@@ -53,6 +53,9 @@ npm run build
 - Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with edge warnings and a proper `GAME OVER` screen
+- Overgrowth difficulty: bushes and trees slowly grow from barriers, narrowing routes over time
+- Near-miss bonus: graze walls and police for extra points and style toasts
+- Micro-objectives: per-run mini-goals that keep each attempt feeling fresh
 - Run auto-pauses with a clear overlay when the page/tab loses focus
 - Sound toggle, vehicle design toggle, sprite showcase debug mode
 - Page best and lifetime best scores persist through storage
@@ -94,6 +97,26 @@ A propeller plane occasionally crosses the arena and drops one of five route mom
 
 Each mode has its own fallback: if conditions are not right at drop time, the plane safely resolves to a bonus drop instead.
 
+## Overgrowth
+
+After about 35 seconds of survival, the page starts fighting back. Bushes and trees sprout from the edges of barriers and walls, slowly encroaching into your driving lanes.
+
+Each growth passes through three stages: small (a speed bump), medium (a proper slow zone), and large (a full wall). New growths appear every 9–15 seconds, up to eight at a time. The result is a map that gradually tightens, forcing you into riskier routes as the run goes long.
+
+Bushes are leafy blobs; trees are round canopies with visible trunks. Both sway gently and animate in smoothly so nothing feels like a pop-in surprise.
+
+## Near-Miss Bonus
+
+Thread the gap between your car and a wall or police cruiser and you earn a near-miss bonus: +3 to +5 points per graze, with a short cooldown so it does not spam. The HUD flashes one of four rotating toasts — `CLOSE!`, `TIGHT!`, `RAZOR!`, `WHEW!` — in orange to celebrate your questionable driving decisions.
+
+Stack enough near-misses in a single run and the flavor text starts roasting you for it.
+
+## Micro-Objectives
+
+Each run quietly assigns you a mini-goal a few seconds in: collect 5 coins, survive 20 seconds, land 3 close calls, hit a FLOW x5 streak, and so on. There are eight templates in the pool, and you only see one at a time.
+
+Complete a goal and you get a +25 score bonus plus a satisfying violet toast. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time (if timed) in a compact bottom-center panel.
+
 ## Screenshots & Motion
 
 ![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
@@ -109,6 +132,10 @@ _More captures coming soon._
 | Airplane flyover | GIF | Planned |
 | Coin trail | GIF | Planned |
 | Lucky wind | GIF | Planned |
+| Overgrowth state | Screenshot | Planned |
+| Near-miss graze | GIF | Planned |
+| Jackpot pickup | Screenshot | Planned |
+| Micro-objective HUD | Screenshot | Planned |
 
 ## Persistence
 
@@ -118,11 +145,11 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 
 | Phase | Status | Goal |
 |---|---|---|
-| Core money loop | Mostly done | Lock the collectible loop |
+| Core money loop | Done | Lock the collectible loop |
 | Overgrowth difficulty | Done | Trees and bushes that grow over time |
-| Airplane event | Mostly done | Rare stylish world events |
+| Airplane event | Done | Rare stylish world events |
 | Indie juice | Done | Near-miss bonuses, micro-objectives, rare jackpot |
-| Production hardening | In progress | Tests, structure, release readiness |
+| Production hardening | Done | Tests, structure, release readiness |
 | Presentation | In progress | README polish, screenshots, store assets |
 
 ## Debug Mode
