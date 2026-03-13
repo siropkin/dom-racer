@@ -1,5 +1,3 @@
-<!-- ALL_TASKS_DONE -->
-
 # DOM Racer - Next Session Prompt
 
 Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
@@ -33,20 +31,13 @@ First, read:
 - `tests/gameInvariants.smoke.test.ts`
 - `tests/scannerWorld.smoke.test.ts`
 
-## Current State: All Bounded Tasks Complete
+## Current State
 
-All non-blocked items across the SOUL.md roadmap are complete. The remaining unchecked items fall into three categories:
+All bounded hardening extraction and most presentation tasks are complete. Actionable next items:
 
-1. **Blocked on interactive browser session:** Manual scanner/gameplay verification on real page types (GitHub, docs, forms, grids), screenshot/GIF captures for README presentation assets.
-2. **Explicitly deferred:** Phase 2 overgrowth system, Phase 4 indie juice candidates, Phase 1 new special prototypes (depend on blocked verification pass).
-3. **Minor tuning (no clear need):** Visible coin cap and overgrowth speed tuning constants.
-
-No more meaningful extraction targets remain in `Game.ts`. The file is well-decomposed into focused runtime helpers. Remaining methods are side-effect orchestration, core loop, and render assembly that correctly live in the Game class.
-
-## What Would Unblock Progress
-
-- An interactive browser extension session would unblock the Phase 1 verification pass and presentation asset captures.
-- An explicit scope re-activation decision from the project owner would unblock overgrowth (Phase 2) or indie juice (Phase 4) feature work.
+1. **Branding refresh (Phase 6, new):** Redesign `branding/` SVGs (icon, store tile, store cover) to use the actual in-game blue coupe sprite instead of the generic pink placeholder car. See `src/game/playerSprite.ts` for the real vehicle designs. Update `generate_assets.py` and regenerate PNGs via `npm run brand`.
+2. **Blocked on interactive browser session:** Manual scanner/gameplay verification on real page types (GitHub, docs, forms, grids), remaining screenshot/GIF captures.
+3. **Explicitly deferred:** Phase 2 overgrowth system, Phase 4 indie juice candidates, Phase 1 new special prototypes.
 
 ## Current Known Context
 

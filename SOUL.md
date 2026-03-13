@@ -528,12 +528,31 @@ Goal: make the project page feel as cool as the game.
 
 - [x] Add screenshot section
 - [x] Add GIF / motion placeholders
+- [x] Capture normal run screenshot
 - [ ] Capture:
-  - [ ] normal run
   - [ ] special pickup
   - [ ] police chase
   - [ ] police `GAME OVER`
   - [ ] future overgrowth state
+
+### Branding Refresh
+
+Status: `planned`
+
+Goal: make extension icon and store assets match the actual in-game vehicles instead of using a generic placeholder car.
+
+Current problem:
+- `branding/dom-racer-icon.svg`, `dom-racer-store-tile.svg`, and `dom-racer-store-cover.svg` all use a pink/red car with orange headlights and a smiley-face grill that does not exist in the game
+- The actual in-game vehicles are: blue coupe, orange buggy, green truck (see `src/game/playerSprite.ts`)
+- The branding car style (rounded body, large headlights, cartoon face) clashes with the pixel-tight top-down sprites used in gameplay
+
+Plan:
+- [ ] Redesign `dom-racer-icon.svg` to feature one of the real in-game car designs (blue coupe preferred as the default vehicle)
+- [ ] Update `dom-racer-store-tile.svg` to match the new icon style
+- [ ] Update `dom-racer-store-cover.svg` to show the real car in a gameplay-like context (coins, walls, page elements)
+- [ ] Keep the top-down perspective consistent with how the car actually looks in-game
+- [ ] Update `generate_assets.py` if the SVG structure changes
+- [ ] Regenerate PNGs via `npm run brand` after updating SVGs
 
 ## Suggested Execution Order
 
