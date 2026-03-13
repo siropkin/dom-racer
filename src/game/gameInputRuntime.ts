@@ -89,6 +89,7 @@ export function resetInputState(input: InputState): void {
   input.down = false;
   input.left = false;
   input.right = false;
+  input.nitro = false;
 }
 
 export function cloneInputState(input: InputState): InputState {
@@ -97,6 +98,7 @@ export function cloneInputState(input: InputState): InputState {
     down: input.down,
     left: input.left,
     right: input.right,
+    nitro: input.nitro,
   };
 }
 
@@ -119,7 +121,7 @@ function setInputFlag(input: InputState, code: string, value: boolean): boolean 
       input.right = value;
       return true;
     case 'Space':
-      // Keep Space swallowed so the underlying page does not react while racing.
+      input.nitro = value;
       return true;
     default:
       return false;

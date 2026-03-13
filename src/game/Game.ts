@@ -27,6 +27,7 @@ import {
   PLAYER,
   POLICE,
   SPECIALS,
+  TIMING,
   TOAST,
 } from './gameConfig';
 import { drawHud } from './hud';
@@ -205,6 +206,8 @@ export class Game {
   private blurTimerMs: number;
   private oilSlickTimerMs: number;
   private reverseTimerMs: number;
+  private nitroActiveMs: number;
+  private nitroCooldownMs: number;
   private invertActive: boolean;
   private blurActive: boolean;
   private policeChase: PoliceChaseState | null;
@@ -271,6 +274,7 @@ export class Game {
       down: false,
       left: false,
       right: false,
+      nitro: false,
     };
     this.running = false;
     this.frameHandle = null;
@@ -303,6 +307,8 @@ export class Game {
     this.blurTimerMs = 0;
     this.oilSlickTimerMs = 0;
     this.reverseTimerMs = 0;
+    this.nitroActiveMs = 0;
+    this.nitroCooldownMs = 0;
     this.invertActive = false;
     this.blurActive = false;
     this.policeChase = null;
@@ -524,7 +530,7 @@ export class Game {
     this.updatePoliceDelayCue(dtSeconds);
 
     const currentBounds = this.player.getBounds();
-    const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
+    const zoneBoosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce =
       isOnIceZone(currentBounds, this.world.iceZones) || this.dailyModifier.kind === 'SLIPPERY';
     const activeObstacles = [
@@ -538,6 +544,16 @@ export class Game {
     const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, activeSlowZones);
 
     const activeInput = this.getActiveInput();
+
+    if (activeInput.nitro && this.nitroCooldownMs <= 0 && this.nitroActiveMs <= 0) {
+      this.nitroActiveMs = TIMING.NITRO_DURATION_MS;
+      this.nitroCooldownMs = TIMING.NITRO_COOLDOWN_MS;
+      activeInput.nitro = false;
+    }
+    this.nitroActiveMs = Math.max(0, this.nitroActiveMs - dtSeconds * 1000);
+    this.nitroCooldownMs = Math.max(0, this.nitroCooldownMs - dtSeconds * 1000);
+
+    const boosting = zoneBoosting || this.nitroActiveMs > 0;
     const oilSlickMultiplier = this.oilSlickTimerMs > 0 ? EFFECTS.OIL_SLICK_SPEED_MULTIPLIER : 1;
     this.player.update({
       input: activeInput,
@@ -905,7 +921,7 @@ export class Game {
   private getActiveInput(): InputState {
     const raw = cloneInputState(this.input);
     if (this.reverseTimerMs > 0) {
-      return { up: raw.down, down: raw.up, left: raw.right, right: raw.left };
+      return { up: raw.down, down: raw.up, left: raw.right, right: raw.left, nitro: raw.nitro };
     }
     return raw;
   }

@@ -123,8 +123,8 @@ function drawControlsHint(
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_DIM;
   const soundLabel = state.soundEnabled ? 'MUSIC ON' : 'MUSIC OFF';
-  ctx.fillText(`V CAR  |  ${soundLabel}`, x + 12, y + 10);
-  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', x + 12, y + 30);
+  ctx.fillText(`ARROWS DRIVE  |  SPACE NITRO`, x + 12, y + 10);
+  ctx.fillText(`V CAR  |  ${soundLabel}  |  ESC QUIT`, x + 12, y + 30);
 }
 
 function drawActiveEffects(

@@ -13,6 +13,8 @@ export const TIMING = {
   POLICE_WARNING_MS: 1_100,
   PLANE_WARNING_MS: 900,
   BOOST_HOLD_MS: 400,
+  NITRO_DURATION_MS: 400,
+  NITRO_COOLDOWN_MS: 3_000,
 } as const;
 
 // ---------------------------------------------------------------------------

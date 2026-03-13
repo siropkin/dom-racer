@@ -450,7 +450,7 @@ function drawOvergrowthTree(
   ctx.lineCap = 'round';
   ctx.lineWidth = Math.max(1.2, spread * 0.1);
   for (let i = 0; i < branchCount; i += 1) {
-    const angle = (i / branchCount) * Math.PI * 2 + ((seed & 7) * 0.4);
+    const angle = (i / branchCount) * Math.PI * 2 + (seed & 7) * 0.4;
     const len = spread * (0.5 + ((seed + i * 11) % 9) / 30);
     ctx.beginPath();
     ctx.moveTo(cx, cy);
@@ -484,15 +484,7 @@ function drawOvergrowthTree(
     );
   }
 
-  drawShadedCluster(
-    ctx,
-    cx + sway * 0.3,
-    cy,
-    spread * 0.36,
-    style.body,
-    style.dark,
-    style.light,
-  );
+  drawShadedCluster(ctx, cx + sway * 0.3, cy, spread * 0.36, style.body, style.dark, style.light);
 
   ctx.restore();
 }
