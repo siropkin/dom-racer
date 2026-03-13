@@ -6,7 +6,6 @@ export type ObjectiveTracker =
   | 'specials_collected'
   | 'near_misses'
   | 'score_threshold'
-  | 'survive_duration'
   | 'combo_threshold';
 
 export interface ObjectiveTemplate {
@@ -87,13 +86,6 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     tracker: 'specials_collected',
   },
   {
-    id: 'survive_20',
-    label: 'SURVIVE',
-    target: 20_000,
-    timeLimitMs: 20_000,
-    tracker: 'survive_duration',
-  },
-  {
     id: 'flow_x5',
     label: 'FLOW X5',
     target: 5,
@@ -148,11 +140,7 @@ export function resolveObjectiveTickStep(options: {
       };
     }
 
-    if (
-      updated.timeLimitMs > 0 &&
-      updated.timeRemainingMs <= 0 &&
-      updated.tracker !== 'survive_duration'
-    ) {
+    if (updated.timeLimitMs > 0 && updated.timeRemainingMs <= 0) {
       return {
         active: null,
         assignDelayMs: randomBetween(OBJECTIVE_EXPIRE_DELAY_MIN_MS, OBJECTIVE_EXPIRE_DELAY_MAX_MS),
@@ -232,9 +220,6 @@ function advanceObjectiveProgress(
     case 'score_threshold':
       nextProgress = events.currentScore;
       break;
-    case 'survive_duration':
-      nextProgress = objective.timeLimitMs - nextTimeRemaining;
-      break;
     case 'combo_threshold':
       nextProgress = Math.max(nextProgress, events.currentComboCount);
       break;
@@ -248,9 +233,6 @@ function advanceObjectiveProgress(
 }
 
 function isObjectiveCompleted(objective: MicroObjective): boolean {
-  if (objective.tracker === 'survive_duration') {
-    return objective.timeRemainingMs <= 0;
-  }
   return objective.progress >= objective.target;
 }
 
@@ -285,17 +267,10 @@ export function getObjectiveCompletionWord(completedCount: number): string {
 }
 
 export function getObjectiveHudText(objective: MicroObjective): string {
-  if (objective.tracker === 'survive_duration') {
-    return objective.label;
-  }
-
   const progress = Math.min(objective.progress, objective.target);
   return `${objective.label} ${progress}/${objective.target}`;
 }
 
 export function getObjectiveProgress(objective: MicroObjective): number {
-  if (objective.tracker === 'survive_duration') {
-    return (objective.timeLimitMs - objective.timeRemainingMs) / Math.max(1, objective.timeLimitMs);
-  }
   return Math.min(1, objective.progress / Math.max(1, objective.target));
 }

@@ -152,22 +152,22 @@ describe('micro-objective smoke invariants', () => {
     expect(step.completedCount).toBe(0);
   });
 
-  it('completes survive-duration objective when timer expires', () => {
+  it('expires timed objective when timer runs out before target reached', () => {
     const objective: MicroObjective = {
-      templateId: 'survive_20',
-      label: 'SURVIVE 20S',
-      progress: 19_800,
-      target: 20_000,
+      templateId: 'collect_8',
+      label: '8 COINS',
+      progress: 3,
+      target: 8,
       timeRemainingMs: 200,
       timeLimitMs: 20_000,
-      tracker: 'survive_duration',
+      tracker: 'coins_collected',
     };
 
     const step = resolveObjectiveTickStep({
       active: objective,
       assignDelayMs: 0,
       completedCount: 1,
-      lastTemplateId: 'survive_20',
+      lastTemplateId: 'collect_8',
       events: {
         coinsCollectedThisFrame: 0,
         specialsCollectedThisFrame: 0,
@@ -178,9 +178,8 @@ describe('micro-objective smoke invariants', () => {
       dtSeconds: 0.5,
     });
 
-    expect(step.completed).toBe(true);
-    expect(step.expired).toBe(false);
-    expect(step.completedCount).toBe(2);
+    expect(step.completed).toBe(false);
+    expect(step.expired).toBe(true);
   });
 
   it('does not repeat the same objective template consecutively', () => {
@@ -259,17 +258,17 @@ describe('micro-objective smoke invariants', () => {
     expect(getObjectiveHudText(coinObj)).toBe('5 COINS 3/5');
     expect(getObjectiveProgress(coinObj)).toBeCloseTo(0.6, 1);
 
-    const surviveObj: MicroObjective = {
-      templateId: 'survive_20',
-      label: 'SURVIVE 20S',
-      progress: 10_000,
-      target: 20_000,
-      timeRemainingMs: 10_000,
-      timeLimitMs: 20_000,
-      tracker: 'survive_duration',
+    const nearObj: MicroObjective = {
+      templateId: 'near_3',
+      label: '3 NEAR-MISS',
+      progress: 1,
+      target: 3,
+      timeRemainingMs: 15_000,
+      timeLimitMs: 25_000,
+      tracker: 'near_misses',
     };
-    expect(getObjectiveHudText(surviveObj)).toBe('SURVIVE 20S');
-    expect(getObjectiveProgress(surviveObj)).toBeCloseTo(0.5, 1);
+    expect(getObjectiveHudText(nearObj)).toBe('3 NEAR-MISS 1/3');
+    expect(getObjectiveProgress(nearObj)).toBeCloseTo(0.333, 1);
   });
 
   it('cycles through completion words', () => {
@@ -308,7 +307,7 @@ describe('micro-objective smoke invariants', () => {
   });
 
   it('has at least 8 objective templates in the pool', () => {
-    expect(OBJECTIVE_TEMPLATES.length).toBeGreaterThanOrEqual(8);
+    expect(OBJECTIVE_TEMPLATES.length).toBeGreaterThanOrEqual(7);
     const ids = OBJECTIVE_TEMPLATES.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
