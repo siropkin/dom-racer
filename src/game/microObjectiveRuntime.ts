@@ -57,21 +57,33 @@ export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
 export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
 export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
-  { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 0, tracker: 'coins_collected' },
+  { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 25_000, tracker: 'coins_collected' },
   {
-    id: 'collect_8_20s',
-    label: '8 COINS 20S',
+    id: 'collect_8',
+    label: '8 COINS',
     target: 8,
     timeLimitMs: 20_000,
     tracker: 'coins_collected',
   },
-  { id: 'score_80', label: 'REACH 80', target: 80, timeLimitMs: 0, tracker: 'score_threshold' },
-  { id: 'near_3', label: '3 CLOSE CALLS', target: 3, timeLimitMs: 0, tracker: 'near_misses' },
+  {
+    id: 'score_80',
+    label: 'REACH 80',
+    target: 80,
+    timeLimitMs: 35_000,
+    tracker: 'score_threshold',
+  },
+  {
+    id: 'near_3',
+    label: '3 CLOSE CALLS',
+    target: 3,
+    timeLimitMs: 25_000,
+    tracker: 'near_misses',
+  },
   {
     id: 'grab_special',
     label: 'GRAB SPECIAL',
     target: 1,
-    timeLimitMs: 0,
+    timeLimitMs: 30_000,
     tracker: 'specials_collected',
   },
   {
@@ -81,8 +93,20 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
     timeLimitMs: 20_000,
     tracker: 'survive_duration',
   },
-  { id: 'flow_x5', label: 'FLOW X5', target: 5, timeLimitMs: 0, tracker: 'combo_threshold' },
-  { id: 'collect_12', label: '12 COINS', target: 12, timeLimitMs: 0, tracker: 'coins_collected' },
+  {
+    id: 'flow_x5',
+    label: 'FLOW X5',
+    target: 5,
+    timeLimitMs: 30_000,
+    tracker: 'combo_threshold',
+  },
+  {
+    id: 'collect_12',
+    label: '12 COINS',
+    target: 12,
+    timeLimitMs: 30_000,
+    tracker: 'coins_collected',
+  },
 ];
 
 /** Creates the initial objective state with a randomized first-assignment delay. */

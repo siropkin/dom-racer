@@ -169,29 +169,22 @@ function drawObjectivePanel(
   const barWidth = panelWidth - 20;
   const barHeight = 18;
 
-  const isTimed = state.objectiveTimeRemainingMs !== null && state.objectiveTimeLimitMs !== null;
-  const barFill = isTimed
-    ? Math.max(
-        0,
-        Math.min(1, state.objectiveTimeRemainingMs! / Math.max(1, state.objectiveTimeLimitMs!)),
-      )
-    : Math.min(1, state.objectiveProgress);
-  const barColor = isTimed ? '#a78bfa' : '#a78bfa';
+  const timeRemaining = state.objectiveTimeRemainingMs ?? 0;
+  const timeLimit = state.objectiveTimeLimitMs ?? 1;
+  const timeFill = Math.max(0, Math.min(1, timeRemaining / Math.max(1, timeLimit)));
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
-  ctx.fillStyle = barColor;
-  ctx.fillRect(barX, barY, Math.max(10, barWidth * barFill), barHeight);
+  ctx.fillStyle = '#a78bfa';
+  ctx.fillRect(barX, barY, Math.max(10, barWidth * timeFill), barHeight);
 
   ctx.font = HUD_FONT;
   ctx.fillStyle = '#020617';
   ctx.fillText(state.objectiveText, barX + 6, barY + 4);
 
-  if (isTimed) {
-    const remainingSec = Math.max(0, state.objectiveTimeRemainingMs!) / 1000;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(`${remainingSec.toFixed(1)}s`, barX + barWidth - 40, barY + 4);
-  }
+  const remainingSec = Math.max(0, timeRemaining) / 1000;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(`${remainingSec.toFixed(0)}s`, barX + barWidth - 30, barY + 4);
 }
 
 function drawScoreMemory(
