@@ -159,23 +159,24 @@ export class AudioManager {
 
     const context = this.ensureContext();
     const now = context.currentTime;
+    const pitch = 0.9 + Math.random() * 0.2;
     this.playTone({
       time: now,
-      frequency: 880,
+      frequency: 880 * pitch,
       duration: 0.06,
       type: 'square',
       volume: 0.042,
     });
     this.playTone({
       time: now + 0.055,
-      frequency: 1174,
+      frequency: 1174 * pitch,
       duration: 0.065,
       type: 'square',
       volume: 0.038,
     });
     this.playTone({
       time: now + 0.11,
-      frequency: 1568,
+      frequency: 1568 * pitch,
       duration: 0.09,
       type: 'triangle',
       volume: 0.05,
@@ -304,6 +305,49 @@ export class AudioManager {
       duration: 0.08,
       type: 'triangle',
       volume: 0.013,
+    });
+  }
+
+  playNearMissWhoosh(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    this.playSweepTone({
+      time: now,
+      startFrequency: 2200,
+      endFrequency: 600,
+      duration: 0.05,
+      type: 'sine',
+      volume: 0.015,
+      startFilterFrequency: 3000,
+      endFilterFrequency: 800,
+      q: 0.5,
+    });
+  }
+
+  playObjectiveChime(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    this.playTone({
+      time: now,
+      frequency: 800,
+      duration: 0.1,
+      type: 'sine',
+      volume: 0.04,
+    });
+    this.playTone({
+      time: now + 0.08,
+      frequency: 1200,
+      duration: 0.08,
+      type: 'sine',
+      volume: 0.03,
     });
   }
 

@@ -96,7 +96,9 @@ import {
   adaptBlackoutEffectForSurface,
   clonePickup,
   cloneWorld,
-  getNextVehicleDesign,
+  type DailyModifier,
+  getDailyModifier,
+  getNextUnlockedVehicleDesign,
   getSpecialColor,
   getSpecialDropMessage,
   getSpecialLabel,
@@ -232,6 +234,8 @@ export class Game {
   private getPageTintColor: (() => string | null) | undefined;
   private pageTintColor: string | null;
   private firstPlayHintTimerMs: number;
+  private dailyModifier: DailyModifier;
+  private lifetimeTotalScore: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -331,6 +335,8 @@ export class Game {
     this.newBestCelebrated = false;
     this.pageTintColor = null;
     this.firstPlayHintTimerMs = 0;
+    this.dailyModifier = getDailyModifier();
+    this.lifetimeTotalScore = options.initialLifetimeTotalScore;
   }
 
   start(): void {
@@ -412,6 +418,11 @@ export class Game {
     if (!this.player || !this.running) return;
     const text = milestone >= 10_000 ? `LT${milestone}!` : `LT ${milestone}!`;
     this.spawnEffectMessage(text, '#22d3ee', 'high');
+  }
+
+  showVehicleUnlockToast(name: string): void {
+    if (!this.player || !this.running) return;
+    this.spawnEffectMessage(`UNLOCKED: ${name}`, '#facc15', 'critical');
   }
 
   private restartWithReason(reason: 'manual' | 'deadSpot' | 'caught'): void {
@@ -515,7 +526,9 @@ export class Game {
 
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
-    const onIce = isOnIceZone(currentBounds, this.world.iceZones);
+    const onIce =
+      isOnIceZone(currentBounds, this.world.iceZones) ||
+      this.dailyModifier.kind === 'SLIPPERY';
     const activeObstacles = [
       ...this.world.obstacles,
       ...getOvergrowthObstacles(this.overgrowthNodes),
@@ -588,7 +601,8 @@ export class Game {
     });
     this.world.pickups = pickupStep.remainingPickups;
     this.dynamicPickups = pickupStep.dynamicPickups;
-    this.score += pickupStep.scoreGained;
+    const coinMultiplier = this.dailyModifier.kind === 'DOUBLE_COINS' ? 2 : 1;
+    this.score += pickupStep.scoreGained * coinMultiplier;
     for (const pickup of pickupStep.collectedPickups) {
       this.audio.playPickup();
       spawnCoinBurstParticles(
@@ -865,7 +879,8 @@ export class Game {
       }
       case 'cycle-vehicle': {
         void this.audio.resume();
-        const nextVehicleDesign = getNextVehicleDesign(this.vehicleDesign);
+        const effectiveTotal = this.lifetimeTotalScore + this.score;
+        const nextVehicleDesign = getNextUnlockedVehicleDesign(this.vehicleDesign, effectiveTotal);
         this.setVehicleDesign(nextVehicleDesign);
         this.onVehicleDesignChange(nextVehicleDesign);
         this.spawnEffectMessage(getVehicleDesignLabel(nextVehicleDesign), '#f8fafc', 'low');
@@ -983,11 +998,14 @@ export class Game {
     }
 
     const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+    const overgrowthStartMs =
+      this.dailyModifier.kind === 'EARLY_OVERGROWTH' ? 15_000 : undefined;
     const step = resolveOvergrowthSpawnStep({
       overgrowthSpawnTimerMs: this.overgrowthSpawnTimerMs,
       runElapsedMs,
       existingNodeCount: this.overgrowthNodes.length,
       dtSeconds,
+      spawnStartMs: overgrowthStartMs,
     });
     this.overgrowthSpawnTimerMs = step.overgrowthSpawnTimerMs;
 
@@ -1041,6 +1059,7 @@ export class Game {
       this.nearMissFlavorIndex += 1;
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
+      this.audio.playNearMissWhoosh();
       this.toastSystem.enqueue({
         x: this.player.getBounds().x + this.player.getBounds().width / 2,
         y: this.player.getBounds().y - 18,
@@ -1071,6 +1090,7 @@ export class Game {
       this.score += OBJECTIVE_SCORE_BONUS;
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
+      this.audio.playObjectiveChime();
       const word = getObjectiveCompletionWord(step.completedCount - 1);
       this.spawnEffectMessage(word, OBJECTIVE_COMPLETION_COLOR, 'high');
       this.checkNewBestCelebration();
@@ -1779,8 +1799,17 @@ export class Game {
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
 
+    this.dailyModifier = getDailyModifier();
+    if (this.dailyModifier.kind === 'FAST_POLICE') {
+      this.policeSpawnTimerMs = Math.round(this.policeSpawnTimerMs * 0.7);
+    }
+    if (this.dailyModifier.kind === 'EXTRA_SPECIALS') {
+      this.specialSpawnTimerMs = Math.round(this.specialSpawnTimerMs * 0.6);
+    }
+
     this.firstPlayHintTimerMs = this.runNumber === 1 ? 4500 : 0;
     this.spawnEffectMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
+    this.spawnEffectMessage(`TODAY: ${this.dailyModifier.label}`, '#67e8f9', 'low');
   }
 
   private enterCaughtGameOver(): void {

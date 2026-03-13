@@ -61,6 +61,7 @@ export interface PageRunSnapshot {
 export interface ScoreSummary {
   pageBestScore: number;
   lifetimeBestScore: number;
+  lifetimeTotalScore: number;
   lifetimeRunsStarted: number;
 }
 
@@ -130,6 +131,7 @@ export async function loadScoreSummary(url: string): Promise<ScoreSummary> {
   return {
     pageBestScore: page?.highScore ?? 0,
     lifetimeBestScore: profile.lifetime.bestScore,
+    lifetimeTotalScore: profile.lifetime.totalScore,
     lifetimeRunsStarted: profile.lifetime.runsStarted,
   };
 }

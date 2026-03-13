@@ -1,6 +1,6 @@
 import type { Rect, SpecialEffect, VehicleDesign, World, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
-import { EFFECTS, SPECIALS } from './gameConfig';
+import { EFFECTS, SPECIALS, VEHICLES } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
 
 export interface ShowcaseTheme {
@@ -332,6 +332,59 @@ export function getNextVehicleDesign(current: VehicleDesign): VehicleDesign {
 
 export function getVehicleDesignLabel(design: VehicleDesign): string {
   return VEHICLE_LABELS[design];
+}
+
+// ---------------------------------------------------------------------------
+// Daily modifier
+// ---------------------------------------------------------------------------
+
+export type DailyModifierKind =
+  | 'DOUBLE_COINS'
+  | 'FAST_POLICE'
+  | 'EXTRA_SPECIALS'
+  | 'SLIPPERY'
+  | 'EARLY_OVERGROWTH';
+
+export interface DailyModifier {
+  kind: DailyModifierKind;
+  label: string;
+}
+
+const DAILY_MODIFIERS: readonly DailyModifier[] = [
+  { kind: 'DOUBLE_COINS', label: 'DOUBLE COINS' },
+  { kind: 'FAST_POLICE', label: 'FAST POLICE' },
+  { kind: 'EXTRA_SPECIALS', label: 'EXTRA SPECIALS' },
+  { kind: 'SLIPPERY', label: 'SLIPPERY' },
+  { kind: 'EARLY_OVERGROWTH', label: 'EARLY OVERGROWTH' },
+];
+
+export function getDailyModifier(): DailyModifier {
+  const dateStr = new Date().toDateString();
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash += dateStr.charCodeAt(i);
+  }
+  return DAILY_MODIFIERS[hash % DAILY_MODIFIERS.length];
+}
+
+// ---------------------------------------------------------------------------
+// Vehicle unlocks
+// ---------------------------------------------------------------------------
+
+export function getUnlockedVehicleDesigns(lifetimeTotalScore: number): VehicleDesign[] {
+  const designs: VehicleDesign[] = ['coupe'];
+  if (lifetimeTotalScore >= VEHICLES.BUGGY_UNLOCK_SCORE) designs.push('buggy');
+  if (lifetimeTotalScore >= VEHICLES.TRUCK_UNLOCK_SCORE) designs.push('truck');
+  return designs;
+}
+
+export function getNextUnlockedVehicleDesign(
+  current: VehicleDesign,
+  lifetimeTotalScore: number,
+): VehicleDesign {
+  const unlocked = getUnlockedVehicleDesigns(lifetimeTotalScore);
+  const idx = unlocked.indexOf(current);
+  return unlocked[(idx + 1) % unlocked.length];
 }
 
 export function isModifierKey(code: string): boolean {

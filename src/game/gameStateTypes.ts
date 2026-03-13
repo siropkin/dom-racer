@@ -83,6 +83,7 @@ export interface GameOptions {
   onVehicleDesignChange: (design: VehicleDesign) => void;
   initialPageBestScore: number;
   initialLifetimeBestScore: number;
+  initialLifetimeTotalScore: number;
   initialRunCount: number;
   onRunStarted?: (runNumber: number) => void;
   onRunFinished?: (run: {

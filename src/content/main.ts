@@ -11,6 +11,7 @@ import {
   saveSoundEnabledSetting,
   saveVehicleDesignSetting,
 } from '../shared/settings';
+import { VEHICLES } from '../game/gameConfig';
 import { debounce } from '../shared/utils';
 import { parseCssColor, rgbToHsl } from '../shared/color';
 import { scanVisibleDom } from './domScanner';
@@ -35,6 +36,7 @@ let soundEnabled = true;
 let vehicleDesign: VehicleDesign = 'coupe';
 let pageBestScore = 0;
 let lifetimeBestScore = 0;
+let lifetimeTotalScore = 0;
 let lifetimeRunsStarted = 0;
 let lastMagnetUiUpdateAt = 0;
 const magnetizedElements = new Set<HTMLElement>();
@@ -57,6 +59,7 @@ void loadScoreSummary(window.location.href)
   .then((summary) => {
     pageBestScore = summary.pageBestScore;
     lifetimeBestScore = summary.lifetimeBestScore;
+    lifetimeTotalScore = summary.lifetimeTotalScore;
     lifetimeRunsStarted = summary.lifetimeRunsStarted;
   })
   .catch(() => undefined);
@@ -157,6 +160,7 @@ function activate(): void {
     onVehicleDesignChange: handleVehicleDesignChange,
     initialPageBestScore: pageBestScore,
     initialLifetimeBestScore: lifetimeBestScore,
+    initialLifetimeTotalScore: lifetimeTotalScore,
     initialRunCount: lifetimeRunsStarted,
     onRunStarted: handleRunStarted,
     onRunFinished: handleRunFinished,
@@ -211,8 +215,22 @@ function handleRunFinished(run: {
   elapsedMs: number;
   reason: 'manual' | 'deadSpot' | 'caught' | 'quit';
 }): void {
+  const prevTotal = lifetimeTotalScore;
   pageBestScore = Math.max(pageBestScore, run.score);
   lifetimeBestScore = Math.max(lifetimeBestScore, run.score);
+  lifetimeTotalScore += run.score;
+  if (
+    prevTotal < VEHICLES.BUGGY_UNLOCK_SCORE &&
+    lifetimeTotalScore >= VEHICLES.BUGGY_UNLOCK_SCORE
+  ) {
+    game?.showVehicleUnlockToast('BUGGY');
+  }
+  if (
+    prevTotal < VEHICLES.TRUCK_UNLOCK_SCORE &&
+    lifetimeTotalScore >= VEHICLES.TRUCK_UNLOCK_SCORE
+  ) {
+    game?.showVehicleUnlockToast('TRUCK');
+  }
   void recordPageRun({
     url: window.location.href,
     title: document.title,

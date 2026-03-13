@@ -317,21 +317,21 @@ Right now: you die, you see your score, you press Space. But you don't know HOW 
 
 Run counter and milestones help, but there's no reason to come back TOMORROW specifically. The js13kgames research says daily variety is the cheapest retention mechanic.
 
-- [ ] **Daily modifier**: Each calendar day, deterministically pick one small rule twist from a pool of 5-6: "Double coins", "Fast police", "Extra specials", "Slippery everywhere", "Overgrowth starts early", "Jackpot luck +3x". Show the daily modifier name on the start overlay ("TODAY: DOUBLE COINS"). Uses `new Date().toDateString()` as seed — no server needed. Gives every day a reason to check in.
+- [x] **Daily modifier**: Each calendar day, deterministically pick one small rule twist from a pool of 5: "Double coins", "Fast police", "Extra specials", "Slippery everywhere", "Overgrowth starts early". Show the daily modifier name on the start overlay ("TODAY: DOUBLE COINS"). Uses `new Date().toDateString()` as seed — no server needed. Gives every day a reason to check in.
 
 ### Sound Enrichment
 
 The game has a sound toggle but the audio layer is thin. Sound reaches the brain faster than visuals (Creator Sounds Pro research) and is the fastest way to add juice.
 
-- [ ] **Coin collect sound variation**: Slightly randomize pitch (±10%) on each coin pickup so it doesn't feel repetitive. One line change if the audio system supports it.
-- [ ] **Near-miss whoosh**: A brief, quiet "fwip" sound on near-miss trigger. Confirms the close call before the toast even appears.
-- [ ] **Objective completion chime**: A small "ding" on micro-objective completion. Pairs with the violet toast for a satisfying double-feedback moment.
+- [x] **Coin collect sound variation**: Slightly randomize pitch (±10%) on each coin pickup so it doesn't feel repetitive. One line change if the audio system supports it.
+- [x] **Near-miss whoosh**: A brief, quiet "fwip" sound on near-miss trigger. Confirms the close call before the toast even appears.
+- [x] **Objective completion chime**: A small "ding" on micro-objective completion. Pairs with the violet toast for a satisfying double-feedback moment.
 
 ### Vehicle Unlocks (Cosmetic Progression)
 
 The game has 3 vehicle designs (coupe, buggy, truck) but they're all available from the start. Unlocking through play creates a reason to keep going.
 
-- [ ] **Score-gated vehicle unlocks**: Start with only the coupe. Unlock buggy at 500 lifetime score, truck at 1500. Show a "VEHICLE UNLOCKED: BUGGY" toast on the run where you cross the threshold. Tiny persistence check, huge "reward for playing" feel.
+- [x] **Score-gated vehicle unlocks**: Start with only the coupe. Unlock buggy at 500 lifetime total score, truck at 1500. Show "UNLOCKED: BUGGY" toast when lifetime score crosses threshold. Vehicle cycling (V key) only shows unlocked vehicles. Derived from lifetime total score — no separate persistence.
 - [ ] **Color variants** (stretch): At higher milestones (3000, 5000), unlock gold or chrome color variants of existing designs. Reuse the same sprite drawing with different fill colors.
 
 ### Chrome Web Store Readiness
@@ -403,6 +403,15 @@ When this roadmap is working, a good run should feel like this:
 - Ran full lint:fix + format pass — zero issues
 - 72 tests pass, build clean, lint clean, format clean, no `__domRacerDebug` in source or dist
 - All production readiness tasks (items 2-6 in next-session) marked complete
+
+### Session — 2026-03-13 (s)
+
+- Phase 8 player experience: daily modifier, sound enrichment, vehicle unlocks
+- Daily modifier: deterministic daily rule twist from pool of 5 (DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, SLIPPERY, EARLY_OVERGROWTH). Hash of `toDateString()` selects modifier. Shown as "TODAY: X" toast at run start. Per-run overrides — config values not permanently changed.
+- Sound enrichment: coin pickup pitch randomized ±10%, near-miss whoosh (sine sweep 2200→600Hz, 50ms), objective completion chime (800Hz + 1200Hz sine, 100ms)
+- Score-gated vehicle unlocks: coupe always available, buggy at 500 lifetime total score, truck at 1500. V key only cycles unlocked vehicles. Unlock toast shown when threshold crossed after run. Added `VEHICLES` config section, `getUnlockedVehicleDesigns`, `getNextUnlockedVehicleDesign` to gameRuntime, `lifetimeTotalScore` to ScoreSummary/GameOptions.
+- Added `spawnStartMs` optional param to `resolveOvergrowthSpawnStep` for EARLY_OVERGROWTH modifier
+- 79 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (r)
 

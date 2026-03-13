@@ -44,8 +44,10 @@ export function resolveOvergrowthSpawnStep(options: {
   runElapsedMs: number;
   existingNodeCount: number;
   dtSeconds: number;
+  spawnStartMs?: number;
 }): OvergrowthSpawnStep {
-  if (options.runElapsedMs < OVERGROWTH_SPAWN_START_MS) {
+  const startMs = options.spawnStartMs ?? OVERGROWTH_SPAWN_START_MS;
+  if (options.runElapsedMs < startMs) {
     return { overgrowthSpawnTimerMs: options.overgrowthSpawnTimerMs, shouldSpawn: false };
   }
 
