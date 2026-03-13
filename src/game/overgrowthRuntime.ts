@@ -262,62 +262,71 @@ function growRect(
 // Overgrowth rendering
 // ---------------------------------------------------------------------------
 
-interface BushStageStyle {
-  fill: string;
+interface OvergrowthStyle {
+  body: string;
   dark: string;
   light: string;
+  outline: string;
   alpha: number;
-  stroke: string;
 }
 
-interface TreeStageStyle {
-  fill: string;
-  alpha: number;
-  stroke: string;
-  trunk: string;
-  branch: string;
-  canopyDark: string;
-  canopyLight: string;
-}
-
-const BUSH_STAGE_STYLES: Readonly<Record<OvergrowthStage, BushStageStyle>> = {
-  small: { fill: '#86efac', dark: '#22c55e', light: '#bbf7d0', alpha: 0.36, stroke: '' },
-  medium: { fill: '#4ade80', dark: '#16a34a', light: '#86efac', alpha: 0.62, stroke: '' },
-  large: { fill: '#22c55e', dark: '#166534', light: '#4ade80', alpha: 0.88, stroke: '#15803d' },
+const BUSH_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStyle>> = {
+  small: { body: '#86efac', dark: '#22c55e', light: '#bbf7d0', outline: '#15803d', alpha: 0.5 },
+  medium: { body: '#4ade80', dark: '#16a34a', light: '#86efac', outline: '#15803d', alpha: 0.72 },
+  large: { body: '#22c55e', dark: '#166534', light: '#4ade80', outline: '#15803d', alpha: 0.92 },
 };
 
-const TREE_STAGE_STYLES: Readonly<Record<OvergrowthStage, TreeStageStyle>> = {
+const TREE_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStyle & { trunk: string }>> = {
   small: {
-    fill: '#6ee7b7',
-    alpha: 0.36,
-    stroke: '',
-    trunk: '#a16207',
-    branch: '#92400e',
-    canopyDark: '#34d399',
-    canopyLight: '#a7f3d0',
+    body: '#6ee7b7',
+    dark: '#059669',
+    light: '#a7f3d0',
+    outline: '#047857',
+    alpha: 0.5,
+    trunk: '#92400e',
   },
   medium: {
-    fill: '#34d399',
-    alpha: 0.62,
-    stroke: '',
-    trunk: '#92400e',
-    branch: '#78350f',
-    canopyDark: '#059669',
-    canopyLight: '#6ee7b7',
+    body: '#34d399',
+    dark: '#047857',
+    light: '#6ee7b7',
+    outline: '#047857',
+    alpha: 0.72,
+    trunk: '#78350f',
   },
   large: {
-    fill: '#059669',
-    alpha: 0.88,
-    stroke: '#15803d',
-    trunk: '#78350f',
-    branch: '#713f12',
-    canopyDark: '#047857',
-    canopyLight: '#34d399',
+    body: '#059669',
+    dark: '#064e3b',
+    light: '#34d399',
+    outline: '#047857',
+    alpha: 0.92,
+    trunk: '#713f12',
   },
 };
 
 function getOvergrowthEntryScale(growthMs: number): number {
   return 0.6 + clamp(growthMs / 1200, 0, 1) * 0.4;
+}
+
+function traceBushPath(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  lobes: number,
+  bumpDepth: number,
+): void {
+  const pts = lobes * 6;
+  ctx.beginPath();
+  for (let i = 0; i <= pts; i += 1) {
+    const t = (i / pts) * Math.PI * 2;
+    const bump = 1 + Math.sin(t * lobes) * bumpDepth;
+    const px = cx + Math.cos(t) * hw * bump;
+    const py = cy + Math.sin(t) * hh * bump;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
 }
 
 /** Renders all active overgrowth nodes (bushes and trees) with growth and sway animation. */
@@ -350,107 +359,39 @@ function drawOvergrowthBush(
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
   const scale = getOvergrowthEntryScale(growthMs);
-  const style = BUSH_STAGE_STYLES[stage];
+  const style = BUSH_STYLES[stage];
 
-  const sway = Math.sin(nowMs / 1100 + cx * 0.013) * 0.8;
+  const sway = Math.sin(nowMs / 1100 + cx * 0.013) * 0.7;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
-
   const hw = (rect.width / 2) * scale;
   const hh = (rect.height / 2) * scale;
-  const seed = ((cx * 7.3 + cy * 13.7) | 0) & 0xff;
+  const lobes = stage === 'small' ? 4 : stage === 'medium' ? 5 : 6;
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
+  ctx.translate(sway, 0);
   applyAdaptiveShadow(ctx);
 
-  // Ground shadow
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.10)';
-  ctx.beginPath();
-  ctx.ellipse(cx + sway * 0.4, cy + hh * 0.15, hw * 0.7, hh * 0.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Dark core for interior depth
+  traceBushPath(ctx, cx, cy, hw * 0.72, hh * 0.68, lobes, 0.14);
   ctx.fillStyle = style.dark;
-  ctx.beginPath();
-  ctx.ellipse(cx + sway * 0.3, cy, hw * 0.5, hh * 0.46, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Mid-tone leaf clusters creating a lumpy natural silhouette
-  ctx.fillStyle = style.fill;
-  const clusterCount = stage === 'small' ? 4 : stage === 'medium' ? 6 : 8;
-  for (let i = 0; i < clusterCount; i += 1) {
-    const angle = (i / clusterCount) * Math.PI * 2 + (seed & 7) * 0.4;
-    const leafSway = sway * (0.8 + (i % 3) * 0.15);
-    const dist = 0.46 + ((seed + i * 31) % 17) / 90;
-    const r = 0.3 + ((seed + i * 19) % 11) / 60;
-    ctx.beginPath();
-    ctx.ellipse(
-      cx + leafSway + Math.cos(angle) * hw * dist,
-      cy + Math.sin(angle) * hh * dist,
-      hw * r,
-      hh * r * 0.88,
-      angle * 0.15,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  }
+  traceBushPath(ctx, cx, cy - hh * 0.06, hw * 0.7, hh * 0.64, lobes, 0.16);
+  ctx.fillStyle = style.body;
+  ctx.fill();
 
-  // Bright highlight clusters on sun-facing side
+  traceBushPath(ctx, cx - hw * 0.08, cy - hh * 0.12, hw * 0.4, hh * 0.36, lobes, 0.1);
   ctx.fillStyle = style.light;
-  const lightCount = stage === 'small' ? 2 : stage === 'medium' ? 3 : 4;
-  for (let i = 0; i < lightCount; i += 1) {
-    const angle = (i / lightCount) * Math.PI * 2 + (seed & 3) * 1.2 + 0.5;
-    ctx.beginPath();
-    ctx.ellipse(
-      cx + sway * 0.9 + Math.cos(angle) * hw * 0.34,
-      cy + Math.sin(angle) * hh * 0.3,
-      hw * 0.2,
-      hh * 0.18,
-      0,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  }
+  ctx.fill();
 
-  // Tiny sparkle dots where light catches individual leaves
-  if (stage !== 'small') {
-    ctx.fillStyle = stage === 'medium' ? 'rgba(187, 247, 208, 0.55)' : 'rgba(220, 252, 231, 0.65)';
-    const spotCount = stage === 'medium' ? 3 : 5;
-    for (let i = 0; i < spotCount; i += 1) {
-      const angle = (seed + i * 17) * 0.618;
-      const dist = 0.18 + ((seed + i * 7) % 13) / 42;
-      ctx.beginPath();
-      ctx.arc(
-        cx + sway * 0.6 + Math.cos(angle) * hw * dist,
-        cy + Math.sin(angle) * hh * dist,
-        0.8 + (i % 2) * 0.4,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fill();
-    }
-  }
+  traceBushPath(ctx, cx, cy - hh * 0.06, hw * 0.72, hh * 0.66, lobes, 0.16);
+  ctx.strokeStyle = style.outline;
+  ctx.lineWidth = stage === 'large' ? 1.6 : 1.2;
+  ctx.stroke();
 
-  // Scalloped contour outline (large stage only)
-  if (stage === 'large' && style.stroke) {
-    ctx.globalAlpha = 0.8;
-    ctx.strokeStyle = style.stroke;
-    ctx.lineWidth = 1.4;
-    const pts = 20;
-    ctx.beginPath();
-    for (let i = 0; i <= pts; i += 1) {
-      const angle = (i / pts) * Math.PI * 2;
-      const wobble = 0.82 + Math.sin(angle * 3 + seed * 0.1) * 0.06;
-      const px = cx + sway + Math.cos(angle) * hw * wobble;
-      const py = cy + Math.sin(angle) * hh * wobble;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = stage === 'large' ? 0.9 : 0.6;
+  ctx.stroke();
 
   ctx.restore();
 }
@@ -464,132 +405,53 @@ function drawOvergrowthTree(
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
   const scale = getOvergrowthEntryScale(growthMs);
-  const style = TREE_STAGE_STYLES[stage];
+  const style = TREE_STYLES[stage];
 
-  const sway = Math.sin(nowMs / 1300 + cx * 0.011) * 0.6;
+  const sway = Math.sin(nowMs / 1300 + cx * 0.011) * 0.5;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
-
   const hw = (rect.width / 2) * scale;
   const hh = (rect.height / 2) * scale;
-  const seed = ((cx * 11.3 + cy * 7.7) | 0) & 0xff;
+  const r = Math.min(hw, hh);
+  const lobes = stage === 'small' ? 5 : stage === 'medium' ? 6 : 7;
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
   applyAdaptiveShadow(ctx);
 
-  // Ground shadow beneath the tree
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.12)';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + hh * 0.1, hw * 0.65, hh * 0.45, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Trunk (top-down brown rectangle with wood grain)
-  const trunkW = Math.max(3, Math.min(hw, hh) * 0.28);
-  const trunkH = Math.max(4, Math.min(hw, hh) * 0.55);
+  const trunkW = Math.max(2.5, r * 0.22);
+  const trunkLen = r * 0.7;
   ctx.fillStyle = style.trunk;
   ctx.beginPath();
-  ctx.roundRect(cx - trunkW / 2, cy - trunkH / 2, trunkW, trunkH, trunkW * 0.3);
+  ctx.roundRect(cx - trunkW / 2, cy - trunkLen / 2, trunkW, trunkLen, trunkW * 0.25);
   ctx.fill();
-  ctx.strokeStyle = style.branch;
-  ctx.lineWidth = 0.6;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy - trunkH * 0.35);
-  ctx.lineTo(cx, cy + trunkH * 0.35);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // Branch stubs radiating outward from the trunk
-  ctx.strokeStyle = style.trunk;
-  ctx.lineWidth = Math.max(1.2, trunkW * 0.35);
-  ctx.lineCap = 'round';
-  const branchCount = stage === 'small' ? 2 : stage === 'medium' ? 3 : 4;
-  for (let i = 0; i < branchCount; i += 1) {
-    const angle = (i / branchCount) * Math.PI * 2 + (seed & 5) * 0.5 + 0.3;
-    const branchLen = Math.min(hw, hh) * 0.45;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(angle) * branchLen, cy + Math.sin(angle) * branchLen);
-    ctx.stroke();
-  }
-  ctx.lineCap = 'butt';
+  ctx.save();
+  ctx.translate(sway, 0);
 
-  // Canopy dark base layer
-  ctx.fillStyle = style.canopyDark;
-  ctx.beginPath();
-  ctx.ellipse(cx + sway * 0.4, cy, hw * 0.6, hh * 0.55, 0, 0, Math.PI * 2);
+  traceBushPath(ctx, cx, cy, r * 0.76, r * 0.72, lobes, 0.12);
+  ctx.fillStyle = style.dark;
   ctx.fill();
 
-  // Canopy main leaf circles (overlapping, varied)
-  ctx.fillStyle = style.fill;
-  const canopyCount = stage === 'small' ? 3 : stage === 'medium' ? 5 : 7;
-  for (let i = 0; i < canopyCount; i += 1) {
-    const angle = (i / canopyCount) * Math.PI * 2 + (seed & 3) * 0.8;
-    const canopySway = sway * (0.85 + (i % 3) * 0.1);
-    const dist = 0.38 + ((seed + i * 23) % 13) / 65;
-    const r = 0.28 + ((seed + i * 11) % 9) / 50;
-    ctx.beginPath();
-    ctx.arc(
-      cx + canopySway + Math.cos(angle) * hw * dist,
-      cy + Math.sin(angle) * hh * dist,
-      Math.min(hw, hh) * r,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  }
+  traceBushPath(ctx, cx, cy - r * 0.05, r * 0.74, r * 0.68, lobes, 0.13);
+  ctx.fillStyle = style.body;
+  ctx.fill();
 
-  // Lighter canopy highlights
-  ctx.fillStyle = style.canopyLight;
-  const highlightCount = stage === 'small' ? 1 : stage === 'medium' ? 2 : 3;
-  for (let i = 0; i < highlightCount; i += 1) {
-    const angle = (i / Math.max(1, highlightCount)) * Math.PI * 2 + (seed & 7) * 0.6;
-    ctx.beginPath();
-    ctx.arc(
-      cx + sway * 0.7 + Math.cos(angle) * hw * 0.3,
-      cy + Math.sin(angle) * hh * 0.28,
-      Math.min(hw, hh) * 0.18,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  }
+  traceBushPath(ctx, cx - r * 0.1, cy - r * 0.1, r * 0.38, r * 0.34, lobes, 0.08);
+  ctx.fillStyle = style.light;
+  ctx.fill();
 
-  // Leaf-gap sparkle spots
-  if (stage !== 'small') {
-    ctx.fillStyle = stage === 'medium' ? 'rgba(167, 243, 208, 0.5)' : 'rgba(209, 250, 229, 0.6)';
-    const spotCount = stage === 'medium' ? 2 : 4;
-    for (let i = 0; i < spotCount; i += 1) {
-      const angle = (seed + i * 13) * 0.618;
-      const dist = 0.2 + ((seed + i * 5) % 11) / 48;
-      ctx.beginPath();
-      ctx.arc(
-        cx + sway * 0.5 + Math.cos(angle) * hw * dist,
-        cy + Math.sin(angle) * hh * dist,
-        0.7 + (i % 2) * 0.4,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fill();
-    }
-  }
+  traceBushPath(ctx, cx, cy - r * 0.04, r * 0.76, r * 0.7, lobes, 0.13);
+  ctx.strokeStyle = style.outline;
+  ctx.lineWidth = stage === 'large' ? 1.6 : 1.2;
+  ctx.stroke();
 
-  // Organic contour outline (large stage only)
-  if (stage === 'large' && style.stroke) {
-    ctx.globalAlpha = 0.8;
-    ctx.strokeStyle = style.stroke;
-    ctx.lineWidth = 1.4;
-    const pts = 20;
-    ctx.beginPath();
-    for (let i = 0; i <= pts; i += 1) {
-      const angle = (i / pts) * Math.PI * 2;
-      const wobble = 0.78 + Math.sin(angle * 4 + seed * 0.1) * 0.05;
-      const px = cx + sway + Math.cos(angle) * hw * wobble;
-      const py = cy + Math.sin(angle) * hh * wobble;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = stage === 'large' ? 0.9 : 0.6;
+  ctx.stroke();
 
+  ctx.restore();
   ctx.restore();
 }
