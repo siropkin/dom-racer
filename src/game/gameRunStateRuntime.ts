@@ -32,6 +32,7 @@ export interface ClearedEffectState {
   ghostTimerMs: number;
   invertTimerMs: number;
   blackoutTimerMs: number;
+  lureTimerMs: number;
 }
 
 export interface ClearedComboState {
@@ -96,6 +97,7 @@ export function createClearedEffectState(): ClearedEffectState {
     ghostTimerMs: 0,
     invertTimerMs: 0,
     blackoutTimerMs: 0,
+    lureTimerMs: 0,
   };
 }
 

@@ -21,7 +21,7 @@ export interface ViewportSize {
 }
 
 export type VehicleDesign = 'coupe' | 'buggy' | 'truck';
-export type SpecialEffect = 'invert' | 'magnet' | 'ghost' | 'blackout' | 'bonus';
+export type SpecialEffect = 'invert' | 'magnet' | 'ghost' | 'blackout' | 'bonus' | 'cooldown' | 'lure';
 export type HudEffectKind = SpecialEffect | 'police' | 'flow' | 'encounter';
 
 export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';

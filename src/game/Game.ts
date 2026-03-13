@@ -47,6 +47,7 @@ import {
   estimatePageLightness,
 } from './gameRenderRuntime';
 import {
+  applyLurePullToPickups,
   applyMagnetPullToPickups,
   applyPickupComboState,
   resolveSpecialEffectActivation,
@@ -202,6 +203,7 @@ export class Game {
   private ghostTimerMs: number;
   private invertTimerMs: number;
   private blackoutTimerMs: number;
+  private lureTimerMs: number;
   private invertActive: boolean;
   private blackoutActive: boolean;
   private policeChase: PoliceChaseState | null;
@@ -277,6 +279,7 @@ export class Game {
     this.ghostTimerMs = 0;
     this.invertTimerMs = 0;
     this.blackoutTimerMs = 0;
+    this.lureTimerMs = 0;
     this.invertActive = false;
     this.blackoutActive = false;
     this.policeChase = null;
@@ -516,6 +519,7 @@ export class Game {
     this.updateAmbientSpecialSpawns(dtSeconds);
     this.updatePlaneBonusEvent(dtSeconds);
     this.applyMagnet(dtSeconds);
+    this.applyLure(dtSeconds);
     this.updateUiEffects();
 
     this.toastSystem.update(dtSeconds);
@@ -587,6 +591,7 @@ export class Game {
       ghostTimerMs: this.ghostTimerMs,
       invertTimerMs: this.invertTimerMs,
       blackoutTimerMs: this.blackoutTimerMs,
+      lureTimerMs: this.lureTimerMs,
       policeDelayCueTimerMs: this.policeDelayCueTimerMs,
       policeDelayCueDurationMs: this.policeDelayCueDurationMs,
       comboTimerMs: this.comboTimerMs,
@@ -1151,6 +1156,12 @@ export class Game {
       case 'blackout':
         this.blackoutTimerMs = activation.timerMs;
         break;
+      case 'lure':
+        this.lureTimerMs = activation.timerMs;
+        break;
+      case 'cooldown':
+        this.applyCooldownPoliceDelay(activation.policeDelayMs);
+        break;
     }
 
     if (activation.setInverted) {
@@ -1161,6 +1172,14 @@ export class Game {
     }
 
     this.spawnEffectMessage(activation.messageText, activation.messageColor, 'high');
+  }
+
+  private applyCooldownPoliceDelay(delayMs: number): void {
+    this.policeWarning = null;
+    this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
+    const delayCue = createPoliceDelayCueState(delayMs);
+    this.policeDelayCueTimerMs = delayCue.policeDelayCueTimerMs;
+    this.policeDelayCueDurationMs = delayCue.policeDelayCueDurationMs;
   }
 
   private sampleCurrentSurface(): SurfaceSample {
@@ -1185,6 +1204,14 @@ export class Game {
     }
 
     applyMagnetPullToPickups(this.world.pickups, rectCenter(this.player.getBounds()), dtSeconds);
+  }
+
+  private applyLure(dtSeconds: number): void {
+    if (!this.world || !this.player || this.lureTimerMs <= 0) {
+      return;
+    }
+
+    applyLurePullToPickups(this.world.pickups, rectCenter(this.player.getBounds()), dtSeconds);
   }
 
   private updateUiEffects(): void {
@@ -1348,6 +1375,7 @@ export class Game {
         ghostTimerMs: this.ghostTimerMs,
         invertTimerMs: this.invertTimerMs,
         blackoutTimerMs: this.blackoutTimerMs,
+        lureTimerMs: this.lureTimerMs,
         comboTimerMs: this.comboTimerMs,
         pickupComboCount: this.pickupComboCount,
       },
@@ -1357,6 +1385,7 @@ export class Game {
     this.ghostTimerMs = timers.ghostTimerMs;
     this.invertTimerMs = timers.invertTimerMs;
     this.blackoutTimerMs = timers.blackoutTimerMs;
+    this.lureTimerMs = timers.lureTimerMs;
     this.comboTimerMs = timers.comboTimerMs;
     this.pickupComboCount = timers.pickupComboCount;
 
@@ -1452,6 +1481,7 @@ export class Game {
     this.ghostTimerMs = cleared.ghostTimerMs;
     this.invertTimerMs = cleared.invertTimerMs;
     this.blackoutTimerMs = cleared.blackoutTimerMs;
+    this.lureTimerMs = cleared.lureTimerMs;
   }
 
   private resetComboState(): void {

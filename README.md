@@ -50,7 +50,7 @@ npm run build
 - Links and buttons spawn money pickups
 - Ambient special pickups spawn independently from normal money
 - `FLOW` streaks recolor regular coins to make the streak state obvious
-- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`
+- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with edge warnings and a proper `GAME OVER` screen
 - Run auto-pauses with a clear overlay when the page/tab loses focus
@@ -76,6 +76,8 @@ The result is intentionally game-ish rather than perfectly literal. The goal is 
 - `INVERT`: flips page colors
 - `GHOST`: temporarily relaxes movement pressure and blocks police lock
 - `BLACKOUT`: darkens the page for a short high-pressure stretch (adapts to `INVERT` on dark surfaces)
+- `COOLDOWN`: pushes back police spawn timing and gives a small score bonus
+- `LURE`: gently attracts distant coins toward the player (wider range, softer pull than `MAGNET`)
 
 The active power-up panel in the top-right HUD shows remaining duration.
 

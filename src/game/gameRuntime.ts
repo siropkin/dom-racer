@@ -65,6 +65,10 @@ export const PLANE_LUCKY_WIND_RADIUS_PX = 180;
 export const PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX = 120;
 export const PLANE_LUCKY_WIND_MAX_SHIFT_PX = 36;
 export const PLANE_LUCKY_WIND_MAX_COINS = 8;
+export const COOLDOWN_POLICE_DELAY_MIN_MS = 5400;
+export const COOLDOWN_POLICE_DELAY_MAX_MS = 8200;
+export const COOLDOWN_SCORE_BONUS = 15;
+export const LURE_PULL_RADIUS = 300;
 export const SPECIAL_VISIBLE_CAP = 2;
 export const SPECIAL_INITIAL_SPAWN_MIN_MS = 4800;
 export const SPECIAL_INITIAL_SPAWN_MAX_MS = 7600;
@@ -113,6 +117,8 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'V-GHO',
   'S-BLK',
   'R-BON+40',
+  'T-CDN+15',
+  'A-LUR',
   'FLOW X3',
   'FLOW X5',
   'FLOW X8',
@@ -173,13 +179,15 @@ export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   },
 ];
 
-const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = ['invert', 'magnet', 'ghost', 'blackout'];
+const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = ['invert', 'magnet', 'ghost', 'blackout', 'cooldown', 'lure'];
 const SPECIAL_LABELS: Record<SpecialEffect, string> = {
   bonus: 'BON',
   invert: 'INV',
   magnet: 'MAG',
   ghost: 'GHO',
   blackout: 'BLK',
+  cooldown: 'CDN',
+  lure: 'LUR',
 };
 const SPECIAL_COLORS: Record<SpecialEffect, string> = {
   bonus: '#f9a8d4',
@@ -187,6 +195,8 @@ const SPECIAL_COLORS: Record<SpecialEffect, string> = {
   magnet: '#67e8f9',
   ghost: '#c4b5fd',
   blackout: '#334155',
+  cooldown: '#5eead4',
+  lure: '#fbbf24',
 };
 const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
   bonus: 'ROSE',
@@ -194,6 +204,8 @@ const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
   magnet: 'CYAN',
   ghost: 'VIOLET',
   blackout: 'SLATE',
+  cooldown: 'TEAL',
+  lure: 'AMBER',
 };
 const VEHICLE_DESIGNS: VehicleDesign[] = ['coupe', 'buggy', 'truck'];
 const VEHICLE_LABELS: Record<VehicleDesign, string> = {
@@ -295,7 +307,7 @@ export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
           ? 'ghost'
           : 'magnet';
 
-  if (Math.random() < 0.58) {
+  if (Math.random() < 0.52) {
     return preferredEffect;
   }
 
@@ -327,7 +339,7 @@ export function getSpecialDropMessage(effect: SpecialEffect): string {
   return `${colorCode}-${getSpecialLabel(effect)}D`;
 }
 
-export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus'>): string {
+export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus' | 'cooldown'>): string {
   switch (effect) {
     case 'magnet':
       return 'MAGNET CYAN';
@@ -337,6 +349,8 @@ export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus'>): str
       return 'GHOST VIOLET';
     case 'blackout':
       return 'BLACKOUT SLATE';
+    case 'lure':
+      return 'LURE AMBER';
   }
 }
 
@@ -352,6 +366,10 @@ export function getSpecialActivationMessage(effect: SpecialEffect): string {
       return 'V-GHO';
     case 'blackout':
       return 'S-BLK';
+    case 'cooldown':
+      return `T-CDN+${COOLDOWN_SCORE_BONUS}`;
+    case 'lure':
+      return 'A-LUR';
   }
 }
 
@@ -386,6 +404,7 @@ export function getFlavorText(state: {
   ghostActive: boolean;
   invertActive: boolean;
   blackoutActive: boolean;
+  lureActive: boolean;
   planeActive: boolean;
   planeWarningActive: boolean;
   policeActive: boolean;
@@ -418,6 +437,10 @@ export function getFlavorText(state: {
 
   if (state.invertActive) {
     return 'Reality flipped. Keep the rubber side up.';
+  }
+
+  if (state.lureActive) {
+    return 'Loose change incoming. Look alive.';
   }
 
   if (state.magnetActive) {

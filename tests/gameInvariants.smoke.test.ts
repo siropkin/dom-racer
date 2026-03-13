@@ -12,7 +12,7 @@ import {
   shouldPauseForPageFocus,
 } from '../src/game/gameRunStateRuntime';
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
-import { applyMagnetPullToPickups, resolveSpecialEffectActivation } from '../src/game/gameEffectsRuntime';
+import { applyLurePullToPickups, applyMagnetPullToPickups, resolveSpecialEffectActivation } from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs, resolveRegularCoinSpawnStep } from '../src/game/pickupSpawnRuntime';
 
@@ -709,6 +709,7 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      lureActive: false,
       planeActive: false,
       planeWarningActive: false,
       policeActive: false,
@@ -728,6 +729,7 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      lureActive: false,
       planeActive: false,
       planeWarningActive: false,
       policeActive: false,
@@ -747,6 +749,7 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      lureActive: false,
       planeActive: false,
       planeWarningActive: true,
       policeActive: false,
@@ -766,6 +769,7 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      lureActive: false,
       planeActive: true,
       planeWarningActive: false,
       policeActive: false,
@@ -774,6 +778,26 @@ describe('game economy and police smoke invariants', () => {
     });
 
     expect(text).toContain('Flyover live');
+  });
+
+  it('surfaces lure active flavor text', () => {
+    const text = getFlavorText({
+      score: 80,
+      airborne: false,
+      boostActive: false,
+      magnetActive: false,
+      ghostActive: false,
+      invertActive: false,
+      blackoutActive: false,
+      lureActive: true,
+      planeActive: false,
+      planeWarningActive: false,
+      policeActive: false,
+      policeWarningActive: false,
+      policeDelayActive: false,
+    });
+
+    expect(text).toContain('Loose change incoming');
   });
 
   it('keeps extracted focus-mode alpha helper behavior unchanged', () => {
@@ -805,6 +829,7 @@ describe('game economy and police smoke invariants', () => {
       ghostTimerMs: 0,
       invertTimerMs: 0,
       blackoutTimerMs: 0,
+      lureTimerMs: 0,
       policeDelayCueTimerMs: 0,
       policeDelayCueDurationMs: 0,
       comboTimerMs: 0,
@@ -975,6 +1000,7 @@ describe('game economy and police smoke invariants', () => {
     expect(bonus.resolvedEffect).toBe('bonus');
     expect(bonus.scoreBonus).toBe(40);
     expect(bonus.timerMs).toBe(0);
+    expect(bonus.policeDelayMs).toBe(0);
     expect(bonus.setInverted).toBe(false);
     expect(bonus.setBlackout).toBe(false);
     expect(bonus.messageText).toContain('BON');
@@ -983,6 +1009,7 @@ describe('game economy and police smoke invariants', () => {
     expect(magnet.resolvedEffect).toBe('magnet');
     expect(magnet.scoreBonus).toBe(0);
     expect(magnet.timerMs).toBeGreaterThan(0);
+    expect(magnet.policeDelayMs).toBe(0);
     expect(magnet.setInverted).toBe(false);
     expect(magnet.setBlackout).toBe(false);
 
@@ -1008,6 +1035,123 @@ describe('game economy and police smoke invariants', () => {
     expect(blackoutOnDark.resolvedEffect).toBe('invert');
     expect(blackoutOnDark.setInverted).toBe(true);
     expect(blackoutOnDark.setBlackout).toBe(false);
+  });
+
+  it('resolves cooldown activation with score bonus and police delay', () => {
+    const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
+    const cooldown = resolveSpecialEffectActivation('cooldown', surface);
+    expect(cooldown.resolvedEffect).toBe('cooldown');
+    expect(cooldown.scoreBonus).toBe(15);
+    expect(cooldown.timerMs).toBe(0);
+    expect(cooldown.policeDelayMs).toBeGreaterThanOrEqual(5400);
+    expect(cooldown.policeDelayMs).toBeLessThanOrEqual(8200);
+    expect(cooldown.setInverted).toBe(false);
+    expect(cooldown.setBlackout).toBe(false);
+    expect(cooldown.messageText).toContain('CDN');
+  });
+
+  it('resolves lure activation with timer and no visual side effects', () => {
+    const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
+    const lure = resolveSpecialEffectActivation('lure', surface);
+    expect(lure.resolvedEffect).toBe('lure');
+    expect(lure.scoreBonus).toBe(0);
+    expect(lure.timerMs).toBe(5400);
+    expect(lure.policeDelayMs).toBe(0);
+    expect(lure.setInverted).toBe(false);
+    expect(lure.setBlackout).toBe(false);
+    expect(lure.messageText).toContain('LUR');
+  });
+
+  it('uses lure pull to attract distant coins but not specials', () => {
+    const pickups: World['pickups'] = [
+      {
+        id: 'coin:near',
+        sourceId: 'coin:near',
+        rect: { x: 460, y: 260, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:far',
+        sourceId: 'coin:far',
+        rect: { x: 360, y: 180, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:out-of-range',
+        sourceId: 'coin:out-of-range',
+        rect: { x: 860, y: 520, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'special:magnet:lure-test',
+        rect: { x: 480, y: 240, width: 20, height: 20 },
+        value: 25,
+        kind: 'special',
+        effect: 'magnet',
+        accentColor: '#67e8f9',
+        label: 'MAG',
+      },
+    ];
+    const playerCenter = { x: 500, y: 300 };
+    const nearBefore = { ...pickups[0].rect };
+    const farBefore = { ...pickups[1].rect };
+    const outOfRangeBefore = { ...pickups[2].rect };
+    const specialBefore = { ...pickups[3].rect };
+
+    applyLurePullToPickups(pickups, playerCenter, 0.5);
+
+    const nearDistance = Math.hypot(
+      playerCenter.x - (pickups[0].rect.x + 8),
+      playerCenter.y - (pickups[0].rect.y + 8),
+    );
+    const nearBeforeDistance = Math.hypot(
+      playerCenter.x - (nearBefore.x + 8),
+      playerCenter.y - (nearBefore.y + 8),
+    );
+    expect(nearDistance).toBeLessThan(nearBeforeDistance);
+
+    const farDistance = Math.hypot(
+      playerCenter.x - (pickups[1].rect.x + 8),
+      playerCenter.y - (pickups[1].rect.y + 8),
+    );
+    const farBeforeDistance = Math.hypot(
+      playerCenter.x - (farBefore.x + 8),
+      playerCenter.y - (farBefore.y + 8),
+    );
+    expect(farDistance).toBeLessThan(farBeforeDistance);
+
+    expect(pickups[2].rect.x).toBe(outOfRangeBefore.x);
+    expect(pickups[2].rect.y).toBe(outOfRangeBefore.y);
+
+    expect(pickups[3].rect.x).toBe(specialBefore.x);
+    expect(pickups[3].rect.y).toBe(specialBefore.y);
+  });
+
+  it('uses cooldown to push police timer and show delay cue', () => {
+    (game as any).beginRun('manual');
+    const spawnTimerBefore = 2000;
+    (game as any).policeSpawnTimerMs = spawnTimerBefore;
+
+    (game as any).activateSpecialEffect('cooldown');
+
+    expect((game as any).policeSpawnTimerMs).toBeGreaterThan(spawnTimerBefore + 5000);
+    expect((game as any).policeDelayCueTimerMs).toBeGreaterThan(5000);
+    expect((game as any).policeDelayCueDurationMs).toBe((game as any).policeDelayCueTimerMs);
+    expect((game as any).score).toBe(15);
+    expect((game as any).policeWarning).toBeNull();
+  });
+
+  it('activates lure timer when lure special is collected', () => {
+    (game as any).beginRun('manual');
+    expect((game as any).lureTimerMs).toBe(0);
+
+    (game as any).activateSpecialEffect('lure');
+
+    expect((game as any).lureTimerMs).toBe(5400);
+    expect((game as any).score).toBe(0);
   });
 
   it('keeps extracted page lightness estimation unchanged', () => {

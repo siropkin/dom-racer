@@ -18,6 +18,7 @@ interface BuildHudStateOptions {
   ghostTimerMs: number;
   invertTimerMs: number;
   blackoutTimerMs: number;
+  lureTimerMs: number;
   policeDelayCueTimerMs: number;
   policeDelayCueDurationMs: number;
   comboTimerMs: number;
@@ -48,6 +49,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     ghostTimerMs: options.ghostTimerMs,
     invertTimerMs: options.invertTimerMs,
     blackoutTimerMs: options.blackoutTimerMs,
+    lureTimerMs: options.lureTimerMs,
     comboTimerMs: options.comboTimerMs,
     pickupComboCount: options.pickupComboCount,
     policeRemainingMs: options.policeRemainingMs,
@@ -113,6 +115,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       ghostActive: options.ghostTimerMs > 0,
       invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
+      lureActive: options.lureTimerMs > 0,
       planeActive: options.planeActive,
       planeWarningActive: options.planeWarningActive,
       policeActive: options.policeActive,

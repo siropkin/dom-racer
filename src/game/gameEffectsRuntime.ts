@@ -3,9 +3,14 @@ import {
   adaptBlackoutEffectForSurface,
   BONUS_SPECIAL_SCORE,
   COMBO_WINDOW_MS,
+  COOLDOWN_POLICE_DELAY_MAX_MS,
+  COOLDOWN_POLICE_DELAY_MIN_MS,
+  COOLDOWN_SCORE_BONUS,
   getSpecialActivationMessage,
   getSpecialColor,
   getSpecialHudLabel,
+  LURE_PULL_RADIUS,
+  randomBetween,
 } from './gameRuntime';
 import type { SurfaceSample } from './gameRuntime';
 
@@ -13,12 +18,14 @@ export const INVERT_EFFECT_DURATION_MS = 5200;
 export const MAGNET_EFFECT_DURATION_MS = 6200;
 export const GHOST_EFFECT_DURATION_MS = 5600;
 export const BLACKOUT_EFFECT_DURATION_MS = 4200;
+export const LURE_EFFECT_DURATION_MS = 5400;
 
 interface EffectTimerState {
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
   blackoutTimerMs: number;
+  lureTimerMs: number;
   comboTimerMs: number;
   pickupComboCount: number;
 }
@@ -33,6 +40,7 @@ interface ActiveEffectsInput {
   ghostTimerMs: number;
   invertTimerMs: number;
   blackoutTimerMs: number;
+  lureTimerMs: number;
   comboTimerMs: number;
   pickupComboCount: number;
   policeRemainingMs: number | null;
@@ -58,6 +66,7 @@ export function tickEffectTimers(state: EffectTimerState, dtSeconds: number): Ef
     ghostTimerMs: Math.max(0, state.ghostTimerMs - deltaMs),
     invertTimerMs: nextInvertTimerMs,
     blackoutTimerMs: nextBlackoutTimerMs,
+    lureTimerMs: Math.max(0, state.lureTimerMs - deltaMs),
     comboTimerMs: nextComboTimerMs,
     pickupComboCount: nextComboTimerMs === 0 ? 0 : state.pickupComboCount,
     invertExpired: state.invertTimerMs > 0 && nextInvertTimerMs === 0,
@@ -105,10 +114,41 @@ export function applyMagnetPullToPickups(
   }
 }
 
+export function applyLurePullToPickups(
+  worldPickups: WorldPickup[],
+  playerCenter: Vector2,
+  dtSeconds: number,
+): void {
+  for (const pickup of worldPickups) {
+    if (pickup.kind === 'special') {
+      continue;
+    }
+
+    const pickupCenter = {
+      x: pickup.rect.x + pickup.rect.width / 2,
+      y: pickup.rect.y + pickup.rect.height / 2,
+    };
+    const dx = playerCenter.x - pickupCenter.x;
+    const dy = playerCenter.y - pickupCenter.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance > LURE_PULL_RADIUS || distance < 1) {
+      continue;
+    }
+
+    const pull = Math.min(120, 40 + (LURE_PULL_RADIUS - distance) * 0.35) * dtSeconds;
+    const moveX = (dx / distance) * pull;
+    const moveY = (dy / distance) * pull;
+    pickup.rect.x += moveX;
+    pickup.rect.y += moveY;
+  }
+}
+
 export interface SpecialEffectActivation {
   resolvedEffect: SpecialEffect;
   scoreBonus: number;
   timerMs: number;
+  policeDelayMs: number;
   messageText: string;
   messageColor: string;
   setInverted: boolean;
@@ -126,6 +166,7 @@ export function resolveSpecialEffectActivation(
         resolvedEffect,
         scoreBonus: BONUS_SPECIAL_SCORE,
         timerMs: 0,
+        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('bonus'),
         messageColor: getSpecialColor('bonus'),
         setInverted: false,
@@ -136,6 +177,7 @@ export function resolveSpecialEffectActivation(
         resolvedEffect,
         scoreBonus: 0,
         timerMs: INVERT_EFFECT_DURATION_MS,
+        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('invert'),
         messageColor: getSpecialColor('invert'),
         setInverted: true,
@@ -146,6 +188,7 @@ export function resolveSpecialEffectActivation(
         resolvedEffect,
         scoreBonus: 0,
         timerMs: MAGNET_EFFECT_DURATION_MS,
+        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('magnet'),
         messageColor: getSpecialColor('magnet'),
         setInverted: false,
@@ -156,6 +199,7 @@ export function resolveSpecialEffectActivation(
         resolvedEffect,
         scoreBonus: 0,
         timerMs: GHOST_EFFECT_DURATION_MS,
+        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('ghost'),
         messageColor: getSpecialColor('ghost'),
         setInverted: false,
@@ -166,10 +210,33 @@ export function resolveSpecialEffectActivation(
         resolvedEffect,
         scoreBonus: 0,
         timerMs: BLACKOUT_EFFECT_DURATION_MS,
+        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('blackout'),
         messageColor: getSpecialColor('blackout'),
         setInverted: false,
         setBlackout: true,
+      };
+    case 'cooldown':
+      return {
+        resolvedEffect,
+        scoreBonus: COOLDOWN_SCORE_BONUS,
+        timerMs: 0,
+        policeDelayMs: randomBetween(COOLDOWN_POLICE_DELAY_MIN_MS, COOLDOWN_POLICE_DELAY_MAX_MS),
+        messageText: getSpecialActivationMessage('cooldown'),
+        messageColor: getSpecialColor('cooldown'),
+        setInverted: false,
+        setBlackout: false,
+      };
+    case 'lure':
+      return {
+        resolvedEffect,
+        scoreBonus: 0,
+        timerMs: LURE_EFFECT_DURATION_MS,
+        policeDelayMs: 0,
+        messageText: getSpecialActivationMessage('lure'),
+        messageColor: getSpecialColor('lure'),
+        setInverted: false,
+        setBlackout: false,
       };
   }
 }
@@ -218,6 +285,16 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       remainingMs: input.ghostTimerMs,
       durationMs: GHOST_EFFECT_DURATION_MS,
       color: getSpecialColor('ghost'),
+    });
+  }
+
+  if (input.lureTimerMs > 0) {
+    effects.push({
+      effect: 'lure',
+      label: getSpecialHudLabel('lure'),
+      remainingMs: input.lureTimerMs,
+      durationMs: LURE_EFFECT_DURATION_MS,
+      color: getSpecialColor('lure'),
     });
   }
 

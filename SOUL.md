@@ -57,7 +57,7 @@ As of this plan version, the game already includes:
 - score + time HUD with active power panel
 - page best / lifetime best persistence
 - random special items with spawn cue rings
-- power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages)
+- power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages), `COOLDOWN`, `LURE`
 - police warning + chase with `GAME OVER` screen and `Space` restart
 - immediate auto-pause with overlay on focus loss
 - airplane flyover with five drop modes (bonus drop, coin trail, spotlight, lucky wind, police delay)
@@ -143,7 +143,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 
 | Phase | Status | Goal |
 |---|---|---|
-| Phase 1 | `done` (verification blocked) | Clean up the core money loop |
+| Phase 1 | `done` | Clean up the core money loop |
 | Phase 2 | `planned` (deferred) | Add overgrowth difficulty with trees and bushes |
 | Phase 3 | `done` | Add airplane world-event prototype |
 | Phase 4 | `planned` (deferred) | Add research-driven indie juice systems |
@@ -160,7 +160,7 @@ All implementation work is complete: unified coin rules, staged spawn queue, spe
 
 - [ ] Manual verification on target page types (GitHub, docs, forms, grid-heavy) — requires interactive browser session
 - [ ] Focused bonus item review after verification pass
-- [ ] Prototype best 1-2 new specials from shortlist: `STREAK BANK`, `ROUTE SCAN`, `LURE`, `COOLDOWN`
+- [x] Prototype best 1-2 new specials from shortlist: `COOLDOWN` and `LURE` implemented
 
 ## Phase 2: Overgrowth Difficulty
 
@@ -194,7 +194,7 @@ All bounded structural cleanup extractions from `Game.ts` are complete (17 extra
 
 Completed:
 - Debug API removed, scanner/runtime drift resolved, stale branches cleaned
-- 32 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior
+- 38 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior, cooldown/lure activation and pull
 - Release build profile (sourcemaps off), permissions doc, release checklist
 - No `__domRacerDebug` in source or build
 - Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
@@ -248,6 +248,16 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (c)
+
+- Prototyped two new specials: `COOLDOWN` (instant police timer pushback + score bonus) and `LURE` (timed wide-radius gentle coin pull, coins only)
+- Added cooldown/lure to SpecialEffect type, random spawn pool, labels, colors, activation messages, HUD effects, flavor text, and sprite showcase
+- Lure pull uses 300px radius with gentler force than magnet; only attracts regular coins, not specials
+- Cooldown reuses police delay infrastructure (policeDelayCueTimerMs) for HUD display
+- Slightly reduced preferred-effect bias (58% → 52%) to give new specials fair spawn presence
+- 6 new smoke tests (cooldown activation, lure activation, lure pull, cooldown police delay, lure timer, lure flavor text)
+- 38 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (b)
 

@@ -158,7 +158,7 @@ export function drawSpriteShowcaseOverlay({
     isFlowCoin: true,
   });
 
-  const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout'];
+  const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout', 'cooldown', 'lure'];
   specialEffects.forEach((effect, index) => {
     const pickup: WorldPickup = {
       id: `showcase:${effect}:${index}`,
@@ -170,7 +170,7 @@ export function drawSpriteShowcaseOverlay({
       label: getSpecialLabel(effect),
     };
     drawSpecialPickupSprite(ctx, pickup, {
-      centerX: 154 + index * 34,
+      centerX: 154 + index * 30,
       centerY: pickupsY,
       radius: 9,
       spin: Math.abs(Math.sin(nowMs / 180 + index * 0.75)),
