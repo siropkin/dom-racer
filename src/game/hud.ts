@@ -93,15 +93,11 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
       HUD_MARGIN + 30,
     );
 
-    const HUD_MODIFIER_FONT = '10px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.font = HUD_MODIFIER_FONT;
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
-    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 52);
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 50);
   } else {
-    const HUD_MODIFIER_FONT = '10px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.font = HUD_MODIFIER_FONT;
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
-    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 32);
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 30);
   }
 }
 

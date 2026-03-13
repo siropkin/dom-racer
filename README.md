@@ -1,218 +1,126 @@
 # DOM Racer
 
-A Chrome / Edge extension that turns any webpage into a tiny arcade track.
+**Your browser tab is a racetrack. You just don't know it yet.**
 
-Links become loot. Text becomes walls. Images become ice. Buttons become coins. Police show up when you get too comfortable. An airplane drops weird gifts from the sky. The page you were reading five seconds ago is now a hostile little arena, and you love it.
+DOM Racer is a Chrome / Edge extension that scans whatever page you're on and turns it into a tiny top-down arcade arena. Links become loot. Text becomes walls. Images become ice. Buttons become coins. Police show up when you get too comfortable. A propeller plane drops weird gifts from the sky. The page you were reading five seconds ago is now a hostile little world, and you love it.
 
-## Why This Is Fun
+![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
 
-Most browser extensions add features. This one turns your tab into a game.
+## Every Page Plays Different
 
-The magic is that every page plays differently. A docs page is a maze of text walls. A dashboard is an open racetrack with scattered buttons. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you press the hotkey.
+A docs page is a maze of text walls. A dashboard is a wide-open racetrack with scattered buttons. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey — and that's the whole point.
 
-Then: coins to chase, power-ups to grab, police cars that punish staying too long, and a propeller plane that drops route moments across the map. The difficulty curve is simple: the longer you survive, the weirder it gets.
+The difficulty curve is simple: the longer you survive, the weirder it gets. Coins to chase. Power-ups to grab. Police cars that punish overstaying your welcome. A biplane that drops surprises across the map. Bushes that literally grow out of the walls and close off your escape routes. It starts clean. It doesn't stay clean.
 
-## Store-Friendly Pitch
-
-DOM Racer turns every page into a tiny arcade track: dash through live UI, scoop coin lines, trigger weird specials, and survive cleanly telegraphed police pressure without leaving your tab.
-
-## Quick Start
+## Get It Running
 
 ```bash
 npm install
 npm run build
 ```
 
-1. Open Chrome or Edge extensions page
-2. Enable Developer Mode
-3. Click `Load unpacked` and select the `dist/` directory
-4. Open any page and press `Shift + Space` (or ``Shift + ` ``)
+1. Open `chrome://extensions` (or `edge://extensions`)
+2. Enable **Developer Mode**
+3. Click **Load unpacked** → select the `dist/` folder
+4. Open any page and press **Shift + Space**
+
+That's it. You're racing.
 
 ## Controls
 
-| Context | Key | Action |
-|---|---|---|
-| Anywhere | `Shift + Space` or ``Shift + ` `` | Toggle DOM Racer |
-| Anywhere | Extension popup "Start Game" button | Toggle DOM Racer |
-| In game | `WASD` / arrow keys | Drive |
-| In game | `R` | Restart run |
-| In game | `V` | Switch vehicle design |
-| In game | `M` | Toggle sound |
-| In game | `Shift + D` | Sprite showcase mode |
-| In game | `Esc` | Quit |
-| Game over | `Space` | Restart |
-| Game over | `Esc` | Quit |
+| Key | What it does |
+|---|---|
+| `Shift + Space` / ``Shift + ` `` | Toggle the game on/off |
+| `WASD` / Arrow keys | Drive |
+| `R` | Restart run |
+| `V` | Switch vehicle |
+| `M` | Toggle sound |
+| `Esc` | Quit |
+| `Space` (game over) | Restart |
 
-## Current Features
+You can also start the game from the extension popup button.
 
-- Every page becomes a unique track — text is walls, images are ice, links are coins
-- Nine power-ups to collect: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, and a rare golden `JACKPOT`
-- Police chases with flashing sirens — the longer you survive, the longer they chase
-- Airplane flyovers that drop bonus coins, specials, and lucky wind across the map
-- Overgrowth: bushes and trees grow from walls over time, narrowing your routes
-- Coin-collection goals with x2 (+20), x3 (+30), x4 (+40) score bonuses and countdown timers
-- Near-miss visual feedback for grazing walls and police without crashing
-- A different daily modifier every day — double coins, fast police, slippery surfaces, and more
-- Three vehicle designs unlocked by reaching lifetime score milestones
-- Run counter, page bests, lifetime bests, milestone celebrations
-- Adaptive sprite contrast — dark outlines on bright pages, bright glow on dark pages
-- Extension popup with game info, controls reference, power-up list, and "Start Game" button
-- Unsupported page detection — friendly sad-screen message for pages with too few elements
-- Classic propeller biplane sprite with continuous drone audio during flyovers
-- Auto-pause when you switch tabs, sound toggle, and a hint overlay for first-time players
+## What Happens During a Run
 
-## How The World Is Built
+**Coins everywhere.** Every link and button on the page becomes a gold coin. Drive through them. That's your score.
 
-DOM Racer scans the currently visible page and translates it into a compact arcade arena.
+**Power-ups spawn in.** Nine specials drop into free space as you play — some help, some mess with you, one is a total mystery. Grab them all anyway. (See the full list below.)
 
-- Large fixed UI near page edges becomes barriers
-- Links and button-like elements become money pickups
-- Text blocks are converted into wall slices using visible text bounds
-- Images and pictures become ice
-- Visually reactive surfaces become boosts
-- Random special pickups spawn into free space during the run
+**Police show up.** Stay alive long enough and a cop car spawns at the edge of the screen with flashing sirens. Outrun it or get busted. The longer your run, the longer they chase.
 
-The result is intentionally game-ish rather than perfectly literal. The goal is to preserve the feel of the page while still making it readable and fun as a racer.
+**A plane flies over.** A propeller biplane crosses the arena and drops one of five things: bonus pickups, a trail of coins, a spotlight on a hidden special, a lucky wind that nudges coins your way, or a brief police delay. You'll hear the drone coming.
 
-## Power-Ups
+**The page fights back.** After ~35 seconds, bushes and trees start sprouting from walls and barriers, slowly eating into your driving lanes. Small bumps become speed traps become full walls. The map tightens. Your routes get riskier.
 
-- `BONUS`: instant score award (+40)
-- `MAGNET`: pulls coins and specials toward the player
-- `INVERT`: flips page colors
-- `GHOST`: temporarily relaxes movement pressure and blocks police lock
-- `BLUR`: applies a CSS blur to the page for a short hazy stretch
-- `OIL_SLICK`: dramatically slows the car for a few seconds
-- `REVERSE`: flips steering controls for a disorienting stretch
-- `MYSTERY`: randomly activates any other effect (good or bad)
-- `JACKPOT`: very rare golden star that awards a large instant score bonus (+50–100)
+**Goals appear.** A few seconds into a run, you get a quiet coin-collection challenge: grab N coins in X seconds. Nail it for a score bonus (+20 to +40). Miss it, no penalty — another one shows up after a cooldown.
 
-The active power-up panel in the top-right HUD shows remaining duration.
+**Near-misses feel great.** Thread the gap between your car and a wall or police cruiser and the HUD flashes — CLOSE! TIGHT! RAZOR! — with a burst of particles. No score bonus, just the thrill.
 
-## Airplane Events
+**Daily modifiers.** Every day the rules twist a little: double coins, faster police, slippery surfaces, early overgrowth, extra specials. It's the same page, but today it's different.
 
-A propeller plane occasionally crosses the arena and drops one of five route moments:
+**Vehicles unlock.** Three designs — coupe, buggy, truck — unlocked by hitting lifetime score milestones. Swap mid-game with `V`.
 
-- **Bonus drop**: a special pickup appears at the drop point
-- **Coin trail**: a line of regular coins spawns behind the plane along its flight path
-- **Spotlight**: an existing special pickup gets highlighted with a longer cue
-- **Lucky wind**: nearby coins are gently nudged into a readable route
-- **Police delay**: police spawn timing is briefly pushed back
+## The Power-Ups
 
-Each mode has its own fallback: if conditions are not right at drop time, the plane safely resolves to a bonus drop instead.
+| Pickup | What happens |
+|---|---|
+| **BONUS** | Instant +40 points. Simple. Beautiful. |
+| **MAGNET** | Pulls nearby coins and specials toward you like a vacuum |
+| **INVERT** | Flips the page colors. Dark mode speedrun. |
+| **GHOST** | Phase through trouble. Police can't lock on. |
+| **BLUR** | CSS blur hits the page. Dreamy and disorienting. |
+| **OIL SLICK** | Your car slows to a crawl. Dark oily bad times. |
+| **REVERSE** | Steering is flipped. Left is right. Panic is real. |
+| **MYSTERY** | Could be anything. Good or bad. Grab it if you dare. |
+| **JACKPOT** | Rare golden star. +50 to +100 points. Chase it. |
 
-## Overgrowth
+Active effects show a countdown timer in the top-right HUD panel.
 
-After about 35 seconds of survival, the page starts fighting back. Bushes and trees sprout from the edges of barriers and walls, slowly encroaching into your driving lanes.
+## How the World Is Built
 
-Each growth passes through three stages: small (a speed bump), medium (a proper slow zone), and large (a full wall). New growths appear every 9–15 seconds, up to eight at a time. The result is a map that gradually tightens, forcing you into riskier routes as the run goes long.
+This is the genuinely cool part. DOM Racer scans your visible page and translates real HTML elements into game geometry:
 
-Bushes are leafy blobs; trees are round canopies with visible trunks. Both sway gently and animate in smoothly so nothing feels like a pop-in surprise.
+- **Text blocks** → wall slices (using actual visible text bounds)
+- **Links & buttons** → gold coin pickups
+- **Images & pictures** → ice surfaces (slippery!)
+- **Fixed UI near edges** → barriers
+- **SVGs & reactive surfaces** → speed boosts
+- **Empty space** → where specials spawn mid-run
 
-## Near-Miss Feedback
+The result is intentionally game-ish, not pixel-perfect. The goal is to preserve the *feel* of the page while making it fun to drive through. A GitHub Issues page plays nothing like a Wikipedia article, and that's the whole point.
 
-Thread the gap between your car and a wall or police cruiser and you get visual feedback: the HUD flashes one of four rotating toasts — `CLOSE!`, `TIGHT!`, `RAZOR!`, `WHEW!` — in orange, accompanied by VFX particles. No score bonus, just the thrill of a close call.
+## Privacy
 
-Stack enough near-misses in a single run and the flavor text starts roasting you for it.
+DOM Racer collects **no data** and makes **no network requests**. Zero. None.
 
-## Micro-Objectives
-
-Each run quietly assigns you a coin-collection goal a few seconds in: collect N coins in X seconds. There are six templates in the pool across three difficulty tiers (x2, x3, x4 multiplier), and you only see one at a time.
-
-Complete a goal and you get a score bonus (+20, +30, or +40 depending on tier) plus a satisfying violet toast showing the actual points awarded. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time in a compact bottom-center GOAL panel that matches the POWER panel pattern.
-
-## Screenshots & Motion
-
-![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
-
-_More captures coming soon._
-
-| Moment | Type | Status |
-|---|---|---|
-| Normal run | Screenshot | Done |
-| Special pickup | Screenshot | Planned |
-| Police chase | GIF | Planned |
-| Police GAME OVER | Screenshot | Planned |
-| Airplane flyover | GIF | Planned |
-| Coin trail | GIF | Planned |
-| Lucky wind | GIF | Planned |
-| Overgrowth state | Screenshot | Planned |
-| Near-miss graze | GIF | Planned |
-| Jackpot pickup | Screenshot | Planned |
-| Micro-objective HUD | Screenshot | Planned |
-
-## Persistence
-
-DOM Racer stores sound setting, selected vehicle design, page best score, lifetime best score, and per-page run stats using `chrome.storage.local` (with `localStorage` fallback).
-
-## Roadmap
-
-| Phase | Status | Goal |
-|---|---|---|
-| Core money loop | Done | Lock the collectible loop |
-| Overgrowth difficulty | Done | Trees and bushes that grow over time |
-| Airplane event | Done | Rare stylish world events |
-| Indie juice | Done | Near-miss bonuses, micro-objectives, rare jackpot |
-| Production hardening | Done | Tests, structure, release readiness |
-| Presentation | Done | README polish, branding, store assets |
-| Micro-polish | Done | Visual juice, particles, retention tweaks |
-| Player experience | Done | Onboarding, run summary, daily modifiers, vehicle unlocks |
-| Play-test polish | Done | Specials overhaul, toast system, pause fixes, overlay polish |
-| Audio & visuals | Done | Adaptive contrast, biplane sprite, drone audio, popup |
-| Scoring & naming | Done | Scoring rework, toast simplification, police chase tuning |
-| HUD & compatibility | Done | HUD redesign, hotkey change, scrollbar fix, unsupported page detection |
-| Game logic audit & branding | Done | Code audit, design review, branding refresh with coupe sprite |
-
-## Debug Mode
-
-Use `Shift + D` to open the sprite/debug showcase mode for visual checks and quick style validation. No page-level debug API is exposed.
+All game state — scores, settings, run history — lives locally on your device via `chrome.storage.local`. No analytics, no telemetry, no tracking, no remote services. The extension needs `storage` permission for saving your progress and `<all_urls>` host access because the game runs on whatever page you choose.
 
 ## Project Layout
 
-```text
-branding/            SVG sources and branding generator
-public/              Manifest and static extension assets
-src/content/         DOM scanning, overlay bootstrapping, page integration
-src/game/            Game loop, rendering, audio, HUD, player logic
-src/game/sprites/    Reusable sprite renderers (player, police, plane, pickups)
-src/game/gameConfig.ts  Centralized tuning constants for all gameplay systems
-src/shared/          Shared types, utils, persistence helpers
-src/styles/          Overlay and page-effect styles
+```
+src/content/    Page scanning, overlay bootstrapping
+src/game/       Game loop, rendering, HUD, audio, sprites
+src/shared/     Types, settings, persistence
+public/         Manifest, icons, popup
+branding/       SVG sources + asset generator
 ```
 
 ## Development
 
 ```bash
-npm run dev          # Rebuild on file changes
-npm run build        # Type-check + production build
-npm run typecheck    # TypeScript only
-npm run test         # Run smoke tests
-npm run lint         # ESLint check
-npm run lint:fix     # ESLint auto-fix
-npm run format       # Prettier format
-npm run format:check # Prettier check (CI-friendly)
-npm run brand        # Regenerate extension icons and marketplace graphics
-npm run package      # Build + create Chrome Web Store ZIP
+npm run dev          # Watch mode
+npm run build        # Production build
+npm run test         # Smoke tests
+npm run lint:fix     # Lint + auto-fix
+npm run format       # Prettier
+npm run package      # Build + Chrome Web Store ZIP
 ```
 
-## Stack
-
-Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API, ESLint, Prettier.
-
-## Privacy
-
-DOM Racer collects **no data** and makes **no network requests**. All game state (scores, settings, run history) is stored locally on your device using `chrome.storage.local`. Nothing leaves your browser. There is no analytics, no telemetry, no tracking, and no remote services of any kind.
-
-The extension requests `storage` permission for local game data and `<all_urls>` host access because the game needs to run on any page you choose.
-
-## Notes
-
-- The extension only requests `storage` permission
-- The game runs on top of the current page and blocks native interaction while active
-- Host scope uses `<all_urls>` because the core interaction model requires running on arbitrary pages
+Built with TypeScript, Vite, Canvas 2D, and Web Audio API. No frameworks, no dependencies at runtime — just a content script and a canvas.
 
 ## Support
 
-If you enjoy DOM Racer, consider [buying me a coffee](https://buymeacoffee.com/ivan.seredkin) ☕
+DOM Racer is a solo indie project. If it made you smile, consider [buying me a coffee](https://buymeacoffee.com/ivan.seredkin) ☕
 
 ## License
 
