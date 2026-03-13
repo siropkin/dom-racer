@@ -159,12 +159,14 @@ Use `Shift + D` to open the sprite/debug showcase mode for visual checks and qui
 ## Project Layout
 
 ```text
-branding/        SVG sources and branding generator
-public/          Manifest and static extension assets
-src/content/     DOM scanning, overlay bootstrapping, page integration
-src/game/        Game loop, rendering, audio, HUD, player logic
-src/shared/      Shared types, utils, persistence helpers
-src/styles/      Overlay and page-effect styles
+branding/            SVG sources and branding generator
+public/              Manifest and static extension assets
+src/content/         DOM scanning, overlay bootstrapping, page integration
+src/game/            Game loop, rendering, audio, HUD, player logic
+src/game/sprites/    Reusable sprite renderers (player, police, plane, pickups)
+src/game/gameConfig.ts  Centralized tuning constants for all gameplay systems
+src/shared/          Shared types, utils, persistence helpers
+src/styles/          Overlay and page-effect styles
 ```
 
 ## Development

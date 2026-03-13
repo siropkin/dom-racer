@@ -64,7 +64,7 @@ As of this plan version, the game already includes:
 - priority-based toast system with duplicate handling
 - hidden `Shift + D` sprite showcase with auto contrast pick
 - sound toggle and vehicle toggle
-- extension/store branding assets (pending refresh)
+- extension/store branding assets (refreshed with in-game blue coupe)
 
 ### Current Controls
 
@@ -80,7 +80,9 @@ As of this plan version, the game already includes:
 ### Current Architecture Map
 
 - `src/content/`: page integration, scanning, overlay bootstrapping
-- `src/game/`: game loop, rendering, HUD, player, audio, pickups
+- `src/game/`: game loop, rendering, HUD, player, audio, pickups, runtime helpers
+- `src/game/sprites/`: reusable sprite renderers (player, police, plane, pickups, shared helpers)
+- `src/game/gameConfig.ts`: centralized tuning constants for all gameplay systems
 - `src/shared/`: shared types, settings, persistence, utilities
 - `public/`: extension manifest and shipped assets
 - `branding/`: icon and marketplace asset sources
@@ -207,12 +209,15 @@ All bounded structural cleanup extractions from `Game.ts` are complete (17 extra
 
 Completed:
 - Debug API removed, scanner/runtime drift resolved, stale branches cleaned
-- 46 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior, cooldown/lure activation and pull, overgrowth spawn/growth/collision
+- 72 smoke tests covering scanner->world, coin staging, specials independence, police catch flow, surface classification, magnet/cue/warning behavior, cooldown/lure activation and pull, overgrowth spawn/growth/collision, near-miss detection, micro-objectives, jackpot activation
 - Release build profile (sourcemaps off), permissions doc, release checklist
 - No `__domRacerDebug` in source or build
 - Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
 - Duplicate `cloneRect` removed from `pickupSpawnRuntime.ts`; now imports from `gameRuntime.ts`
 - ESLint (flat config, typescript-eslint) + Prettier added; `npm run lint` and `npm run format` scripts available
+- Sprite drawing helpers extracted to `src/game/sprites/spriteHelpers.ts`, all sprite files moved to `sprites/` subdirectory
+- Tuning constants centralized in `src/game/gameConfig.ts` with 13 organized sections
+- `readonly` annotations on constant arrays/records, JSDoc on 25+ key exported functions, dead code removed
 
 ## Phase 6: README / Presentation
 
