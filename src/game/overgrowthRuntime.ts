@@ -262,71 +262,96 @@ function growRect(
 // Overgrowth rendering
 // ---------------------------------------------------------------------------
 
-interface OvergrowthStyle {
+interface ClusterStyle {
   body: string;
   dark: string;
   light: string;
-  outline: string;
   alpha: number;
 }
 
-const BUSH_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStyle>> = {
-  small: { body: '#86efac', dark: '#22c55e', light: '#bbf7d0', outline: '#15803d', alpha: 0.5 },
-  medium: { body: '#4ade80', dark: '#16a34a', light: '#86efac', outline: '#15803d', alpha: 0.72 },
-  large: { body: '#22c55e', dark: '#166534', light: '#4ade80', outline: '#15803d', alpha: 0.92 },
+const BUSH_STYLES: Readonly<Record<OvergrowthStage, ClusterStyle>> = {
+  small: { body: '#4ade80', dark: '#16a34a', light: '#bbf7d0', alpha: 0.55 },
+  medium: { body: '#22c55e', dark: '#15803d', light: '#86efac', alpha: 0.75 },
+  large: { body: '#16a34a', dark: '#166534', light: '#4ade80', alpha: 0.92 },
 };
 
-const TREE_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStyle & { trunk: string }>> = {
+const TREE_STYLES: Readonly<
+  Record<OvergrowthStage, ClusterStyle & { trunk: string; branch: string }>
+> = {
   small: {
-    body: '#6ee7b7',
+    body: '#34d399',
     dark: '#059669',
     light: '#a7f3d0',
-    outline: '#047857',
-    alpha: 0.5,
+    alpha: 0.55,
     trunk: '#92400e',
+    branch: '#a16207',
   },
   medium: {
-    body: '#34d399',
+    body: '#10b981',
     dark: '#047857',
     light: '#6ee7b7',
-    outline: '#047857',
-    alpha: 0.72,
+    alpha: 0.75,
     trunk: '#78350f',
+    branch: '#92400e',
   },
   large: {
     body: '#059669',
     dark: '#064e3b',
     light: '#34d399',
-    outline: '#047857',
     alpha: 0.92,
     trunk: '#713f12',
+    branch: '#78350f',
   },
 };
 
-function getOvergrowthEntryScale(growthMs: number): number {
-  return 0.6 + clamp(growthMs / 1200, 0, 1) * 0.4;
+interface LeafCluster {
+  ox: number;
+  oy: number;
+  r: number;
 }
 
-function traceBushPath(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  hw: number,
-  hh: number,
-  lobes: number,
-  bumpDepth: number,
-): void {
-  const pts = lobes * 6;
-  ctx.beginPath();
-  for (let i = 0; i <= pts; i += 1) {
-    const t = (i / pts) * Math.PI * 2;
-    const bump = 1 + Math.sin(t * lobes) * bumpDepth;
-    const px = cx + Math.cos(t) * hw * bump;
-    const py = cy + Math.sin(t) * hh * bump;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+function buildClusterLayout(count: number, spread: number, seed: number): LeafCluster[] {
+  const clusters: LeafCluster[] = [];
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2 + ((seed + i * 7) % 11) * 0.15;
+    const dist = spread * (0.35 + ((seed + i * 13) % 17) / 34);
+    const r = spread * (0.38 + ((seed + i * 23) % 13) / 52);
+    clusters.push({
+      ox: Math.cos(angle) * dist,
+      oy: Math.sin(angle) * dist,
+      r,
+    });
   }
-  ctx.closePath();
+  return clusters;
+}
+
+function drawShadedCluster(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  bodyColor: string,
+  darkColor: string,
+  lightColor: string,
+): void {
+  ctx.fillStyle = darkColor;
+  ctx.beginPath();
+  ctx.arc(x, y + r * 0.1, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.92, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = lightColor;
+  ctx.beginPath();
+  ctx.arc(x - r * 0.2, y - r * 0.22, r * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function getOvergrowthEntryScale(growthMs: number): number {
+  return 0.6 + clamp(growthMs / 1200, 0, 1) * 0.4;
 }
 
 /** Renders all active overgrowth nodes (bushes and trees) with growth and sway animation. */
@@ -363,35 +388,34 @@ function drawOvergrowthBush(
 
   const sway = Math.sin(nowMs / 1100 + cx * 0.013) * 0.7;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
-  const hw = (rect.width / 2) * scale;
-  const hh = (rect.height / 2) * scale;
-  const lobes = stage === 'small' ? 4 : stage === 'medium' ? 5 : 6;
+  const spread = Math.min(rect.width, rect.height) * 0.5 * scale;
+  const seed = ((cx * 7.3 + cy * 13.7) | 0) & 0xff;
+  const count = stage === 'small' ? 4 : stage === 'medium' ? 6 : 8;
+  const clusters = buildClusterLayout(count, spread, seed);
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
-  ctx.translate(sway, 0);
   applyAdaptiveShadow(ctx);
 
-  traceBushPath(ctx, cx, cy, hw * 0.72, hh * 0.68, lobes, 0.14);
-  ctx.fillStyle = style.dark;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + spread * 0.15, spread * 0.7, spread * 0.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  traceBushPath(ctx, cx, cy - hh * 0.06, hw * 0.7, hh * 0.64, lobes, 0.16);
-  ctx.fillStyle = style.body;
-  ctx.fill();
+  for (const c of clusters) {
+    const clusterSway = sway * (0.7 + (Math.abs(c.ox) / spread) * 0.5);
+    drawShadedCluster(
+      ctx,
+      cx + c.ox + clusterSway,
+      cy + c.oy,
+      c.r,
+      style.body,
+      style.dark,
+      style.light,
+    );
+  }
 
-  traceBushPath(ctx, cx - hw * 0.08, cy - hh * 0.12, hw * 0.4, hh * 0.36, lobes, 0.1);
-  ctx.fillStyle = style.light;
-  ctx.fill();
-
-  traceBushPath(ctx, cx, cy - hh * 0.06, hw * 0.72, hh * 0.66, lobes, 0.16);
-  ctx.strokeStyle = style.outline;
-  ctx.lineWidth = stage === 'large' ? 1.6 : 1.2;
-  ctx.stroke();
-
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = stage === 'large' ? 0.9 : 0.6;
-  ctx.stroke();
+  drawShadedCluster(ctx, cx + sway * 0.3, cy, spread * 0.42, style.body, style.dark, style.light);
 
   ctx.restore();
 }
@@ -409,49 +433,66 @@ function drawOvergrowthTree(
 
   const sway = Math.sin(nowMs / 1300 + cx * 0.011) * 0.5;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
-  const hw = (rect.width / 2) * scale;
-  const hh = (rect.height / 2) * scale;
-  const r = Math.min(hw, hh);
-  const lobes = stage === 'small' ? 5 : stage === 'medium' ? 6 : 7;
+  const spread = Math.min(rect.width, rect.height) * 0.5 * scale;
+  const seed = ((cx * 11.3 + cy * 7.7) | 0) & 0xff;
 
   ctx.save();
   ctx.globalAlpha = style.alpha * entryAlpha;
   applyAdaptiveShadow(ctx);
 
-  const trunkW = Math.max(2.5, r * 0.22);
-  const trunkLen = r * 0.7;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + spread * 0.12, spread * 0.65, spread * 0.45, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const branchCount = stage === 'small' ? 3 : stage === 'medium' ? 4 : 5;
+  ctx.strokeStyle = style.branch;
+  ctx.lineCap = 'round';
+  ctx.lineWidth = Math.max(1.2, spread * 0.1);
+  for (let i = 0; i < branchCount; i += 1) {
+    const angle = (i / branchCount) * Math.PI * 2 + ((seed & 7) * 0.4);
+    const len = spread * (0.5 + ((seed + i * 11) % 9) / 30);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+    ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+
+  const trunkR = Math.max(2, spread * 0.14);
   ctx.fillStyle = style.trunk;
   ctx.beginPath();
-  ctx.roundRect(cx - trunkW / 2, cy - trunkLen / 2, trunkW, trunkLen, trunkW * 0.25);
+  ctx.arc(cx, cy, trunkR, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = style.branch;
+  ctx.lineWidth = 0.6;
   ctx.stroke();
 
-  ctx.save();
-  ctx.translate(sway, 0);
+  const count = stage === 'small' ? 4 : stage === 'medium' ? 6 : 9;
+  const clusters = buildClusterLayout(count, spread, seed);
 
-  traceBushPath(ctx, cx, cy, r * 0.76, r * 0.72, lobes, 0.12);
-  ctx.fillStyle = style.dark;
-  ctx.fill();
+  for (const c of clusters) {
+    const clusterSway = sway * (0.6 + (Math.abs(c.ox) / spread) * 0.6);
+    drawShadedCluster(
+      ctx,
+      cx + c.ox + clusterSway,
+      cy + c.oy,
+      c.r,
+      style.body,
+      style.dark,
+      style.light,
+    );
+  }
 
-  traceBushPath(ctx, cx, cy - r * 0.05, r * 0.74, r * 0.68, lobes, 0.13);
-  ctx.fillStyle = style.body;
-  ctx.fill();
+  drawShadedCluster(
+    ctx,
+    cx + sway * 0.3,
+    cy,
+    spread * 0.36,
+    style.body,
+    style.dark,
+    style.light,
+  );
 
-  traceBushPath(ctx, cx - r * 0.1, cy - r * 0.1, r * 0.38, r * 0.34, lobes, 0.08);
-  ctx.fillStyle = style.light;
-  ctx.fill();
-
-  traceBushPath(ctx, cx, cy - r * 0.04, r * 0.76, r * 0.7, lobes, 0.13);
-  ctx.strokeStyle = style.outline;
-  ctx.lineWidth = stage === 'large' ? 1.6 : 1.2;
-  ctx.stroke();
-
-  ctx.strokeStyle = '#f8fafc';
-  ctx.lineWidth = stage === 'large' ? 0.9 : 0.6;
-  ctx.stroke();
-
-  ctx.restore();
   ctx.restore();
 }
