@@ -1,6 +1,15 @@
 # DOM Racer
 
-**Your browser tab is a racetrack. You just don't know it yet.**
+```
+         ___
+    ____/   \____
+   |  __|   |__  |    ╔══════════════════════════════╗
+   | |  '---'  | |    ║  YOUR BROWSER TAB IS A       ║
+   |=|  RACER  |=|    ║  RACETRACK. YOU JUST DON'T   ║
+   | |_________| |    ║  KNOW IT YET.                ║
+   |____|   |____|    ╚══════════════════════════════╝
+        '---'
+```
 
 DOM Racer is a Chrome / Edge extension that scans whatever page you're on and turns it into a tiny top-down arcade arena. Links become loot. Text becomes walls. Images become ice. Buttons become coins. Police show up when you get too comfortable. A propeller plane drops weird gifts from the sky. The page you were reading five seconds ago is now a hostile little world, and you love it.
 
