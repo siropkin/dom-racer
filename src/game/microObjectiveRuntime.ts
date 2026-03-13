@@ -88,7 +88,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
   },
   {
     id: 'survive_20',
-    label: 'SURVIVE 20S',
+    label: 'SURVIVE',
     target: 20_000,
     timeLimitMs: 20_000,
     tracker: 'survive_duration',
