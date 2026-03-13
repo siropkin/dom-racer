@@ -527,8 +527,7 @@ export class Game {
     const currentBounds = this.player.getBounds();
     const boosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce =
-      isOnIceZone(currentBounds, this.world.iceZones) ||
-      this.dailyModifier.kind === 'SLIPPERY';
+      isOnIceZone(currentBounds, this.world.iceZones) || this.dailyModifier.kind === 'SLIPPERY';
     const activeObstacles = [
       ...this.world.obstacles,
       ...getOvergrowthObstacles(this.overgrowthNodes),
@@ -998,8 +997,7 @@ export class Game {
     }
 
     const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
-    const overgrowthStartMs =
-      this.dailyModifier.kind === 'EARLY_OVERGROWTH' ? 15_000 : undefined;
+    const overgrowthStartMs = this.dailyModifier.kind === 'EARLY_OVERGROWTH' ? 15_000 : undefined;
     const step = resolveOvergrowthSpawnStep({
       overgrowthSpawnTimerMs: this.overgrowthSpawnTimerMs,
       runElapsedMs,

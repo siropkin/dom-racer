@@ -1,38 +1,26 @@
 import type { HudState, ViewportSize } from '../shared/types';
 import { formatElapsed } from '../shared/utils';
 
+const HUD_FONT = '12px "SFMono-Regular", "JetBrains Mono", monospace';
+const HUD_FONT_SMALL = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
+const HUD_MARGIN = 16;
+const HUD_PANEL_BG = 'rgba(2, 6, 23, 0.84)';
+const HUD_ACCENT_HEIGHT = 2;
+const HUD_TEXT_COLOR = '#f8fafc';
+const HUD_TEXT_DIM = '#e2e8f0';
+const HUD_TEXT_MUTED = '#cbd5e1';
+
 export function drawHud(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
   state: HudState,
 ): void {
   ctx.save();
-  ctx.font = '12px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.textBaseline = 'top';
 
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.84)';
-  ctx.fillRect(16, 16, 150, 48);
-  ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
-  ctx.fillRect(16, 16, 150, 2);
+  drawScorePanel(ctx, state);
 
-  ctx.fillStyle = '#f8fafc';
-  ctx.fillText(`TIME  ${formatElapsed(state.elapsedMs)}`, 28, 28);
-  ctx.fillText(`SCORE ${state.score.toString().padStart(4, '0')}`, 28, 46);
-
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
-  const hintWidth = 250;
-  const hintX = viewport.width - hintWidth - 16;
-  const hintY = viewport.height - 72;
-  ctx.fillRect(hintX, hintY, hintWidth, 56);
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.44)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(hintX + 0.5, hintY + 0.5, hintWidth - 1, 55);
-  ctx.fillStyle = 'rgba(168, 85, 247, 0.82)';
-  ctx.fillRect(hintX, hintY, hintWidth, 2);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillText('V CAR  |  M SOUND', hintX + 12, hintY + 10);
-  drawSoundStateChip(ctx, hintX + 152, hintY + 8, state.soundEnabled);
-  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', hintX + 12, hintY + 30);
+  drawControlsHint(ctx, viewport, state);
 
   if (state.activeEffects.length > 0) {
     drawActiveEffects(ctx, viewport, state);
@@ -47,6 +35,50 @@ export function drawHud(
   }
 
   ctx.restore();
+}
+
+function drawScorePanel(ctx: CanvasRenderingContext2D, state: HudState): void {
+  const w = 150;
+  const h = 48;
+  ctx.fillStyle = HUD_PANEL_BG;
+  ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, h);
+  ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
+  ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, HUD_ACCENT_HEIGHT);
+
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_COLOR;
+  ctx.fillText(`TIME  ${formatElapsed(state.elapsedMs)}`, HUD_MARGIN + 12, HUD_MARGIN + 12);
+  ctx.fillText(
+    `SCORE ${state.score.toString().padStart(4, '0')}`,
+    HUD_MARGIN + 12,
+    HUD_MARGIN + 30,
+  );
+}
+
+function drawControlsHint(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  state: HudState,
+): void {
+  const w = 250;
+  const h = 56;
+  const x = viewport.width - w - HUD_MARGIN;
+  const y = viewport.height - h - HUD_MARGIN;
+
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.44)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.fillStyle = 'rgba(168, 85, 247, 0.82)';
+  ctx.fillRect(x, y, w, HUD_ACCENT_HEIGHT);
+
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_DIM;
+  ctx.fillText('V CAR  |  M SOUND', x + 12, y + 10);
+  drawSoundStateChip(ctx, x + 152, y + 8, state.soundEnabled);
+  ctx.font = HUD_FONT;
+  ctx.fillText('ARROWS DRIVE  |  ESC QUIT', x + 12, y + 30);
 }
 
 function drawSoundStateChip(
@@ -67,6 +99,7 @@ function drawSoundStateChip(
   ctx.strokeStyle = border;
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
+  ctx.font = HUD_FONT;
   ctx.fillStyle = text;
   ctx.fillText(label, x + 14, y + 3);
 }
@@ -79,15 +112,16 @@ function drawActiveEffects(
   const panelWidth = 164;
   const rowHeight = 28;
   const panelHeight = 20 + state.activeEffects.length * rowHeight;
-  const panelX = viewport.width - panelWidth - 16;
-  const panelY = 16;
+  const panelX = viewport.width - panelWidth - HUD_MARGIN;
+  const panelY = HUD_MARGIN;
 
   ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
   ctx.fillStyle = 'rgba(248, 250, 252, 0.78)';
-  ctx.fillRect(panelX, panelY, panelWidth, 2);
+  ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
-  ctx.fillStyle = '#cbd5e1';
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_MUTED;
   ctx.fillText('POWER', panelX + 12, panelY + 8);
 
   state.activeEffects.forEach((effect, index) => {
@@ -100,6 +134,7 @@ function drawActiveEffects(
     ctx.fillStyle = effect.color;
     ctx.fillRect(panelX + 10, rowY, Math.max(10, (panelWidth - 20) * progress), 18);
 
+    ctx.font = HUD_FONT;
     ctx.fillStyle = effect.effect === 'blackout' ? '#f8fafc' : '#020617';
     ctx.fillText(effect.label, panelX + 16, rowY + 4);
     ctx.fillStyle = '#ffffff';
@@ -116,23 +151,23 @@ function drawObjectivePanel(
     return;
   }
 
-  const panelWidth = 196;
-  const panelHeight = 28;
+  const panelWidth = 220;
+  const panelHeight = 32;
   const panelX = Math.round(viewport.width / 2 - panelWidth / 2);
-  const panelY = viewport.height - 42;
+  const panelY = viewport.height - panelHeight - HUD_MARGIN;
 
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
+  ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
   ctx.fillStyle = 'rgba(167, 139, 250, 0.82)';
-  ctx.fillRect(panelX, panelY, panelWidth, 2);
+  ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
-  ctx.fillStyle = '#e2e8f0';
-  ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillText(`\u2605 ${state.objectiveText}`, panelX + 8, panelY + 10);
+  ctx.font = HUD_FONT_SMALL;
+  ctx.fillStyle = HUD_TEXT_DIM;
+  ctx.fillText(`GOAL  ${state.objectiveText}`, panelX + 10, panelY + 8);
 
-  const barX = panelX + 8;
-  const barY = panelY + 22;
-  const barWidth = panelWidth - 16;
+  const barX = panelX + 10;
+  const barY = panelY + 24;
+  const barWidth = panelWidth - 20;
   const barHeight = 3;
   ctx.fillStyle = 'rgba(100, 116, 139, 0.3)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
@@ -145,16 +180,18 @@ function drawScoreMemory(
   viewport: ViewportSize,
   state: HudState,
 ): void {
-  const panelWidth = 210;
-  const panelHeight = 52;
-  const panelX = 16;
-  const panelY = viewport.height - 68;
+  const panelWidth = 180;
+  const panelHeight = 48;
+  const panelX = HUD_MARGIN;
+  const panelY = viewport.height - panelHeight - HUD_MARGIN;
 
-  ctx.fillStyle = 'rgba(2, 6, 23, 0.82)';
+  ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
   ctx.fillStyle = 'rgba(34, 211, 238, 0.84)';
-  ctx.fillRect(panelX, panelY, panelWidth, 2);
-  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
+
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_DIM;
   ctx.fillText(
     `PAGE BEST ${state.pageBestScore.toString().padStart(4, '0')}`,
     panelX + 12,

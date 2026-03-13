@@ -367,10 +367,10 @@ export function drawCaughtGameOverOverlay({
   ctx.fillText(grade.letter, width / 2, height / 2 + 58);
 
   const statsY = height / 2 + 82;
-  ctx.font = '10px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.fillStyle = '#94a3b8';
   ctx.fillText(
-    `TIME ${formatElapsed(runElapsedMs)}  COINS ${coinsCollected}  CLOSE ${nearMisses}  OBJ ${objectivesCompleted}`,
+    `${formatElapsed(runElapsedMs)}  ${coinsCollected} COINS  ${nearMisses} NEAR-MISS  ${objectivesCompleted} GOALS`,
     width / 2,
     statsY,
   );
