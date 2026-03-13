@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createInitialObjectiveState,
-  getObjectiveCompletionWord,
   getObjectiveHudText,
   getObjectiveProgress,
   OBJECTIVE_TEMPLATES,
@@ -242,12 +241,6 @@ describe('micro-objective smoke invariants', () => {
     };
     expect(getObjectiveHudText(coinObj)).toBe('5 COINS 3/5');
     expect(getObjectiveProgress(coinObj)).toBeCloseTo(0.6, 1);
-  });
-
-  it('cycles through completion words', () => {
-    const words = [0, 1, 2, 3].map(getObjectiveCompletionWord);
-    expect(words).toEqual(['NAILED!', 'DONE!', 'CLEAR!', 'CHECK!']);
-    expect(getObjectiveCompletionWord(4)).toBe('NAILED!');
   });
 
   it('surfaces objective flavor text at threshold counts', () => {

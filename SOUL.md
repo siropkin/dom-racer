@@ -25,8 +25,8 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Police chases with escalating duration and siren flash
 - Airplane flyovers with five drop modes
 - Overgrowth: bushes/trees grow from barriers after ~35s, narrowing routes
-- Near-miss bonus for grazing obstacles
-- Coin-collection goals with x2/x3/x4 multiplier tiers and countdown timers
+- Near-miss visual feedback (toast + VFX particles) for grazing obstacles
+- Coin-collection goals with x2/x3/x4 multiplier tiers (+20/+30/+40 bonus) and countdown timers
 - Daily modifier (5 rule twists, deterministic from date)
 - Simplified game-over screen (score, run number, restart/quit)
 - VFX particles, page-reactive tint, celebration animations
@@ -74,7 +74,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 81 smoke tests across 8 focused test files
+- 80 smoke tests across 8 focused test files
 
 ## Research References
 

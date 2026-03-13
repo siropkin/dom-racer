@@ -175,8 +175,6 @@ export const OVERGROWTH = {
 export const NEAR_MISS = {
   COOLDOWN_MS: 800,
   THRESHOLD_PX: 5,
-  SCORE_MIN: 0,
-  SCORE_MAX: 0,
   COLOR: '#fb923c',
   TOAST_TTL_MS: 600,
 } as const;
@@ -186,7 +184,6 @@ export const NEAR_MISS = {
 // ---------------------------------------------------------------------------
 
 export const OBJECTIVES = {
-  SCORE_BONUS: 25,
   INITIAL_DELAY_MIN_MS: 6_000,
   INITIAL_DELAY_MAX_MS: 10_000,
   COMPLETE_DELAY_MIN_MS: 4_000,

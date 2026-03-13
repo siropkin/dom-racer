@@ -49,8 +49,8 @@ npm run build
 - Police chases with flashing sirens — the longer you survive, the longer they chase
 - Airplane flyovers that drop bonus coins, specials, and lucky wind across the map
 - Overgrowth: bushes and trees grow from walls over time, narrowing your routes
-- Coin-collection goals with x2, x3, x4 bonus multipliers and countdown timers
-- Near-miss bonus for grazing walls and police without crashing
+- Coin-collection goals with x2 (+20), x3 (+30), x4 (+40) score bonuses and countdown timers
+- Near-miss visual feedback for grazing walls and police without crashing
 - A different daily modifier every day — double coins, fast police, slippery surfaces, and more
 - Three vehicle designs unlocked by reaching lifetime score milestones
 - Run counter, page bests, lifetime bests, milestone celebrations
@@ -106,9 +106,9 @@ Each growth passes through three stages: small (a speed bump), medium (a proper 
 
 Bushes are leafy blobs; trees are round canopies with visible trunks. Both sway gently and animate in smoothly so nothing feels like a pop-in surprise.
 
-## Near-Miss Bonus
+## Near-Miss Feedback
 
-Thread the gap between your car and a wall or police cruiser and you earn a near-miss bonus: +3 to +5 points per graze, with a short cooldown so it does not spam. The HUD flashes one of four rotating toasts — `CLOSE!`, `TIGHT!`, `RAZOR!`, `WHEW!` — in orange to celebrate your questionable driving decisions.
+Thread the gap between your car and a wall or police cruiser and you get visual feedback: the HUD flashes one of four rotating toasts — `CLOSE!`, `TIGHT!`, `RAZOR!`, `WHEW!` — in orange, accompanied by VFX particles. No score bonus, just the thrill of a close call.
 
 Stack enough near-misses in a single run and the flavor text starts roasting you for it.
 
@@ -116,7 +116,7 @@ Stack enough near-misses in a single run and the flavor text starts roasting you
 
 Each run quietly assigns you a coin-collection goal a few seconds in: collect N coins in X seconds. There are six templates in the pool across three difficulty tiers (x2, x3, x4 multiplier), and you only see one at a time.
 
-Complete a goal and you get a score bonus (scaled by multiplier tier) plus a satisfying violet toast. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time in a compact bottom-center GOAL panel that matches the POWER panel pattern.
+Complete a goal and you get a score bonus (+20, +30, or +40 depending on tier) plus a satisfying violet toast showing the actual points awarded. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time in a compact bottom-center GOAL panel that matches the POWER panel pattern.
 
 ## Screenshots & Motion
 
@@ -156,6 +156,7 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Player experience | Done | Onboarding, run summary, daily modifiers, vehicle unlocks |
 | Play-test polish | Done | Specials overhaul, toast system, pause fixes, overlay polish |
 | Audio & visuals | Done | Adaptive contrast, biplane sprite, drone audio, popup |
+| Scoring & naming | Done | Scoring rework, toast simplification, police chase tuning |
 
 ## Debug Mode
 

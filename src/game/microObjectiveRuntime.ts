@@ -36,8 +36,6 @@ export interface ObjectiveTickResult {
   expired: boolean;
 }
 
-/** @deprecated Use per-template bonus instead */
-export const OBJECTIVE_SCORE_BONUS = OBJECTIVES.SCORE_BONUS;
 export const OBJECTIVE_INITIAL_DELAY_MIN_MS = OBJECTIVES.INITIAL_DELAY_MIN_MS;
 export const OBJECTIVE_INITIAL_DELAY_MAX_MS = OBJECTIVES.INITIAL_DELAY_MAX_MS;
 export const OBJECTIVE_COMPLETE_DELAY_MIN_MS = OBJECTIVES.COMPLETE_DELAY_MIN_MS;
@@ -45,7 +43,6 @@ export const OBJECTIVE_COMPLETE_DELAY_MAX_MS = OBJECTIVES.COMPLETE_DELAY_MAX_MS;
 export const OBJECTIVE_EXPIRE_DELAY_MIN_MS = OBJECTIVES.EXPIRE_DELAY_MIN_MS;
 export const OBJECTIVE_EXPIRE_DELAY_MAX_MS = OBJECTIVES.EXPIRE_DELAY_MAX_MS;
 
-const OBJECTIVE_COMPLETION_WORDS = ['NAILED!', 'DONE!', 'CLEAR!', 'CHECK!'] as const;
 export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
 export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
@@ -245,10 +242,6 @@ export function pickObjectiveTemplate(
   const eligible = OBJECTIVE_TEMPLATES.filter((t) => t.id !== lastTemplateId);
   if (eligible.length === 0) return null;
   return eligible[Math.floor(Math.random() * eligible.length)];
-}
-
-export function getObjectiveCompletionWord(completedCount: number): string {
-  return OBJECTIVE_COMPLETION_WORDS[completedCount % OBJECTIVE_COMPLETION_WORDS.length];
 }
 
 export function getObjectiveHudText(objective: MicroObjective): string {

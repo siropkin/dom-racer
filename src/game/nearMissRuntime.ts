@@ -4,8 +4,6 @@ import { NEAR_MISS } from './gameConfig';
 
 export const NEAR_MISS_COOLDOWN_MS = NEAR_MISS.COOLDOWN_MS;
 export const NEAR_MISS_THRESHOLD_PX = NEAR_MISS.THRESHOLD_PX;
-export const NEAR_MISS_SCORE_MIN = NEAR_MISS.SCORE_MIN;
-export const NEAR_MISS_SCORE_MAX = NEAR_MISS.SCORE_MAX;
 
 export const NEAR_MISS_COLOR = NEAR_MISS.COLOR;
 export const NEAR_MISS_TOAST_TTL_MS = NEAR_MISS.TOAST_TTL_MS;
@@ -41,13 +39,10 @@ export function resolveNearMissStep(options: {
 
   for (const target of allTargets) {
     if (isNearMiss(options.playerBounds, target, NEAR_MISS_THRESHOLD_PX)) {
-      const scoreBonus =
-        NEAR_MISS_SCORE_MIN +
-        Math.floor(Math.random() * (NEAR_MISS_SCORE_MAX - NEAR_MISS_SCORE_MIN + 1));
       const messageText = NEAR_MISS_WORDS[options.flavorIndex % NEAR_MISS_WORDS.length];
       return {
         triggered: true,
-        scoreBonus,
+        scoreBonus: 0,
         cooldownMs: NEAR_MISS_COOLDOWN_MS,
         messageText,
       };

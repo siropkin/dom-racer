@@ -127,17 +127,6 @@ const SPECIAL_COLORS: Readonly<Record<SpecialEffect, string>> = {
   reverse: '#fb923c',
   mystery: '#e879f9',
 };
-const SPECIAL_COLOR_NAMES: Readonly<Record<SpecialEffect, string>> = {
-  bonus: 'ROSE',
-  invert: 'PINK',
-  magnet: 'CYAN',
-  ghost: 'VIOLET',
-  jackpot: 'GOLD',
-  blur: 'PURPLE',
-  oil_slick: 'SLATE',
-  reverse: 'ORANGE',
-  mystery: 'FUCHSIA',
-};
 const VEHICLE_DESIGNS: readonly VehicleDesign[] = ['coupe', 'buggy', 'truck'];
 const VEHICLE_LABELS: Readonly<Record<VehicleDesign, string>> = {
   coupe: 'COUPE',
@@ -252,15 +241,6 @@ export function getSpecialColor(effect: SpecialEffect): string {
 
 export function getSpecialLabel(effect: SpecialEffect): string {
   return SPECIAL_LABELS[effect];
-}
-
-function getSpecialColorName(effect: SpecialEffect): string {
-  return SPECIAL_COLOR_NAMES[effect];
-}
-
-export function getSpecialDropMessage(effect: SpecialEffect): string {
-  const colorCode = getSpecialColorName(effect).slice(0, 1);
-  return `${colorCode}-${getSpecialLabel(effect)}D`;
 }
 
 export function getSpecialHudLabel(
