@@ -1,4 +1,4 @@
-import type { VehicleDesign } from '../shared/types';
+import type { VehicleDesign } from '../../shared/types';
 import { drawBorderedRect, drawContourOutline, drawWheel } from './spriteHelpers';
 
 interface RenderPlayerSpriteOptions {

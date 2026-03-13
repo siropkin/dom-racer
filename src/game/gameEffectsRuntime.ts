@@ -1,8 +1,8 @@
 import type { HudState, SpecialEffect, Vector2, WorldPickup } from '../shared/types';
+import { EFFECTS, TIMING } from './gameConfig';
 import {
   adaptBlackoutEffectForSurface,
   BONUS_SPECIAL_SCORE,
-  COMBO_WINDOW_MS,
   COOLDOWN_POLICE_DELAY_MAX_MS,
   COOLDOWN_POLICE_DELAY_MIN_MS,
   COOLDOWN_SCORE_BONUS,
@@ -16,11 +16,11 @@ import {
 } from './gameRuntime';
 import type { SurfaceSample } from './gameRuntime';
 
-export const INVERT_EFFECT_DURATION_MS = 5200;
-export const MAGNET_EFFECT_DURATION_MS = 6200;
-export const GHOST_EFFECT_DURATION_MS = 5600;
-export const BLACKOUT_EFFECT_DURATION_MS = 4200;
-export const LURE_EFFECT_DURATION_MS = 5400;
+export const INVERT_EFFECT_DURATION_MS = EFFECTS.INVERT_DURATION_MS;
+export const MAGNET_EFFECT_DURATION_MS = EFFECTS.MAGNET_DURATION_MS;
+export const GHOST_EFFECT_DURATION_MS = EFFECTS.GHOST_DURATION_MS;
+export const BLACKOUT_EFFECT_DURATION_MS = EFFECTS.BLACKOUT_DURATION_MS;
+export const LURE_EFFECT_DURATION_MS = EFFECTS.LURE_DURATION_MS;
 
 interface EffectTimerState {
   magnetTimerMs: number;
@@ -89,7 +89,7 @@ export function applyPickupComboState(
 
   return {
     pickupComboCount: nextPickupComboCount,
-    comboTimerMs: COMBO_WINDOW_MS,
+    comboTimerMs: TIMING.COMBO_WINDOW_MS,
     bonus,
     flowTier,
   };
@@ -333,7 +333,7 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
       effect: 'flow',
       label: `FLOW x${input.pickupComboCount}`,
       remainingMs: input.comboTimerMs,
-      durationMs: COMBO_WINDOW_MS,
+      durationMs: TIMING.COMBO_WINDOW_MS,
       color: '#fb7185',
     });
   }

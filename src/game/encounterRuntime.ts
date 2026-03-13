@@ -27,7 +27,7 @@ import {
   POLICE_WARNING_MS,
   randomBetween,
 } from './gameRuntime';
-import { POLICE_CAR_SIZE, type PoliceEdge } from './policeSprite';
+import { POLICE_CAR_SIZE, type PoliceEdge } from './sprites';
 
 interface PlanePath {
   start: Vector2;

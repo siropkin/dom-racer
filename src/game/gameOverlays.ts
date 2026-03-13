@@ -7,15 +7,16 @@ import {
 } from './gameRuntime';
 import { drawOvergrowthNodes } from './gameRenderRuntime';
 import type { OvergrowthNode } from './overgrowthRuntime';
-import { renderPlaneSprite } from './planeSprite';
 import {
+  renderPlaneSprite,
   POLICE_CAR_SIZE,
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
-} from './policeSprite';
-import { renderPlayerSprite } from './playerSprite';
-import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
+  renderPlayerSprite,
+  drawRegularCoinSprite,
+  drawSpecialPickupSprite,
+} from './sprites';
 
 interface DrawSpriteShowcaseOptions {
   ctx: CanvasRenderingContext2D;

@@ -1,13 +1,14 @@
 import type { Rect } from '../shared/types';
 import { expandRect, rectsIntersect } from '../shared/utils';
+import { NEAR_MISS } from './gameConfig';
 
-export const NEAR_MISS_COOLDOWN_MS = 800;
-export const NEAR_MISS_THRESHOLD_PX = 5;
-export const NEAR_MISS_SCORE_MIN = 3;
-export const NEAR_MISS_SCORE_MAX = 5;
+export const NEAR_MISS_COOLDOWN_MS = NEAR_MISS.COOLDOWN_MS;
+export const NEAR_MISS_THRESHOLD_PX = NEAR_MISS.THRESHOLD_PX;
+export const NEAR_MISS_SCORE_MIN = NEAR_MISS.SCORE_MIN;
+export const NEAR_MISS_SCORE_MAX = NEAR_MISS.SCORE_MAX;
 
-export const NEAR_MISS_COLOR = '#fb923c';
-export const NEAR_MISS_TOAST_TTL_MS = 600;
+export const NEAR_MISS_COLOR = NEAR_MISS.COLOR;
+export const NEAR_MISS_TOAST_TTL_MS = NEAR_MISS.TOAST_TTL_MS;
 
 const NEAR_MISS_WORDS = ['CLOSE!', 'TIGHT!', 'RAZOR!', 'WHEW!'] as const;
 

@@ -1,5 +1,6 @@
 import type { Rect } from '../shared/types';
 import { rectsIntersect } from '../shared/utils';
+import { OVERGROWTH } from './gameConfig';
 import { cloneRect, randomBetween } from './gameRuntime';
 
 export type OvergrowthKind = 'bush' | 'tree';
@@ -17,13 +18,13 @@ export interface OvergrowthNode {
   spawnedAtRunMs: number;
 }
 
-export const OVERGROWTH_SPAWN_START_MS = 35_000;
-export const OVERGROWTH_SPAWN_INTERVAL_MIN_MS = 9_000;
-export const OVERGROWTH_SPAWN_INTERVAL_MAX_MS = 15_000;
-export const OVERGROWTH_MAX_NODES = 8;
+export const OVERGROWTH_SPAWN_START_MS = OVERGROWTH.SPAWN_START_MS;
+export const OVERGROWTH_SPAWN_INTERVAL_MIN_MS = OVERGROWTH.SPAWN_INTERVAL_MIN_MS;
+export const OVERGROWTH_SPAWN_INTERVAL_MAX_MS = OVERGROWTH.SPAWN_INTERVAL_MAX_MS;
+export const OVERGROWTH_MAX_NODES = OVERGROWTH.MAX_NODES;
 
-export const OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS = 6_000;
-export const OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS = 10_000;
+export const OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS = OVERGROWTH.GROWTH_SMALL_TO_MEDIUM_MS;
+export const OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS = OVERGROWTH.GROWTH_MEDIUM_TO_LARGE_MS;
 
 const OVERGROWTH_SMALL_DEPTH = 10;
 const OVERGROWTH_MEDIUM_DEPTH = 20;
@@ -99,7 +100,7 @@ export function trySpawnOvergrowthNode(
         continue;
       }
 
-      const kind: OvergrowthKind = Math.random() < 0.55 ? 'bush' : 'tree';
+      const kind: OvergrowthKind = Math.random() < OVERGROWTH.BUSH_CHANCE ? 'bush' : 'tree';
       return {
         id: `overgrowth:${kind}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
         kind,

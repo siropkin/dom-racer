@@ -12,6 +12,7 @@ First, read:
 - `docs/release-checklist.md`
 - `docs/permissions-host-scope.md`
 - `src/game/Game.ts`
+- `src/game/gameConfig.ts`
 - `src/game/gameRuntime.ts`
 - `src/game/gameStateTypes.ts`
 - `src/game/gameRunStateRuntime.ts`
@@ -24,11 +25,15 @@ First, read:
 - `src/game/gameHudAudioRuntime.ts`
 - `src/game/gameInputRuntime.ts`
 - `src/game/gameEffectsRuntime.ts`
-- `src/game/planeSprite.ts`
+- `src/game/sprites/planeSprite.ts`
+- `src/game/sprites/playerSprite.ts`
+- `src/game/sprites/policeSprite.ts`
+- `src/game/sprites/pickupSprites.ts`
+- `src/game/sprites/spriteHelpers.ts`
+- `src/game/sprites/index.ts`
 - `src/game/overgrowthRuntime.ts`
 - `src/game/nearMissRuntime.ts`
 - `src/game/microObjectiveRuntime.ts`
-- `src/game/pickupSprites.ts`
 - `src/content/domScanner.ts`
 - `src/content/main.ts`
 - `src/content/worldBuilder.ts`
@@ -44,9 +49,9 @@ First, read:
 All game features are complete. Now doing a production readiness pass focused on code quality, organization, and reusability.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. ~~**Production readiness — Sprite consolidation:**~~ **Done.** Shared canvas drawing helpers extracted into `src/game/spriteHelpers.ts` (`drawBorderedRect`, `drawWheel`, `drawContourOutline`, `traceStarPath`). All sprite files refactored to use helpers. Overgrowth rendering uses ellipses and was left unchanged.
-3. **Production readiness — Constants organization:** Magic numbers scattered across runtime files (timing thresholds, distances, sizes, colors, probabilities). Extract gameplay constants into organized config objects or a `src/game/gameConfig.ts` so tuning is centralized and discoverable.
-4. **Production readiness — File structure:** The `src/game/` directory has 24 files. Consider whether any should be grouped into subdirectories (e.g., `sprites/`, `runtime/`). Evaluate barrel exports. Ensure consistent naming conventions.
+2. ~~**Production readiness — Sprite consolidation:**~~ **Done.** Shared canvas drawing helpers extracted into `src/game/sprites/spriteHelpers.ts`. All sprite files refactored to use helpers. Overgrowth rendering uses ellipses and was left unchanged.
+3. ~~**Production readiness — Constants organization:**~~ **Done.** All key tuning constants centralized in `src/game/gameConfig.ts` with 11 organized sections (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER). Runtime files import from gameConfig. Legacy named re-exports preserved in `gameRuntime.ts` for backward compatibility.
+4. ~~**Production readiness — File structure:**~~ **Done.** Sprite files moved to `src/game/sprites/` subdirectory with barrel `index.ts` export. All imports updated.
 5. **Production readiness — Code quality sweep:** Dead code removal, unused imports, consistent error handling, JSDoc on public APIs, `readonly` on arrays/objects that shouldn't mutate, consistent function signatures across runtime modules.
 6. **Production readiness — Lint hardening:** Tighten ESLint rules where beneficial (e.g., `no-magic-numbers` for sprite/timing code, `prefer-const`, stricter type checks). Run full lint + format pass after all changes.
 
@@ -108,9 +113,12 @@ All game features are complete. Now doing a production readiness pass focused on
 - New specials: `COOLDOWN` (instant, pushes police timer 5.4-8.2s, +15 score, teal color) and `LURE` (timed 5.4s, 300px radius gentle coin pull, amber color).
 - `LURE` pull only affects regular coins (not specials), distinguishing it from `MAGNET` which pulls all pickups.
 - `COOLDOWN` reuses existing police delay cue infrastructure for HUD display.
-- Shared canvas drawing helpers live in `src/game/spriteHelpers.ts`: `drawBorderedRect`, `drawWheel`, `drawContourOutline`, `traceStarPath`.
-- All sprite files (`playerSprite.ts`, `policeSprite.ts`, `planeSprite.ts`, `pickupSprites.ts`) import from `spriteHelpers.ts`.
+- Sprite files live in `src/game/sprites/`: `spriteHelpers.ts`, `playerSprite.ts`, `policeSprite.ts`, `planeSprite.ts`, `pickupSprites.ts`, and barrel `index.ts`.
+- All consumer files import from `./sprites` (barrel export), not individual sprite files.
 - Overgrowth rendering in `gameRenderRuntime.ts` uses ellipses (not rounded rects) and does not use sprite helpers.
+- Centralized tuning constants live in `src/game/gameConfig.ts` with sections: TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER.
+- `gameRuntime.ts` re-exports legacy named constants from `gameConfig` for backward compatibility.
+- Runtime files (`player.ts`, `overgrowthRuntime.ts`, `nearMissRuntime.ts`, `microObjectiveRuntime.ts`, `gameEffectsRuntime.ts`) import directly from `gameConfig`.
 - Preferred-effect bias in `pickSpecialEffect` reduced from 58% to 52% to accommodate 6-effect pool.
 - ESLint (flat config, typescript-eslint, eslint-config-prettier) and Prettier are configured.
 - Lint scripts: `npm run lint`, `npm run lint:fix`. Format scripts: `npm run format`, `npm run format:check`.

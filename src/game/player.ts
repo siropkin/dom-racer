@@ -8,23 +8,8 @@ import {
 } from '../shared/types';
 import { clamp } from '../shared/utils';
 import { moveWithCollisions } from './collisions';
-import { renderPlayerSprite } from './playerSprite';
-
-const BASE_SPEED = 250;
-const BOOST_SPEED = 360;
-const SLOW_ZONE_MULTIPLIER = 0.62;
-const RESPONSE = 11;
-const FRICTION = 7;
-const ICE_RESPONSE = 2.1;
-const ICE_FRICTION = 0.42;
-const ICE_TOP_SPEED_MULTIPLIER = 1.08;
-const ICE_ENTRY_BURST_MS = 240;
-const ICE_ENTRY_BURST_MULTIPLIER = 1.12;
-const ICE_DRIFT_RESEED_MIN_MS = 90;
-const ICE_DRIFT_RESEED_MAX_MS = 220;
-const ICE_DRIFT_INPUT_INFLUENCE = 0.2;
-const ICE_DRIFT_ACCELERATION = 26;
-const BOOST_HOLD_MS = 400;
+import { PLAYER, TIMING } from './gameConfig';
+import { renderPlayerSprite } from './sprites';
 
 interface PlayerUpdateContext {
   input: InputState;
@@ -84,13 +69,13 @@ export class Player {
     const direction = getInputDirection(input);
 
     if (boosting) {
-      this.boostTimerMs = BOOST_HOLD_MS;
+      this.boostTimerMs = TIMING.BOOST_HOLD_MS;
     } else {
       this.boostTimerMs = Math.max(0, this.boostTimerMs - dtSeconds * 1000);
     }
 
     if (onIce && !this.onIceLastFrame) {
-      this.iceEntryBoostMs = ICE_ENTRY_BURST_MS;
+      this.iceEntryBoostMs = PLAYER.ICE_ENTRY_BURST_MS;
     }
     this.onIceLastFrame = onIce;
 
@@ -100,7 +85,10 @@ export class Player {
       if (this.iceDriftRetargetMs === 0) {
         const angle = Math.random() * Math.PI * 2;
         this.iceDriftDirection = { x: Math.cos(angle), y: Math.sin(angle) };
-        this.iceDriftRetargetMs = randomBetween(ICE_DRIFT_RESEED_MIN_MS, ICE_DRIFT_RESEED_MAX_MS);
+        this.iceDriftRetargetMs = randomBetween(
+          PLAYER.ICE_DRIFT_RESEED_MIN_MS,
+          PLAYER.ICE_DRIFT_RESEED_MAX_MS,
+        );
       }
     } else {
       this.iceEntryBoostMs = 0;
@@ -108,20 +96,21 @@ export class Player {
       this.iceDriftDirection = { x: 0, y: 0 };
     }
 
-    const iceEntryMultiplier = onIce && this.iceEntryBoostMs > 0 ? ICE_ENTRY_BURST_MULTIPLIER : 1;
+    const iceEntryMultiplier =
+      onIce && this.iceEntryBoostMs > 0 ? PLAYER.ICE_ENTRY_BURST_MULTIPLIER : 1;
     const topSpeed =
-      (this.boostTimerMs > 0 ? BOOST_SPEED : BASE_SPEED) *
-      (slowed ? SLOW_ZONE_MULTIPLIER : 1) *
-      (onIce ? ICE_TOP_SPEED_MULTIPLIER : 1) *
+      (this.boostTimerMs > 0 ? PLAYER.BOOST_SPEED : PLAYER.BASE_SPEED) *
+      (slowed ? PLAYER.SLOW_ZONE_MULTIPLIER : 1) *
+      (onIce ? PLAYER.ICE_TOP_SPEED_MULTIPLIER : 1) *
       iceEntryMultiplier;
-    const response = onIce ? ICE_RESPONSE : RESPONSE;
-    const friction = onIce ? ICE_FRICTION : FRICTION;
+    const response = onIce ? PLAYER.ICE_RESPONSE : PLAYER.RESPONSE;
+    const friction = onIce ? PLAYER.ICE_FRICTION : PLAYER.FRICTION;
 
     if (direction.x !== 0 || direction.y !== 0) {
       let steerDirection = direction;
       if (onIce) {
-        const driftedX = direction.x + this.iceDriftDirection.x * ICE_DRIFT_INPUT_INFLUENCE;
-        const driftedY = direction.y + this.iceDriftDirection.y * ICE_DRIFT_INPUT_INFLUENCE;
+        const driftedX = direction.x + this.iceDriftDirection.x * PLAYER.ICE_DRIFT_INPUT_INFLUENCE;
+        const driftedY = direction.y + this.iceDriftDirection.y * PLAYER.ICE_DRIFT_INPUT_INFLUENCE;
         const driftedMagnitude = Math.hypot(driftedX, driftedY);
         if (driftedMagnitude > 0.0001) {
           steerDirection = {
@@ -154,9 +143,9 @@ export class Player {
       if (speed > 20) {
         const driftStrength = Math.min(1, speed / 210);
         this.velocity.x +=
-          this.iceDriftDirection.x * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+          this.iceDriftDirection.x * PLAYER.ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
         this.velocity.y +=
-          this.iceDriftDirection.y * ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
+          this.iceDriftDirection.y * PLAYER.ICE_DRIFT_ACCELERATION * driftStrength * dtSeconds;
       }
     }
 

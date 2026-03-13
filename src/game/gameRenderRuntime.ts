@@ -1,7 +1,6 @@
 import type { Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
-import { renderPlaneSprite } from './planeSprite';
-import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
+import { renderPlaneSprite, drawRegularCoinSprite, drawSpecialPickupSprite } from './sprites';
 import type { PlaneBonusEventState, SpecialSpawnCue } from './gameStateTypes';
 import type { SurfaceSample } from './gameRuntime';
 import type { OvergrowthNode, OvergrowthStage } from './overgrowthRuntime';

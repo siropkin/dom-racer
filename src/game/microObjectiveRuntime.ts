@@ -1,3 +1,4 @@
+import { OBJECTIVES } from './gameConfig';
 import { randomBetween } from './gameRuntime';
 
 export type ObjectiveTracker =
@@ -43,17 +44,17 @@ export interface ObjectiveTickResult {
   expired: boolean;
 }
 
-export const OBJECTIVE_SCORE_BONUS = 25;
-export const OBJECTIVE_INITIAL_DELAY_MIN_MS = 6_000;
-export const OBJECTIVE_INITIAL_DELAY_MAX_MS = 10_000;
-export const OBJECTIVE_COMPLETE_DELAY_MIN_MS = 4_000;
-export const OBJECTIVE_COMPLETE_DELAY_MAX_MS = 8_000;
-export const OBJECTIVE_EXPIRE_DELAY_MIN_MS = 3_000;
-export const OBJECTIVE_EXPIRE_DELAY_MAX_MS = 5_000;
+export const OBJECTIVE_SCORE_BONUS = OBJECTIVES.SCORE_BONUS;
+export const OBJECTIVE_INITIAL_DELAY_MIN_MS = OBJECTIVES.INITIAL_DELAY_MIN_MS;
+export const OBJECTIVE_INITIAL_DELAY_MAX_MS = OBJECTIVES.INITIAL_DELAY_MAX_MS;
+export const OBJECTIVE_COMPLETE_DELAY_MIN_MS = OBJECTIVES.COMPLETE_DELAY_MIN_MS;
+export const OBJECTIVE_COMPLETE_DELAY_MAX_MS = OBJECTIVES.COMPLETE_DELAY_MAX_MS;
+export const OBJECTIVE_EXPIRE_DELAY_MIN_MS = OBJECTIVES.EXPIRE_DELAY_MIN_MS;
+export const OBJECTIVE_EXPIRE_DELAY_MAX_MS = OBJECTIVES.EXPIRE_DELAY_MAX_MS;
 
 const OBJECTIVE_COMPLETION_WORDS = ['NAILED!', 'DONE!', 'CLEAR!', 'CHECK!'] as const;
-export const OBJECTIVE_COMPLETION_COLOR = '#a78bfa';
-export const OBJECTIVE_TOAST_TTL_MS = 800;
+export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
+export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
 export const OBJECTIVE_TEMPLATES: ObjectiveTemplate[] = [
   { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 0, tracker: 'coins_collected' },

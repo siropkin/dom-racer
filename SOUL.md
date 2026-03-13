@@ -263,6 +263,19 @@ When this roadmap is working, a good run should feel like this:
 
 ## Session Notes
 
+### Session — 2026-03-12 (l)
+
+- Production readiness: constants organization and file structure
+- Created `src/game/gameConfig.ts` with 11 organized config sections: `TIMING`, `TOAST`, `COINS`, `SPECIALS`, `EFFECTS`, `JACKPOT`, `POLICE`, `PLANE`, `ENCOUNTER`, `OVERGROWTH`, `NEAR_MISS`, `OBJECTIVES`, `PLAYER`
+- All key tuning parameters (timing thresholds, scoring, spawn intervals, physics, probabilities) centralized and discoverable
+- Refactored `gameRuntime.ts` to re-export legacy named constants from `gameConfig` for backward compatibility
+- Refactored `player.ts` to import physics constants from `PLAYER` config section
+- Refactored `overgrowthRuntime.ts`, `nearMissRuntime.ts`, `microObjectiveRuntime.ts`, `gameEffectsRuntime.ts` to source constants from `gameConfig`
+- Moved 5 sprite files into `src/game/sprites/` subdirectory: `spriteHelpers.ts`, `playerSprite.ts`, `policeSprite.ts`, `planeSprite.ts`, `pickupSprites.ts`
+- Created `src/game/sprites/index.ts` barrel export with all public sprite APIs
+- Updated all imports across `Game.ts`, `encounterRuntime.ts`, `gameRenderRuntime.ts`, `gameOverlays.ts`, `gameStateTypes.ts`, `player.ts`
+- 72 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
+
 ### Session — 2026-03-12 (k)
 
 - Production readiness: sprite drawing consolidation

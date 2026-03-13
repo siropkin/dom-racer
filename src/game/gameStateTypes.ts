@@ -1,6 +1,6 @@
 import type { Vector2, VehicleDesign, World } from '../shared/types';
 import type { SurfaceSample } from './gameRuntime';
-import type { PoliceEdge } from './policeSprite';
+import type { PoliceEdge } from './sprites';
 
 export interface SpecialSpawnCue {
   x: number;

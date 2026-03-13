@@ -1,4 +1,4 @@
-import type { ViewportSize } from '../shared/types';
+import type { ViewportSize } from '../../shared/types';
 import { drawBorderedRect, drawWheel } from './spriteHelpers';
 
 export type PoliceEdge = 'top' | 'right' | 'bottom' | 'left';

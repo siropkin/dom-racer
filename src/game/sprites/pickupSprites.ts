@@ -1,4 +1,4 @@
-import type { WorldPickup } from '../shared/types';
+import type { WorldPickup } from '../../shared/types';
 import { drawBorderedRect, traceStarPath } from './spriteHelpers';
 
 export function drawRegularCoinSprite(

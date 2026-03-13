@@ -69,7 +69,7 @@ import {
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
-} from './policeSprite';
+} from './sprites';
 import {
   getCoinRefillDelayMs,
   getSpecialSpawnRespawnDelayMs,
