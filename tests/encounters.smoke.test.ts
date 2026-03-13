@@ -524,7 +524,6 @@ describe('police, plane, encounter stagger smoke invariants', () => {
       currentSurface: { lightness: 0.55, saturation: 0.2, hasGradient: false },
     });
 
-    expect(hudState.activeEffects.some((effect) => effect.label === 'WEE-OO')).toBe(true);
     expect(hudState.activeEffects.some((effect) => effect.label === 'NYOOM')).toBe(true);
   });
 

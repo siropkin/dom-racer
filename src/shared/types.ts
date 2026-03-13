@@ -89,6 +89,8 @@ export interface HudState {
   objectiveProgress: number;
   objectiveTimeRemainingMs: number | null;
   objectiveTimeLimitMs: number | null;
+  policeChaseRemainingMs: number | null;
+  policeChaseDurationMs: number | null;
   activeEffects: Array<{
     effect: HudEffectKind;
     label: string;

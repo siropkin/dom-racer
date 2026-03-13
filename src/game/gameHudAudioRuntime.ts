@@ -61,24 +61,10 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     lureTimerMs: options.lureTimerMs,
     comboTimerMs: options.comboTimerMs,
     pickupComboCount: options.pickupComboCount,
-    policeRemainingMs: options.policeRemainingMs,
-    policeDurationMs: options.policeDurationMs,
+    policeRemainingMs: null,
+    policeDurationMs: null,
     currentSurface: options.currentSurface,
   });
-  if (
-    options.policeWarningActive &&
-    !options.policeActive &&
-    options.policeWarningRemainingMs !== null &&
-    options.policeWarningDurationMs !== null
-  ) {
-    activeEffects.push({
-      effect: 'encounter',
-      label: 'WEE-OO',
-      remainingMs: options.policeWarningRemainingMs,
-      durationMs: options.policeWarningDurationMs,
-      color: '#93c5fd',
-    });
-  }
   if (
     options.planeWarningActive &&
     options.planeWarningRemainingMs !== null &&
@@ -141,6 +127,8 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       ? options.objectiveActive.timeRemainingMs
       : null,
     objectiveTimeLimitMs: options.objectiveActive ? options.objectiveActive.timeLimitMs : null,
+    policeChaseRemainingMs: options.policeActive ? options.policeRemainingMs : null,
+    policeChaseDurationMs: options.policeActive ? options.policeDurationMs : null,
     activeEffects,
   };
 }

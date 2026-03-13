@@ -62,8 +62,8 @@ export function drawHud(
     drawActiveEffects(ctx, viewport, state);
   }
 
-  if (state.objectiveText) {
-    drawObjectivePanel(ctx, viewport, state);
+  if (state.policeChaseRemainingMs !== null || state.objectiveText) {
+    drawGoalPanel(ctx, viewport, state);
   }
 
   if (state.pageBestScore > 0 || state.lifetimeBestScore > 0) {
@@ -208,14 +208,25 @@ function drawActiveEffects(
   });
 }
 
-function drawObjectivePanel(
+function drawGoalPanel(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
   state: HudState,
 ): void {
-  if (!state.objectiveText) {
-    return;
-  }
+  const isPoliceChase =
+    state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null;
+
+  const label = isPoliceChase ? 'ESCAPE' : 'GOAL';
+  const barText = isPoliceChase ? 'ESCAPE' : (state.objectiveText ?? '');
+  const accentColor = isPoliceChase ? 'rgba(248, 113, 113, 0.88)' : 'rgba(167, 139, 250, 0.82)';
+  const barColor = isPoliceChase ? '#f87171' : '#a78bfa';
+
+  const timeRemaining = isPoliceChase
+    ? state.policeChaseRemainingMs!
+    : (state.objectiveTimeRemainingMs ?? 0);
+  const timeLimit = isPoliceChase
+    ? state.policeChaseDurationMs!
+    : (state.objectiveTimeLimitMs ?? 1);
 
   const panelWidth = 200;
   const panelHeight = 46;
@@ -224,34 +235,32 @@ function drawObjectivePanel(
 
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-  ctx.fillStyle = 'rgba(167, 139, 250, 0.82)';
+  ctx.fillStyle = accentColor;
   ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_MUTED;
-  ctx.fillText('GOAL', panelX + 12, panelY + 8);
+  ctx.fillText(label, panelX + 12, panelY + 8);
 
   const barX = panelX + 10;
   const barY = panelY + 24;
   const barWidth = panelWidth - 20;
   const barHeight = 18;
 
-  const timeRemaining = state.objectiveTimeRemainingMs ?? 0;
-  const timeLimit = state.objectiveTimeLimitMs ?? 1;
   const timeFill = Math.max(0, Math.min(1, timeRemaining / Math.max(1, timeLimit)));
   const fillW = barWidth * timeFill;
 
   ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
   if (fillW > 0) {
-    ctx.fillStyle = '#a78bfa';
+    ctx.fillStyle = barColor;
     ctx.fillRect(barX, barY, fillW, barHeight);
   }
 
   ctx.font = HUD_FONT;
   drawBarText(
     ctx,
-    state.objectiveText,
+    barText,
     barX + 6,
     barY + 4,
     barX,
