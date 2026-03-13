@@ -1,75 +1,66 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="144" y1="96" x2="908" y2="928" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#8B5CF6"/>
-      <stop offset="0.52" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#06B6D4"/>
+    <linearGradient id="bg" x1="100" y1="72" x2="920" y2="952" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7c3aed"/>
+      <stop offset="0.5" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#06b6d4"/>
     </linearGradient>
-    <filter id="shadow" x="138" y="142" width="748" height="756" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#0F172A" flood-opacity="0.28"/>
-    </filter>
-    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
-      <path d="M56 0H0V56" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+    <pattern id="grid" width="52" height="52" patternUnits="userSpaceOnUse">
+      <path d="M52 0H0V52" stroke="#fff" stroke-opacity="0.07" stroke-width="1.5"/>
     </pattern>
+    <filter id="sh" filterUnits="objectBoundingBox" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#020617" flood-opacity="0.32"/>
+    </filter>
   </defs>
 
-  <rect x="72" y="72" width="880" height="880" rx="240" fill="url(#bg)"/>
-  <rect x="72" y="72" width="880" height="880" rx="240" fill="url(#grid)"/>
+  <!-- Background -->
+  <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#bg)"/>
+  <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#grid)"/>
 
-  <g filter="url(#shadow)">
-    <!-- Shadow under car -->
-    <ellipse cx="512" cy="740" rx="200" ry="54" fill="#0F172A" fill-opacity="0.26"/>
+  <!-- Car (front=top, centered at ~512,478) -->
+  <g filter="url(#sh)">
+    <!-- Wheels (extend beyond body edges) -->
+    <rect x="348" y="312" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="624" y="312" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="348" y="612" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
+    <rect x="624" y="612" width="52" height="24" rx="9" fill="#111827" stroke="#f8fafc" stroke-width="5"/>
 
-    <!-- Wheels (top-down, black with white border) -->
-    <rect x="334" y="264" width="64" height="32" rx="12" fill="#111827"/>
-    <rect x="334" y="264" width="64" height="32" rx="12" stroke="#F8FAFC" stroke-width="8"/>
-    <rect x="626" y="264" width="64" height="32" rx="12" fill="#111827"/>
-    <rect x="626" y="264" width="64" height="32" rx="12" stroke="#F8FAFC" stroke-width="8"/>
-    <rect x="334" y="644" width="64" height="32" rx="12" fill="#111827"/>
-    <rect x="334" y="644" width="64" height="32" rx="12" stroke="#F8FAFC" stroke-width="8"/>
-    <rect x="626" y="644" width="64" height="32" rx="12" fill="#111827"/>
-    <rect x="626" y="644" width="64" height="32" rx="12" stroke="#F8FAFC" stroke-width="8"/>
+    <!-- Body -->
+    <rect x="376" y="268" width="272" height="416" rx="86" fill="#2563eb" stroke="#f8fafc" stroke-width="9"/>
 
-    <!-- Main body (blue coupe) -->
-    <rect x="344" y="214" width="336" height="520" rx="128" fill="#2563EB"/>
-    <rect x="344" y="214" width="336" height="520" rx="128" stroke="#F8FAFC" stroke-width="12"/>
+    <!-- Cabin roof (inside body, darker) -->
+    <rect x="412" y="336" width="200" height="280" rx="48" fill="#1d4ed8"/>
 
-    <!-- Roof accent -->
-    <rect x="418" y="184" width="188" height="580" rx="80" fill="#1D4ED8"/>
-    <rect x="418" y="184" width="188" height="580" rx="80" stroke="#F8FAFC" stroke-width="8"/>
+    <!-- Windshield (front glass, upper cabin area) -->
+    <rect x="416" y="362" width="192" height="44" rx="10" fill="#dbeafe"/>
 
-    <!-- Windshield (center horizontal stripe) -->
-    <rect x="388" y="442" width="248" height="64" rx="8" fill="#E2E8F0"/>
+    <!-- Rear window (lower cabin area) -->
+    <rect x="426" y="558" width="172" height="36" rx="10" fill="#dbeafe" fill-opacity="0.6"/>
 
-    <!-- Side windows -->
-    <rect x="448" y="328" width="128" height="292" rx="44" fill="#DBEAFE"/>
+    <!-- Headlights (front = top of car) -->
+    <rect x="404" y="282" width="30" height="26" rx="8" fill="#cbd5e1"/>
+    <rect x="590" y="282" width="30" height="26" rx="8" fill="#cbd5e1"/>
 
-    <!-- Headlights (dark, front of car = top) -->
-    <rect x="384" y="228" width="36" height="36" rx="8" fill="#111827"/>
-    <rect x="604" y="228" width="36" height="36" rx="8" fill="#111827"/>
-
-    <!-- Taillights (dark red, back of car = bottom) -->
-    <rect x="384" y="684" width="36" height="36" rx="8" fill="#7F1D1D"/>
-    <rect x="604" y="684" width="36" height="36" rx="8" fill="#7F1D1D"/>
+    <!-- Taillights (rear = bottom of car) -->
+    <rect x="404" y="648" width="30" height="26" rx="8" fill="#ef4444"/>
+    <rect x="590" y="648" width="30" height="26" rx="8" fill="#ef4444"/>
 
     <!-- Body keyline -->
-    <rect x="344" y="214" width="336" height="520" rx="128" stroke="rgba(15, 23, 42, 0.85)" stroke-width="6" fill="none"/>
+    <rect x="376" y="268" width="272" height="416" rx="86" stroke="rgba(15,23,42,0.5)" stroke-width="4" fill="none"/>
   </g>
 
-  <!-- Coin pickup -->
-  <g>
-    <circle cx="778" cy="272" r="64" fill="#FBBF24"/>
-    <circle cx="778" cy="272" r="48" fill="#FDE68A"/>
-    <path d="M778 238V306" stroke="#7C2D12" stroke-width="16" stroke-linecap="round"/>
-    <path d="M744 272H812" stroke="#7C2D12" stroke-width="16" stroke-linecap="round"/>
-  </g>
+  <!-- Coin -->
+  <circle cx="752" cy="296" r="56" fill="#fbbf24"/>
+  <circle cx="752" cy="296" r="40" fill="#fde68a"/>
+  <ellipse cx="738" cy="280" rx="14" ry="9" fill="#fff" fill-opacity="0.4" transform="rotate(-20 738 280)"/>
 
   <!-- Sparkles -->
-  <g fill="#FFFFFF">
-    <path d="M254 212L266 244L298 256L266 268L254 300L242 268L210 256L242 244L254 212Z" fill-opacity="0.88"/>
-    <path d="M188 544L196 564L216 572L196 580L188 600L180 580L160 572L180 564L188 544Z" fill-opacity="0.72"/>
-    <path d="M820 650L830 676L856 686L830 696L820 722L810 696L784 686L810 676L820 650Z" fill-opacity="0.82"/>
+  <g fill="#fff">
+    <path d="M260 224L272 256L304 268L272 280L260 312L248 280L216 268L248 256Z" fill-opacity="0.85"/>
+    <path d="M196 530L204 552L226 560L204 568L196 590L188 568L166 560L188 552Z" fill-opacity="0.6"/>
+    <path d="M808 630L816 652L838 660L816 668L808 690L800 668L778 660L800 652Z" fill-opacity="0.7"/>
   </g>
 
-  <rect x="142" y="142" width="740" height="740" rx="208" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="8"/>
+  <!-- Inner border highlight -->
+  <rect x="84" y="84" width="856" height="856" rx="210" stroke="#fff" stroke-opacity="0.14" stroke-width="6" fill="none"/>
 </svg>

@@ -219,9 +219,10 @@ Goal: make extension icon and store assets match the actual in-game vehicles ins
 
 Completed:
 - [x] Redesigned `dom-racer-icon.svg` using the blue coupe (default vehicle) with top-down perspective
-- [x] Updated `dom-racer-store-tile.svg` to match (blue coupe with black wheels, white borders)
-- [x] Updated `dom-racer-store-cover.svg` to show the real car in gameplay context
-- [x] Top-down perspective consistent with in-game look (body #2563EB, roof #1D4ED8, wheels #111827 with #F8FAFC border)
+- [x] Updated `dom-racer-store-tile.svg` — fixed text overflow, all text/pills fit within 440x280 bounds
+- [x] Updated `dom-racer-store-cover.svg` — gameplay mockup with car, HUD, DOM elements, police warning
+- [x] Car design: body as main outline with cabin/roof inside (no cross-pattern), windshield + rear window as horizontal glass bands
+- [x] Colors match in-game: body #2563EB, cabin #1D4ED8, wheels #111827 with #F8FAFC border, red taillights #EF4444
 - [x] Updated `generate_assets.py` to read SVGs from disk instead of embedding duplicate strings
 - [x] Regenerated PNGs via `npm run brand` (icon16–512, promo tile, store cover)
 
@@ -248,10 +249,19 @@ When this roadmap is working, a good run should feel like this:
 
 ## Session Notes
 
-### Session — 2026-03-12
+### Session — 2026-03-12 (b)
+
+- Redesigned all three branding SVGs: car uses body-inside-cabin layout (no cross pattern), proper proportions
+- Fixed tile text overflow: shortened subtitle, repositioned pills, all content fits within 440x280
+- Regenerated all PNGs via `npm run brand`
+- 32 tests pass, build clean, no `__domRacerDebug` in source or dist
+
+### Session — 2026-03-12 (a)
 
 - Deduplicated `cloneRect` from `pickupSpawnRuntime.ts` (now imports from `gameRuntime.ts`)
-- Regenerated all branding PNGs via `npm run brand` (icon16–512, promo tile 440x280, store cover 1280x800)
+- Deduplicated `parseCssColor`/`rgbToHsl` into `src/shared/color.ts`
+- Initial branding SVG refresh (blue coupe colors, but proportions had cross-pattern issue)
+- Regenerated all branding PNGs via `npm run brand`
 - 32 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ## Notes For Future Models
