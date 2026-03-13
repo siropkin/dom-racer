@@ -471,6 +471,7 @@ Status: `in progress`
 - [x] Extract airplane lucky-wind coin-reroute orchestration from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
 - [x] Keep airplane drop completion retry-safe when a drop path fails in-frame (do not mark `dropped` until a spawn actually succeeds)
 - [x] Extract focus-loss pause transition state orchestration from `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts` while keeping audio/input side effects in `Game.ts`
+- [x] Extract magnet pull motion orchestration from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -482,6 +483,7 @@ Status: `in progress`
 - [x] Close overgrowth collision gap with scope-guard coverage while overgrowth stays deferred (deadSpot safety reset + empty hazard/deadSpot scanner/world channels)
 - [x] Add hazard-channel guard coverage for world refresh safety reset while overgrowth remains deferred
 - [x] Add smoke assertions for extracted special-spawn cue lifecycle and police-warning readability flavor text
+- [x] Add smoke assertions for extracted magnet helper and warning-cue HUD readability
 
 ### Final Tuning
 
@@ -602,6 +604,12 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands the locked hybrid pair in one pass: bounded magnet-helper extraction plus bounded airplane/police warning readability follow-up.
+- Hardening delivery: magnet pull math moved from `Game.ts` into `src/game/gameEffectsRuntime.ts` (`applyMagnetPullToPickups`) with unchanged pickup pull semantics for both regular and special pickups.
+- Feature delivery: HUD active-effects panel now includes warning countdown cues for encounter telegraphs (`WEE-OO` for police pre-chase and `NYOOM` for airplane pre-flyover), improving readability without changing timing/economy behavior.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (24 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands the locked hybrid pair in one pass: bounded focus-pause run-state extraction plus bounded Phase 6 docs polish.
 - Hardening delivery: focus-loss pause transition state calculation moved from `Game.ts` into `src/game/gameRunStateRuntime.ts` (`shouldPauseForPageFocus`, `resolveFocusPauseTransitionState`), while audio stop and input reset side effects remain orchestrated in `Game.ts`.

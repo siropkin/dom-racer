@@ -49,6 +49,7 @@ import {
 } from './gameRenderRuntime';
 import {
   BLACKOUT_EFFECT_DURATION_MS,
+  applyMagnetPullToPickups,
   applyPickupComboState,
   GHOST_EFFECT_DURATION_MS,
   INVERT_EFFECT_DURATION_MS,
@@ -609,8 +610,14 @@ export class Game {
       policeDurationMs,
       planeActive: Boolean(this.planeBonusEvent),
       planeWarningActive: Boolean(this.planeWarning),
+      planeWarningRemainingMs: this.planeWarning ? this.planeWarning.remainingMs : null,
+      planeWarningDurationMs: this.planeWarning ? this.planeWarning.durationMs : null,
       policeActive: this.isPoliceChasing(),
       policeWarningActive: Boolean(this.policeWarning) && !this.isPoliceChasing(),
+      policeWarningRemainingMs:
+        this.policeWarning && !this.isPoliceChasing() ? this.policeWarning.remainingMs : null,
+      policeWarningDurationMs:
+        this.policeWarning && !this.isPoliceChasing() ? this.policeWarning.durationMs : null,
       currentSurface,
     });
     drawHud(ctx, this.world.viewport, hudState);
@@ -1262,24 +1269,7 @@ export class Game {
       return;
     }
 
-    const playerCenter = rectCenter(this.player.getBounds());
-
-    for (const pickup of this.world.pickups) {
-      const pickupCenter = rectCenter(pickup.rect);
-      const dx = playerCenter.x - pickupCenter.x;
-      const dy = playerCenter.y - pickupCenter.y;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance > 170 || distance < 1) {
-        continue;
-      }
-
-      const pull = Math.min(220, 110 + (170 - distance) * 1.3) * dtSeconds;
-      const moveX = (dx / distance) * pull;
-      const moveY = (dy / distance) * pull;
-      pickup.rect.x += moveX;
-      pickup.rect.y += moveY;
-    }
+    applyMagnetPullToPickups(this.world.pickups, rectCenter(this.player.getBounds()), dtSeconds);
   }
 
   private updateUiEffects(): void {

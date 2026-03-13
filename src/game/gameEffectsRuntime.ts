@@ -1,4 +1,4 @@
-import type { HudState } from '../shared/types';
+import type { HudState, Vector2, WorldPickup } from '../shared/types';
 import { adaptBlackoutEffectForSurface, COMBO_WINDOW_MS, getSpecialColor, getSpecialHudLabel } from './gameRuntime';
 import type { SurfaceSample } from './gameRuntime';
 
@@ -70,6 +70,32 @@ export function applyPickupComboState(comboTimerMs: number, pickupComboCount: nu
     bonus,
     flowTier,
   };
+}
+
+export function applyMagnetPullToPickups(
+  worldPickups: WorldPickup[],
+  playerCenter: Vector2,
+  dtSeconds: number,
+): void {
+  for (const pickup of worldPickups) {
+    const pickupCenter = {
+      x: pickup.rect.x + pickup.rect.width / 2,
+      y: pickup.rect.y + pickup.rect.height / 2,
+    };
+    const dx = playerCenter.x - pickupCenter.x;
+    const dy = playerCenter.y - pickupCenter.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance > 170 || distance < 1) {
+      continue;
+    }
+
+    const pull = Math.min(220, 110 + (170 - distance) * 1.3) * dtSeconds;
+    const moveX = (dx / distance) * pull;
+    const moveY = (dy / distance) * pull;
+    pickup.rect.x += moveX;
+    pickup.rect.y += moveY;
+  }
 }
 
 export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['activeEffects'] {

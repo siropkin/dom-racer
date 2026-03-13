@@ -45,6 +45,7 @@ Current known context:
 - While police-delay cue is active, HUD flavor text now surfaces a short breathing-room message for readability only.
 - Police pre-chase warning now has a dedicated readability flavor-text beat (`Sirens warming up`) without changing police timing semantics.
 - Airplane now has dedicated readability flavor-text beats for warning/flyover states (`Nyoom inbound`, `Flyover live`) with no encounter/economy semantic changes.
+- HUD active-effects panel now includes warning countdown cues for pre-encounter telegraphs (`WEE-OO` police warning, `NYOOM` plane warning).
 - Magnet now pulls both regular coins and specials (`bonus` included), without changing score/effect semantics.
 - Scanner pickup detection now also treats `role="link"` as a valid link pickup source to improve app-page world generation.
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
@@ -57,11 +58,12 @@ Current known context:
 - README now includes a bounded Phase 6 store-friendly pitch block.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
-- Baseline smoke tests are in place and currently passing (`npm run test` -> 22 tests).
+- Baseline smoke tests are in place and currently passing (`npm run test` -> 24 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.
 - `Game.ts` now also delegates effect/combo timer + HUD active-effect assembly to `src/game/gameEffectsRuntime.ts`.
+- Magnet pull motion orchestration is now extracted from `Game.ts` into `src/game/gameEffectsRuntime.ts` (`applyMagnetPullToPickups`) with unchanged behavior.
 - HUD state construction and drive-input audio assembly were extracted from `Game.ts` into `src/game/gameHudAudioRuntime.ts` while side-effect calls remain in `Game.ts`.
 - Begin/caught/showcase run-state transition snapshots are now extracted to `src/game/gameRunStateRuntime.ts`; `Game.ts` keeps side-effect sequencing.
 - Regular coin queue/refill scheduling was extracted from `Game.ts` into `src/game/pickupSpawnRuntime.ts`.
@@ -75,7 +77,7 @@ Current known context:
 - Airplane `lucky wind` keeps special-vs-regular economy separation intact by re-routing existing regular coins only (no new special economy coupling).
 - Future idea backlog includes optional spinner-based money anchors (`id="spinner"` or class containing `spined`) for a later scanner pass.
 - `__domRacerDebug` was re-audited absent in both source and production build output.
-- Latest pass extracted special-spawn cue lifecycle orchestration from `Game.ts` and added a bounded police-warning flavor-text readability cue, while keeping no-screen-shake/no-chaos guardrails intact.
+- Latest pass extracted magnet pull orchestration from `Game.ts` and added bounded warning-countdown HUD readability cues for airplane/police telegraphs, while keeping no-screen-shake/no-chaos guardrails intact.
 
 Priority lock for this session:
 1) Deliver one bounded hardening extraction

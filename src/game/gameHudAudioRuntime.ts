@@ -26,8 +26,12 @@ interface BuildHudStateOptions {
   policeDurationMs: number | null;
   planeActive: boolean;
   planeWarningActive: boolean;
+  planeWarningRemainingMs: number | null;
+  planeWarningDurationMs: number | null;
   policeActive: boolean;
   policeWarningActive: boolean;
+  policeWarningRemainingMs: number | null;
+  policeWarningDurationMs: number | null;
   currentSurface: SurfaceSample;
 }
 
@@ -51,6 +55,33 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     currentSurface: options.currentSurface,
   });
   if (
+    options.policeWarningActive &&
+    !options.policeActive &&
+    options.policeWarningRemainingMs !== null &&
+    options.policeWarningDurationMs !== null
+  ) {
+    activeEffects.push({
+      effect: 'encounter',
+      label: 'WEE-OO',
+      remainingMs: options.policeWarningRemainingMs,
+      durationMs: options.policeWarningDurationMs,
+      color: '#93c5fd',
+    });
+  }
+  if (
+    options.planeWarningActive &&
+    options.planeWarningRemainingMs !== null &&
+    options.planeWarningDurationMs !== null
+  ) {
+    activeEffects.push({
+      effect: 'encounter',
+      label: 'NYOOM',
+      remainingMs: options.planeWarningRemainingMs,
+      durationMs: options.planeWarningDurationMs,
+      color: '#f9a8d4',
+    });
+  }
+  if (
     options.policeDelayCueTimerMs > 0 &&
     options.policeDelayCueDurationMs > 0 &&
     !options.policeActive
@@ -62,8 +93,8 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       durationMs: options.policeDelayCueDurationMs,
       color: '#93c5fd',
     });
-    activeEffects.sort((left, right) => right.remainingMs - left.remainingMs);
   }
+  activeEffects.sort((left, right) => right.remainingMs - left.remainingMs);
 
   return {
     score: options.score,

@@ -11,6 +11,8 @@ import {
   resolveFocusPauseTransitionState,
   shouldPauseForPageFocus,
 } from '../src/game/gameRunStateRuntime';
+import { buildHudState } from '../src/game/gameHudAudioRuntime';
+import { applyMagnetPullToPickups } from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 
 vi.mock('../src/game/audio', () => {
@@ -354,6 +356,69 @@ describe('game economy and police smoke invariants', () => {
     const afterDistance = Math.hypot(playerCenter.x - afterCenter.x, playerCenter.y - afterCenter.y);
 
     expect(afterDistance).toBeLessThan(beforeDistance);
+  });
+
+  it('keeps extracted magnet pull helper behavior unchanged', () => {
+    const pickups: World['pickups'] = [
+      {
+        id: 'coin:near',
+        sourceId: 'coin:near',
+        rect: { x: 530, y: 300, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'special:near',
+        rect: { x: 470, y: 230, width: 20, height: 20 },
+        value: 25,
+        kind: 'special',
+        effect: 'magnet',
+        accentColor: '#67e8f9',
+        label: 'MAG',
+      },
+      {
+        id: 'coin:far',
+        sourceId: 'coin:far',
+        rect: { x: 860, y: 520, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+    ];
+    const playerCenter = { x: 600, y: 340 };
+    const before = pickups.map((pickup) => ({
+      id: pickup.id,
+      centerX: pickup.rect.x + pickup.rect.width / 2,
+      centerY: pickup.rect.y + pickup.rect.height / 2,
+      distance: Math.hypot(
+        playerCenter.x - (pickup.rect.x + pickup.rect.width / 2),
+        playerCenter.y - (pickup.rect.y + pickup.rect.height / 2),
+      ),
+    }));
+
+    applyMagnetPullToPickups(pickups, playerCenter, 0.5);
+
+    const after = pickups.map((pickup) => ({
+      id: pickup.id,
+      centerX: pickup.rect.x + pickup.rect.width / 2,
+      centerY: pickup.rect.y + pickup.rect.height / 2,
+      distance: Math.hypot(
+        playerCenter.x - (pickup.rect.x + pickup.rect.width / 2),
+        playerCenter.y - (pickup.rect.y + pickup.rect.height / 2),
+      ),
+    }));
+
+    const nearCoinBefore = before.find((entry) => entry.id === 'coin:near');
+    const nearCoinAfter = after.find((entry) => entry.id === 'coin:near');
+    const nearSpecialBefore = before.find((entry) => entry.id === 'special:near');
+    const nearSpecialAfter = after.find((entry) => entry.id === 'special:near');
+    const farCoinBefore = before.find((entry) => entry.id === 'coin:far');
+    const farCoinAfter = after.find((entry) => entry.id === 'coin:far');
+    expect(nearCoinAfter?.distance).toBeLessThan(nearCoinBefore?.distance ?? Number.POSITIVE_INFINITY);
+    expect(nearSpecialAfter?.distance).toBeLessThan(
+      nearSpecialBefore?.distance ?? Number.POSITIVE_INFINITY,
+    );
+    expect(farCoinAfter?.centerX).toBe(farCoinBefore?.centerX);
+    expect(farCoinAfter?.centerY).toBe(farCoinBefore?.centerY);
   });
 
   it('keeps extracted lucky-wind reroute helper behavior unchanged', () => {
@@ -709,5 +774,42 @@ describe('game economy and police smoke invariants', () => {
     });
 
     expect(text).toContain('Flyover live');
+  });
+
+  it('shows airplane/police warning countdown cues in HUD active effects', () => {
+    const hudState = buildHudState({
+      score: 90,
+      elapsedMs: 22000,
+      pageTitle: 'DOM Racer Smoke',
+      pickupsRemaining: 8,
+      scannedCount: 120,
+      airborne: false,
+      boostActive: false,
+      soundEnabled: true,
+      pageBestScore: 140,
+      lifetimeBestScore: 220,
+      magnetTimerMs: 0,
+      ghostTimerMs: 0,
+      invertTimerMs: 0,
+      blackoutTimerMs: 0,
+      policeDelayCueTimerMs: 0,
+      policeDelayCueDurationMs: 0,
+      comboTimerMs: 0,
+      pickupComboCount: 0,
+      policeRemainingMs: null,
+      policeDurationMs: null,
+      planeActive: false,
+      planeWarningActive: true,
+      planeWarningRemainingMs: 620,
+      planeWarningDurationMs: 900,
+      policeActive: false,
+      policeWarningActive: true,
+      policeWarningRemainingMs: 840,
+      policeWarningDurationMs: 1100,
+      currentSurface: { lightness: 0.55, saturation: 0.2, hasGradient: false },
+    });
+
+    expect(hudState.activeEffects.some((effect) => effect.label === 'WEE-OO')).toBe(true);
+    expect(hudState.activeEffects.some((effect) => effect.label === 'NYOOM')).toBe(true);
   });
 });
