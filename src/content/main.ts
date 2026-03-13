@@ -27,11 +27,9 @@ let game: Game | null = null;
 let active = false;
 let previousUserSelect = '';
 let previousWebkitUserSelect = '';
-let previousDocumentOverflow = '';
 let previousBodyOverflow = '';
 let previousDocumentOverscrollBehavior = '';
 let previousBodyOverscrollBehavior = '';
-let previousScrollbarGutter = '';
 let unsupportedPageDismissListener: ((event: KeyboardEvent) => void) | null = null;
 let soundEnabled = true;
 let vehicleDesign: VehicleDesign = 'coupe';
@@ -148,15 +146,11 @@ async function activate(): Promise<void> {
 
   previousUserSelect = document.documentElement.style.userSelect;
   previousWebkitUserSelect = document.documentElement.style.webkitUserSelect;
-  previousDocumentOverflow = document.documentElement.style.overflow;
   previousBodyOverflow = document.body.style.overflow;
   previousDocumentOverscrollBehavior = document.documentElement.style.overscrollBehavior;
   previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
-  previousScrollbarGutter = document.documentElement.style.scrollbarGutter;
-  document.documentElement.style.scrollbarGutter = 'stable';
   document.documentElement.style.userSelect = 'none';
   document.documentElement.style.webkitUserSelect = 'none';
-  document.documentElement.style.overflow = 'hidden';
   document.documentElement.style.overscrollBehavior = 'none';
   document.body.style.overflow = 'hidden';
   document.body.style.overscrollBehavior = 'none';
@@ -214,9 +208,7 @@ function deactivate(): void {
   game = null;
   document.documentElement.style.userSelect = previousUserSelect;
   document.documentElement.style.webkitUserSelect = previousWebkitUserSelect;
-  document.documentElement.style.overflow = previousDocumentOverflow;
   document.documentElement.style.overscrollBehavior = previousDocumentOverscrollBehavior;
-  document.documentElement.style.scrollbarGutter = previousScrollbarGutter;
   document.body.style.overflow = previousBodyOverflow;
   document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
   document.body.classList.remove('dom-racer-invert');
@@ -506,13 +498,15 @@ function getPageTintColor(): string | null {
   return null;
 }
 
-const MIN_PICKUPS_FOR_VIABLE_WORLD = 3;
-const MIN_OBSTACLES_FOR_VIABLE_WORLD = 2;
+const MIN_PICKUPS_FOR_VIABLE_WORLD = 2;
+const MIN_GEOMETRY_FOR_VIABLE_WORLD = 1;
 
 function isWorldViable(world: ReturnType<typeof createWorld>): boolean {
+  const totalGeometry =
+    world.obstacles.length + world.slowZones.length + world.iceZones.length + world.boosts.length;
   return (
     world.pickups.length >= MIN_PICKUPS_FOR_VIABLE_WORLD &&
-    world.obstacles.length >= MIN_OBSTACLES_FOR_VIABLE_WORLD
+    totalGeometry >= MIN_GEOMETRY_FOR_VIABLE_WORLD
   );
 }
 

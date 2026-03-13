@@ -54,8 +54,8 @@ First, read:
 
 ## Current State
 
-Phases 1-12 complete.
-Phase 12 delivered: HUD layout redesign (merged info block, daily modifier label, controls hint removed), hotkey change (Shift+Space), popup "Start Game" button, scrollbar-gutter fix, unsupported page detection (sad screen).
+Phases 1-13 complete.
+Phase 13 delivered: Code-level audit (config consistency, scoring math, timer interactions, economy flow, dead code removal), design-level review (all 10 systems confirmed distinct, difficulty curve matches SOUL.md arc), branding refresh (coupe sprite silhouette in SVGs, stale references fixed, PNGs regenerated).
 
 ## Phase 9 — Play-test Polish (UX, specials overhaul, screens)
 
@@ -268,13 +268,13 @@ New special lineup (9 total): BONUS, MAGNET, INVERT, GHOST, JACKPOT, BLUR, OIL_S
 - [x] Regenerate PNGs via `generate_assets.py`
 
 ### 13C. Phase 13 Closeout
-- [ ] Refactor & simplify
-- [ ] Productionize
-- [ ] Update tests
-- [ ] Lint & format
-- [ ] Build
-- [ ] Docs
-- [ ] Commit
+- [x] Refactor & simplify
+- [x] Productionize
+- [x] Update tests
+- [x] Lint & format
+- [x] Build
+- [x] Docs
+- [x] Commit
 
 ## Phase Closeout Protocol
 
@@ -320,13 +320,17 @@ Every phase MUST end with a closeout pass (see `phases.mdc` for full protocol). 
 - `TOAST.MAX_CHARS` increased to 9 (was 8) to accommodate "OIL SLICK".
 - Dead code removed in Phase 11 closeout: `SPECIAL_COLOR_NAMES`, `getSpecialColorName`, `getSpecialDropMessage`, `OBJECTIVE_SCORE_BONUS`, `OBJECTIVES.SCORE_BONUS`, `getObjectiveCompletionWord`, `NEAR_MISS.SCORE_MIN/MAX`.
 - Dead code removed in Phase 13A audit: `PICKUP_WORDS`, `PICKUP_COLORS`, `getNextVehicleDesign`, `VEHICLE_DESIGNS` array (from `gameRuntime.ts`); `OBJECTIVE_TOAST_TTL_MS` (from `microObjectiveRuntime.ts`); `'encounter'` variant from `HudEffectKind` type (from `types.ts`).
+- Phase 13 code audit: all config values internally consistent, all scoring paths produce multiples of 10, timer interactions correct (pause/unpause drift compensation, viewport scaling), economy flow coherent. No remaining dead code.
+- Phase 13 design review: all 10 game systems (coins, specials, police, plane, overgrowth, near-miss, objectives, daily modifiers, vehicles, VFX) confirmed distinct and non-overlapping. Difficulty curve matches SOUL.md arc. No gameplay changes recommended.
+- Branding refresh: `dom-racer-icon.svg`, `dom-racer-store-cover.svg`, `dom-racer-store-tile.svg` redesigned with in-game coupe sprite silhouette. Stale references (BLACKOUT, WEE-OO, Shift+R, COMBOS) removed from SVGs. All PNGs regenerated via `generate_assets.py`.
+- No Phase 14 defined. Remaining manual tasks: play-testing on real pages, capturing screenshots/GIFs, Chrome Web Store upload (`npm run package`).
 - HUD merged into single top-left info block: score+time (row 1), best+life (row 2), daily modifier label (row 3). Controls hint panel removed (popup provides controls).
 - Daily modifier shown as persistent HUD label ("TODAY: DOUBLE COINS"), not a run-start toast.
 - Game toggle hotkey changed from Shift+R to Shift+Space (Shift+Backtick still works).
 - Extension popup has "Start Game" button that sends `{ action: 'toggle-game' }` message to content script via `chrome.tabs.sendMessage`. Content script listens via `chrome.runtime.onMessage`.
 - `HudState` includes `dailyModifierLabel: string`, passed through `buildHudState`.
-- Scrollbar fix: `scrollbar-gutter: stable` on `<html>` before setting `overflow: hidden`, avoids content jump. Manual padding-right compensation removed. Restored on deactivate.
-- Unsupported page detection: after `createWorld()` in `activate()`, if `pickups < 3` or `obstacles < 2`, draws a sleeping-car "sad screen" on the canvas instead of creating a Game. Dismissable with Esc or Shift+Space. Handles iframe-heavy/SPA pages gracefully.
+- Scrollbar fix: only `<body>` gets `overflow: hidden`, `<html>` overflow is untouched so scrollbar stays visible and no content jump occurs. Wheel/touchmove listeners prevent actual scrolling.
+- Unsupported page detection: after `createWorld()` in `activate()`, if `pickups < 2` or total geometry (obstacles+slowZones+iceZones+boosts) < 1, draws a sleeping-car "sad screen" on the canvas instead of creating a Game. Dismissable with Esc or Shift+Space.
 
 ## Constraints To Preserve
 
