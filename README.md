@@ -49,12 +49,12 @@ npm run build
 - Reactive visual surfaces become speed-up zones
 - Links and buttons spawn money pickups
 - Ambient special pickups spawn independently from normal money
-- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
+- Power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with siren flash, edge warnings, and a proper `GAME OVER` screen
 - Overgrowth difficulty: bushes and trees slowly grow from barriers, narrowing routes over time
 - Near-miss bonus: graze walls and police for extra points, with whoosh sound feedback
-- Micro-objectives: per-run mini-goals with completion chime and HUD progress bar
+- Micro-objectives: per-run coin-collection goals with x2/x3/x4 multiplier tiers, completion chime, and HUD progress bar
 - Daily modifier: a different rule twist each day (double coins, fast police, slippery, etc.)
 - Run summary with letter grade (S/A/B/C/D) and stats on game-over screen
 - Vehicle unlocks: earn the buggy and truck by hitting lifetime score milestones
@@ -63,6 +63,7 @@ npm run build
 - Page-reactive tint: each page gets a subtle color wash matching its background
 - Run counter, lifetime milestones, and "NEW BEST!" celebrations
 - Run auto-pauses with a clear overlay when the page/tab loses focus
+- Coin pickup pitch variation, near-miss whoosh, objective completion chime
 - Sound toggle, vehicle design toggle, sprite showcase debug mode
 - Page best and lifetime best scores persist through storage
 
@@ -81,6 +82,7 @@ The result is intentionally game-ish rather than perfectly literal. The goal is 
 
 ## Power-Ups
 
+- `BONUS`: instant score award (+40)
 - `MAGNET`: pulls coins and specials toward the player
 - `INVERT`: flips page colors
 - `GHOST`: temporarily relaxes movement pressure and blocks police lock
@@ -119,9 +121,9 @@ Stack enough near-misses in a single run and the flavor text starts roasting you
 
 ## Micro-Objectives
 
-Each run quietly assigns you a mini-goal a few seconds in: collect 5 coins, reach a score threshold, land 3 close calls, grab a special, and so on. There are six templates in the pool, and you only see one at a time.
+Each run quietly assigns you a coin-collection goal a few seconds in: collect N coins in X seconds. There are six templates in the pool across three difficulty tiers (x2, x3, x4 multiplier), and you only see one at a time.
 
-Complete a goal and you get a +25 score bonus plus a satisfying violet toast. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time (if timed) in a compact bottom-center panel.
+Complete a goal and you get a score bonus (scaled by multiplier tier) plus a satisfying violet toast. Miss it and the objective silently expires, replaced by a new one after a short cooldown. The HUD shows your current objective, progress bar, and remaining time in a compact bottom-center GOAL panel that matches the POWER panel pattern.
 
 ## Screenshots & Motion
 

@@ -30,7 +30,7 @@ export type SpecialEffect =
   | 'cooldown'
   | 'lure'
   | 'jackpot';
-export type HudEffectKind = SpecialEffect | 'police' | 'flow' | 'encounter';
+export type HudEffectKind = SpecialEffect | 'police' | 'encounter';
 
 export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';
 

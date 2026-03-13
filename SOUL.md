@@ -52,15 +52,24 @@ Avoid turning it into a war game, military game, or heavy destruction game.
 As of this plan version, the game already includes:
 
 - overlay toggle on `Shift + R` (with alternate ``Shift + ` ``)
-- player car with multiple vehicle designs (coupe, buggy, truck)
+- player car with multiple vehicle designs (coupe, buggy, truck) — score-gated unlocks
 - page scanning for walls, barriers, boosts, ice zones, and pickups
-- score + time HUD with active power panel
-- page best / lifetime best persistence
+- score + time HUD with active POWER panel and bottom-center GOAL panel
+- page best / lifetime best persistence, run counter, lifetime milestones
 - random special items with spawn cue rings
-- power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages), `COOLDOWN`, `LURE`, rare `JACKPOT`
-- police warning + chase with `GAME OVER` screen and `Space` restart
+- power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages), `COOLDOWN`, `LURE`, rare `JACKPOT`
+- police warning + chase with escalating duration, `GAME OVER` screen and `Space` restart
 - immediate auto-pause with overlay on focus loss
 - airplane flyover with five drop modes (bonus drop, coin trail, spotlight, lucky wind, police delay)
+- overgrowth difficulty: bushes and trees grow from barriers after ~35s
+- near-miss bonus with whoosh sound and rotating orange toasts
+- micro-objectives: coin-collection goals with x2/x3/x4 multiplier tiers and completion chime
+- daily modifier: deterministic daily rule twist from pool of 5
+- run summary with letter grade (S/A/B/C/D) on game-over screen
+- first-play hint overlay for new players
+- VFX particles: tire dust, coin burst, speed lines, drift sparks, landing squash
+- page-reactive tint, "NEW BEST!" celebration, vehicle unlock toasts
+- coin pickup pitch variation, near-miss whoosh, objective completion chime
 - priority-based toast system with duplicate handling
 - hidden `Shift + D` sprite showcase with auto contrast pick
 - sound toggle and vehicle toggle
@@ -196,11 +205,11 @@ Airplane sprite has been tuned for readability: compact silhouette, white contou
 
 Status: `done`
 
-Candidate ideas: near-miss bonus, police helicopter escalation, risk-lane opportunities, page mood variants, micro-objectives, rare jackpot, daily modifiers.
+Candidate ideas: near-miss bonus, police helicopter escalation, risk-lane opportunities, page mood variants, micro-objectives, rare jackpot.
 
 Completed:
 - [x] Near-miss bonus: detect close calls with obstacles/police, award +3-5 score, show floating "CLOSE!" / "TIGHT!" / "RAZOR!" / "WHEW!" toast, 800ms cooldown, flavor text at 4+ and 8+ near-misses
-- [x] Micro-objectives: per-run mini-goals with 8 template pool, HUD panel, +25 score bonus on completion, flavor text at 3+ and 6+ completed
+- [x] Micro-objectives: per-run coin-collection goals with 6 templates across x2/x3/x4 tiers, HUD panel, scaled score bonus on completion, flavor text at 3+ and 6+ completed
 - [x] Rare jackpot pickup: very rare special (~6% chance when a special would spawn), large score bonus (+50-100), golden star sprite with pulsing glow and sparkle particles, "JACKPOT!" toast
 
 ## Phase 5: Production Hardening
@@ -377,6 +386,18 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-13 (u)
+
+- Production readiness pass: full documentation update and FLOW reference cleanup
+- Updated README.md: added BONUS to power-ups list (8 total), updated micro-objectives section to reflect simplified coin-only goals with x2/x3/x4 multiplier tiers, added sound enrichment details to features list
+- Updated SOUL.md: expanded Current Baseline with all Phase 7-8 features (daily modifier, run grade, vehicle unlocks, VFX, near-miss, objectives), removed stale FLOW mentions from Phase 4
+- Updated docs/store-listing.md: removed FLOW streak references, updated gameplay and objectives descriptions
+- Updated docs/release-checklist.md: added daily modifier smoke check
+- Updated .cursor/rules/next-session.mdc: refreshed essential context with simplified objectives and police escalation
+- Removed `'flow'` from `HudEffectKind` type union in `src/shared/types.ts`
+- Verified: no `FLOW`, `__domRacerDebug`, or combo references remain in src/
+- 79 tests pass, build clean, lint clean
 
 ### Session — 2026-03-12 (o)
 

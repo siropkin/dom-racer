@@ -55,7 +55,7 @@ First, read:
 ## Current State
 
 All phases 1-8 complete. Version 1.0.0. Ready for Chrome Web Store submission.
-FLOW/combo system fully removed — all coins always gold, simpler economy.
+All coins are gold (no combo/streak system). Simplified coin-only micro-objectives with x2/x3/x4 multiplier tiers.
 
 <!-- ALL_TASKS_DONE -->
 
@@ -71,15 +71,14 @@ FLOW/combo system fully removed — all coins always gold, simpler economy.
 ## Essential Context
 
 - `window.__domRacerDebug` must not exist in source/build.
-- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER). All runtime files import these groups directly.
-- `gameRuntime.ts` is a lean utility module: `cloneWorld`, `clonePickup`, `cloneRect`, `randomBetween`, `blendAngle`, `shufflePickups`, `isSpecialPickup`, `pickSpecialEffect`, `adaptBlackoutEffectForSurface`, `getFlavorText`, special/vehicle accessors, showcase data. No re-exports.
+- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES). All runtime files import these groups directly.
+- `gameRuntime.ts` is a lean utility module: `cloneWorld`, `clonePickup`, `cloneRect`, `randomBetween`, `blendAngle`, `shufflePickups`, `isSpecialPickup`, `pickSpecialEffect`, `adaptBlackoutEffectForSurface`, `getFlavorText`, `getDailyModifier`, special/vehicle accessors, showcase data. No re-exports.
 - `SurfaceSample` interface lives in `gameStateTypes.ts` (not gameRuntime).
-- `ShowcaseTheme` interface + `SHOWCASE_THEMES` data live in `gameRuntime.ts`.
-- Police chase lifecycle (`resolvePoliceChaseTickStep`) is in `encounterRuntime.ts` with event-based side-effect dispatch.
+- Police chase lifecycle (`resolvePoliceChaseTickStep`) in `encounterRuntime.ts` — chase duration escalates with run time.
 - 8 special effects: bonus, magnet, invert, ghost, blackout, cooldown, lure, jackpot.
+- Simplified micro-objectives: 6 coin-collection templates across x2/x3/x4 multiplier tiers. GOAL panel matches POWER panel pattern in HUD.
 - 5 airplane drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
-- Scanner classifies `img`, `picture`, `video`, `canvas` as `ice`; `svg` as `boost`; YouTube/Vimeo iframes as `ice`.
 - ESLint + Prettier configured. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
 - 79 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
 - Daily modifier system: `getDailyModifier()` in `gameRuntime.ts`, applied per-run in `beginRun`, 5 modifiers: DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, SLIPPERY, EARLY_OVERGROWTH.

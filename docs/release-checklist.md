@@ -26,8 +26,9 @@ Lightweight pre-release pass for local and store-facing builds.
 
 - [ ] Overgrowth spawns from barriers after ~35s, grows through three stages, large stage blocks movement
 - [ ] Near-miss bonus triggers on close calls with obstacles/police, awards +3-5 score with cooldown
-- [ ] Micro-objectives appear after initial delay, track progress in HUD, award +25 on completion
+- [ ] Micro-objectives: coin-collection goals with x2/x3/x4 multiplier tiers, completion awards scaled bonus
 - [ ] Jackpot pickup appears rarely (~6%), awards +50-100 score on collection
+- [ ] Daily modifier applied on run start (visible in "TODAY: X" toast), affects gameplay per modifier kind
 
 ## Docs And Packaging
 

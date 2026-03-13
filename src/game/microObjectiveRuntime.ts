@@ -50,12 +50,54 @@ export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
 export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
 export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
-  { id: 'easy_5', label: '5 COINS', target: 5, timeLimitMs: 25_000, bonus: 20, multiplierLabel: 'x2' },
-  { id: 'easy_4', label: '4 COINS', target: 4, timeLimitMs: 18_000, bonus: 20, multiplierLabel: 'x2' },
-  { id: 'med_8', label: '8 COINS', target: 8, timeLimitMs: 20_000, bonus: 35, multiplierLabel: 'x3' },
-  { id: 'med_6', label: '6 COINS', target: 6, timeLimitMs: 14_000, bonus: 35, multiplierLabel: 'x3' },
-  { id: 'hard_12', label: '12 COINS', target: 12, timeLimitMs: 18_000, bonus: 50, multiplierLabel: 'x4' },
-  { id: 'hard_10', label: '10 COINS', target: 10, timeLimitMs: 12_000, bonus: 50, multiplierLabel: 'x4' },
+  {
+    id: 'easy_5',
+    label: '5 COINS',
+    target: 5,
+    timeLimitMs: 25_000,
+    bonus: 20,
+    multiplierLabel: 'x2',
+  },
+  {
+    id: 'easy_4',
+    label: '4 COINS',
+    target: 4,
+    timeLimitMs: 18_000,
+    bonus: 20,
+    multiplierLabel: 'x2',
+  },
+  {
+    id: 'med_8',
+    label: '8 COINS',
+    target: 8,
+    timeLimitMs: 20_000,
+    bonus: 35,
+    multiplierLabel: 'x3',
+  },
+  {
+    id: 'med_6',
+    label: '6 COINS',
+    target: 6,
+    timeLimitMs: 14_000,
+    bonus: 35,
+    multiplierLabel: 'x3',
+  },
+  {
+    id: 'hard_12',
+    label: '12 COINS',
+    target: 12,
+    timeLimitMs: 18_000,
+    bonus: 50,
+    multiplierLabel: 'x4',
+  },
+  {
+    id: 'hard_10',
+    label: '10 COINS',
+    target: 10,
+    timeLimitMs: 12_000,
+    bonus: 50,
+    multiplierLabel: 'x4',
+  },
 ];
 
 /** Creates the initial objective state with a randomized first-assignment delay. */

@@ -278,16 +278,32 @@ function drawGoalPanel(
 
     ctx.font = HUD_FONT;
     drawBarText(
-      ctx, row.text, bx + 6, ry + 4,
-      bx, ry, bw, bh, fillW,
-      BAR_TEXT_ON_FILL, BAR_TEXT_ON_EMPTY,
+      ctx,
+      row.text,
+      bx + 6,
+      ry + 4,
+      bx,
+      ry,
+      bw,
+      bh,
+      fillW,
+      BAR_TEXT_ON_FILL,
+      BAR_TEXT_ON_EMPTY,
     );
 
     const sec = Math.max(0, row.timeRemainingMs) / 1000;
     drawBarText(
-      ctx, `${sec.toFixed(0)}s`, bx + bw - 30, ry + 4,
-      bx, ry, bw, bh, fillW,
-      '#ffffff', BAR_TEXT_ON_EMPTY,
+      ctx,
+      `${sec.toFixed(0)}s`,
+      bx + bw - 30,
+      ry + 4,
+      bx,
+      ry,
+      bw,
+      bh,
+      fillW,
+      '#ffffff',
+      BAR_TEXT_ON_EMPTY,
     );
   });
 }

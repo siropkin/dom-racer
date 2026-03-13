@@ -1061,15 +1061,15 @@ export class Game {
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playObjectiveChime();
       const word = getObjectiveCompletionWord(step.completedCount - 1);
-      this.spawnEffectMessage(`${word} +${step.completedBonus}`, OBJECTIVE_COMPLETION_COLOR, 'high');
+      this.spawnEffectMessage(
+        `${word} +${step.completedBonus}`,
+        OBJECTIVE_COMPLETION_COLOR,
+        'high',
+      );
       if (this.player) {
         this.player.triggerCelebration();
         const pb = this.player.getBounds();
-        spawnCelebrationParticles(
-          this.vfxParticles,
-          pb.x + pb.width / 2,
-          pb.y + pb.height / 2,
-        );
+        spawnCelebrationParticles(this.vfxParticles, pb.x + pb.width / 2, pb.y + pb.height / 2);
       }
       this.checkNewBestCelebration();
     }
