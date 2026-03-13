@@ -394,12 +394,16 @@ function isPickupLink(
   viewportArea: number,
   fixed: boolean,
 ): boolean {
-  if (!(element instanceof HTMLAnchorElement)) {
+  const role = element.getAttribute('role');
+  const isAnchor = element instanceof HTMLAnchorElement;
+  const isRoleLink = role === 'link';
+  if (!isAnchor && !isRoleLink) {
     return false;
   }
 
   const area = rect.width * rect.height;
-  if (area < 120 || area > viewportArea * 0.03) {
+  const maxAreaRatio = isRoleLink ? 0.055 : 0.03;
+  if (area < 120 || area > viewportArea * maxAreaRatio) {
     return false;
   }
 

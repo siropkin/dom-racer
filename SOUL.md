@@ -51,7 +51,7 @@ Avoid turning it into a war game, military game, or heavy destruction game.
 
 As of this plan version, the game already includes:
 
-- overlay toggle on `Shift + R`
+- overlay toggle on `Shift + R` (with alternate ``Shift + ` ``)
 - player car with multiple vehicle designs
 - page scanning for walls, barriers, boosts, and pickups
 - score + time HUD
@@ -62,6 +62,7 @@ As of this plan version, the game already includes:
 - adaptive special behavior where dark-surface `BLACKOUT` resolves to `INVERT`
 - police warning + chase
 - police `GAME OVER` screen with explicit `Space` restart
+- immediate auto-pause with dedicated overlay when the page/tab loses focus
 - airplane warning + flyover `BON` drop event
 - priority-based toast system with duplicate handling and eviction rules
 - hidden `Shift + D` sprite showcase with theme switching and auto contrast pick
@@ -71,7 +72,7 @@ As of this plan version, the game already includes:
 
 ### Current Controls
 
-- `Shift + R`: toggle game
+- `Shift + R` or ``Shift + ` ``: toggle game
 - `WASD` / arrow keys: drive
 - `R`: restart run
 - `V`: switch vehicle
@@ -467,6 +468,8 @@ Status: `in progress`
 - [x] Extract plane coin-trail expiry/update orchestration from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
 - [x] Extract police-delay cue timer lifecycle from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
 - [x] Extract special-spawn cue timer lifecycle from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` without behavior drift
+- [x] Extract airplane lucky-wind coin-reroute orchestration from `src/game/Game.ts` into `src/game/planeDropRuntime.ts` without behavior drift
+- [x] Keep airplane drop completion retry-safe when a drop path fails in-frame (do not mark `dropped` until a spawn actually succeeds)
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -598,6 +601,20 @@ Status: `done`
 - [x] document outcomes and update statuses in this plan
 
 Session note:
+
+- Current session lands a focused hardening + UX reliability pass from manual feedback: plane-drop retry safety, magnet-on-specials, toggle-key fallback reliability, scanner pickup robustness for app-like pages, scroll-lock layout-jump mitigation, and immediate focus-loss pause state.
+- Hardening delivery: airplane drop dispatch now reports spawn success and `Game.ts` keeps `planeBonusEvent.dropped` false until a drop actually spawns, preventing flyovers that appear to drop nothing due to in-frame spawn failure.
+- Readability/UX delivery: HUD/gameplay now keeps the same loop but supports alternate toggle ``Shift + ` `` (alongside `Shift + R`), preserves page layout width while scroll lock is active, and auto-pauses immediately on page blur/hidden-tab with a dedicated pause overlay.
+- Presentation delivery: airplane sprite tuning widened wing silhouette (`wingSpan`, `wingAccentSpan`) for clearer flyover readability without mechanic changes.
+- Economy/encounter guardrails remain intact: specials stay independent from regular coin staging, and police/plane boundaries stay unchanged.
+- Coverage delivery: smoke tests now include magnet pulling specials, plane drop retry safety, and explicit police-on-ice movement verification.
+- Verification this session: `npm run test` (21 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded lucky-wind runtime extraction plus bounded airplane readability follow-up.
+- Feature delivery: HUD flavor text now includes dedicated airplane readability beats for warning and flyover states (`Nyoom inbound`, `Flyover live`) without changing encounter timings or economy semantics.
+- Hardening delivery: lucky-wind coin-reroute orchestration moved from `Game.ts` into `src/game/planeDropRuntime.ts` (`applyPlaneLuckyWindToPickups`), preserving run-state and encounter boundaries.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart and special-vs-regular economy separation intact, and extends smoke checks for extracted lucky-wind helper + airplane flavor text.
+- Verification this session: `npm run test` (17 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 - Current session lands the locked hybrid pair in one pass: bounded special-spawn cue lifecycle extraction plus bounded police-warning readability follow-up.
 - Feature delivery: HUD flavor text now explicitly calls out pre-chase police warning beats (`Sirens warming up`) before active chase, improving telegraph readability without changing encounter timings or economy semantics.

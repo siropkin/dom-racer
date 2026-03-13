@@ -27,6 +27,7 @@ let previousDocumentOverflow = '';
 let previousBodyOverflow = '';
 let previousDocumentOverscrollBehavior = '';
 let previousBodyOverscrollBehavior = '';
+let previousBodyPaddingRight = '';
 let soundEnabled = true;
 let vehicleDesign: VehicleDesign = 'coupe';
 let pageBestScore = 0;
@@ -57,16 +58,26 @@ const rescanWhileActive = debounce(() => {
   game.applyWorld(createWorld());
 }, 140);
 
-window.addEventListener('keydown', (event) => {
-  if (event.repeat || isTypingTarget(event.target)) {
-    return;
-  }
+window.addEventListener(
+  'keydown',
+  (event) => {
+    if (event.repeat) {
+      return;
+    }
 
-  if (event.shiftKey && event.code === 'KeyR') {
-    event.preventDefault();
-    toggleGame();
-  }
-});
+    const togglePressed = event.shiftKey && (event.code === 'KeyR' || event.code === 'Backquote');
+    if (!togglePressed && isTypingTarget(event.target)) {
+      return;
+    }
+
+    if (togglePressed) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      toggleGame();
+    }
+  },
+  true,
+);
 
 window.addEventListener('resize', () => {
   if (!active || !game) {
@@ -103,6 +114,12 @@ function activate(): void {
   previousBodyOverflow = document.body.style.overflow;
   previousDocumentOverscrollBehavior = document.documentElement.style.overscrollBehavior;
   previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
+  previousBodyPaddingRight = document.body.style.paddingRight;
+  const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+  if (scrollbarWidth > 0) {
+    const computedPaddingRight = Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
+    document.body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
+  }
   document.documentElement.style.userSelect = 'none';
   document.documentElement.style.webkitUserSelect = 'none';
   document.documentElement.style.overflow = 'hidden';
@@ -143,6 +160,7 @@ function deactivate(): void {
   document.documentElement.style.overscrollBehavior = previousDocumentOverscrollBehavior;
   document.body.style.overflow = previousBodyOverflow;
   document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+  document.body.style.paddingRight = previousBodyPaddingRight;
   document.body.classList.remove('dom-racer-invert');
   document.body.classList.remove('dom-racer-blackout');
   clearMagnetizedUi();

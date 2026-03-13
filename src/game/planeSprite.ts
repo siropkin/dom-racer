@@ -26,9 +26,9 @@ interface PlaneSpriteRenderOptions {
 export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
   bodyLength: 27,
   bodyWidth: 10.6,
-  wingSpan: 30,
+  wingSpan: 36,
   wingWidth: 7,
-  wingAccentSpan: 22,
+  wingAccentSpan: 28,
   wingAccentWidth: 4.2,
   tailWidth: 4.8,
   tailHeight: 7.4,

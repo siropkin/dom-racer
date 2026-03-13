@@ -17,7 +17,7 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 
 ## Current Features
 
-- `Shift + R` toggles the game on any page
+- `Shift + R` (or alternate ``Shift + ` ``) toggles the game on any page
 - Page text is scanned into readable wall geometry
 - Images and pictures can become slippery ice zones
 - Reactive visual surfaces can become speed-up zones
@@ -25,6 +25,7 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 - Ambient special pickups spawn independently from normal money
 - `FLOW` streaks recolor regular coins to make the streak state obvious
 - Police chases include an edge warning and a proper `GAME OVER` screen
+- The run auto-pauses with a clear overlay when the page/tab loses focus
 - Sound can be toggled in-game
 - Vehicle design can be cycled in-game
 - `Shift + D` opens a sprite/debug showcase mode
@@ -35,7 +36,7 @@ It is built as a Manifest V3 extension with a TypeScript + Vite workflow and run
 
 ### In Game
 
-- `Shift + R`: toggle DOM Racer on or off
+- `Shift + R` or ``Shift + ` ``: toggle DOM Racer on or off
 - `WASD` / arrow keys: drive
 - `R`: restart the current run
 - `V`: switch vehicle design
@@ -77,7 +78,7 @@ npm run brand
 3. Enable Developer Mode
 4. Click `Load unpacked`
 5. Select the `dist/` directory
-6. Open any page and press `Shift + R`
+6. Open any page and press `Shift + R` (or alternate ``Shift + ` ``)
 
 ## How The World Is Built
 

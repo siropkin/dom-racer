@@ -26,6 +26,13 @@ interface DrawCaughtGameOverOptions {
   score: number;
 }
 
+interface DrawPausedOverlayOptions {
+  ctx: CanvasRenderingContext2D;
+  viewport: ViewportSize;
+  nowMs: number;
+  startedAtMs: number;
+}
+
 export function drawSpriteShowcaseOverlay({
   ctx,
   viewport,
@@ -244,5 +251,36 @@ export function drawCaughtGameOverOverlay({
   ctx.fillText('PRESS SPACE TO RESTART', width / 2, height / 2 + 84);
   ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
   ctx.fillText('ESC TO QUIT', width / 2, height / 2 + 108);
+  ctx.restore();
+}
+
+export function drawPausedOverlay({
+  ctx,
+  viewport,
+  nowMs,
+  startedAtMs,
+}: DrawPausedOverlayOptions): void {
+  const { width, height } = viewport;
+  const pulse = 0.72 + Math.sin((nowMs - startedAtMs) / 360) * 0.2;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.font = 'bold 44px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillText('PAUSED', width / 2, height / 2 - 14);
+
+  ctx.font = 'bold 13px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillText('PAGE NOT IN FOCUS', width / 2, height / 2 + 24);
+
+  ctx.font = 'bold 12px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillStyle = `rgba(226, 232, 240, ${pulse})`;
+  ctx.fillText('RETURN TO THE TAB TO RESUME', width / 2, height / 2 + 50);
+
   ctx.restore();
 }

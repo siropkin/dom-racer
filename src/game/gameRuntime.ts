@@ -391,6 +391,8 @@ export function getFlavorText(state: {
   ghostActive: boolean;
   invertActive: boolean;
   blackoutActive: boolean;
+  planeActive: boolean;
+  planeWarningActive: boolean;
   policeActive: boolean;
   policeWarningActive: boolean;
   policeDelayActive: boolean;
@@ -401,6 +403,14 @@ export function getFlavorText(state: {
 
   if (state.policeWarningActive) {
     return 'Sirens warming up. Pick your exit lane.';
+  }
+
+  if (state.planeWarningActive) {
+    return 'Nyoom inbound. Keep one eye on the edge.';
+  }
+
+  if (state.planeActive) {
+    return 'Flyover live. Track the drop line.';
   }
 
   if (state.policeDelayActive) {

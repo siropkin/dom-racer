@@ -37,15 +37,24 @@ Current known context:
 - Airplane drop-mode dispatch/fallback is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`dispatchPlaneDropWithFallback`).
 - Plane coin-trail expiry/tick orchestration is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`advancePlaneCoinTrailState`).
 - Police-delay cue timer lifecycle is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`createPoliceDelayCueState`, `advancePoliceDelayCueState`).
+- Lucky-wind coin-reroute orchestration is extracted from `Game.ts` into `src/game/planeDropRuntime.ts` (`applyPlaneLuckyWindToPickups`).
+- Plane drop dispatch now returns spawn success so `Game.ts` keeps `planeBonusEvent.dropped` false until an actual drop spawn succeeds (retry-safe in-frame failure handling).
 - Special-spawn cue timer lifecycle is extracted from `Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceSpecialSpawnCues`).
 - Police-delay now includes a short-lived HUD readability cue (`HOLD-UP`) that does not change police/coin mechanics.
 - While police-delay cue is active, HUD flavor text now surfaces a short breathing-room message for readability only.
 - Police pre-chase warning now has a dedicated readability flavor-text beat (`Sirens warming up`) without changing police timing semantics.
+- Airplane now has dedicated readability flavor-text beats for warning/flyover states (`Nyoom inbound`, `Flyover live`) with no encounter/economy semantic changes.
+- Magnet now pulls both regular coins and specials (`bonus` included), without changing score/effect semantics.
+- Scanner pickup detection now also treats `role="link"` as a valid link pickup source to improve app-page world generation.
 - Page-level debug API must remain absent (`window.__domRacerDebug` must not return).
 - Debug workflow is in-game only via `Shift + D` sprite showcase mode.
+- Toggle now supports `Shift + R` and alternate ``Shift + ` `` for pages where site shortcuts intercept.
+- Active-page scroll lock now preserves scrollbar gutter width to reduce layout jumps when starting/stopping a run.
+- Run now auto-pauses immediately when page focus is lost (`blur`/hidden tab) and shows a dedicated pause overlay until focus returns.
+- Airplane sprite wings were widened (`wingSpan`, `wingAccentSpan`) for clearer silhouette readability; behavior/mechanics unchanged.
 - Hybrid session mode is active: one bounded hardening extraction + one bounded roadmap feature in the same pass.
 - Overgrowth remains intentionally out of active runtime scope; guardrails remain in place.
-- Baseline smoke tests are in place and currently passing (`npm run test` -> 14 tests).
+- Baseline smoke tests are in place and currently passing (`npm run test` -> 21 tests).
 - Release build profile is set with sourcemaps disabled by default (`npm run build`).
 - `Game.ts` was split further with state-contract, pickup-spawn, encounter, overlay, and render-runtime helper extraction.
 - Plane/police encounter transition math was further extracted into `src/game/encounterRuntime.ts`; `Game.ts` now keeps encounter side-effect orchestration.

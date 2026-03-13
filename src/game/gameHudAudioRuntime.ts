@@ -24,6 +24,8 @@ interface BuildHudStateOptions {
   pickupComboCount: number;
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
+  planeActive: boolean;
+  planeWarningActive: boolean;
   policeActive: boolean;
   policeWarningActive: boolean;
   currentSurface: SurfaceSample;
@@ -80,6 +82,8 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       ghostActive: options.ghostTimerMs > 0,
       invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
       blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
+      planeActive: options.planeActive,
+      planeWarningActive: options.planeWarningActive,
       policeActive: options.policeActive,
       policeWarningActive: options.policeWarningActive,
       policeDelayActive: options.policeDelayCueTimerMs > 0 && options.policeDelayCueDurationMs > 0,

@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { World } from '../src/shared/types';
-import { advancePoliceDelayCueState, createPoliceDelayCueState } from '../src/game/planeDropRuntime';
+import {
+  advancePoliceDelayCueState,
+  applyPlaneLuckyWindToPickups,
+  createPoliceDelayCueState,
+} from '../src/game/planeDropRuntime';
+import { advancePoliceChasing } from '../src/game/encounterRuntime';
 import { advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
 
@@ -306,6 +311,127 @@ describe('game economy and police smoke invariants', () => {
     expect(specialAfter?.rect).toEqual(specialRectBefore);
   });
 
+  it('pulls special pickups while magnet effect is active', () => {
+    (game as any).beginRun('manual');
+    const runtimeWorld = (game as any).world as World;
+    const player = (game as any).player;
+    expect(player).toBeTruthy();
+    runtimeWorld.pickups = [
+      {
+        id: 'special:bonus:pull',
+        rect: { x: 520, y: 560, width: 20, height: 20 },
+        value: 25,
+        kind: 'special',
+        effect: 'bonus',
+        accentColor: '#f9a8d4',
+        label: 'BON',
+      },
+    ];
+    const before = { ...runtimeWorld.pickups[0].rect };
+
+    (game as any).magnetTimerMs = 3000;
+    (game as any).applyMagnet(0.5);
+
+    const after = runtimeWorld.pickups[0].rect;
+    const playerBounds = player.getBounds();
+    const playerCenter = {
+      x: playerBounds.x + playerBounds.width / 2,
+      y: playerBounds.y + playerBounds.height / 2,
+    };
+    const beforeCenter = {
+      x: before.x + before.width / 2,
+      y: before.y + before.height / 2,
+    };
+    const afterCenter = {
+      x: after.x + after.width / 2,
+      y: after.y + after.height / 2,
+    };
+    const beforeDistance = Math.hypot(playerCenter.x - beforeCenter.x, playerCenter.y - beforeCenter.y);
+    const afterDistance = Math.hypot(playerCenter.x - afterCenter.x, playerCenter.y - afterCenter.y);
+
+    expect(afterDistance).toBeLessThan(beforeDistance);
+  });
+
+  it('keeps extracted lucky-wind reroute helper behavior unchanged', () => {
+    const pickups: World['pickups'] = [
+      {
+        id: 'coin:a',
+        sourceId: 'coin:a',
+        rect: { x: 488, y: 232, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:b',
+        sourceId: 'coin:b',
+        rect: { x: 536, y: 360, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:c',
+        sourceId: 'coin:c',
+        rect: { x: 602, y: 244, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'coin:d',
+        sourceId: 'coin:d',
+        rect: { x: 652, y: 350, width: 16, height: 16 },
+        value: 10,
+        kind: 'coin',
+      },
+      {
+        id: 'special:magnet:wind',
+        rect: { x: 760, y: 300, width: 20, height: 20 },
+        value: 25,
+        kind: 'special',
+        effect: 'magnet',
+        accentColor: '#67e8f9',
+        label: 'MAG',
+      },
+    ];
+    const regularCentersBefore = new Map(
+      pickups
+        .filter((pickup) => pickup.kind !== 'special')
+        .map((pickup) => [
+          pickup.id,
+          {
+            x: pickup.rect.x + pickup.rect.width / 2,
+            y: pickup.rect.y + pickup.rect.height / 2,
+          },
+        ]),
+    );
+    const specialBefore = pickups.find((pickup) => pickup.kind === 'special');
+    const specialRectBefore = specialBefore ? { ...specialBefore.rect } : null;
+
+    const applied = applyPlaneLuckyWindToPickups({
+      worldPickups: pickups,
+      viewport: { width: 1280, height: 720 },
+      blockers: [],
+      center: { x: 560, y: 300 },
+      direction: { x: 1, y: 0 },
+    });
+    const movedRegularCoins = pickups.filter((pickup) => pickup.kind !== 'special').filter((pickup) => {
+      const center = {
+        x: pickup.rect.x + pickup.rect.width / 2,
+        y: pickup.rect.y + pickup.rect.height / 2,
+      };
+      const beforeCenter = regularCentersBefore.get(pickup.id);
+      if (!beforeCenter) {
+        return false;
+      }
+      return Math.abs(center.x - beforeCenter.x) > 0.01 || Math.abs(center.y - beforeCenter.y) > 0.01;
+    });
+    const specialAfter = pickups.find((pickup) => pickup.kind === 'special');
+
+    expect(applied).toBe(true);
+    expect(movedRegularCoins.length).toBeGreaterThanOrEqual(2);
+    expect(specialAfter?.id).toBe(specialBefore?.id);
+    expect(specialAfter?.rect).toEqual(specialRectBefore);
+  });
+
   it('uses police delay to push police timing without touching coin economy', () => {
     (game as any).beginRun('manual');
     const runtimeWorld = (game as any).world as World;
@@ -341,6 +467,33 @@ describe('game economy and police smoke invariants', () => {
 
     expect((game as any).coinSpawnQueue.length).toBe(queueBefore);
     expect(runtimeWorld.pickups).toEqual(pickupSnapshotBefore);
+  });
+
+  it('keeps airplane drop pending when all drop paths fail this frame', () => {
+    (game as any).beginRun('manual');
+    (game as any).planeBonusEvent = {
+      x: 420,
+      y: 240,
+      vx: 160,
+      vy: 0,
+      angle: 0,
+      ttlMs: 5000,
+      distancePx: 900,
+      traveledPx: 899,
+      dropAtPx: 899,
+      dropped: false,
+      effectMode: 'boost-lane',
+    };
+    (game as any).spawnPlaneBonusDrop = () => false;
+    (game as any).spawnPlaneBoostLane = () => false;
+    (game as any).spawnPlaneCoinTrail = () => false;
+    (game as any).spawnPlaneSpotlight = () => false;
+    (game as any).spawnPlaneLuckyWind = () => false;
+    (game as any).spawnPlanePoliceDelay = () => false;
+
+    (game as any).updatePlaneBonusEvent(0.016);
+    expect((game as any).planeBonusEvent).toBeTruthy();
+    expect((game as any).planeBonusEvent.dropped).toBe(false);
   });
 
   it('uses airplane spotlight as a short-lived special highlight only', () => {
@@ -407,6 +560,47 @@ describe('game economy and police smoke invariants', () => {
     expect(expired).toHaveLength(0);
   });
 
+  it('keeps police chase movement faster on ice surfaces', () => {
+    const baseline = {
+      x: 140,
+      y: 180,
+      angle: 0,
+      remainingMs: 6000,
+      durationMs: 6000,
+      phase: 'chasing' as const,
+      exitEdge: 'right' as const,
+    };
+    const normal = { ...baseline };
+    const onIce = { ...baseline };
+    const target = { x: 420, y: 180 };
+
+    advancePoliceChasing(normal, 0.5, target, 80, false);
+    advancePoliceChasing(onIce, 0.5, target, 80, true);
+
+    const normalDistance = Math.hypot(normal.x - baseline.x, normal.y - baseline.y);
+    const onIceDistance = Math.hypot(onIce.x - baseline.x, onIce.y - baseline.y);
+    expect(onIceDistance).toBeGreaterThan(normalDistance);
+  });
+
+  it('pauses immediately on focus loss and resumes on focus regain', () => {
+    (game as any).beginRun('manual');
+    (game as any).running = true;
+
+    const visibilitySpy = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const hasFocusSpy = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    (game as any).syncPausedFromPageFocus();
+    expect((game as any).paused).toBe(true);
+    expect((game as any).pausedStartedAtMs).toBeGreaterThan(0);
+
+    visibilitySpy.mockReturnValue('visible');
+    hasFocusSpy.mockReturnValue(true);
+    (game as any).syncPausedFromPageFocus();
+    expect((game as any).paused).toBe(false);
+
+    visibilitySpy.mockRestore();
+    hasFocusSpy.mockRestore();
+  });
+
   it('surfaces police-warning pre-chase flavor text', () => {
     const text = getFlavorText({
       score: 80,
@@ -416,6 +610,8 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      planeActive: false,
+      planeWarningActive: false,
       policeActive: false,
       policeWarningActive: true,
       policeDelayActive: false,
@@ -433,11 +629,51 @@ describe('game economy and police smoke invariants', () => {
       ghostActive: false,
       invertActive: false,
       blackoutActive: false,
+      planeActive: false,
+      planeWarningActive: false,
       policeActive: false,
       policeWarningActive: false,
       policeDelayActive: true,
     });
 
     expect(text).toContain('Traffic hold');
+  });
+
+  it('surfaces airplane warning flavor text', () => {
+    const text = getFlavorText({
+      score: 80,
+      airborne: false,
+      boostActive: false,
+      magnetActive: false,
+      ghostActive: false,
+      invertActive: false,
+      blackoutActive: false,
+      planeActive: false,
+      planeWarningActive: true,
+      policeActive: false,
+      policeWarningActive: false,
+      policeDelayActive: false,
+    });
+
+    expect(text).toContain('Nyoom inbound');
+  });
+
+  it('surfaces airplane flyover flavor text', () => {
+    const text = getFlavorText({
+      score: 80,
+      airborne: false,
+      boostActive: false,
+      magnetActive: false,
+      ghostActive: false,
+      invertActive: false,
+      blackoutActive: false,
+      planeActive: true,
+      planeWarningActive: false,
+      policeActive: false,
+      policeWarningActive: false,
+      policeDelayActive: false,
+    });
+
+    expect(text).toContain('Flyover live');
   });
 });

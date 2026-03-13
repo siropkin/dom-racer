@@ -1,8 +1,15 @@
-import type { WorldPickup } from '../shared/types';
+import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import type { PlaneBonusEventState, PlaneCoinTrailState } from './gameStateTypes';
+import {
+  PLANE_LUCKY_WIND_MAX_COINS,
+  PLANE_LUCKY_WIND_MAX_SHIFT_PX,
+  PLANE_LUCKY_WIND_RADIUS_PX,
+  PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
+} from './gameRuntime';
+import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
 interface PlaneDropDispatchHandlers {
-  spawnBonusDrop: (x: number, y: number) => void;
+  spawnBonusDrop: (x: number, y: number) => boolean;
   spawnBoostLane: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnCoinTrail: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnSpotlight: (x: number, y: number) => boolean;
@@ -20,10 +27,18 @@ export interface PoliceDelayCueState {
   policeDelayCueDurationMs: number;
 }
 
+interface PlaneLuckyWindApplyOptions {
+  worldPickups: WorldPickup[];
+  viewport: ViewportSize;
+  blockers: Rect[];
+  center: Vector2;
+  direction: Vector2;
+}
+
 export function dispatchPlaneDropWithFallback(
   planeBonusEvent: PlaneBonusEventState,
   handlers: PlaneDropDispatchHandlers,
-): void {
+): boolean {
   const bonusDrop = () => handlers.spawnBonusDrop(planeBonusEvent.x, planeBonusEvent.y + 14);
 
   switch (planeBonusEvent.effectMode) {
@@ -35,9 +50,9 @@ export function dispatchPlaneDropWithFallback(
         planeBonusEvent.vy,
       );
       if (!spawned) {
-        bonusDrop();
+        return bonusDrop();
       }
-      return;
+      return true;
     }
     case 'coin-trail': {
       const spawned = handlers.spawnCoinTrail(
@@ -47,16 +62,16 @@ export function dispatchPlaneDropWithFallback(
         planeBonusEvent.vy,
       );
       if (!spawned) {
-        bonusDrop();
+        return bonusDrop();
       }
-      return;
+      return true;
     }
     case 'spotlight': {
       const spawned = handlers.spawnSpotlight(planeBonusEvent.x, planeBonusEvent.y + 14);
       if (!spawned) {
-        bonusDrop();
+        return bonusDrop();
       }
-      return;
+      return true;
     }
     case 'lucky-wind': {
       const spawned = handlers.spawnLuckyWind(
@@ -66,20 +81,146 @@ export function dispatchPlaneDropWithFallback(
         planeBonusEvent.vy,
       );
       if (!spawned) {
-        bonusDrop();
+        return bonusDrop();
       }
-      return;
+      return true;
     }
     case 'police-delay': {
       const spawned = handlers.spawnPoliceDelay();
       if (!spawned) {
-        bonusDrop();
+        return bonusDrop();
       }
-      return;
+      return true;
     }
     case 'bonus-drop':
-      bonusDrop();
+      return bonusDrop();
   }
+}
+
+export function applyPlaneLuckyWindToPickups({
+  worldPickups,
+  viewport,
+  blockers,
+  center,
+  direction,
+}: PlaneLuckyWindApplyOptions): boolean {
+  const magnitude = Math.hypot(direction.x, direction.y);
+  if (magnitude < 0.001) {
+    return false;
+  }
+
+  const normalizedDirection = { x: direction.x / magnitude, y: direction.y / magnitude };
+  const normal = { x: -normalizedDirection.y, y: normalizedDirection.x };
+  const candidateCoins = worldPickups
+    .filter((pickup) => pickup.kind !== 'special')
+    .map((pickup) => {
+      const pickupCenter = rectCenter(pickup.rect);
+      const dx = pickupCenter.x - center.x;
+      const dy = pickupCenter.y - center.y;
+      return {
+        pickup,
+        along: dx * normalizedDirection.x + dy * normalizedDirection.y,
+        lateral: dx * normal.x + dy * normal.y,
+        distance: Math.hypot(dx, dy),
+      };
+    })
+    .filter(
+      (candidate) =>
+        candidate.distance <= PLANE_LUCKY_WIND_RADIUS_PX &&
+        Math.abs(candidate.lateral) <= PLANE_LUCKY_WIND_RADIUS_PX * 0.9,
+    )
+    .sort(
+      (left, right) => left.distance - right.distance || Math.abs(left.lateral) - Math.abs(right.lateral),
+    )
+    .slice(0, PLANE_LUCKY_WIND_MAX_COINS);
+
+  if (candidateCoins.length < 2) {
+    return false;
+  }
+
+  const specialRects = worldPickups
+    .filter((pickup) => pickup.kind === 'special')
+    .map((pickup) => pickup.rect);
+  const regularCoinRects = new Map(
+    worldPickups
+      .filter((pickup) => pickup.kind !== 'special')
+      .map((pickup) => [pickup.id, { ...pickup.rect }] as const),
+  );
+  const updates: Array<{ id: string; rect: Rect }> = [];
+
+  for (const candidate of candidateCoins) {
+    const currentCenter = rectCenter(candidate.pickup.rect);
+    const clampedAlong = clamp(
+      candidate.along,
+      -PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
+      PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
+    );
+    const routeCenter = {
+      x: center.x + normalizedDirection.x * clampedAlong,
+      y: center.y + normalizedDirection.y * clampedAlong,
+    };
+    const toRouteX = routeCenter.x - currentCenter.x;
+    const toRouteY = routeCenter.y - currentCenter.y;
+    const distanceToRoute = Math.hypot(toRouteX, toRouteY);
+    if (distanceToRoute < 2) {
+      continue;
+    }
+
+    const shiftPx = Math.min(PLANE_LUCKY_WIND_MAX_SHIFT_PX, distanceToRoute * 0.65 + 8);
+    const shiftedCenter = {
+      x: currentCenter.x + (toRouteX / distanceToRoute) * shiftPx,
+      y: currentCenter.y + (toRouteY / distanceToRoute) * shiftPx,
+    };
+    const nextRect: Rect = {
+      x: clamp(shiftedCenter.x - candidate.pickup.rect.width / 2, 8, viewport.width - candidate.pickup.rect.width - 8),
+      y: clamp(
+        shiftedCenter.y - candidate.pickup.rect.height / 2,
+        8,
+        viewport.height - candidate.pickup.rect.height - 8,
+      ),
+      width: candidate.pickup.rect.width,
+      height: candidate.pickup.rect.height,
+    };
+
+    if (blockers.some((rect) => rectsIntersect(nextRect, rect))) {
+      continue;
+    }
+
+    if (specialRects.some((rect) => rectsIntersect(nextRect, rect))) {
+      continue;
+    }
+
+    const collidesWithCoin = Array.from(regularCoinRects.entries()).some(
+      ([pickupId, rect]) => pickupId !== candidate.pickup.id && rectsIntersect(nextRect, rect),
+    );
+    if (collidesWithCoin) {
+      continue;
+    }
+
+    updates.push({
+      id: candidate.pickup.id,
+      rect: nextRect,
+    });
+    regularCoinRects.set(candidate.pickup.id, nextRect);
+  }
+
+  if (updates.length < 2) {
+    return false;
+  }
+
+  const updateById = new Map(updates.map((update) => [update.id, update.rect] as const));
+  for (const pickup of worldPickups) {
+    if (pickup.kind === 'special') {
+      continue;
+    }
+    const nextRect = updateById.get(pickup.id);
+    if (!nextRect) {
+      continue;
+    }
+    pickup.rect = nextRect;
+  }
+
+  return true;
 }
 
 export function advancePlaneCoinTrailState(

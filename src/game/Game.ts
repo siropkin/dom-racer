@@ -76,7 +76,7 @@ import {
   findFreePickupRectNear,
   spawnQueuedCoinsFromAnchors,
 } from './pickupSpawnRuntime';
-import { drawCaughtGameOverOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
+import { drawCaughtGameOverOverlay, drawPausedOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
 import { Player } from './player';
 import {
   adaptBlackoutEffectForSurface,
@@ -105,10 +105,6 @@ import {
   PLANE_EVENT_MIN_SCORE,
   PLANE_EVENT_RESPAWN_MAX_MS,
   PLANE_EVENT_RESPAWN_MIN_MS,
-  PLANE_LUCKY_WIND_MAX_COINS,
-  PLANE_LUCKY_WIND_MAX_SHIFT_PX,
-  PLANE_LUCKY_WIND_RADIUS_PX,
-  PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
   PLANE_LANE_SPECIAL_STAGGER_MS,
   PLANE_POLICE_DELAY_MAX_MS,
   PLANE_POLICE_DELAY_MIN_MS,
@@ -156,6 +152,7 @@ import {
   resetInputState,
 } from './gameInputRuntime';
 import {
+  applyPlaneLuckyWindToPickups,
   advancePlaneCoinTrailState,
   advancePoliceDelayCueState,
   createPoliceDelayCueState,
@@ -223,6 +220,8 @@ export class Game {
   private pickupComboCount: number;
   private comboTimerMs: number;
   private gameOverState: GameOverState | null;
+  private paused: boolean;
+  private pausedStartedAtMs: number;
   private focusModeAlpha: number;
   private spriteShowcaseActive: boolean;
   private spriteShowcaseThemeIndex: number;
@@ -297,6 +296,8 @@ export class Game {
     this.pickupComboCount = 0;
     this.comboTimerMs = 0;
     this.gameOverState = null;
+    this.paused = false;
+    this.pausedStartedAtMs = 0;
     this.focusModeAlpha = 0.75;
     this.spriteShowcaseActive = false;
     this.spriteShowcaseThemeIndex = 0;
@@ -314,6 +315,10 @@ export class Game {
     this.canvas.focus({ preventScroll: true });
     window.addEventListener('keydown', this.handleKeyDown, true);
     window.addEventListener('keyup', this.handleKeyUp, true);
+    window.addEventListener('blur', this.handleWindowFocusChange, true);
+    window.addEventListener('focus', this.handleWindowFocusChange, true);
+    document.addEventListener('visibilitychange', this.handleWindowFocusChange, true);
+    this.syncPausedFromPageFocus();
     this.frameHandle = window.requestAnimationFrame(this.tick);
   }
 
@@ -326,6 +331,9 @@ export class Game {
     this.running = false;
     window.removeEventListener('keydown', this.handleKeyDown, true);
     window.removeEventListener('keyup', this.handleKeyUp, true);
+    window.removeEventListener('blur', this.handleWindowFocusChange, true);
+    window.removeEventListener('focus', this.handleWindowFocusChange, true);
+    document.removeEventListener('visibilitychange', this.handleWindowFocusChange, true);
 
     if (this.frameHandle !== null) {
       window.cancelAnimationFrame(this.frameHandle);
@@ -340,6 +348,8 @@ export class Game {
     this.clearPoliceDelayCue();
     this.resetComboState();
     this.gameOverState = null;
+    this.paused = false;
+    this.pausedStartedAtMs = 0;
     this.spriteShowcaseActive = false;
     this.toastSystem.clear();
     this.resetInput();
@@ -429,6 +439,13 @@ export class Game {
 
     const dtSeconds = Math.min(0.033, (timestampMs - this.lastFrameMs) / 1000);
     this.lastFrameMs = timestampMs;
+
+    if (this.paused) {
+      this.lastFrameMs = timestampMs;
+      this.render();
+      this.frameHandle = window.requestAnimationFrame(this.tick);
+      return;
+    }
 
     if (this.gameOverState) {
       this.render();
@@ -528,6 +545,11 @@ export class Game {
     const { width, height } = this.world.viewport;
     ctx.clearRect(0, 0, width, height);
 
+    if (this.paused) {
+      this.drawPausedScreen();
+      return;
+    }
+
     if (this.gameOverState) {
       this.drawGameOverScreen();
       return;
@@ -583,6 +605,8 @@ export class Game {
       pickupComboCount: this.pickupComboCount,
       policeRemainingMs,
       policeDurationMs,
+      planeActive: Boolean(this.planeBonusEvent),
+      planeWarningActive: Boolean(this.planeWarning),
       policeActive: this.isPoliceChasing(),
       policeWarningActive: Boolean(this.policeWarning) && !this.isPoliceChasing(),
       currentSurface,
@@ -872,7 +896,7 @@ export class Game {
       dtSeconds,
     );
     if (planeStep.dropReady) {
-      dispatchPlaneDropWithFallback(this.planeBonusEvent, {
+      const dropSpawned = dispatchPlaneDropWithFallback(this.planeBonusEvent, {
         spawnBonusDrop: (x, y) => this.spawnPlaneBonusDrop(x, y),
         spawnBoostLane: (x, y, vx, vy) => this.spawnPlaneBoostLane(x, y, vx, vy),
         spawnCoinTrail: (x, y, vx, vy) => this.spawnPlaneCoinTrail(x, y, vx, vy),
@@ -880,7 +904,7 @@ export class Game {
         spawnLuckyWind: (x, y, vx, vy) => this.spawnPlaneLuckyWind(x, y, vx, vy),
         spawnPoliceDelay: () => this.spawnPlanePoliceDelay(),
       });
-      this.planeBonusEvent.dropped = true;
+      this.planeBonusEvent.dropped = dropSpawned;
     }
 
     if (planeStep.completed) {
@@ -893,16 +917,16 @@ export class Game {
     }
   }
 
-  private spawnPlaneBonusDrop(x: number, y: number): void {
+  private spawnPlaneBonusDrop(x: number, y: number): boolean {
     if (!this.world) {
-      return;
+      return false;
     }
 
     const rect =
       this.findFreePickupRectNear({ x, y }, PLANE_BONUS_PICKUP_SIZE, 22) ??
       this.findFreePickupRect(PLANE_BONUS_PICKUP_SIZE);
     if (!rect) {
-      return;
+      return false;
     }
 
     const pickup: WorldPickup = {
@@ -919,6 +943,7 @@ export class Game {
     this.enqueueSpecialSpawnCue(pickup);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage(getSpecialDropMessage('bonus'), getSpecialColor('bonus'), 'high');
+    return true;
   }
 
   private spawnPlaneBoostLane(x: number, y: number, vx: number, vy: number): boolean {
@@ -1036,126 +1061,15 @@ export class Game {
       return false;
     }
 
-    const magnitude = Math.hypot(vx, vy);
-    if (magnitude < 0.001) {
+    const moved = applyPlaneLuckyWindToPickups({
+      worldPickups: this.world.pickups,
+      viewport: this.world.viewport,
+      blockers: [...this.world.obstacles, ...this.world.deadSpots, ...this.world.hazards],
+      center: { x, y },
+      direction: { x: vx, y: vy },
+    });
+    if (!moved) {
       return false;
-    }
-
-    const direction = { x: vx / magnitude, y: vy / magnitude };
-    const normal = { x: -direction.y, y: direction.x };
-    const candidateCoins = this.world.pickups
-      .filter((pickup) => pickup.kind !== 'special')
-      .map((pickup) => {
-        const center = rectCenter(pickup.rect);
-        const dx = center.x - x;
-        const dy = center.y - y;
-        return {
-          pickup,
-          along: dx * direction.x + dy * direction.y,
-          lateral: dx * normal.x + dy * normal.y,
-          distance: Math.hypot(dx, dy),
-        };
-      })
-      .filter(
-        (candidate) =>
-          candidate.distance <= PLANE_LUCKY_WIND_RADIUS_PX &&
-          Math.abs(candidate.lateral) <= PLANE_LUCKY_WIND_RADIUS_PX * 0.9,
-      )
-      .sort(
-        (left, right) =>
-          left.distance - right.distance || Math.abs(left.lateral) - Math.abs(right.lateral),
-      )
-      .slice(0, PLANE_LUCKY_WIND_MAX_COINS);
-
-    if (candidateCoins.length < 2) {
-      return false;
-    }
-
-    const obstacleBlockers = [...this.world.obstacles, ...this.world.deadSpots, ...this.world.hazards];
-    const specialRects = this.world.pickups
-      .filter((pickup) => pickup.kind === 'special')
-      .map((pickup) => pickup.rect);
-    const regularCoinRects = new Map(
-      this.world.pickups
-        .filter((pickup) => pickup.kind !== 'special')
-        .map((pickup) => [pickup.id, { ...pickup.rect }] as const),
-    );
-    const updates: Array<{ id: string; rect: Rect }> = [];
-
-    for (const candidate of candidateCoins) {
-      const currentCenter = rectCenter(candidate.pickup.rect);
-      const clampedAlong = clamp(
-        candidate.along,
-        -PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
-        PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
-      );
-      const routeCenter = {
-        x: x + direction.x * clampedAlong,
-        y: y + direction.y * clampedAlong,
-      };
-      const toRouteX = routeCenter.x - currentCenter.x;
-      const toRouteY = routeCenter.y - currentCenter.y;
-      const distanceToRoute = Math.hypot(toRouteX, toRouteY);
-      if (distanceToRoute < 2) {
-        continue;
-      }
-
-      const shiftPx = Math.min(PLANE_LUCKY_WIND_MAX_SHIFT_PX, distanceToRoute * 0.65 + 8);
-      const shiftedCenter = {
-        x: currentCenter.x + (toRouteX / distanceToRoute) * shiftPx,
-        y: currentCenter.y + (toRouteY / distanceToRoute) * shiftPx,
-      };
-      const nextRect: Rect = {
-        x: clamp(
-          shiftedCenter.x - candidate.pickup.rect.width / 2,
-          8,
-          this.world.viewport.width - candidate.pickup.rect.width - 8,
-        ),
-        y: clamp(
-          shiftedCenter.y - candidate.pickup.rect.height / 2,
-          8,
-          this.world.viewport.height - candidate.pickup.rect.height - 8,
-        ),
-        width: candidate.pickup.rect.width,
-        height: candidate.pickup.rect.height,
-      };
-
-      if (obstacleBlockers.some((rect) => rectsIntersect(nextRect, rect))) {
-        continue;
-      }
-
-      if (specialRects.some((rect) => rectsIntersect(nextRect, rect))) {
-        continue;
-      }
-
-      const collidesWithCoin = Array.from(regularCoinRects.entries()).some(
-        ([pickupId, rect]) => pickupId !== candidate.pickup.id && rectsIntersect(nextRect, rect),
-      );
-      if (collidesWithCoin) {
-        continue;
-      }
-
-      updates.push({
-        id: candidate.pickup.id,
-        rect: nextRect,
-      });
-      regularCoinRects.set(candidate.pickup.id, nextRect);
-    }
-
-    if (updates.length < 2) {
-      return false;
-    }
-
-    const updateById = new Map(updates.map((update) => [update.id, update.rect] as const));
-    for (const pickup of this.world.pickups) {
-      if (pickup.kind === 'special') {
-        continue;
-      }
-      const nextRect = updateById.get(pickup.id);
-      if (!nextRect) {
-        continue;
-      }
-      pickup.rect = nextRect;
     }
 
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
@@ -1349,10 +1263,6 @@ export class Game {
     const playerCenter = rectCenter(this.player.getBounds());
 
     for (const pickup of this.world.pickups) {
-      if (pickup.kind === 'special') {
-        continue;
-      }
-
       const pickupCenter = rectCenter(pickup.rect);
       const dx = playerCenter.x - pickupCenter.x;
       const dy = playerCenter.y - pickupCenter.y;
@@ -1714,5 +1624,56 @@ export class Game {
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
     });
+  }
+
+  private drawPausedScreen(): void {
+    if (!this.world) {
+      return;
+    }
+
+    drawPausedOverlay({
+      ctx: this.context,
+      viewport: this.world.viewport,
+      nowMs: performance.now(),
+      startedAtMs: this.pausedStartedAtMs || performance.now(),
+    });
+  }
+
+  private handleWindowFocusChange = (): void => {
+    this.syncPausedFromPageFocus();
+  };
+
+  private syncPausedFromPageFocus(): void {
+    if (!this.running) {
+      return;
+    }
+
+    const shouldPause = document.visibilityState !== 'visible' || !document.hasFocus();
+    if (shouldPause) {
+      this.enterPausedState();
+      return;
+    }
+    this.exitPausedState();
+  }
+
+  private enterPausedState(): void {
+    if (this.paused) {
+      return;
+    }
+
+    this.paused = true;
+    this.pausedStartedAtMs = performance.now();
+    this.audio.stop();
+    this.resetInput();
+  }
+
+  private exitPausedState(): void {
+    if (!this.paused) {
+      return;
+    }
+
+    this.paused = false;
+    this.lastFrameMs = performance.now();
+    this.resetInput();
   }
 }
