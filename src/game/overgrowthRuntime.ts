@@ -38,6 +38,7 @@ export interface OvergrowthSpawnStep {
   shouldSpawn: boolean;
 }
 
+/** Checks whether a new overgrowth node should spawn this frame. */
 export function resolveOvergrowthSpawnStep(options: {
   overgrowthSpawnTimerMs: number;
   runElapsedMs: number;
@@ -64,6 +65,7 @@ export function getOvergrowthRespawnDelayMs(): number {
   return randomBetween(OVERGROWTH_SPAWN_INTERVAL_MIN_MS, OVERGROWTH_SPAWN_INTERVAL_MAX_MS);
 }
 
+/** Attempts to place a new overgrowth node along a random barrier edge. */
 export function trySpawnOvergrowthNode(
   anchors: Rect[],
   existingNodes: OvergrowthNode[],
@@ -117,6 +119,7 @@ export function trySpawnOvergrowthNode(
   return null;
 }
 
+/** Advances growth timers on all overgrowth nodes, promoting stages when thresholds are reached. */
 export function advanceOvergrowthGrowth(
   nodes: OvergrowthNode[],
   dtSeconds: number,

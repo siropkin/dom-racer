@@ -15,6 +15,7 @@ export interface PickupCollectionStep {
   dynamicPickups: WorldPickup[];
 }
 
+/** Resolves pickup collisions for this frame, returning collected items and score gained. */
 export function resolvePickupCollectionStep({
   playerBounds,
   worldPickups,

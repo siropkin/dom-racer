@@ -249,6 +249,7 @@ export interface AmbientSpecialSpawnStep {
   shouldAttemptSpawn: boolean;
 }
 
+/** Determines whether it is time to attempt spawning an ambient special pickup. */
 export function resolveAmbientSpecialSpawnStep(options: {
   specialSpawnTimerMs: number;
   existingSpecialCount: number;
@@ -295,6 +296,7 @@ export interface RegularCoinSpawnStep {
   shouldSpawn: boolean;
 }
 
+/** Advances coin refill timers and determines whether to spawn the next coin. */
 export function resolveRegularCoinSpawnStep(options: {
   coinRefillBoostTimerMs: number;
   coinRefillTimerMs: number;

@@ -5,6 +5,7 @@ import type { PlaneBonusEventState, SpecialSpawnCue } from './gameStateTypes';
 import type { SurfaceSample } from './gameRuntime';
 import type { OvergrowthNode, OvergrowthStage } from './overgrowthRuntime';
 
+/** Renders all world pickups (coins and specials) with spin animation. */
 export function drawPickups(
   ctx: CanvasRenderingContext2D,
   pickups: WorldPickup[],
@@ -131,7 +132,7 @@ export function advanceFocusModeAlpha(
   return currentAlpha + (target - currentAlpha) * Math.min(1, dtSeconds * rate * 6);
 }
 
-const PAGE_LIGHTNESS_SAMPLE_POINTS = [
+const PAGE_LIGHTNESS_SAMPLE_POINTS: readonly { x: number; y: number }[] = [
   { x: 0.18, y: 0.2 },
   { x: 0.5, y: 0.2 },
   { x: 0.82, y: 0.2 },
@@ -162,6 +163,7 @@ export function estimatePageLightness(
   return count > 0 ? total / count : 0.5;
 }
 
+/** Draws the radial vignette overlay centered on the player during non-police play. */
 export function drawFocusModeLayer(
   ctx: CanvasRenderingContext2D,
   viewport: ViewportSize,
@@ -192,15 +194,14 @@ interface OvergrowthStageStyle {
   stroke: string;
 }
 
-const BUSH_STAGE_STYLES: Record<OvergrowthStage, OvergrowthStageStyle> = {
+const BUSH_STAGE_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStageStyle>> = {
   small: { fill: '#86efac', alpha: 0.36, stroke: '' },
   medium: { fill: '#4ade80', alpha: 0.62, stroke: '' },
   large: { fill: '#22c55e', alpha: 0.88, stroke: '#15803d' },
 };
 
-const TREE_STAGE_STYLES: Record<
-  OvergrowthStage,
-  OvergrowthStageStyle & { trunk: string; inner: string }
+const TREE_STAGE_STYLES: Readonly<
+  Record<OvergrowthStage, OvergrowthStageStyle & { trunk: string; inner: string }>
 > = {
   small: { fill: '#6ee7b7', alpha: 0.36, stroke: '', trunk: '#a16207', inner: '#86efac' },
   medium: { fill: '#34d399', alpha: 0.62, stroke: '', trunk: '#92400e', inner: '#4ade80' },
@@ -211,6 +212,7 @@ function getOvergrowthEntryScale(growthMs: number): number {
   return 0.6 + clamp(growthMs / 1200, 0, 1) * 0.4;
 }
 
+/** Renders all active overgrowth nodes (bushes and trees) with growth and sway animation. */
 export function drawOvergrowthNodes(
   ctx: CanvasRenderingContext2D,
   nodes: OvergrowthNode[],

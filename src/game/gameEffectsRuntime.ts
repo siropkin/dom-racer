@@ -57,6 +57,7 @@ interface PickupComboResult {
   flowTier: number | null;
 }
 
+/** Decrements all active effect timers and flags any that just expired. */
 export function tickEffectTimers(
   state: EffectTimerState,
   dtSeconds: number,
@@ -79,6 +80,7 @@ export function tickEffectTimers(
   };
 }
 
+/** Updates the pickup combo chain and returns the bonus score for this collection. */
 export function applyPickupComboState(
   comboTimerMs: number,
   pickupComboCount: number,
@@ -95,6 +97,7 @@ export function applyPickupComboState(
   };
 }
 
+/** Pulls all nearby pickups toward the player position (magnet effect). */
 export function applyMagnetPullToPickups(
   worldPickups: WorldPickup[],
   playerCenter: Vector2,
@@ -121,6 +124,7 @@ export function applyMagnetPullToPickups(
   }
 }
 
+/** Gently pulls nearby regular coins toward the player (lure effect, ignores specials). */
 export function applyLurePullToPickups(
   worldPickups: WorldPickup[],
   playerCenter: Vector2,
@@ -162,6 +166,7 @@ export interface SpecialEffectActivation {
   setBlackout: boolean;
 }
 
+/** Resolves a special effect into its activation parameters (score, timer, messages). */
 export function resolveSpecialEffectActivation(
   effect: SpecialEffect,
   surface: SurfaceSample,

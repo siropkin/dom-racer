@@ -165,7 +165,7 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'CHECK!',
   'JACKPOT!',
 ] as const;
-export const SHOWCASE_THEMES: ShowcaseTheme[] = [
+export const SHOWCASE_THEMES: readonly ShowcaseTheme[] = [
   {
     name: 'DARK',
     background: 'rgba(2, 6, 23, 0.96)',
@@ -212,7 +212,7 @@ export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   },
 ];
 
-const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = [
+const RANDOM_SPECIAL_EFFECTS: readonly SpecialEffect[] = [
   'invert',
   'magnet',
   'ghost',
@@ -220,7 +220,7 @@ const RANDOM_SPECIAL_EFFECTS: SpecialEffect[] = [
   'cooldown',
   'lure',
 ];
-const SPECIAL_LABELS: Record<SpecialEffect, string> = {
+const SPECIAL_LABELS: Readonly<Record<SpecialEffect, string>> = {
   bonus: 'BON',
   invert: 'INV',
   magnet: 'MAG',
@@ -230,7 +230,7 @@ const SPECIAL_LABELS: Record<SpecialEffect, string> = {
   lure: 'LUR',
   jackpot: 'JKP',
 };
-const SPECIAL_COLORS: Record<SpecialEffect, string> = {
+const SPECIAL_COLORS: Readonly<Record<SpecialEffect, string>> = {
   bonus: '#f9a8d4',
   invert: '#f472b6',
   magnet: '#67e8f9',
@@ -240,7 +240,7 @@ const SPECIAL_COLORS: Record<SpecialEffect, string> = {
   lure: '#fbbf24',
   jackpot: '#facc15',
 };
-const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
+const SPECIAL_COLOR_NAMES: Readonly<Record<SpecialEffect, string>> = {
   bonus: 'ROSE',
   invert: 'PINK',
   magnet: 'CYAN',
@@ -250,8 +250,8 @@ const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
   lure: 'AMBER',
   jackpot: 'GOLD',
 };
-const VEHICLE_DESIGNS: VehicleDesign[] = ['coupe', 'buggy', 'truck'];
-const VEHICLE_LABELS: Record<VehicleDesign, string> = {
+const VEHICLE_DESIGNS: readonly VehicleDesign[] = ['coupe', 'buggy', 'truck'];
+const VEHICLE_LABELS: Readonly<Record<VehicleDesign, string>> = {
   coupe: 'COUPE',
   buggy: 'BUGGY',
   truck: 'TRUCK',

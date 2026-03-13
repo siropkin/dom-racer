@@ -43,6 +43,7 @@ export interface PoliceSpawnCountdownResult {
   shouldSpawn: boolean;
 }
 
+/** Returns the axis-aligned bounding rect for a police car at the given position. */
 export function getPoliceRect(police: { x: number; y: number }): Rect {
   return {
     x: police.x,
@@ -52,6 +53,7 @@ export function getPoliceRect(police: { x: number; y: number }): Rect {
   };
 }
 
+/** Decrements the plane warning timer and clears it when expired. */
 export function tickPlaneWarningState(
   planeWarning: PlaneWarningState | null,
   dtSeconds: number,
@@ -68,6 +70,7 @@ export function tickPlaneWarningState(
   return planeWarning;
 }
 
+/** Spawns a new airplane flyover encounter with a random corner-to-corner flight path. */
 export function createPlaneBonusEncounter(viewport: World['viewport']): {
   planeBonusEvent: PlaneBonusEventState;
   planeWarning: PlaneWarningState;
@@ -115,6 +118,7 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
   };
 }
 
+/** Moves the airplane along its flight path and checks for drop/completion triggers. */
 export function advancePlaneBonusEventState(
   viewport: World['viewport'],
   planeBonusEvent: PlaneBonusEventState,
@@ -143,6 +147,7 @@ export function advancePlaneBonusEventState(
   return { dropReady, completed, enteredViewport };
 }
 
+/** Counts down the police spawn timer and triggers a warning when close to spawning. */
 export function tickPoliceSpawnCountdown(
   policeSpawnTimerMs: number,
   policeWarning: PoliceWarningState | null,
@@ -173,6 +178,7 @@ export function tickPoliceSpawnCountdown(
   };
 }
 
+/** Creates a new police chase state entering from the given viewport edge. */
 export function createPoliceChase(
   viewport: World['viewport'],
   edge?: PoliceEdge,
@@ -226,6 +232,7 @@ export function advancePoliceLeaving(
   }
 }
 
+/** Moves the police car toward the player and returns chase urgency. */
 export function advancePoliceChasing(
   policeChase: PoliceChaseState,
   dtSeconds: number,
@@ -395,6 +402,7 @@ export interface PlaneEncounterSchedulingStep {
   shouldStartEncounter: boolean;
 }
 
+/** Determines whether it is time to start a new airplane encounter. */
 export function resolvePlaneEncounterSchedulingStep(options: {
   planeBonusTimerMs: number;
   hasRunProgress: boolean;

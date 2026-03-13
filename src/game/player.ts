@@ -9,6 +9,7 @@ import {
 import { clamp } from '../shared/utils';
 import { moveWithCollisions } from './collisions';
 import { PLAYER, TIMING } from './gameConfig';
+import { randomBetween } from './gameRuntime';
 import { renderPlayerSprite } from './sprites';
 
 interface PlayerUpdateContext {
@@ -238,8 +239,4 @@ function getInputDirection(input: InputState): Vector2 {
     x: x / magnitude,
     y: y / magnitude,
   };
-}
-
-function randomBetween(min: number, max: number): number {
-  return min + Math.random() * (max - min);
 }

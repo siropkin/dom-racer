@@ -11,6 +11,7 @@ import { distanceSquared, expandRect, rectCenter, rectsIntersect } from '../shar
 const REGULAR_COIN_SIZE = 16;
 const REGULAR_COIN_VALUE = 10;
 
+/** Converts scanned DOM elements into a playable game world with obstacles, zones, and pickups. */
 export function buildWorld(scannedElements: ScannedElement[], viewport: ViewportSize): World {
   const obstacles: Rect[] = [];
   const slowZones: Rect[] = [];

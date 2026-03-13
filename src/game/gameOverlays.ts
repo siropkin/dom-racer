@@ -41,6 +41,7 @@ interface DrawPausedOverlayOptions {
   startedAtMs: number;
 }
 
+/** Renders the full-screen sprite showcase debug overlay (Shift+D). */
 export function drawSpriteShowcaseOverlay({
   ctx,
   viewport,
@@ -297,6 +298,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.restore();
 }
 
+/** Renders the "BUSTED BY POLICE — GAME OVER" screen with score and restart prompt. */
 export function drawCaughtGameOverOverlay({
   ctx,
   viewport,
@@ -338,6 +340,7 @@ export function drawCaughtGameOverOverlay({
   ctx.restore();
 }
 
+/** Renders the "PAUSED" overlay shown when the page loses focus. */
 export function drawPausedOverlay({
   ctx,
   viewport,

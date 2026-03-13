@@ -105,6 +105,7 @@ export function createClearedComboState(): ClearedComboState {
   };
 }
 
+/** Produces a fresh game state snapshot for starting a new run. */
 export function createBeginRunState(nowMs: number): BeginRunState {
   return {
     ...createClearedEncounterState(),
@@ -157,6 +158,7 @@ export function shouldPauseForPageFocus(
   return visibilityState !== 'visible' || !hasFocus;
 }
 
+/** Determines whether the game should enter, exit, or stay in pause based on page focus. */
 export function resolveFocusPauseTransitionState(options: {
   paused: boolean;
   pausedStartedAtMs: number;

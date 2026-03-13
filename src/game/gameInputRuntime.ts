@@ -23,6 +23,7 @@ export type KeyDownAction =
   | { kind: 'cycle-vehicle' }
   | { kind: 'apply-input'; consumed: boolean };
 
+/** Maps a keydown event to a game action based on current game mode and key state. */
 export function resolveKeyDownAction(
   context: KeyDownDispatchContext,
   keyState: KeyDownKeyState,

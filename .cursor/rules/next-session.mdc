@@ -2,6 +2,7 @@
 description: DOM Racer session context and handoff state for the next AI session
 alwaysApply: true
 ---
+<!-- ALL_TASKS_DONE -->
 # DOM Racer - Next Session Context
 
 Continue work on the DOM Racer browser extension in `/Users/ivan.seredkin/_projects/dom-racer`.
@@ -46,14 +47,14 @@ First, read:
 
 ## Current State
 
-All game features are complete. Now doing a production readiness pass focused on code quality, organization, and reusability.
+All game features and production readiness work are complete. The codebase is fully clean, linted, formatted, and tested.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. ~~**Production readiness — Sprite consolidation:**~~ **Done.** Shared canvas drawing helpers extracted into `src/game/sprites/spriteHelpers.ts`. All sprite files refactored to use helpers. Overgrowth rendering uses ellipses and was left unchanged.
-3. ~~**Production readiness — Constants organization:**~~ **Done.** All key tuning constants centralized in `src/game/gameConfig.ts` with 11 organized sections (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER). Runtime files import from gameConfig. Legacy named re-exports preserved in `gameRuntime.ts` for backward compatibility.
-4. ~~**Production readiness — File structure:**~~ **Done.** Sprite files moved to `src/game/sprites/` subdirectory with barrel `index.ts` export. All imports updated.
-5. **Production readiness — Code quality sweep:** Dead code removal, unused imports, consistent error handling, JSDoc on public APIs, `readonly` on arrays/objects that shouldn't mutate, consistent function signatures across runtime modules.
-6. **Production readiness — Lint hardening:** Tighten ESLint rules where beneficial (e.g., `no-magic-numbers` for sprite/timing code, `prefer-const`, stricter type checks). Run full lint + format pass after all changes.
+2. ~~**Production readiness — Sprite consolidation:**~~ **Done.**
+3. ~~**Production readiness — Constants organization:**~~ **Done.**
+4. ~~**Production readiness — File structure:**~~ **Done.**
+5. ~~**Production readiness — Code quality sweep:**~~ **Done.** Dead code removed (duplicate `randomBetween` in player.ts), `readonly` annotations on 10+ constant arrays/records, JSDoc on 25+ key exported functions, no `as any` in src/, all exported functions have return types.
+6. ~~**Production readiness — Lint hardening:**~~ **Done.** Full lint:fix + format pass, zero issues. ESLint flat config with typescript-eslint and Prettier enforced.
 
 ## Current Known Context
 

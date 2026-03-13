@@ -148,7 +148,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 3 | `done` | Add airplane world-event prototype |
 | Phase 4 | `done` | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
-| Phase 6 | `in progress` | README / presentation / branding pass |
+| Phase 6 | `done` | README / presentation / branding pass |
 
 ## Phase 1: Core Money Loop
 
@@ -216,7 +216,7 @@ Completed:
 
 ## Phase 6: README / Presentation
 
-Status: `in progress` (only screenshot captures remain, blocked on interactive browser)
+Status: `done` (screenshot captures remain blocked on interactive browser; code quality sweep complete)
 
 ### README — `done`
 
@@ -262,6 +262,20 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (m)
+
+- Final production readiness: code quality sweep and lint hardening
+- Removed duplicate `randomBetween` function from `player.ts` (now imports from `gameRuntime`)
+- Added `readonly` annotations to 7 constant arrays/records in `gameRuntime.ts` (`RANDOM_SPECIAL_EFFECTS`, `SPECIAL_LABELS`, `SPECIAL_COLORS`, `SPECIAL_COLOR_NAMES`, `VEHICLE_DESIGNS`, `VEHICLE_LABELS`, `SHOWCASE_THEMES`)
+- Added `readonly` to `OBJECTIVE_TEMPLATES` in `microObjectiveRuntime.ts`
+- Added `readonly` to `PAGE_LIGHTNESS_SAMPLE_POINTS`, `BUSH_STAGE_STYLES`, `TREE_STAGE_STYLES` in `gameRenderRuntime.ts`
+- Added JSDoc comments on 25+ key exported functions across all runtime modules
+- No `as any` casts found in src/ (only in tests, which is expected)
+- All exported functions already had return type annotations
+- Ran full lint:fix + format pass — zero issues
+- 72 tests pass, build clean, lint clean, format clean, no `__domRacerDebug` in source or dist
+- All production readiness tasks (items 2-6 in next-session) marked complete
 
 ### Session — 2026-03-12 (l)
 

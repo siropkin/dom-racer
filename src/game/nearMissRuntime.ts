@@ -19,6 +19,7 @@ export interface NearMissStep {
   messageText: string;
 }
 
+/** Checks for near-miss events against obstacles and police, awarding score when triggered. */
 export function resolveNearMissStep(options: {
   playerBounds: Rect;
   obstacles: Rect[];

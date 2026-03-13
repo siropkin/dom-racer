@@ -6,6 +6,7 @@ const MAX_PICKUPS = 56;
 const MIN_DIMENSION = 12;
 const SKIP_TAGS = new Set(['html', 'body', 'script', 'style', 'link', 'meta', 'noscript', 'path']);
 
+/** Scans visible DOM elements and classifies them into game world categories. */
 export function scanVisibleDom(overlayRoot: HTMLElement | null): ScannedElement[] {
   if (!document.body) {
     return [];

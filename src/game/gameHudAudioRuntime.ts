@@ -48,6 +48,7 @@ export function isDriveInputActive(input: InputState): boolean {
   return input.up || input.down || input.left || input.right;
 }
 
+/** Assembles the complete HUD display state from current game parameters. */
 export function buildHudState(options: BuildHudStateOptions): HudState {
   const blackoutActsAsInvert =
     options.blackoutTimerMs > 0 &&

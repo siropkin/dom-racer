@@ -34,6 +34,7 @@ interface PlaneLuckyWindApplyOptions {
   direction: Vector2;
 }
 
+/** Dispatches the airplane's drop action, falling back to bonus drop if the primary mode fails. */
 export function dispatchPlaneDropWithFallback(
   planeBonusEvent: PlaneBonusEventState,
   handlers: PlaneDropDispatchHandlers,

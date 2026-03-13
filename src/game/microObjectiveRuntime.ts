@@ -56,7 +56,7 @@ const OBJECTIVE_COMPLETION_WORDS = ['NAILED!', 'DONE!', 'CLEAR!', 'CHECK!'] as c
 export const OBJECTIVE_COMPLETION_COLOR = OBJECTIVES.COMPLETION_COLOR;
 export const OBJECTIVE_TOAST_TTL_MS = OBJECTIVES.TOAST_TTL_MS;
 
-export const OBJECTIVE_TEMPLATES: ObjectiveTemplate[] = [
+export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
   { id: 'collect_5', label: '5 COINS', target: 5, timeLimitMs: 0, tracker: 'coins_collected' },
   {
     id: 'collect_8_20s',
@@ -85,6 +85,7 @@ export const OBJECTIVE_TEMPLATES: ObjectiveTemplate[] = [
   { id: 'collect_12', label: '12 COINS', target: 12, timeLimitMs: 0, tracker: 'coins_collected' },
 ];
 
+/** Creates the initial objective state with a randomized first-assignment delay. */
 export function createInitialObjectiveState(): {
   assignDelayMs: number;
   completedCount: number;
@@ -97,6 +98,7 @@ export function createInitialObjectiveState(): {
   };
 }
 
+/** Advances the active micro-objective or assigns a new one when the delay expires. */
 export function resolveObjectiveTickStep(options: {
   active: MicroObjective | null;
   assignDelayMs: number;
