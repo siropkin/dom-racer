@@ -54,20 +54,8 @@ export class AudioManager {
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
 
-    if (!enabled && this.context) {
-      const now = this.context.currentTime;
-      if (this.engineGain) {
-        this.engineGain.gain.cancelScheduledValues(now);
-        this.engineGain.gain.setTargetAtTime(0, now, 0.02);
-      }
-      if (this.policeGain) {
-        this.policeGain.gain.cancelScheduledValues(now);
-        this.policeGain.gain.setTargetAtTime(0, now, 0.02);
-      }
-      if (this.droneGain) {
-        this.droneGain.gain.cancelScheduledValues(now);
-        this.droneGain.gain.setTargetAtTime(0, now, 0.02);
-      }
+    if (!enabled) {
+      this.fadeOutAllContinuous();
     }
   }
 
@@ -83,23 +71,7 @@ export class AudioManager {
   }
 
   stop(): void {
-    if (!this.context) {
-      return;
-    }
-
-    const now = this.context.currentTime;
-    if (this.engineGain) {
-      this.engineGain.gain.cancelScheduledValues(now);
-      this.engineGain.gain.setTargetAtTime(0, now, 0.02);
-    }
-    if (this.policeGain) {
-      this.policeGain.gain.cancelScheduledValues(now);
-      this.policeGain.gain.setTargetAtTime(0, now, 0.02);
-    }
-    if (this.droneGain) {
-      this.droneGain.gain.cancelScheduledValues(now);
-      this.droneGain.gain.setTargetAtTime(0, now, 0.02);
-    }
+    this.fadeOutAllContinuous();
   }
 
   updateEngine(speed: number, moving: boolean): void {
@@ -415,6 +387,20 @@ export class AudioManager {
       type: 'sine',
       volume: 0.03,
     });
+  }
+
+  private fadeOutAllContinuous(): void {
+    if (!this.context) {
+      return;
+    }
+
+    const now = this.context.currentTime;
+    for (const gain of [this.engineGain, this.policeGain, this.droneGain]) {
+      if (gain) {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setTargetAtTime(0, now, 0.02);
+      }
+    }
   }
 
   private ensureContext(): AudioContextLike {

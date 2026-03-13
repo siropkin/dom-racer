@@ -32,6 +32,10 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - VFX particles, page-reactive tint, celebration animations
 - Viewport-proportional scaling for effect durations and police chase timers
 - Global sound/vehicle preferences via chrome.storage.local
+- Adaptive sprite contrast: dark outlines on bright pages, light glow on dark pages
+- Extension popup with game info, controls, power-ups, and Buy Me a Coffee link
+- Propeller biplane sprite with spinning blades and continuous drone audio
+- Increased master audio gain (0.68) with punchier plane drop SFX
 - Sound enrichment, auto-pause, first-play hint, run counter, lifetime milestones
 
 ## Controls
@@ -46,7 +50,8 @@ src/game/            Game loop, rendering, HUD, audio, runtime helpers
 src/game/sprites/    Player, police, plane, pickup renderers + shared helpers
 src/game/gameConfig.ts  Centralized tuning constants (13 sections)
 src/shared/          Types, settings, persistence, utilities
-public/              Manifest, icons
+src/popup/           (none — popup is static HTML in public/)
+public/              Manifest, icons, popup.html
 branding/            SVG sources + PNG generator
 ```
 
@@ -69,7 +74,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 80 smoke tests across 8 focused test files
+- 81 smoke tests across 8 focused test files
 
 ## Research References
 

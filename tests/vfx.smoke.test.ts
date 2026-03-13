@@ -6,6 +6,7 @@ import {
   spawnTireDustParticles,
   type VfxParticle,
 } from '../src/game/vfxRuntime';
+import { setPageLightnessForSprites } from '../src/game/sprites/spriteHelpers';
 
 describe('VFX particle smoke invariants', () => {
   it('removes expired VFX particles and keeps live ones', () => {
@@ -78,5 +79,13 @@ describe('VFX particle smoke invariants', () => {
     expect(particles.length).toBeLessThanOrEqual(3);
     expect(particles.every((p) => p.maxLifetimeMs === 150)).toBe(true);
     expect(particles.every((p) => p.color === '#fde047' || p.color === '#f8fafc')).toBe(true);
+  });
+});
+
+describe('Adaptive sprite contrast', () => {
+  it('setPageLightnessForSprites accepts values in [0, 1] without throwing', () => {
+    expect(() => setPageLightnessForSprites(0)).not.toThrow();
+    expect(() => setPageLightnessForSprites(0.5)).not.toThrow();
+    expect(() => setPageLightnessForSprites(1)).not.toThrow();
   });
 });

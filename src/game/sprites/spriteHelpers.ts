@@ -103,10 +103,6 @@ export function setPageLightnessForSprites(lightness: number): void {
   _pageLightness = lightness;
 }
 
-export function getPageLightnessForSprites(): number {
-  return _pageLightness;
-}
-
 /**
  * Sets canvas shadow to provide adaptive contrast against the page surface.
  * Bright pages get a dark outline; dark pages get a light glow.

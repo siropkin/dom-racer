@@ -54,6 +54,9 @@ npm run build
 - A different daily modifier every day — double coins, fast police, slippery surfaces, and more
 - Three vehicle designs unlocked by reaching lifetime score milestones
 - Run counter, page bests, lifetime bests, milestone celebrations
+- Adaptive sprite contrast — dark outlines on bright pages, bright glow on dark pages
+- Extension popup with game info, controls reference, and power-up list
+- Classic propeller biplane sprite with continuous drone audio during flyovers
 - Auto-pause when you switch tabs, sound toggle, and a hint overlay for first-time players
 
 ## How The World Is Built
@@ -151,6 +154,8 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Presentation | Done | README polish, branding, store assets |
 | Micro-polish | Done | Visual juice, particles, retention tweaks |
 | Player experience | Done | Onboarding, run summary, daily modifiers, vehicle unlocks |
+| Play-test polish | Done | Specials overhaul, toast system, pause fixes, overlay polish |
+| Audio & visuals | Done | Adaptive contrast, biplane sprite, drone audio, popup |
 
 ## Debug Mode
 
