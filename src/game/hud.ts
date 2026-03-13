@@ -221,7 +221,7 @@ function buildGoalRows(state: HudState): GoalBarRow[] {
 
   if (state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null) {
     rows.push({
-      text: 'ESCAPE!',
+      text: 'POLICE - ESCAPE!',
       color: '#f87171',
       timeRemainingMs: state.policeChaseRemainingMs,
       timeLimitMs: state.policeChaseDurationMs,
