@@ -91,6 +91,7 @@ export function renderPoliceCarSprite(
   ctx: CanvasRenderingContext2D,
   policeChase: PoliceCarPose,
   now: number,
+  chasing = false,
 ): void {
   const centerX = policeChase.x + POLICE_CAR_SIZE.width / 2;
   const centerY = policeChase.y + POLICE_CAR_SIZE.height / 2;
@@ -108,8 +109,13 @@ export function renderPoliceCarSprite(
   drawWheel(ctx, -6, 10, 1.8);
   drawWheel(ctx, 6, 10, 1.8);
 
+  const sirenBody = chasing
+    ? Math.floor(now / 120) % 2 === 0
+      ? '#ef4444'
+      : '#3b82f6'
+    : '#e5e7eb';
   drawBorderedRect(ctx, -12.9, -7.9, 25.8, 15.8, 4.6, 'rgba(15, 23, 42, 0.78)');
-  drawBorderedRect(ctx, -12, -7, 24, 14, 4, '#e5e7eb', '#f8fafc', 1.8);
+  drawBorderedRect(ctx, -12, -7, 24, 14, 4, sirenBody, '#f8fafc', 1.8);
   drawBorderedRect(ctx, -6.5, -9.5, 12, 19, 4, '#111827');
 
   ctx.fillStyle = '#dbeafe';

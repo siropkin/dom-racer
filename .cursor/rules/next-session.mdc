@@ -50,9 +50,9 @@ All game features (Phases 1-5) and production readiness are complete. Phase 7 mi
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
 2. **Phase 7 — Micro-polish & feel tweaks (pick one per session, priority order):**
-   - Police siren flash (~10 lines) — alternating red/blue glow on police car body during chase
-   - Coin pickup burst (~25 lines) — 4-6 tiny yellow sparkle particles on coin collection
-   - Tire dust particles (~30 lines) — fading circles behind car, surface-colored
+   - ~~Police siren flash~~ — DONE: alternating red/blue body fill on 120ms cycle during chase
+   - ~~Coin pickup burst~~ — DONE: 4-6 yellow sparkle particles burst outward on collection
+   - ~~Tire dust particles~~ — DONE: 1-2 fading surface-colored circles behind car when moving
    - Run counter (~20 lines) — persistent "RUN #N" on start overlay
    - "NEW BEST!" celebration (~25 lines) — gold toast + starburst when page best is broken
    - Speed lines (~20 lines) — thin streaks at high velocity
@@ -109,7 +109,13 @@ All game features (Phases 1-5) and production readiness are complete. Phase 7 mi
 - Jackpot has longer spawn cue ring (1800ms vs 1200ms) and `value: 0` (score comes from activation).
 - 8 special effects total: bonus, magnet, invert, ghost, blackout, cooldown, lure, jackpot.
 - README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, overgrowth/near-miss/micro-objectives sections, and screenshots & motion placeholder section.
-- Smoke tests currently pass (`npm run test` -> 72 tests).
+- VFX particle system lives in `gameRenderRuntime.ts`: `VfxParticle` interface, `updateVfxParticles` (in-place compact), `drawVfxParticles`, `spawnCoinBurstParticles`, `spawnTireDustParticles`.
+- VFX particles capped at 120, rendered between pickups and player in draw pipeline, reset on `beginRun` and `stop`.
+- Police siren flash: body fill alternates red (#ef4444) / blue (#3b82f6) on 120ms cycle during chase phase; reverts to normal gray (#e5e7eb) during leaving phase.
+- Coin burst: 4-6 yellow (#fde047) 2px particles, 200-300ms lifetime, burst outward from collection point.
+- Tire dust: 1-2 surface-colored particles per frame when speed > 50, 300ms lifetime, 0.4 max alpha fading to 0.
+- `Player.getAngle()` exposes heading angle for tire dust positioning.
+- Smoke tests currently pass (`npm run test` -> 75 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).
 - `cloneRect` is shared from `gameRuntime.ts` (removed duplicate from `pickupSpawnRuntime.ts`).

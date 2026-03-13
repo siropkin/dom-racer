@@ -248,7 +248,7 @@ Completed:
 
 ## Phase 7: Micro-Polish & Feel Tweaks
 
-Status: `planned`
+Status: `active`
 
 Small, high-impact tweaks drawn from indie game juice research. Each item is independently shippable in one bounded session. None change core mechanics — they add feedback, atmosphere, and retention.
 
@@ -263,10 +263,10 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 
 **Visual juice (pure feel, no gameplay change):**
 
-- [ ] **Tire dust particles**: tiny fading circles behind the car while driving (2-4 particles per frame, 300ms lifetime, match surface color — gray on normal, white on ice, green on boost). Makes movement feel weighty and grounded. Implementation: particle array in render loop, ~30 lines.
-- [ ] **Coin pickup burst**: 4-6 tiny yellow sparkle particles that burst outward when a coin is collected, then fade over 200ms. Makes every coin feel satisfying, not just a score increment. Implementation: small particle emitter triggered on pickup, ~25 lines.
+- [x] **Tire dust particles**: tiny fading circles behind the car while driving (1-2 particles per frame, 300ms lifetime, match surface color — gray on normal, white on ice, green on boost). Makes movement feel weighty and grounded. Implementation: VfxParticle system in gameRenderRuntime, ~30 lines.
+- [x] **Coin pickup burst**: 4-6 tiny yellow sparkle particles that burst outward when a coin is collected, then fade over 200-300ms. Makes every coin feel satisfying, not just a score increment. Implementation: spawnCoinBurstParticles in gameRenderRuntime, ~25 lines.
 - [ ] **Speed lines**: thin semi-transparent lines that streak past the car at high velocity (above ~70% max speed). Creates a sense of velocity on boost zones. Implementation: 3-5 lines drawn relative to car heading, ~20 lines.
-- [ ] **Police siren flash**: alternating red/blue glow on the police car body (120ms cycle) once it enters chase mode. Reads as "cop car" immediately, builds tension. Already has WEE-OO audio cue — this adds the visual half. Implementation: conditional fill swap in policeSprite, ~10 lines.
+- [x] **Police siren flash**: alternating red/blue glow on the police car body (120ms cycle) once it enters chase mode. Reads as "cop car" immediately, builds tension. Already has WEE-OO audio cue — this adds the visual half. Implementation: conditional fill swap in policeSprite, ~10 lines.
 - [ ] **Landing squash**: when the car returns from airborne state (plane drop), brief 150ms squash-and-stretch animation (scale 1.2x wide, 0.8x tall, then bounce back). Classic cartoon weight feel. Implementation: scale transform in playerSprite render, ~15 lines.
 
 **Retention & progression (lightweight persistence):**
@@ -478,6 +478,19 @@ When this roadmap is working, a good run should feel like this:
 - Initial branding SVG refresh (blue coupe colors, but proportions had cross-pattern issue)
 - Regenerated all branding PNGs via `npm run brand`
 - 32 tests pass, build clean, no `__domRacerDebug` in source or dist
+
+### Session — 2026-03-12 (n)
+
+- Phase 7 micro-polish: implemented top 3 visual juice tweaks
+- Police siren flash: alternating red (#ef4444) / blue (#3b82f6) body fill on 120ms cycle during chase phase in `policeSprite.ts`
+- Coin pickup burst: 4-6 yellow sparkle particles burst outward from collection point, fade over 200-300ms
+- Tire dust particles: 1-2 fading circles per frame behind car when speed > 50, surface-colored (gray/white/green), 300ms lifetime
+- Added shared `VfxParticle` system in `gameRenderRuntime.ts`: update (in-place compact), draw, coin burst spawn, tire dust spawn, capped at 120 particles
+- Added `getAngle()` to `Player` class for tire dust heading calculation
+- Particles render between pickups and player sprite in the draw pipeline
+- VFX particles reset on `beginRun` and `stop`
+- 3 new smoke tests: particle expiration/cleanup, coin burst spawn, tire dust surface colors
+- 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ## Notes For Future Models
 

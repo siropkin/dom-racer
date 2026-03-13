@@ -202,6 +202,10 @@ export class Player {
     this.vehicleDesign = vehicleDesign;
   }
 
+  getAngle(): number {
+    return this.angle;
+  }
+
   getLastStepDiagnostics(): LastStepDiagnostics {
     return this.lastStepDiagnostics;
   }

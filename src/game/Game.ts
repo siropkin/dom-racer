@@ -45,7 +45,12 @@ import {
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
+  drawVfxParticles,
   estimatePageLightness,
+  spawnCoinBurstParticles,
+  spawnTireDustParticles,
+  updateVfxParticles,
+  type VfxParticle,
 } from './gameRenderRuntime';
 import {
   applyLurePullToPickups,
@@ -258,6 +263,7 @@ export class Game {
   private objectiveAssignDelayMs: number;
   private objectiveCompletedCount: number;
   private objectiveLastTemplateId: string;
+  private vfxParticles: VfxParticle[];
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -349,6 +355,7 @@ export class Game {
     this.objectiveAssignDelayMs = 0;
     this.objectiveCompletedCount = 0;
     this.objectiveLastTemplateId = '';
+    this.vfxParticles = [];
   }
 
   start(): void {
@@ -403,6 +410,7 @@ export class Game {
     this.objectiveAssignDelayMs = 0;
     this.objectiveCompletedCount = 0;
     this.objectiveLastTemplateId = '';
+    this.vfxParticles = [];
     this.gameOverState = null;
     this.paused = false;
     this.pausedStartedAtMs = 0;
@@ -551,6 +559,19 @@ export class Game {
       this.player.getLastStepDiagnostics().speed,
       isDriveInputActive(activeInput),
     );
+    const playerSpeed = this.player.getLastStepDiagnostics().speed;
+    if (playerSpeed > 50 && !this.player.isAirborne()) {
+      const pBounds = this.player.getBounds();
+      const dustSurface = onIce ? 'ice' : boosting ? 'boost' : 'normal';
+      spawnTireDustParticles(
+        this.vfxParticles,
+        pBounds.x + pBounds.width / 2,
+        pBounds.y + pBounds.height / 2,
+        this.player.getAngle(),
+        dustSurface,
+      );
+    }
+
     const policeStep = this.updatePoliceChase(dtSeconds);
     void this.audio.updatePoliceSiren(policeStep.active, policeStep.urgency);
     if (policeStep.caught) {
@@ -580,6 +601,11 @@ export class Game {
     this.score += pickupStep.scoreGained;
     for (const pickup of pickupStep.collectedPickups) {
       this.audio.playPickup();
+      spawnCoinBurstParticles(
+        this.vfxParticles,
+        pickup.rect.x + pickup.rect.width / 2,
+        pickup.rect.y + pickup.rect.height / 2,
+      );
       if (isSpecialPickup(pickup) && pickup.effect) {
         this.activateSpecialEffect(pickup.effect);
       } else {
@@ -619,6 +645,7 @@ export class Game {
 
     this.toastSystem.update(dtSeconds);
     this.updateSpecialSpawnCues(dtSeconds);
+    updateVfxParticles(this.vfxParticles, dtSeconds);
 
     this.render();
     this.frameHandle = window.requestAnimationFrame(this.tick);
@@ -665,6 +692,7 @@ export class Game {
       this.pickupComboCount,
       performance.now(),
     );
+    drawVfxParticles(ctx, this.vfxParticles);
     this.player.draw(ctx, {
       opacity: this.ghostTimerMs > 0 ? 0.46 : 1,
       magnetActive: this.magnetTimerMs > 0,
@@ -1559,7 +1587,12 @@ export class Game {
       return;
     }
 
-    renderPoliceCarSprite(this.context, this.policeChase, performance.now());
+    renderPoliceCarSprite(
+      this.context,
+      this.policeChase,
+      performance.now(),
+      this.policeChase.phase === 'chasing',
+    );
   }
 
   private isPoliceChasing(): boolean {
@@ -1747,6 +1780,7 @@ export class Game {
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;
+    this.vfxParticles = [];
     const objState = createInitialObjectiveState();
     this.objectiveActive = null;
     this.objectiveAssignDelayMs = objState.assignDelayMs;
