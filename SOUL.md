@@ -151,6 +151,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 4 | `done` | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `done` | README / presentation / branding pass |
+| Phase 7 | `planned` | Micro-polish & feel tweaks |
 
 ## Phase 1: Core Money Loop
 
@@ -244,6 +245,53 @@ Completed:
 - [x] Colors match in-game: body #2563EB, cabin #1D4ED8, wheels #111827 with #F8FAFC border, red taillights #EF4444
 - [x] Updated `generate_assets.py` to read SVGs from disk instead of embedding duplicate strings
 - [x] Regenerated PNGs via `npm run brand` (icon16–512, promo tile, store cover)
+
+## Phase 7: Micro-Polish & Feel Tweaks
+
+Status: `planned`
+
+Small, high-impact tweaks drawn from indie game juice research. Each item is independently shippable in one bounded session. None change core mechanics — they add feedback, atmosphere, and retention.
+
+### Research Sources
+
+- Vlambeer / Jan Willem Nijman: "maximum output for minimum input" — every player action should produce visible, audible, satisfying feedback
+- GameAnalytics juice framework: prioritize the 10 most frequent player actions and add layered feedback to each
+- js13kgames retention research: run streaks and lightweight daily goals are the cheapest retention mechanics with the highest ROI
+- Dust Racing 2D / speedlines: tire marks and speed lines are the canonical top-down racer juice
+
+### Candidates (pick per session, easiest-to-hardest)
+
+**Visual juice (pure feel, no gameplay change):**
+
+- [ ] **Tire dust particles**: tiny fading circles behind the car while driving (2-4 particles per frame, 300ms lifetime, match surface color — gray on normal, white on ice, green on boost). Makes movement feel weighty and grounded. Implementation: particle array in render loop, ~30 lines.
+- [ ] **Coin pickup burst**: 4-6 tiny yellow sparkle particles that burst outward when a coin is collected, then fade over 200ms. Makes every coin feel satisfying, not just a score increment. Implementation: small particle emitter triggered on pickup, ~25 lines.
+- [ ] **Speed lines**: thin semi-transparent lines that streak past the car at high velocity (above ~70% max speed). Creates a sense of velocity on boost zones. Implementation: 3-5 lines drawn relative to car heading, ~20 lines.
+- [ ] **Police siren flash**: alternating red/blue glow on the police car body (120ms cycle) once it enters chase mode. Reads as "cop car" immediately, builds tension. Already has WEE-OO audio cue — this adds the visual half. Implementation: conditional fill swap in policeSprite, ~10 lines.
+- [ ] **Landing squash**: when the car returns from airborne state (plane drop), brief 150ms squash-and-stretch animation (scale 1.2x wide, 0.8x tall, then bounce back). Classic cartoon weight feel. Implementation: scale transform in playerSprite render, ~15 lines.
+
+**Retention & progression (lightweight persistence):**
+
+- [ ] **Run counter**: show "RUN #N" on the start/restart overlay. Increment a persistent counter in `chrome.storage.local` each time the player begins a run. Makes each attempt feel like progress even on bad runs. No gameplay effect. Implementation: one counter in settings, display in gameOverlays, ~20 lines.
+- [ ] **"NEW BEST!" celebration**: when the player beats their page best score, show a celebratory "NEW PAGE BEST!" toast in gold with a brief starburst particle effect. Currently the best score updates silently. Implementation: comparison check in score persistence, toast + particles, ~25 lines.
+- [ ] **Lifetime milestones**: at lifetime score milestones (500, 1000, 2500, 5000), show a one-time toast ("MILESTONE: 1000 lifetime!"). Simple `chrome.storage.local` check. Gives long-term players occasional surprise pops. Implementation: ~15 lines.
+
+**Atmosphere (mood without noise):**
+
+- [ ] **Page-reactive tint**: instead of pure transparent overlay, very subtly tint the game arena based on the page's dominant color (5-10% opacity wash). A blue-dominant page gets a faint blue tint. Makes each page feel unique beyond just geometry. Uses existing `parseCssColor` infrastructure. Implementation: sample page bg color, apply faint overlay rect, ~15 lines.
+- [ ] **Drift sparks**: when the car changes direction sharply on boost surfaces (angular velocity > threshold), emit 2-3 tiny white spark particles. Signals the speed zone is active and rewards aggressive cornering visually. Implementation: angular velocity check + particle emit, ~20 lines.
+
+### Priority Order (recommended)
+
+1. Police siren flash (10 lines, instant atmosphere boost)
+2. Coin pickup burst (25 lines, makes every coin satisfying)
+3. Tire dust particles (30 lines, movement feels grounded)
+4. Run counter (20 lines, free retention)
+5. "NEW BEST!" celebration (25 lines, retention moment)
+6. Speed lines (20 lines, velocity feel)
+7. Landing squash (15 lines, cartoon weight)
+8. Lifetime milestones (15 lines, long-term surprise)
+9. Page-reactive tint (15 lines, unique feel per page)
+10. Drift sparks (20 lines, advanced feel)
 
 ## Practical Learnings
 
