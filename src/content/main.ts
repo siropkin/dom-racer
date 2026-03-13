@@ -31,7 +31,8 @@ let previousDocumentOverflow = '';
 let previousBodyOverflow = '';
 let previousDocumentOverscrollBehavior = '';
 let previousBodyOverscrollBehavior = '';
-let previousBodyPaddingRight = '';
+let previousScrollbarGutter = '';
+let unsupportedPageDismissListener: ((event: KeyboardEvent) => void) | null = null;
 let soundEnabled = true;
 let vehicleDesign: VehicleDesign = 'coupe';
 let pageBestScore = 0;
@@ -151,13 +152,8 @@ async function activate(): Promise<void> {
   previousBodyOverflow = document.body.style.overflow;
   previousDocumentOverscrollBehavior = document.documentElement.style.overscrollBehavior;
   previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
-  previousBodyPaddingRight = document.body.style.paddingRight;
-  const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-  if (scrollbarWidth > 0) {
-    const computedPaddingRight =
-      Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
-    document.body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
-  }
+  previousScrollbarGutter = document.documentElement.style.scrollbarGutter;
+  document.documentElement.style.scrollbarGutter = 'stable';
   document.documentElement.style.userSelect = 'none';
   document.documentElement.style.webkitUserSelect = 'none';
   document.documentElement.style.overflow = 'hidden';
@@ -167,6 +163,22 @@ async function activate(): Promise<void> {
   window.addEventListener('wheel', preventScrollWhileActive, { capture: true, passive: false });
   window.addEventListener('touchmove', preventScrollWhileActive, { capture: true, passive: false });
   setOverlayActive(overlay, true);
+
+  const world = createWorld();
+  if (!isWorldViable(world)) {
+    drawUnsupportedPageScreen(overlay.canvas);
+    unsupportedPageDismissListener = (event: KeyboardEvent) => {
+      const isEsc = event.code === 'Escape';
+      const isToggle = event.shiftKey && (event.code === 'Space' || event.code === 'Backquote');
+      if (isEsc || isToggle) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        deactivate();
+      }
+    };
+    window.addEventListener('keydown', unsupportedPageDismissListener, true);
+    return;
+  }
 
   game = new Game({
     canvas: overlay.canvas,
@@ -194,15 +206,19 @@ async function activate(): Promise<void> {
 
 function deactivate(): void {
   active = false;
+  if (unsupportedPageDismissListener) {
+    window.removeEventListener('keydown', unsupportedPageDismissListener, true);
+    unsupportedPageDismissListener = null;
+  }
   game?.stop();
   game = null;
   document.documentElement.style.userSelect = previousUserSelect;
   document.documentElement.style.webkitUserSelect = previousWebkitUserSelect;
   document.documentElement.style.overflow = previousDocumentOverflow;
   document.documentElement.style.overscrollBehavior = previousDocumentOverscrollBehavior;
+  document.documentElement.style.scrollbarGutter = previousScrollbarGutter;
   document.body.style.overflow = previousBodyOverflow;
   document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
-  document.body.style.paddingRight = previousBodyPaddingRight;
   document.body.classList.remove('dom-racer-invert');
   document.body.classList.remove('dom-racer-blur');
   clearMagnetizedUi();
@@ -488,6 +504,146 @@ function getPageTintColor(): string | null {
     }
   }
   return null;
+}
+
+const MIN_PICKUPS_FOR_VIABLE_WORLD = 3;
+const MIN_OBSTACLES_FOR_VIABLE_WORLD = 2;
+
+function isWorldViable(world: ReturnType<typeof createWorld>): boolean {
+  return (
+    world.pickups.length >= MIN_PICKUPS_FOR_VIABLE_WORLD &&
+    world.obstacles.length >= MIN_OBSTACLES_FOR_VIABLE_WORLD
+  );
+}
+
+function drawUnsupportedPageScreen(canvas: HTMLCanvasElement): void {
+  const width = canvas.clientWidth || window.innerWidth;
+  const height = canvas.clientHeight || window.innerHeight;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.72)';
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+
+  const cx = width / 2;
+  const cy = height / 2;
+
+  drawSleepingCar(ctx, cx, cy - 64);
+
+  ctx.font = 'bold 22px "SFMono-Regular", "JetBrains Mono", monospace';
+  unsupportedStrokeFill(ctx, '#f8fafc', 'NOT ENOUGH TO RACE ON', cx, cy + 8);
+
+  ctx.font = '13px "SFMono-Regular", "JetBrains Mono", monospace';
+  unsupportedStrokeFill(
+    ctx,
+    '#94a3b8',
+    'This page doesn\u2019t have enough links and text',
+    cx,
+    cy + 40,
+  );
+  unsupportedStrokeFill(ctx, '#94a3b8', 'blocks for a track.', cx, cy + 58);
+
+  ctx.font = '12px "SFMono-Regular", "JetBrains Mono", monospace';
+  unsupportedStrokeFill(
+    ctx,
+    '#64748b',
+    'Try a content-rich page like Wikipedia, GitHub, or a blog.',
+    cx,
+    cy + 86,
+  );
+
+  ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
+  unsupportedStrokeFill(ctx, '#475569', 'Press Esc or Shift+Space to close', cx, cy + 116);
+
+  ctx.restore();
+}
+
+function drawSleepingCar(ctx: CanvasRenderingContext2D, cx: number, cy: number): void {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  ctx.fillRect(-16, -8, 32, 16);
+
+  ctx.fillStyle = '#334155';
+  for (const [wx, wy] of [
+    [-8, -16],
+    [8, -16],
+    [-8, 16],
+    [8, 16],
+  ] as const) {
+    ctx.fillRect(wx - 3, wy - 2, 6, 4);
+  }
+
+  ctx.fillStyle = '#1e40af';
+  const r = 5;
+  ctx.beginPath();
+  ctx.moveTo(-18 + r, -12);
+  ctx.lineTo(18 - r, -12);
+  ctx.quadraticCurveTo(18, -12, 18, -12 + r);
+  ctx.lineTo(18, 12 - r);
+  ctx.quadraticCurveTo(18, 12, 18 - r, 12);
+  ctx.lineTo(-18 + r, 12);
+  ctx.quadraticCurveTo(-18, 12, -18, 12 - r);
+  ctx.lineTo(-18, -12 + r);
+  ctx.quadraticCurveTo(-18, -12, -18 + r, -12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillRect(-10, -16, 18, 32);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(-10, -2, 18, 4);
+
+  ctx.fillStyle = '#dbeafe';
+  ctx.fillRect(-2, -9, 7, 18);
+
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(16, -5, 3, 3);
+  ctx.fillRect(16, 2, 3, 3);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(-19, -5, 3, 3);
+  ctx.fillRect(-19, 2, 3, 3);
+
+  ctx.font = 'bold 16px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('z', 28, -18);
+  ctx.font = 'bold 13px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('z', 38, -30);
+  ctx.font = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('z', 46, -40);
+
+  ctx.restore();
+}
+
+function unsupportedStrokeFill(
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  text: string,
+  x: number,
+  y: number,
+): void {
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
