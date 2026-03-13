@@ -38,6 +38,7 @@ export class Player {
   private onIceLastFrame: boolean;
   private wasAirborneLastFrame: boolean;
   private landingTimerMs: number;
+  private celebrationTimerMs: number;
   private iceEntryBoostMs: number;
   private iceDriftDirection: Vector2;
   private iceDriftRetargetMs: number;
@@ -53,6 +54,7 @@ export class Player {
     this.onIceLastFrame = false;
     this.wasAirborneLastFrame = false;
     this.landingTimerMs = 0;
+    this.celebrationTimerMs = 0;
     this.iceEntryBoostMs = 0;
     this.iceDriftDirection = { x: 0, y: 0 };
     this.iceDriftRetargetMs = 0;
@@ -68,6 +70,7 @@ export class Player {
     this.onIceLastFrame = false;
     this.wasAirborneLastFrame = false;
     this.landingTimerMs = 0;
+    this.celebrationTimerMs = 0;
     this.iceEntryBoostMs = 0;
     this.iceDriftDirection = { x: 0, y: 0 };
     this.iceDriftRetargetMs = 0;
@@ -84,6 +87,7 @@ export class Player {
     }
     this.wasAirborneLastFrame = currentlyAirborne;
     this.landingTimerMs = Math.max(0, this.landingTimerMs - dtSeconds * 1000);
+    this.celebrationTimerMs = Math.max(0, this.celebrationTimerMs - dtSeconds * 1000);
 
     const direction = getInputDirection(input);
 
@@ -237,6 +241,16 @@ export class Player {
     return { scaleX: 1 + 0.15 * t, scaleY: 1 - 0.15 * t };
   }
 
+  triggerCelebration(): void {
+    this.celebrationTimerMs = 350;
+  }
+
+  getCelebrationScale(): number {
+    if (this.celebrationTimerMs <= 0) return 1;
+    const t = this.celebrationTimerMs / 350;
+    return 1 + 0.3 * Math.sin(t * Math.PI) * t;
+  }
+
   getLastStepDiagnostics(): LastStepDiagnostics {
     return this.lastStepDiagnostics;
   }
@@ -248,6 +262,7 @@ export class Player {
     const bounds = this.getBounds();
     const opacity = Math.max(0.2, Math.min(1, options?.opacity ?? 1));
     const squash = this.getLandingSquashScale();
+    const celebScale = this.getCelebrationScale();
     renderPlayerSprite(ctx, {
       centerX: bounds.x + bounds.width / 2,
       centerY: bounds.y + bounds.height / 2,
@@ -258,8 +273,8 @@ export class Player {
       opacity,
       nowMs: performance.now(),
       airborne: false,
-      scaleX: squash.scaleX,
-      scaleY: squash.scaleY,
+      scaleX: squash.scaleX * celebScale,
+      scaleY: squash.scaleY * celebScale,
     });
   }
 }

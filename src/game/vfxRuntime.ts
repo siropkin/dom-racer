@@ -73,6 +73,35 @@ export function spawnCoinBurstParticles(particles: VfxParticle[], x: number, y: 
   }
 }
 
+/** Spawns 6-8 violet sparkle particles for objective completion celebration. */
+export function spawnCelebrationParticles(
+  particles: VfxParticle[],
+  x: number,
+  y: number,
+): void {
+  const count = 6 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+    const speed = 50 + Math.random() * 80;
+    const lifetime = 300 + Math.random() * 150;
+    particles.push({
+      x,
+      y,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed,
+      alpha: 1,
+      maxAlpha: 1,
+      lifetimeMs: lifetime,
+      maxLifetimeMs: lifetime,
+      radius: 2.5,
+      color: '#c4b5fd',
+    });
+  }
+  if (particles.length > VFX_PARTICLE_CAP) {
+    particles.splice(0, particles.length - VFX_PARTICLE_CAP);
+  }
+}
+
 /** Spawns 8-10 gold sparkle particles for the "NEW BEST!" celebration. */
 export function spawnNewBestBurstParticles(particles: VfxParticle[], x: number, y: number): void {
   const count = 8 + Math.floor(Math.random() * 3);

@@ -45,6 +45,7 @@ import {
 import {
   drawSpeedLines,
   drawVfxParticles,
+  spawnCelebrationParticles,
   spawnCoinBurstParticles,
   spawnDriftSparkParticles,
   spawnNewBestBurstParticles,
@@ -1091,6 +1092,15 @@ export class Game {
       this.audio.playObjectiveChime();
       const word = getObjectiveCompletionWord(step.completedCount - 1);
       this.spawnEffectMessage(word, OBJECTIVE_COMPLETION_COLOR, 'high');
+      if (this.player) {
+        this.player.triggerCelebration();
+        const pb = this.player.getBounds();
+        spawnCelebrationParticles(
+          this.vfxParticles,
+          pb.x + pb.width / 2,
+          pb.y + pb.height / 2,
+        );
+      }
       this.checkNewBestCelebration();
     }
   }
