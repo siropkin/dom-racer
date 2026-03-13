@@ -77,8 +77,6 @@ describe('VFX particle smoke invariants', () => {
     expect(particles.length).toBeGreaterThanOrEqual(2);
     expect(particles.length).toBeLessThanOrEqual(3);
     expect(particles.every((p) => p.maxLifetimeMs === 150)).toBe(true);
-    expect(
-      particles.every((p) => p.color === '#fde047' || p.color === '#f8fafc'),
-    ).toBe(true);
+    expect(particles.every((p) => p.color === '#fde047' || p.color === '#f8fafc')).toBe(true);
   });
 });

@@ -5,13 +5,8 @@ import {
   applyMagnetPullToPickups,
   resolveSpecialEffectActivation,
 } from '../src/game/gameEffectsRuntime';
-import {
-  getFlavorText,
-  JACKPOT_SCORE_MIN,
-  JACKPOT_SCORE_MAX,
-  JACKPOT_SPAWN_CHANCE,
-  JACKPOT_PICKUP_SIZE,
-} from '../src/game/gameRuntime';
+import { JACKPOT } from '../src/game/gameConfig';
+import { getFlavorText } from '../src/game/gameRuntime';
 import { createCanvas, createWorldWithRegularCoins } from './testHelpers';
 
 vi.mock('../src/game/audio', () => {
@@ -355,8 +350,8 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
     const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
     const jackpot = resolveSpecialEffectActivation('jackpot', surface);
     expect(jackpot.resolvedEffect).toBe('jackpot');
-    expect(jackpot.scoreBonus).toBeGreaterThanOrEqual(JACKPOT_SCORE_MIN);
-    expect(jackpot.scoreBonus).toBeLessThanOrEqual(JACKPOT_SCORE_MAX);
+    expect(jackpot.scoreBonus).toBeGreaterThanOrEqual(JACKPOT.SCORE_MIN);
+    expect(jackpot.scoreBonus).toBeLessThanOrEqual(JACKPOT.SCORE_MAX);
     expect(jackpot.timerMs).toBe(0);
     expect(jackpot.policeDelayMs).toBe(0);
     expect(jackpot.setInverted).toBe(false);
@@ -365,12 +360,12 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
   });
 
   it('uses jackpot spawn chance constant within expected range', () => {
-    expect(JACKPOT_SPAWN_CHANCE).toBeGreaterThan(0);
-    expect(JACKPOT_SPAWN_CHANCE).toBeLessThanOrEqual(0.1);
+    expect(JACKPOT.SPAWN_CHANCE).toBeGreaterThan(0);
+    expect(JACKPOT.SPAWN_CHANCE).toBeLessThanOrEqual(0.1);
   });
 
   it('uses a larger pickup size for jackpot than regular specials', () => {
-    expect(JACKPOT_PICKUP_SIZE).toBeGreaterThan(20);
+    expect(JACKPOT.PICKUP_SIZE).toBeGreaterThan(20);
   });
 
   it('spawns jackpot pickup when jackpot roll succeeds', () => {
@@ -385,8 +380,8 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
       (pickup) => pickup.kind === 'special' && pickup.effect === 'jackpot',
     );
     expect(jackpots.length).toBe(1);
-    expect(jackpots[0].rect.width).toBe(JACKPOT_PICKUP_SIZE);
-    expect(jackpots[0].rect.height).toBe(JACKPOT_PICKUP_SIZE);
+    expect(jackpots[0].rect.width).toBe(JACKPOT.PICKUP_SIZE);
+    expect(jackpots[0].rect.height).toBe(JACKPOT.PICKUP_SIZE);
     expect(jackpots[0].label).toBe('JKP');
   });
 
@@ -413,7 +408,7 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
 
     (game as any).activateSpecialEffect('jackpot');
 
-    expect((game as any).score).toBeGreaterThanOrEqual(JACKPOT_SCORE_MIN);
-    expect((game as any).score).toBeLessThanOrEqual(JACKPOT_SCORE_MAX);
+    expect((game as any).score).toBeGreaterThanOrEqual(JACKPOT.SCORE_MIN);
+    expect((game as any).score).toBeLessThanOrEqual(JACKPOT.SCORE_MAX);
   });
 });

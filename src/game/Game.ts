@@ -16,27 +16,22 @@ import type {
   PoliceChaseState,
   PoliceWarningState,
   SpecialSpawnCue,
+  SurfaceSample,
 } from './gameStateTypes';
 import { AudioManager } from './audio';
-import { PLAYER } from './gameConfig';
+import { COINS, ENCOUNTER, JACKPOT, PLANE, PLAYER, POLICE, SPECIALS, TOAST } from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
 import { isBoosting, isOnDeadSpot, isOnIceZone, isOnSlowZone } from './pickups';
 import { resolvePickupCollectionStep } from './gameEconomyRuntime';
 import {
   advancePlaneBonusEventState,
-  advancePoliceChasing,
-  advancePoliceLeaving,
-  beginPoliceLeaving,
   createPlaneBonusEncounter,
-  createPoliceChase,
   createPlaneCoinTrailRects,
   getPoliceRect,
-  isPoliceOffscreen,
   resolvePlaneEncounterSchedulingStep,
+  resolvePoliceChaseTickStep,
   tickPlaneWarningState,
-  tickPoliceChaseDuration,
-  tickPoliceSpawnCountdown,
 } from './encounterRuntime';
 import {
   advanceFocusModeAlpha,
@@ -100,60 +95,19 @@ import {
   adaptBlackoutEffectForSurface,
   clonePickup,
   cloneWorld,
-  ENCOUNTER_STAGGER_MS,
   getNextVehicleDesign,
   getSpecialColor,
   getSpecialDropMessage,
   getSpecialLabel,
   getVehicleDesignLabel,
   isSpecialPickup,
-  JACKPOT_PICKUP_SIZE,
-  JACKPOT_SPAWN_CHANCE,
   pickOppositeShowcaseThemeIndex,
   pickSpecialEffect,
   PICKUP_COLORS,
   PICKUP_WORDS,
-  PLANE_AFTER_POLICE_MAX_MS,
-  PLANE_AFTER_POLICE_MIN_MS,
-  PLANE_BONUS_PICKUP_SIZE,
-  PLANE_COIN_TRAIL_DURATION_MS,
-  PLANE_EVENT_INITIAL_MAX_MS,
-  PLANE_EVENT_INITIAL_MIN_MS,
-  PLANE_EVENT_MIN_SCORE,
-  PLANE_EVENT_RESPAWN_MAX_MS,
-  PLANE_EVENT_RESPAWN_MIN_MS,
-  PLANE_LANE_SPECIAL_STAGGER_MS,
-  PLANE_POLICE_DELAY_MAX_MS,
-  PLANE_POLICE_DELAY_MIN_MS,
-  PLANE_SPOTLIGHT_CUE_DURATION_MS,
-  POLICE_AFTER_PLANE_MAX_MS,
-  POLICE_AFTER_PLANE_MIN_MS,
-  POLICE_INITIAL_SPAWN_MAX_MS,
-  POLICE_INITIAL_SPAWN_MIN_MS,
-  POLICE_POST_SPAWN_MAX_MS,
-  POLICE_POST_SPAWN_MIN_MS,
-  POLICE_RESPAWN_MAX_MS,
-  POLICE_RESPAWN_MIN_MS,
-  POLICE_START_COINS_THRESHOLD,
-  POLICE_START_DELAY_MS,
-  POLICE_START_SCORE_THRESHOLD,
   randomBetween,
-  REGULAR_COIN_REFILL_BOOST_MS,
-  REGULAR_COIN_RETRY_MAX_MS,
-  REGULAR_COIN_RETRY_MIN_MS,
-  REGULAR_COIN_SCORE,
-  REGULAR_COIN_STARTING_BATCH,
   SHOWCASE_THEMES,
   shufflePickups,
-  SPECIAL_INITIAL_SPAWN_MAX_MS,
-  SPECIAL_INITIAL_SPAWN_MIN_MS,
-  SPECIAL_VISIBLE_CAP,
-  TOAST_DUPLICATE_WINDOW_MS,
-  TOAST_EFFECT_TTL_MS,
-  TOAST_MAX_CHARS,
-  TOAST_MAX_VISIBLE,
-  TOAST_PICKUP_TTL_MS,
-  type SurfaceSample,
 } from './gameRuntime';
 import {
   cloneInputState,
@@ -189,7 +143,7 @@ import {
   type ObjectiveTickEvents,
 } from './microObjectiveRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
-import { rectCenter, rectsIntersect } from '../shared/utils';
+import { rectCenter } from '../shared/utils';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -321,21 +275,21 @@ export class Game {
     this.coinRefillTimerMs = 0;
     this.coinRefillBoostTimerMs = 0;
     this.toastSystem = new ToastSystem({
-      maxChars: TOAST_MAX_CHARS,
-      maxVisible: TOAST_MAX_VISIBLE,
-      duplicateWindowMs: TOAST_DUPLICATE_WINDOW_MS,
+      maxChars: TOAST.MAX_CHARS,
+      maxVisible: TOAST.MAX_VISIBLE,
+      duplicateWindowMs: TOAST.DUPLICATE_WINDOW_MS,
     });
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
     this.planeCoinTrail = null;
     this.policeDelayCueTimerMs = 0;
     this.policeDelayCueDurationMs = 0;
-    this.planeBonusTimerMs = randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS);
+    this.planeBonusTimerMs = randomBetween(PLANE.INITIAL_MIN_MS, PLANE.INITIAL_MAX_MS);
     this.pickupFlavorIndex = 0;
     this.coinsCollectedTotal = 0;
     this.specialSpawnTimerMs = randomBetween(
-      SPECIAL_INITIAL_SPAWN_MIN_MS,
-      SPECIAL_INITIAL_SPAWN_MAX_MS,
+      SPECIALS.INITIAL_SPAWN_MIN_MS,
+      SPECIALS.INITIAL_SPAWN_MAX_MS,
     );
     this.magnetTimerMs = 0;
     this.ghostTimerMs = 0;
@@ -348,8 +302,8 @@ export class Game {
     this.policeWarning = null;
     this.planeWarning = null;
     this.policeSpawnTimerMs = randomBetween(
-      POLICE_INITIAL_SPAWN_MIN_MS,
-      POLICE_INITIAL_SPAWN_MAX_MS,
+      POLICE.INITIAL_SPAWN_MIN_MS,
+      POLICE.INITIAL_SPAWN_MAX_MS,
     );
     this.pickupComboCount = 0;
     this.comboTimerMs = 0;
@@ -500,7 +454,7 @@ export class Game {
       }
     }
 
-    this.spawnQueuedCoins(REGULAR_COIN_STARTING_BATCH);
+    this.spawnQueuedCoins(COINS.STARTING_BATCH);
     const visibleRegularCoins = this.world.pickups.filter(
       (pickup) => !isSpecialPickup(pickup),
     ).length;
@@ -645,7 +599,7 @@ export class Game {
         this.spawnCoinPickupMessage(pickup);
         this.coinsCollectedTotal += 1;
         this.score += this.applyPickupComboBonus();
-        this.coinRefillBoostTimerMs = REGULAR_COIN_REFILL_BOOST_MS;
+        this.coinRefillBoostTimerMs = COINS.REFILL_BOOST_MS;
       }
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
@@ -947,7 +901,7 @@ export class Game {
       x: centerX,
       y: centerY - 18,
       text,
-      ttlMs: TOAST_PICKUP_TTL_MS,
+      ttlMs: TOAST.PICKUP_TTL_MS,
       color,
       priority: 'low',
     });
@@ -983,7 +937,7 @@ export class Game {
       ).length;
       this.coinRefillTimerMs = spawned
         ? getCoinRefillDelayMs(visibleRegularCoinsAfterSpawn, this.coinRefillBoostTimerMs)
-        : randomBetween(REGULAR_COIN_RETRY_MIN_MS, REGULAR_COIN_RETRY_MAX_MS);
+        : randomBetween(COINS.RETRY_MIN_MS, COINS.RETRY_MAX_MS);
     }
   }
 
@@ -1115,7 +1069,7 @@ export class Game {
     if (!this.planeBonusEvent) {
       const schedulingStep = resolvePlaneEncounterSchedulingStep({
         planeBonusTimerMs: this.planeBonusTimerMs,
-        hasRunProgress: this.score >= PLANE_EVENT_MIN_SCORE || this.coinsCollectedTotal >= 4,
+        hasRunProgress: this.score >= PLANE.EVENT_MIN_SCORE || this.coinsCollectedTotal >= 4,
         policeOrWarningActive: Boolean(this.policeChase) || Boolean(this.policeWarning),
         dtSeconds,
       });
@@ -1151,13 +1105,10 @@ export class Game {
 
     if (planeStep.completed) {
       this.planeBonusEvent = null;
-      this.planeBonusTimerMs = randomBetween(
-        PLANE_EVENT_RESPAWN_MIN_MS,
-        PLANE_EVENT_RESPAWN_MAX_MS,
-      );
+      this.planeBonusTimerMs = randomBetween(PLANE.RESPAWN_MIN_MS, PLANE.RESPAWN_MAX_MS);
       this.policeSpawnTimerMs = Math.max(
         this.policeSpawnTimerMs,
-        randomBetween(POLICE_AFTER_PLANE_MIN_MS, POLICE_AFTER_PLANE_MAX_MS),
+        randomBetween(ENCOUNTER.POLICE_AFTER_PLANE_MIN_MS, ENCOUNTER.POLICE_AFTER_PLANE_MAX_MS),
       );
     }
   }
@@ -1168,8 +1119,8 @@ export class Game {
     }
 
     const rect =
-      this.findFreePickupRectNear({ x, y }, PLANE_BONUS_PICKUP_SIZE, 22) ??
-      this.findFreePickupRect(PLANE_BONUS_PICKUP_SIZE);
+      this.findFreePickupRectNear({ x, y }, PLANE.BONUS_PICKUP_SIZE, 22) ??
+      this.findFreePickupRect(PLANE.BONUS_PICKUP_SIZE);
     if (!rect) {
       return false;
     }
@@ -1216,7 +1167,7 @@ export class Game {
           width: rect.width,
           height: rect.height,
         },
-        value: REGULAR_COIN_SCORE,
+        value: COINS.SCORE,
         kind: 'coin',
       });
     }
@@ -1231,10 +1182,10 @@ export class Game {
 
     this.planeCoinTrail = {
       coinIds: trailPickups.map((pickup) => pickup.id),
-      ttlMs: PLANE_COIN_TRAIL_DURATION_MS,
-      durationMs: PLANE_COIN_TRAIL_DURATION_MS,
+      ttlMs: PLANE.COIN_TRAIL_DURATION_MS,
+      durationMs: PLANE.COIN_TRAIL_DURATION_MS,
     };
-    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('COIN TRAIL', '#facc15', 'high');
     return true;
@@ -1257,8 +1208,8 @@ export class Game {
       const bestDistance = Math.hypot(bestCenter.x - x, bestCenter.y - y);
       return candidateDistance < bestDistance ? candidate : best;
     });
-    this.enqueueSpecialSpawnCue(target, PLANE_SPOTLIGHT_CUE_DURATION_MS);
-    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.enqueueSpecialSpawnCue(target, PLANE.SPOTLIGHT_CUE_DURATION_MS);
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('SPOTLIGHT', '#fde047', 'high');
     return true;
@@ -1269,7 +1220,7 @@ export class Game {
       return false;
     }
 
-    const delayMs = randomBetween(PLANE_POLICE_DELAY_MIN_MS, PLANE_POLICE_DELAY_MAX_MS);
+    const delayMs = randomBetween(PLANE.POLICE_DELAY_MIN_MS, PLANE.POLICE_DELAY_MAX_MS);
     this.policeWarning = null;
     this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
     const delayCue = createPoliceDelayCueState(delayMs);
@@ -1296,7 +1247,7 @@ export class Game {
       return false;
     }
 
-    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
+    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('L-WIND', '#86efac', 'high');
     return true;
@@ -1368,12 +1319,12 @@ export class Game {
     const existingSpecials = this.dynamicPickups.filter(
       (pickup) => pickup.kind === 'special',
     ).length;
-    if (existingSpecials >= SPECIAL_VISIBLE_CAP) {
+    if (existingSpecials >= SPECIALS.VISIBLE_CAP) {
       return false;
     }
 
-    const isJackpot = Math.random() < JACKPOT_SPAWN_CHANCE;
-    const pickupSize = isJackpot ? JACKPOT_PICKUP_SIZE : 20;
+    const isJackpot = Math.random() < JACKPOT.SPAWN_CHANCE;
+    const pickupSize = isJackpot ? JACKPOT.PICKUP_SIZE : 20;
     const rect = this.findFreePickupRect(pickupSize);
     if (!rect) {
       return false;
@@ -1532,103 +1483,55 @@ export class Game {
       return { active: false, urgency: 0, caught: false };
     }
 
-    const ghostActive = this.ghostTimerMs > 0;
-    if (ghostActive) {
-      this.policeWarning = null;
-      if (this.policeChase?.phase === 'chasing') {
-        this.policeChase = beginPoliceLeaving(this.world.viewport, this.policeChase);
-        this.spawnEffectMessage('NO TRACE', '#c4b5fd', 'high');
-      }
-    }
-
-    if (!this.policeChase) {
-      if (ghostActive) {
-        return { active: false, urgency: 0, caught: false };
-      }
-
-      const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
-      const hasRunProgress =
-        this.score >= POLICE_START_SCORE_THRESHOLD ||
-        this.coinsCollectedTotal >= POLICE_START_COINS_THRESHOLD;
-      if (runElapsedMs < POLICE_START_DELAY_MS || !hasRunProgress) {
-        return { active: false, urgency: 0, caught: false };
-      }
-
-      // Do not start police pressure while plane beat is active/warning.
-      if (this.planeBonusEvent || this.planeWarning) {
-        this.policeWarning = null;
-        this.policeSpawnTimerMs = Math.max(this.policeSpawnTimerMs, ENCOUNTER_STAGGER_MS);
-        return { active: false, urgency: 0, caught: false };
-      }
-
-      const spawnCountdown = tickPoliceSpawnCountdown(
-        this.policeSpawnTimerMs,
-        this.policeWarning,
-        dtSeconds,
-      );
-      this.policeSpawnTimerMs = spawnCountdown.policeSpawnTimerMs;
-      this.policeWarning = spawnCountdown.policeWarning;
-
-      if (spawnCountdown.warningStarted) {
-        this.audio.playPoliceAlert();
-        this.spawnEffectMessage('WEE-OO', '#93c5fd', 'critical');
-      }
-
-      if (spawnCountdown.shouldSpawn) {
-        this.policeChase = createPoliceChase(this.world.viewport, this.policeWarning?.edge);
-        this.policeSpawnTimerMs = randomBetween(POLICE_POST_SPAWN_MIN_MS, POLICE_POST_SPAWN_MAX_MS);
-        this.spawnEffectMessage('POLICE!', '#60a5fa', 'critical');
-        this.policeWarning = null;
-        return { active: true, urgency: 0.3, caught: false };
-      }
-
-      return { active: false, urgency: 0, caught: false };
-    }
-
-    if (this.policeChase.phase === 'leaving') {
-      const policeRect = getPoliceRect(this.policeChase);
-      const onIce = isOnIceZone(policeRect, this.world.iceZones);
-      advancePoliceLeaving(this.world.viewport, this.policeChase, dtSeconds, onIce);
-
-      if (isPoliceOffscreen(this.world.viewport, this.policeChase, 28)) {
-        this.policeChase = null;
-        this.policeSpawnTimerMs = randomBetween(POLICE_RESPAWN_MIN_MS, POLICE_RESPAWN_MAX_MS);
-        if (!this.planeBonusEvent && !this.planeWarning) {
-          this.planeBonusTimerMs = randomBetween(
-            PLANE_AFTER_POLICE_MIN_MS,
-            PLANE_AFTER_POLICE_MAX_MS,
-          );
-        }
-      }
-
-      return { active: false, urgency: 0, caught: false };
-    }
-
-    const chaseExpired = tickPoliceChaseDuration(this.policeChase, dtSeconds);
-    if (chaseExpired) {
-      this.policeChase = beginPoliceLeaving(this.world.viewport, this.policeChase);
-      this.spawnEffectMessage('ESCAPED', '#86efac', 'high');
-      return { active: false, urgency: 0, caught: false };
-    }
-
     const playerBounds = this.player.getBounds();
-    const playerCenter = rectCenter(playerBounds);
-    const policeRect = getPoliceRect(this.policeChase);
-    const onIce = isOnIceZone(policeRect, this.world.iceZones);
-    const chaseStep = advancePoliceChasing(
-      this.policeChase,
+    const step = resolvePoliceChaseTickStep({
+      viewport: this.world.viewport,
+      iceZones: this.world.iceZones,
+      playerBounds,
+      playerCenter: rectCenter(playerBounds),
+      ghostActive: this.ghostTimerMs > 0,
+      policeChase: this.policeChase,
+      policeWarning: this.policeWarning,
+      policeSpawnTimerMs: this.policeSpawnTimerMs,
+      planeBonusActive: Boolean(this.planeBonusEvent),
+      planeWarningActive: Boolean(this.planeWarning),
+      score: this.score,
+      hasRunProgress:
+        this.score >= POLICE.START_SCORE_THRESHOLD ||
+        this.coinsCollectedTotal >= POLICE.START_COINS_THRESHOLD,
+      runElapsedMs: this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0,
       dtSeconds,
-      playerCenter,
-      this.score,
-      onIce,
-    );
+    });
 
-    if (rectsIntersect(playerBounds, getPoliceRect(this.policeChase))) {
-      this.enterCaughtGameOver();
-      return { active: false, urgency: 1, caught: true };
+    this.policeChase = step.policeChase;
+    this.policeWarning = step.policeWarning;
+    this.policeSpawnTimerMs = step.policeSpawnTimerMs;
+    if (step.planeBonusTimerMs !== null) {
+      this.planeBonusTimerMs = step.planeBonusTimerMs;
     }
 
-    return { active: true, urgency: chaseStep.urgency, caught: false };
+    for (const event of step.events) {
+      switch (event) {
+        case 'ghost-dismiss':
+          this.spawnEffectMessage('NO TRACE', '#c4b5fd', 'high');
+          break;
+        case 'warning-started':
+          this.audio.playPoliceAlert();
+          this.spawnEffectMessage('WEE-OO', '#93c5fd', 'critical');
+          break;
+        case 'chase-spawned':
+          this.spawnEffectMessage('POLICE!', '#60a5fa', 'critical');
+          break;
+        case 'escaped':
+          this.spawnEffectMessage('ESCAPED', '#86efac', 'high');
+          break;
+        case 'caught':
+          this.enterCaughtGameOver();
+          break;
+      }
+    }
+
+    return { active: step.active, urgency: step.urgency, caught: step.caught };
   }
 
   private drawPoliceCar(): void {
@@ -1747,7 +1650,7 @@ export class Game {
       x: bounds.x + bounds.width / 2,
       y: bounds.y - yOffset,
       text,
-      ttlMs: TOAST_EFFECT_TTL_MS,
+      ttlMs: TOAST.EFFECT_TTL_MS,
       color,
       priority,
     });

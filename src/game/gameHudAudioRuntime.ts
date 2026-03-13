@@ -1,7 +1,7 @@
 import type { HudState, InputState } from '../shared/types';
 import { getActiveEffectsForHud } from './gameEffectsRuntime';
+import type { SurfaceSample } from './gameStateTypes';
 import { adaptBlackoutEffectForSurface, getFlavorText } from './gameRuntime';
-import type { SurfaceSample } from './gameRuntime';
 import {
   getObjectiveHudText,
   getObjectiveProgress,

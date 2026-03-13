@@ -591,6 +591,18 @@ When this roadmap is working, a good run should feel like this:
 - Phase 7 marked `done` — all 10 micro-polish items complete
 - 75 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
+### Session — 2026-03-12 (q)
+
+- Code organization pass: cleaned up gameRuntime.ts and reduced Game.ts
+- Removed all 85 lines of legacy re-exported constants from `gameRuntime.ts`; consumers now import config groups directly from `gameConfig.ts`
+- Moved `SurfaceSample` interface from `gameRuntime.ts` to `gameStateTypes.ts`
+- Removed internal re-export aliases from `gameEffectsRuntime.ts` (INVERT_EFFECT_DURATION_MS etc. → direct EFFECTS.* usage)
+- Updated 11 consumer files (Game.ts, encounterRuntime.ts, pickupSpawnRuntime.ts, planeDropRuntime.ts, gameRunStateRuntime.ts, gameEffectsRuntime.ts, gameHudAudioRuntime.ts, gameRenderRuntime.ts, specials.smoke.test.ts and more) to import from `gameConfig.ts` groups
+- Extracted full police chase lifecycle into `resolvePoliceChaseTickStep` in `encounterRuntime.ts` with event-based side-effect dispatch
+- gameRuntime.ts: 546 → 444 lines (lean utility + game-data module, no re-exports)
+- Game.ts: 1957 → 1860 lines (import cleanup + police chase extraction)
+- 79 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
+
 ## Notes For Future Models
 
 Before making major changes:

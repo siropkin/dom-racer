@@ -1,11 +1,6 @@
 import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import type { PlaneBonusEventState, PlaneCoinTrailState } from './gameStateTypes';
-import {
-  PLANE_LUCKY_WIND_MAX_COINS,
-  PLANE_LUCKY_WIND_MAX_SHIFT_PX,
-  PLANE_LUCKY_WIND_RADIUS_PX,
-  PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
-} from './gameRuntime';
+import { PLANE } from './gameConfig';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
 interface PlaneDropDispatchHandlers {
@@ -106,14 +101,14 @@ export function applyPlaneLuckyWindToPickups({
     })
     .filter(
       (candidate) =>
-        candidate.distance <= PLANE_LUCKY_WIND_RADIUS_PX &&
-        Math.abs(candidate.lateral) <= PLANE_LUCKY_WIND_RADIUS_PX * 0.9,
+        candidate.distance <= PLANE.LUCKY_WIND_RADIUS_PX &&
+        Math.abs(candidate.lateral) <= PLANE.LUCKY_WIND_RADIUS_PX * 0.9,
     )
     .sort(
       (left, right) =>
         left.distance - right.distance || Math.abs(left.lateral) - Math.abs(right.lateral),
     )
-    .slice(0, PLANE_LUCKY_WIND_MAX_COINS);
+    .slice(0, PLANE.LUCKY_WIND_MAX_COINS);
 
   if (candidateCoins.length < 2) {
     return false;
@@ -133,8 +128,8 @@ export function applyPlaneLuckyWindToPickups({
     const currentCenter = rectCenter(candidate.pickup.rect);
     const clampedAlong = clamp(
       candidate.along,
-      -PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
-      PLANE_LUCKY_WIND_ROUTE_HALF_SPAN_PX,
+      -PLANE.LUCKY_WIND_ROUTE_HALF_SPAN_PX,
+      PLANE.LUCKY_WIND_ROUTE_HALF_SPAN_PX,
     );
     const routeCenter = {
       x: center.x + normalizedDirection.x * clampedAlong,
@@ -147,7 +142,7 @@ export function applyPlaneLuckyWindToPickups({
       continue;
     }
 
-    const shiftPx = Math.min(PLANE_LUCKY_WIND_MAX_SHIFT_PX, distanceToRoute * 0.65 + 8);
+    const shiftPx = Math.min(PLANE.LUCKY_WIND_MAX_SHIFT_PX, distanceToRoute * 0.65 + 8);
     const shiftedCenter = {
       x: currentCenter.x + (toRouteX / distanceToRoute) * shiftPx,
       y: currentCenter.y + (toRouteY / distanceToRoute) * shiftPx,

@@ -8,15 +8,8 @@ import type {
   PoliceWarningState,
   SpecialSpawnCue,
 } from './gameStateTypes';
-import {
-  PLANE_EVENT_INITIAL_MAX_MS,
-  PLANE_EVENT_INITIAL_MIN_MS,
-  POLICE_INITIAL_SPAWN_MAX_MS,
-  POLICE_INITIAL_SPAWN_MIN_MS,
-  SPECIAL_INITIAL_SPAWN_MAX_MS,
-  SPECIAL_INITIAL_SPAWN_MIN_MS,
-  randomBetween,
-} from './gameRuntime';
+import { PLANE, POLICE, SPECIALS } from './gameConfig';
+import { randomBetween } from './gameRuntime';
 
 export interface ClearedEncounterState {
   policeChase: PoliceChaseState | null;
@@ -118,9 +111,12 @@ export function createBeginRunState(nowMs: number): BeginRunState {
     coinRefillBoostTimerMs: 0,
     score: 0,
     coinsCollectedTotal: 0,
-    specialSpawnTimerMs: randomBetween(SPECIAL_INITIAL_SPAWN_MIN_MS, SPECIAL_INITIAL_SPAWN_MAX_MS),
-    planeBonusTimerMs: randomBetween(PLANE_EVENT_INITIAL_MIN_MS, PLANE_EVENT_INITIAL_MAX_MS),
-    policeSpawnTimerMs: randomBetween(POLICE_INITIAL_SPAWN_MIN_MS, POLICE_INITIAL_SPAWN_MAX_MS),
+    specialSpawnTimerMs: randomBetween(
+      SPECIALS.INITIAL_SPAWN_MIN_MS,
+      SPECIALS.INITIAL_SPAWN_MAX_MS,
+    ),
+    planeBonusTimerMs: randomBetween(PLANE.INITIAL_MIN_MS, PLANE.INITIAL_MAX_MS),
+    policeSpawnTimerMs: randomBetween(POLICE.INITIAL_SPAWN_MIN_MS, POLICE.INITIAL_SPAWN_MAX_MS),
     gameOverState: null,
     spriteShowcaseActive: false,
     startTimeMs: nowMs,

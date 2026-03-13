@@ -1,8 +1,7 @@
 import type { Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
 import { renderPlaneSprite, drawRegularCoinSprite, drawSpecialPickupSprite } from './sprites';
-import type { PlaneBonusEventState, SpecialSpawnCue } from './gameStateTypes';
-import type { SurfaceSample } from './gameRuntime';
+import type { PlaneBonusEventState, SpecialSpawnCue, SurfaceSample } from './gameStateTypes';
 
 /** Renders all world pickups (coins and specials) with spin animation. */
 export function drawPickups(
@@ -186,4 +185,3 @@ export function drawFocusModeLayer(
   ctx.fillRect(0, 0, width, height);
   ctx.restore();
 }
-

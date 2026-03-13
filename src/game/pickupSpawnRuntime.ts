@@ -1,26 +1,7 @@
 import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
-import {
-  cloneRect,
-  PLANE_LANE_SPECIAL_STAGGER_MS,
-  randomBetween,
-  REGULAR_COIN_LOW_PRESSURE_THRESHOLD,
-  REGULAR_COIN_REFILL_FAST_MAX_MS,
-  REGULAR_COIN_REFILL_FAST_MIN_MS,
-  REGULAR_COIN_REFILL_LOW_MAX_MS,
-  REGULAR_COIN_REFILL_LOW_MIN_MS,
-  REGULAR_COIN_REFILL_MAX_MS,
-  REGULAR_COIN_REFILL_MIN_MS,
-  REGULAR_COIN_SCORE,
-  REGULAR_COIN_VISIBLE_CAP,
-  SPECIAL_CAP_RETRY_MAX_MS,
-  SPECIAL_CAP_RETRY_MIN_MS,
-  SPECIAL_RESPAWN_MAX_MS,
-  SPECIAL_RESPAWN_MIN_MS,
-  SPECIAL_RETRY_MAX_MS,
-  SPECIAL_RETRY_MIN_MS,
-  SPECIAL_VISIBLE_CAP,
-} from './gameRuntime';
+import { COINS, PLANE, SPECIALS } from './gameConfig';
+import { cloneRect, randomBetween } from './gameRuntime';
 
 interface PickupSpawnBlockers {
   viewport: ViewportSize;
@@ -157,14 +138,14 @@ export function getCoinRefillDelayMs(
   coinRefillBoostTimerMs: number,
 ): number {
   if (coinRefillBoostTimerMs > 0) {
-    return randomBetween(REGULAR_COIN_REFILL_FAST_MIN_MS, REGULAR_COIN_REFILL_FAST_MAX_MS);
+    return randomBetween(COINS.REFILL_FAST_MIN_MS, COINS.REFILL_FAST_MAX_MS);
   }
 
-  if (visibleRegularCoins <= REGULAR_COIN_LOW_PRESSURE_THRESHOLD) {
-    return randomBetween(REGULAR_COIN_REFILL_LOW_MIN_MS, REGULAR_COIN_REFILL_LOW_MAX_MS);
+  if (visibleRegularCoins <= COINS.LOW_PRESSURE_THRESHOLD) {
+    return randomBetween(COINS.REFILL_LOW_MIN_MS, COINS.REFILL_LOW_MAX_MS);
   }
 
-  return randomBetween(REGULAR_COIN_REFILL_MIN_MS, REGULAR_COIN_REFILL_MAX_MS);
+  return randomBetween(COINS.REFILL_MIN_MS, COINS.REFILL_MAX_MS);
 }
 
 export function spawnQueuedCoinsFromAnchors({
@@ -194,7 +175,7 @@ export function spawnQueuedCoinsFromAnchors({
       id: `coin:${anchor.sourceId ?? anchor.id}:${nextCoinSpawnIdCounter}`,
       sourceId: anchor.sourceId ?? anchor.id,
       rect: cloneRect(anchor.rect),
-      value: REGULAR_COIN_SCORE,
+      value: COINS.SCORE,
       kind: 'coin',
     };
     nextCoinSpawnIdCounter += 1;
@@ -258,7 +239,7 @@ export function resolveAmbientSpecialSpawnStep(options: {
 }): AmbientSpecialSpawnStep {
   if (options.planeRouteActive) {
     return {
-      specialSpawnTimerMs: Math.max(options.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS),
+      specialSpawnTimerMs: Math.max(options.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS),
       shouldAttemptSpawn: false,
     };
   }
@@ -271,9 +252,9 @@ export function resolveAmbientSpecialSpawnStep(options: {
     };
   }
 
-  if (options.existingSpecialCount >= SPECIAL_VISIBLE_CAP) {
+  if (options.existingSpecialCount >= SPECIALS.VISIBLE_CAP) {
     return {
-      specialSpawnTimerMs: randomBetween(SPECIAL_CAP_RETRY_MIN_MS, SPECIAL_CAP_RETRY_MAX_MS),
+      specialSpawnTimerMs: randomBetween(SPECIALS.CAP_RETRY_MIN_MS, SPECIALS.CAP_RETRY_MAX_MS),
       shouldAttemptSpawn: false,
     };
   }
@@ -286,8 +267,8 @@ export function resolveAmbientSpecialSpawnStep(options: {
 
 export function getSpecialSpawnRespawnDelayMs(spawned: boolean): number {
   return spawned
-    ? randomBetween(SPECIAL_RESPAWN_MIN_MS, SPECIAL_RESPAWN_MAX_MS)
-    : randomBetween(SPECIAL_RETRY_MIN_MS, SPECIAL_RETRY_MAX_MS);
+    ? randomBetween(SPECIALS.RESPAWN_MIN_MS, SPECIALS.RESPAWN_MAX_MS)
+    : randomBetween(SPECIALS.RETRY_MIN_MS, SPECIALS.RETRY_MAX_MS);
 }
 
 export interface RegularCoinSpawnStep {
@@ -314,7 +295,7 @@ export function resolveRegularCoinSpawnStep(options: {
 
   const nextBoostMs = Math.max(0, options.coinRefillBoostTimerMs - options.dtSeconds * 1000);
 
-  if (options.visibleRegularCoins >= REGULAR_COIN_VISIBLE_CAP) {
+  if (options.visibleRegularCoins >= COINS.VISIBLE_CAP) {
     return {
       coinRefillBoostTimerMs: nextBoostMs,
       coinRefillTimerMs: options.coinRefillTimerMs,
