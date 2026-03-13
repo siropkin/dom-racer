@@ -2,7 +2,6 @@ import type { HudState, ViewportSize } from '../shared/types';
 import { formatElapsed } from '../shared/utils';
 
 const HUD_FONT = '12px "SFMono-Regular", "JetBrains Mono", monospace';
-const HUD_FONT_SMALL = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
 const HUD_MARGIN = 16;
 const HUD_PANEL_BG = 'rgba(2, 6, 23, 0.84)';
 const HUD_ACCENT_HEIGHT = 2;
@@ -151,8 +150,8 @@ function drawObjectivePanel(
     return;
   }
 
-  const panelWidth = 220;
-  const panelHeight = 32;
+  const panelWidth = 200;
+  const panelHeight = 46;
   const panelX = Math.round(viewport.width / 2 - panelWidth / 2);
   const panelY = viewport.height - panelHeight - HUD_MARGIN;
 
@@ -161,18 +160,38 @@ function drawObjectivePanel(
   ctx.fillStyle = 'rgba(167, 139, 250, 0.82)';
   ctx.fillRect(panelX, panelY, panelWidth, HUD_ACCENT_HEIGHT);
 
-  ctx.font = HUD_FONT_SMALL;
-  ctx.fillStyle = HUD_TEXT_DIM;
-  ctx.fillText(`GOAL  ${state.objectiveText}`, panelX + 10, panelY + 8);
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = HUD_TEXT_MUTED;
+  ctx.fillText('GOAL', panelX + 12, panelY + 8);
 
   const barX = panelX + 10;
   const barY = panelY + 24;
   const barWidth = panelWidth - 20;
-  const barHeight = 3;
-  ctx.fillStyle = 'rgba(100, 116, 139, 0.3)';
+  const barHeight = 18;
+
+  const isTimed = state.objectiveTimeRemainingMs !== null && state.objectiveTimeLimitMs !== null;
+  const barFill = isTimed
+    ? Math.max(
+        0,
+        Math.min(1, state.objectiveTimeRemainingMs! / Math.max(1, state.objectiveTimeLimitMs!)),
+      )
+    : Math.min(1, state.objectiveProgress);
+  const barColor = isTimed ? '#a78bfa' : '#a78bfa';
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.fillRect(barX, barY, barWidth, barHeight);
-  ctx.fillStyle = '#a78bfa';
-  ctx.fillRect(barX, barY, Math.max(2, barWidth * Math.min(1, state.objectiveProgress)), barHeight);
+  ctx.fillStyle = barColor;
+  ctx.fillRect(barX, barY, Math.max(10, barWidth * barFill), barHeight);
+
+  ctx.font = HUD_FONT;
+  ctx.fillStyle = '#020617';
+  ctx.fillText(state.objectiveText, barX + 6, barY + 4);
+
+  if (isTimed) {
+    const remainingSec = Math.max(0, state.objectiveTimeRemainingMs!) / 1000;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${remainingSec.toFixed(1)}s`, barX + barWidth - 40, barY + 4);
+  }
 }
 
 function drawScoreMemory(

@@ -137,6 +137,14 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
     lifetimeBestScore: Math.max(options.lifetimeBestScore, options.score),
     objectiveText: options.objectiveActive ? getObjectiveHudText(options.objectiveActive) : null,
     objectiveProgress: options.objectiveActive ? getObjectiveProgress(options.objectiveActive) : 0,
+    objectiveTimeRemainingMs:
+      options.objectiveActive && options.objectiveActive.timeLimitMs > 0
+        ? options.objectiveActive.timeRemainingMs
+        : null,
+    objectiveTimeLimitMs:
+      options.objectiveActive && options.objectiveActive.timeLimitMs > 0
+        ? options.objectiveActive.timeLimitMs
+        : null,
     activeEffects,
   };
 }

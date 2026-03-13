@@ -87,6 +87,8 @@ export interface HudState {
   lifetimeBestScore: number;
   objectiveText: string | null;
   objectiveProgress: number;
+  objectiveTimeRemainingMs: number | null;
+  objectiveTimeLimitMs: number | null;
   activeEffects: Array<{
     effect: HudEffectKind;
     label: string;
