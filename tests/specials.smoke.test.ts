@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { World } from '../src/shared/types';
 import {
-  applyLurePullToPickups,
   applyMagnetPullToPickups,
   resolveSpecialEffectActivation,
 } from '../src/game/gameEffectsRuntime';
@@ -20,6 +19,8 @@ vi.mock('../src/game/audio', () => {
     playPoliceAlert(): void {}
     playPlaneFlyover(): void {}
     playPlaneDrop(): void {}
+    playObjectiveChime(): void {}
+    playNearMissWhoosh(): void {}
     async resume(): Promise<void> {}
   }
   return { AudioManager: MockAudioManager };
@@ -27,7 +28,7 @@ vi.mock('../src/game/audio', () => {
 
 import { Game } from '../src/game/Game';
 
-describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
+describe('special effects, jackpot, blur, oil_slick, reverse, mystery smoke invariants', () => {
   let game: Game;
 
   beforeEach(() => {
@@ -37,7 +38,7 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
       getPageTitle: () => 'DOM Racer Smoke',
       sampleSurfaceAt: () => ({ lightness: 0.6, saturation: 0.2, hasGradient: false }),
       setPageInverted: () => undefined,
-      setPageBlackout: () => undefined,
+      setPageBlur: () => undefined,
       setMagnetUiState: () => undefined,
       onQuit: () => undefined,
       initialSoundEnabled: false,
@@ -162,7 +163,7 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
     expect(farCoinAfter?.centerY).toBe(farCoinBefore?.centerY);
   });
 
-  it('surfaces lure active flavor text', () => {
+  it('surfaces blur active flavor text', () => {
     const text = getFlavorText({
       score: 80,
       airborne: false,
@@ -170,8 +171,9 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
       magnetActive: false,
       ghostActive: false,
       invertActive: false,
-      blackoutActive: false,
-      lureActive: true,
+      blurActive: true,
+      oilSlickActive: false,
+      reverseActive: false,
       nearMissCount: 0,
       objectivesCompleted: 0,
       planeActive: false,
@@ -181,168 +183,104 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
       policeDelayActive: false,
     });
 
-    expect(text).toContain('Loose change incoming');
+    expect(text).toContain('Vision hazy');
   });
 
   it('keeps extracted special-effect activation resolution unchanged', () => {
     const brightSurface = { lightness: 0.7, saturation: 0.2, hasGradient: false };
-    const darkSurface = { lightness: 0.2, saturation: 0.1, hasGradient: false };
 
     const bonus = resolveSpecialEffectActivation('bonus', brightSurface);
     expect(bonus.resolvedEffect).toBe('bonus');
     expect(bonus.scoreBonus).toBe(40);
     expect(bonus.timerMs).toBe(0);
-    expect(bonus.policeDelayMs).toBe(0);
     expect(bonus.setInverted).toBe(false);
-    expect(bonus.setBlackout).toBe(false);
+    expect(bonus.setBlur).toBe(false);
     expect(bonus.messageText).toContain('BON');
 
     const magnet = resolveSpecialEffectActivation('magnet', brightSurface);
     expect(magnet.resolvedEffect).toBe('magnet');
     expect(magnet.scoreBonus).toBe(0);
     expect(magnet.timerMs).toBeGreaterThan(0);
-    expect(magnet.policeDelayMs).toBe(0);
     expect(magnet.setInverted).toBe(false);
-    expect(magnet.setBlackout).toBe(false);
+    expect(magnet.setBlur).toBe(false);
 
     const invert = resolveSpecialEffectActivation('invert', brightSurface);
     expect(invert.resolvedEffect).toBe('invert');
     expect(invert.timerMs).toBeGreaterThan(0);
     expect(invert.setInverted).toBe(true);
-    expect(invert.setBlackout).toBe(false);
+    expect(invert.setBlur).toBe(false);
 
     const ghost = resolveSpecialEffectActivation('ghost', brightSurface);
     expect(ghost.resolvedEffect).toBe('ghost');
     expect(ghost.timerMs).toBeGreaterThan(0);
     expect(ghost.setInverted).toBe(false);
-    expect(ghost.setBlackout).toBe(false);
+    expect(ghost.setBlur).toBe(false);
 
-    const blackout = resolveSpecialEffectActivation('blackout', brightSurface);
-    expect(blackout.resolvedEffect).toBe('blackout');
-    expect(blackout.timerMs).toBeGreaterThan(0);
-    expect(blackout.setInverted).toBe(false);
-    expect(blackout.setBlackout).toBe(true);
-
-    const blackoutOnDark = resolveSpecialEffectActivation('blackout', darkSurface);
-    expect(blackoutOnDark.resolvedEffect).toBe('invert');
-    expect(blackoutOnDark.setInverted).toBe(true);
-    expect(blackoutOnDark.setBlackout).toBe(false);
+    const blur = resolveSpecialEffectActivation('blur', brightSurface);
+    expect(blur.resolvedEffect).toBe('blur');
+    expect(blur.timerMs).toBeGreaterThan(0);
+    expect(blur.setInverted).toBe(false);
+    expect(blur.setBlur).toBe(true);
   });
 
-  it('resolves cooldown activation with score bonus and police delay', () => {
+  it('resolves oil_slick activation with timer and no visual side effects', () => {
     const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
-    const cooldown = resolveSpecialEffectActivation('cooldown', surface);
-    expect(cooldown.resolvedEffect).toBe('cooldown');
-    expect(cooldown.scoreBonus).toBe(15);
-    expect(cooldown.timerMs).toBe(0);
-    expect(cooldown.policeDelayMs).toBeGreaterThanOrEqual(5400);
-    expect(cooldown.policeDelayMs).toBeLessThanOrEqual(8200);
-    expect(cooldown.setInverted).toBe(false);
-    expect(cooldown.setBlackout).toBe(false);
-    expect(cooldown.messageText).toContain('CDN');
+    const oilSlick = resolveSpecialEffectActivation('oil_slick', surface);
+    expect(oilSlick.resolvedEffect).toBe('oil_slick');
+    expect(oilSlick.scoreBonus).toBe(0);
+    expect(oilSlick.timerMs).toBe(3500);
+    expect(oilSlick.setInverted).toBe(false);
+    expect(oilSlick.setBlur).toBe(false);
+    expect(oilSlick.messageText).toContain('OIL');
   });
 
-  it('resolves lure activation with timer and no visual side effects', () => {
+  it('resolves reverse activation with timer', () => {
     const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
-    const lure = resolveSpecialEffectActivation('lure', surface);
-    expect(lure.resolvedEffect).toBe('lure');
-    expect(lure.scoreBonus).toBe(0);
-    expect(lure.timerMs).toBe(5400);
-    expect(lure.policeDelayMs).toBe(0);
-    expect(lure.setInverted).toBe(false);
-    expect(lure.setBlackout).toBe(false);
-    expect(lure.messageText).toContain('LUR');
+    const reverse = resolveSpecialEffectActivation('reverse', surface);
+    expect(reverse.resolvedEffect).toBe('reverse');
+    expect(reverse.scoreBonus).toBe(0);
+    expect(reverse.timerMs).toBe(3500);
+    expect(reverse.setInverted).toBe(false);
+    expect(reverse.setBlur).toBe(false);
+    expect(reverse.messageText).toContain('REV');
   });
 
-  it('uses lure pull to attract distant coins but not specials', () => {
-    const pickups: World['pickups'] = [
-      {
-        id: 'coin:near',
-        sourceId: 'coin:near',
-        rect: { x: 460, y: 260, width: 16, height: 16 },
-        value: 10,
-        kind: 'coin',
-      },
-      {
-        id: 'coin:far',
-        sourceId: 'coin:far',
-        rect: { x: 360, y: 180, width: 16, height: 16 },
-        value: 10,
-        kind: 'coin',
-      },
-      {
-        id: 'coin:out-of-range',
-        sourceId: 'coin:out-of-range',
-        rect: { x: 860, y: 520, width: 16, height: 16 },
-        value: 10,
-        kind: 'coin',
-      },
-      {
-        id: 'special:magnet:lure-test',
-        rect: { x: 480, y: 240, width: 20, height: 20 },
-        value: 25,
-        kind: 'special',
-        effect: 'magnet',
-        accentColor: '#67e8f9',
-        label: 'MAG',
-      },
-    ];
-    const playerCenter = { x: 500, y: 300 };
-    const nearBefore = { ...pickups[0].rect };
-    const farBefore = { ...pickups[1].rect };
-    const outOfRangeBefore = { ...pickups[2].rect };
-    const specialBefore = { ...pickups[3].rect };
-
-    applyLurePullToPickups(pickups, playerCenter, 0.5);
-
-    const nearDistance = Math.hypot(
-      playerCenter.x - (pickups[0].rect.x + 8),
-      playerCenter.y - (pickups[0].rect.y + 8),
+  it('resolves mystery activation as a random other effect', () => {
+    const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
+    const mystery = resolveSpecialEffectActivation('mystery', surface);
+    expect(mystery.messageText).toBe('MYSTERY');
+    expect(['bonus', 'magnet', 'invert', 'ghost', 'blur', 'oil_slick', 'reverse']).toContain(
+      mystery.resolvedEffect,
     );
-    const nearBeforeDistance = Math.hypot(
-      playerCenter.x - (nearBefore.x + 8),
-      playerCenter.y - (nearBefore.y + 8),
-    );
-    expect(nearDistance).toBeLessThan(nearBeforeDistance);
-
-    const farDistance = Math.hypot(
-      playerCenter.x - (pickups[1].rect.x + 8),
-      playerCenter.y - (pickups[1].rect.y + 8),
-    );
-    const farBeforeDistance = Math.hypot(
-      playerCenter.x - (farBefore.x + 8),
-      playerCenter.y - (farBefore.y + 8),
-    );
-    expect(farDistance).toBeLessThan(farBeforeDistance);
-
-    expect(pickups[2].rect.x).toBe(outOfRangeBefore.x);
-    expect(pickups[2].rect.y).toBe(outOfRangeBefore.y);
-
-    expect(pickups[3].rect.x).toBe(specialBefore.x);
-    expect(pickups[3].rect.y).toBe(specialBefore.y);
   });
 
-  it('uses cooldown to push police timer and show delay cue', () => {
+  it('activates blur timer when blur special is collected', () => {
     (game as any).beginRun('manual');
-    const spawnTimerBefore = 2000;
-    (game as any).policeSpawnTimerMs = spawnTimerBefore;
+    expect((game as any).blurTimerMs).toBe(0);
 
-    (game as any).activateSpecialEffect('cooldown');
+    (game as any).activateSpecialEffect('blur');
 
-    expect((game as any).policeSpawnTimerMs).toBeGreaterThan(spawnTimerBefore + 5000);
-    expect((game as any).policeDelayCueTimerMs).toBeGreaterThan(5000);
-    expect((game as any).policeDelayCueDurationMs).toBe((game as any).policeDelayCueTimerMs);
-    expect((game as any).score).toBe(15);
-    expect((game as any).policeWarning).toBeNull();
+    expect((game as any).blurTimerMs).toBe(4500);
+    expect((game as any).score).toBe(0);
   });
 
-  it('activates lure timer when lure special is collected', () => {
+  it('activates oil_slick timer when oil_slick special is collected', () => {
     (game as any).beginRun('manual');
-    expect((game as any).lureTimerMs).toBe(0);
+    expect((game as any).oilSlickTimerMs).toBe(0);
 
-    (game as any).activateSpecialEffect('lure');
+    (game as any).activateSpecialEffect('oil_slick');
 
-    expect((game as any).lureTimerMs).toBe(5400);
+    expect((game as any).oilSlickTimerMs).toBe(3500);
+    expect((game as any).score).toBe(0);
+  });
+
+  it('activates reverse timer when reverse special is collected', () => {
+    (game as any).beginRun('manual');
+    expect((game as any).reverseTimerMs).toBe(0);
+
+    (game as any).activateSpecialEffect('reverse');
+
+    expect((game as any).reverseTimerMs).toBe(3500);
     expect((game as any).score).toBe(0);
   });
 
@@ -353,9 +291,8 @@ describe('special effects, jackpot, cooldown, lure smoke invariants', () => {
     expect(jackpot.scoreBonus).toBeGreaterThanOrEqual(JACKPOT.SCORE_MIN);
     expect(jackpot.scoreBonus).toBeLessThanOrEqual(JACKPOT.SCORE_MAX);
     expect(jackpot.timerMs).toBe(0);
-    expect(jackpot.policeDelayMs).toBe(0);
     expect(jackpot.setInverted).toBe(false);
-    expect(jackpot.setBlackout).toBe(false);
+    expect(jackpot.setBlur).toBe(false);
     expect(jackpot.messageText).toBe('JACKPOT!');
   });
 

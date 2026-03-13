@@ -19,7 +19,17 @@ import type {
   SurfaceSample,
 } from './gameStateTypes';
 import { AudioManager } from './audio';
-import { COINS, ENCOUNTER, JACKPOT, PLANE, PLAYER, POLICE, SPECIALS, TOAST } from './gameConfig';
+import {
+  COINS,
+  EFFECTS,
+  ENCOUNTER,
+  JACKPOT,
+  PLANE,
+  PLAYER,
+  POLICE,
+  SPECIALS,
+  TOAST,
+} from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
 import { isBoosting, isOnDeadSpot, isOnIceZone, isOnSlowZone } from './pickups';
@@ -48,13 +58,13 @@ import {
   spawnCelebrationParticles,
   spawnCoinBurstParticles,
   spawnDriftSparkParticles,
+  spawnEscapedCelebrationParticles,
   spawnNewBestBurstParticles,
   spawnTireDustParticles,
   updateVfxParticles,
   type VfxParticle,
 } from './vfxRuntime';
 import {
-  applyLurePullToPickups,
   applyMagnetPullToPickups,
   resolveSpecialEffectActivation,
   tickEffectTimers,
@@ -92,7 +102,6 @@ import {
 } from './gameOverlays';
 import { Player } from './player';
 import {
-  adaptBlackoutEffectForSurface,
   clonePickup,
   cloneWorld,
   type DailyModifier,
@@ -105,8 +114,6 @@ import {
   isSpecialPickup,
   pickOppositeShowcaseThemeIndex,
   pickSpecialEffect,
-  PICKUP_COLORS,
-  PICKUP_WORDS,
   randomBetween,
   SHOWCASE_THEMES,
   shufflePickups,
@@ -153,7 +160,7 @@ export class Game {
   private getPageTitle: () => string;
   private sampleSurfaceAt: (point: Vector2) => SurfaceSample;
   private setPageInverted: (active: boolean) => void;
-  private setPageBlackout: (active: boolean) => void;
+  private setPageBlur: (active: boolean) => void;
   private setMagnetUiState: (state: {
     active: boolean;
     point: Vector2 | null;
@@ -193,16 +200,16 @@ export class Game {
   private policeDelayCueTimerMs: number;
   private policeDelayCueDurationMs: number;
   private planeBonusTimerMs: number;
-  private pickupFlavorIndex: number;
   private coinsCollectedTotal: number;
   private specialSpawnTimerMs: number;
   private magnetTimerMs: number;
   private ghostTimerMs: number;
   private invertTimerMs: number;
-  private blackoutTimerMs: number;
-  private lureTimerMs: number;
+  private blurTimerMs: number;
+  private oilSlickTimerMs: number;
+  private reverseTimerMs: number;
   private invertActive: boolean;
-  private blackoutActive: boolean;
+  private blurActive: boolean;
   private policeChase: PoliceChaseState | null;
   private policeWarning: PoliceWarningState | null;
   private planeWarning: PlaneWarningState | null;
@@ -245,7 +252,7 @@ export class Game {
     this.getPageTitle = options.getPageTitle;
     this.sampleSurfaceAt = options.sampleSurfaceAt;
     this.setPageInverted = options.setPageInverted;
-    this.setPageBlackout = options.setPageBlackout;
+    this.setPageBlur = options.setPageBlur;
     this.setMagnetUiState = options.setMagnetUiState;
     this.onQuit = options.onQuit;
     this.onSoundEnabledChange = options.onSoundEnabledChange;
@@ -287,7 +294,6 @@ export class Game {
     this.policeDelayCueTimerMs = 0;
     this.policeDelayCueDurationMs = 0;
     this.planeBonusTimerMs = randomBetween(PLANE.INITIAL_MIN_MS, PLANE.INITIAL_MAX_MS);
-    this.pickupFlavorIndex = 0;
     this.coinsCollectedTotal = 0;
     this.specialSpawnTimerMs = randomBetween(
       SPECIALS.INITIAL_SPAWN_MIN_MS,
@@ -296,10 +302,11 @@ export class Game {
     this.magnetTimerMs = 0;
     this.ghostTimerMs = 0;
     this.invertTimerMs = 0;
-    this.blackoutTimerMs = 0;
-    this.lureTimerMs = 0;
+    this.blurTimerMs = 0;
+    this.oilSlickTimerMs = 0;
+    this.reverseTimerMs = 0;
     this.invertActive = false;
-    this.blackoutActive = false;
+    this.blurActive = false;
     this.policeChase = null;
     this.policeWarning = null;
     this.planeWarning = null;
@@ -371,7 +378,7 @@ export class Game {
 
     this.audio.stop();
     this.setInverted(false);
-    this.setBlackout(false);
+    this.setBlur(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
@@ -532,6 +539,7 @@ export class Game {
     const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, activeSlowZones);
 
     const activeInput = this.getActiveInput();
+    const oilSlickMultiplier = this.oilSlickTimerMs > 0 ? EFFECTS.OIL_SLICK_SPEED_MULTIPLIER : 1;
     this.player.update({
       input: activeInput,
       dtSeconds,
@@ -540,6 +548,7 @@ export class Game {
       boosting,
       slowed,
       onIce,
+      speedMultiplier: oilSlickMultiplier,
     });
     void this.audio.updateEngine(
       this.player.getLastStepDiagnostics().speed,
@@ -623,7 +632,6 @@ export class Game {
     this.updatePlaneBonusEvent(dtSeconds);
     this.updateOvergrowth(dtSeconds);
     this.applyMagnet(dtSeconds);
-    this.applyLure(dtSeconds);
     this.updateUiEffects();
 
     if (this.firstPlayHintTimerMs > 0) {
@@ -675,7 +683,7 @@ export class Game {
     );
     drawOvergrowthNodes(ctx, this.overgrowthNodes, performance.now());
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
-    drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
+    drawSpecialSpawnCues(ctx, this.specialSpawnCues);
     drawPickups(ctx, this.world.pickups, performance.now());
     drawVfxParticles(ctx, this.vfxParticles);
     const renderSpeed = this.player.getLastStepDiagnostics().speed;
@@ -716,8 +724,9 @@ export class Game {
       magnetTimerMs: this.magnetTimerMs,
       ghostTimerMs: this.ghostTimerMs,
       invertTimerMs: this.invertTimerMs,
-      blackoutTimerMs: this.blackoutTimerMs,
-      lureTimerMs: this.lureTimerMs,
+      blurTimerMs: this.blurTimerMs,
+      oilSlickTimerMs: this.oilSlickTimerMs,
+      reverseTimerMs: this.reverseTimerMs,
       policeDelayCueTimerMs: this.policeDelayCueTimerMs,
       policeDelayCueDurationMs: this.policeDelayCueDurationMs,
       policeRemainingMs,
@@ -888,22 +897,26 @@ export class Game {
   }
 
   private getActiveInput(): InputState {
-    return cloneInputState(this.input);
+    const raw = cloneInputState(this.input);
+    if (this.reverseTimerMs > 0) {
+      return { up: raw.down, down: raw.up, left: raw.right, right: raw.left };
+    }
+    return raw;
   }
 
   private spawnCoinPickupMessage(pickup: World['pickups'][number]): void {
     const centerX = pickup.rect.x + pickup.rect.width / 2;
     const centerY = pickup.rect.y + pickup.rect.height / 2;
-    const text = PICKUP_WORDS[this.pickupFlavorIndex % PICKUP_WORDS.length];
-    const color = PICKUP_COLORS[this.pickupFlavorIndex % PICKUP_COLORS.length];
-    this.pickupFlavorIndex += 1;
+    const coinMultiplier = this.dailyModifier.kind === 'DOUBLE_COINS' ? 2 : 1;
+    const amount = (pickup.value || COINS.SCORE) * coinMultiplier;
+    const text = `+${amount}`;
 
     this.toastSystem.enqueue({
       x: centerX,
       y: centerY - 18,
       text,
       ttlMs: TOAST.PICKUP_TTL_MS,
-      color,
+      color: '#fde047',
       priority: 'low',
     });
   }
@@ -1093,7 +1106,7 @@ export class Game {
         const encounter = createPlaneBonusEncounter(this.world.viewport);
         this.planeBonusEvent = encounter.planeBonusEvent;
         this.planeWarning = encounter.planeWarning;
-        this.spawnEffectMessage('PLANE', '#93c5fd', 'medium');
+        // edge indicator is sufficient — no toast for plane
       }
       return;
     }
@@ -1348,9 +1361,7 @@ export class Game {
       x: rect.x + rect.width / 2,
       y: rect.y + rect.height / 2,
     });
-    const effect = isJackpot
-      ? ('jackpot' as const)
-      : adaptBlackoutEffectForSurface(pickSpecialEffect(surface), surface);
+    const effect = isJackpot ? ('jackpot' as const) : pickSpecialEffect(surface);
     const pickup: WorldPickup = {
       id: `special:${effect}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
       rect,
@@ -1411,35 +1422,29 @@ export class Game {
       case 'ghost':
         this.ghostTimerMs = activation.timerMs;
         break;
-      case 'blackout':
-        this.blackoutTimerMs = activation.timerMs;
+      case 'blur':
+        this.blurTimerMs = activation.timerMs;
         break;
-      case 'lure':
-        this.lureTimerMs = activation.timerMs;
+      case 'oil_slick':
+        this.oilSlickTimerMs = activation.timerMs;
         break;
-      case 'cooldown':
-        this.applyCooldownPoliceDelay(activation.policeDelayMs);
+      case 'reverse':
+        this.reverseTimerMs = activation.timerMs;
         break;
+      case 'bonus':
       case 'jackpot':
+      case 'mystery':
         break;
     }
 
     if (activation.setInverted) {
       this.setInverted(true);
     }
-    if (activation.setBlackout) {
-      this.setBlackout(true);
+    if (activation.setBlur) {
+      this.setBlur(true);
     }
 
     this.spawnEffectMessage(activation.messageText, activation.messageColor, 'high');
-  }
-
-  private applyCooldownPoliceDelay(delayMs: number): void {
-    this.policeWarning = null;
-    this.policeSpawnTimerMs = Math.max(0, this.policeSpawnTimerMs) + delayMs;
-    const delayCue = createPoliceDelayCueState(delayMs);
-    this.policeDelayCueTimerMs = delayCue.policeDelayCueTimerMs;
-    this.policeDelayCueDurationMs = delayCue.policeDelayCueDurationMs;
   }
 
   private sampleCurrentSurface(): SurfaceSample {
@@ -1464,14 +1469,6 @@ export class Game {
     }
 
     applyMagnetPullToPickups(this.world.pickups, rectCenter(this.player.getBounds()), dtSeconds);
-  }
-
-  private applyLure(dtSeconds: number): void {
-    if (!this.world || !this.player || this.lureTimerMs <= 0) {
-      return;
-    }
-
-    applyLurePullToPickups(this.world.pickups, rectCenter(this.player.getBounds()), dtSeconds);
   }
 
   private updateUiEffects(): void {
@@ -1521,13 +1518,21 @@ export class Game {
           break;
         case 'warning-started':
           this.audio.playPoliceAlert();
-          this.spawnEffectMessage('WEE-OO', '#93c5fd', 'critical');
           break;
         case 'chase-spawned':
-          this.spawnEffectMessage('POLICE!', '#60a5fa', 'critical');
           break;
         case 'escaped':
           this.spawnEffectMessage('ESCAPED', '#86efac', 'high');
+          if (this.player) {
+            this.player.triggerCelebration();
+            const pb = this.player.getBounds();
+            spawnEscapedCelebrationParticles(
+              this.vfxParticles,
+              pb.x + pb.width / 2,
+              pb.y + pb.height / 2,
+            );
+          }
+          this.audio.playObjectiveChime();
           break;
         case 'caught':
           this.enterCaughtGameOver();
@@ -1589,22 +1594,24 @@ export class Game {
         magnetTimerMs: this.magnetTimerMs,
         ghostTimerMs: this.ghostTimerMs,
         invertTimerMs: this.invertTimerMs,
-        blackoutTimerMs: this.blackoutTimerMs,
-        lureTimerMs: this.lureTimerMs,
+        blurTimerMs: this.blurTimerMs,
+        oilSlickTimerMs: this.oilSlickTimerMs,
+        reverseTimerMs: this.reverseTimerMs,
       },
       dtSeconds,
     );
     this.magnetTimerMs = timers.magnetTimerMs;
     this.ghostTimerMs = timers.ghostTimerMs;
     this.invertTimerMs = timers.invertTimerMs;
-    this.blackoutTimerMs = timers.blackoutTimerMs;
-    this.lureTimerMs = timers.lureTimerMs;
+    this.blurTimerMs = timers.blurTimerMs;
+    this.oilSlickTimerMs = timers.oilSlickTimerMs;
+    this.reverseTimerMs = timers.reverseTimerMs;
 
     if (timers.invertExpired) {
       this.setInverted(false);
     }
-    if (timers.blackoutExpired) {
-      this.setBlackout(false);
+    if (timers.blurExpired) {
+      this.setBlur(false);
     }
   }
 
@@ -1625,13 +1632,13 @@ export class Game {
     this.setPageInverted(active);
   }
 
-  private setBlackout(active: boolean): void {
-    if (this.blackoutActive === active) {
+  private setBlur(active: boolean): void {
+    if (this.blurActive === active) {
       return;
     }
 
-    this.blackoutActive = active;
-    this.setPageBlackout(active);
+    this.blurActive = active;
+    this.setPageBlur(active);
   }
 
   private spawnEffectMessage(
@@ -1651,6 +1658,28 @@ export class Game {
       y: bounds.y - yOffset,
       text,
       ttlMs: TOAST.EFFECT_TTL_MS,
+      color,
+      priority,
+    });
+  }
+
+  private spawnRunStartMessage(
+    text: string,
+    color: string,
+    priority: ToastPriority = 'medium',
+  ): void {
+    if (!this.player) {
+      return;
+    }
+
+    const bounds = this.player.getBounds();
+    const yOffset =
+      priority === 'critical' ? 44 : priority === 'high' ? 34 : priority === 'medium' ? 26 : 18;
+    this.toastSystem.enqueue({
+      x: bounds.x + bounds.width / 2,
+      y: bounds.y - yOffset,
+      text,
+      ttlMs: TOAST.RUN_START_TTL_MS,
       color,
       priority,
     });
@@ -1711,8 +1740,9 @@ export class Game {
     this.magnetTimerMs = cleared.magnetTimerMs;
     this.ghostTimerMs = cleared.ghostTimerMs;
     this.invertTimerMs = cleared.invertTimerMs;
-    this.blackoutTimerMs = cleared.blackoutTimerMs;
-    this.lureTimerMs = cleared.lureTimerMs;
+    this.blurTimerMs = cleared.blurTimerMs;
+    this.oilSlickTimerMs = cleared.oilSlickTimerMs;
+    this.reverseTimerMs = cleared.reverseTimerMs;
   }
 
   private beginRun(): void {
@@ -1733,7 +1763,7 @@ export class Game {
     this.planeBonusTimerMs = nextRunState.planeBonusTimerMs;
     this.clearEffectRuntimeState();
     this.setInverted(false);
-    this.setBlackout(false);
+    this.setBlur(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
@@ -1765,8 +1795,8 @@ export class Game {
     }
 
     this.firstPlayHintTimerMs = this.runNumber === 1 ? 4500 : 0;
-    this.spawnEffectMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
-    this.spawnEffectMessage(`TODAY: ${this.dailyModifier.label}`, '#67e8f9', 'low');
+    this.spawnRunStartMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
+    this.spawnRunStartMessage(`TODAY: ${this.dailyModifier.label}`, '#67e8f9', 'low');
   }
 
   private enterCaughtGameOver(): void {
@@ -1780,7 +1810,7 @@ export class Game {
     this.finishCurrentRun('caught');
     this.startTimeMs = transition.startTimeMs;
     this.setInverted(false);
-    this.setBlackout(false);
+    this.setBlur(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.audio.stop();
     this.clearEffectRuntimeState();
@@ -1798,7 +1828,7 @@ export class Game {
     this.autoPickSpriteShowcaseTheme();
     this.audio.stop();
     this.setInverted(false);
-    this.setBlackout(false);
+    this.setBlur(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();

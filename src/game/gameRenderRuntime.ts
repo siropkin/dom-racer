@@ -40,11 +40,7 @@ export function drawPickups(
   ctx.restore();
 }
 
-export function drawSpecialSpawnCues(
-  ctx: CanvasRenderingContext2D,
-  cues: SpecialSpawnCue[],
-  blackoutLabel: string,
-): void {
+export function drawSpecialSpawnCues(ctx: CanvasRenderingContext2D, cues: SpecialSpawnCue[]): void {
   if (cues.length === 0) {
     return;
   }
@@ -72,7 +68,7 @@ export function drawSpecialSpawnCues(
     ctx.strokeStyle = cue.color;
     ctx.lineWidth = 1.1;
     ctx.strokeRect(cue.x - 13.5, cue.y - 25.5, 27, 11);
-    ctx.fillStyle = cue.label === blackoutLabel ? '#e2e8f0' : cue.color;
+    ctx.fillStyle = cue.color;
     ctx.fillText(cue.label, cue.x, cue.y - 20);
   }
 

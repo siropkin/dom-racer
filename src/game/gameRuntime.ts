@@ -1,6 +1,6 @@
 import type { Rect, SpecialEffect, VehicleDesign, World, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
-import { EFFECTS, SPECIALS, VEHICLES } from './gameConfig';
+import { SPECIALS, VEHICLES } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
 
 export interface ShowcaseTheme {
@@ -24,28 +24,21 @@ export const PICKUP_COLORS = [
   '#c4b5fd',
 ] as const;
 export const SHOWCASE_TOAST_MESSAGES = [
-  'LGTM',
-  'MERGED',
-  'GREEN',
+  '+10',
+  '+50',
+  '+40',
   'SYNCED',
   'SHIPPED',
   'CACHE',
-  'C-MAGD',
-  'P-INVD',
-  'V-GHOD',
-  'S-BLKD',
-  'R-BOND',
   'C-MAG',
   'P-INV',
   'V-GHO',
-  'S-BLK',
+  'P-BLR',
+  'S-OIL',
+  'O-REV',
   'R-BON+40',
-  'T-CDN+15',
-  'A-LUR',
-  'WEE-OO',
-  'POLICE!',
+  'MYSTERY',
   'ESCAPED',
-  'PLANE',
   'COUPE',
   'BUGGY',
   'TRUCK',
@@ -113,39 +106,42 @@ const RANDOM_SPECIAL_EFFECTS: readonly SpecialEffect[] = [
   'invert',
   'magnet',
   'ghost',
-  'blackout',
-  'cooldown',
-  'lure',
+  'blur',
+  'oil_slick',
+  'reverse',
 ];
 const SPECIAL_LABELS: Readonly<Record<SpecialEffect, string>> = {
   bonus: 'BON',
   invert: 'INV',
   magnet: 'MAG',
   ghost: 'GHO',
-  blackout: 'BLK',
-  cooldown: 'CDN',
-  lure: 'LUR',
   jackpot: 'JKP',
+  blur: 'BLR',
+  oil_slick: 'OIL',
+  reverse: 'REV',
+  mystery: '???',
 };
 const SPECIAL_COLORS: Readonly<Record<SpecialEffect, string>> = {
   bonus: '#f9a8d4',
   invert: '#f472b6',
   magnet: '#67e8f9',
   ghost: '#c4b5fd',
-  blackout: '#334155',
-  cooldown: '#5eead4',
-  lure: '#fbbf24',
   jackpot: '#facc15',
+  blur: '#a78bfa',
+  oil_slick: '#475569',
+  reverse: '#fb923c',
+  mystery: '#e879f9',
 };
 const SPECIAL_COLOR_NAMES: Readonly<Record<SpecialEffect, string>> = {
   bonus: 'ROSE',
   invert: 'PINK',
   magnet: 'CYAN',
   ghost: 'VIOLET',
-  blackout: 'SLATE',
-  cooldown: 'TEAL',
-  lure: 'AMBER',
   jackpot: 'GOLD',
+  blur: 'PURPLE',
+  oil_slick: 'SLATE',
+  reverse: 'ORANGE',
+  mystery: 'FUCHSIA',
 };
 const VEHICLE_DESIGNS: readonly VehicleDesign[] = ['coupe', 'buggy', 'truck'];
 const VEHICLE_LABELS: Readonly<Record<VehicleDesign, string>> = {
@@ -242,7 +238,7 @@ export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
     surface.hasGradient || surface.saturation >= 0.52
       ? 'invert'
       : surface.lightness <= 0.18
-        ? 'blackout'
+        ? 'blur'
         : surface.lightness <= 0.34
           ? 'ghost'
           : 'magnet';
@@ -253,16 +249,6 @@ export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
 
   const alternatives = RANDOM_SPECIAL_EFFECTS.filter((effect) => effect !== preferredEffect);
   return alternatives[Math.floor(Math.random() * alternatives.length)];
-}
-
-export function adaptBlackoutEffectForSurface(
-  effect: SpecialEffect,
-  surface: SurfaceSample,
-): SpecialEffect {
-  if (effect === 'blackout' && surface.lightness <= SPECIALS.BLACKOUT_INVERT_SWAP_LIGHTNESS) {
-    return 'invert';
-  }
-  return effect;
 }
 
 export function getSpecialColor(effect: SpecialEffect): string {
@@ -283,7 +269,7 @@ export function getSpecialDropMessage(effect: SpecialEffect): string {
 }
 
 export function getSpecialHudLabel(
-  effect: Exclude<SpecialEffect, 'bonus' | 'cooldown' | 'jackpot'>,
+  effect: Exclude<SpecialEffect, 'bonus' | 'jackpot' | 'mystery'>,
 ): string {
   switch (effect) {
     case 'magnet':
@@ -292,10 +278,12 @@ export function getSpecialHudLabel(
       return 'INVERT PINK';
     case 'ghost':
       return 'GHOST VIOLET';
-    case 'blackout':
-      return 'BLACKOUT SLATE';
-    case 'lure':
-      return 'LURE AMBER';
+    case 'blur':
+      return 'BLUR PURPLE';
+    case 'oil_slick':
+      return 'OIL SLATE';
+    case 'reverse':
+      return 'REVERSE ORANGE';
   }
 }
 
@@ -309,14 +297,16 @@ export function getSpecialActivationMessage(effect: SpecialEffect): string {
       return 'P-INV';
     case 'ghost':
       return 'V-GHO';
-    case 'blackout':
-      return 'S-BLK';
-    case 'cooldown':
-      return `T-CDN+${EFFECTS.COOLDOWN_SCORE_BONUS}`;
-    case 'lure':
-      return 'A-LUR';
     case 'jackpot':
       return 'JACKPOT!';
+    case 'blur':
+      return 'P-BLR';
+    case 'oil_slick':
+      return 'S-OIL';
+    case 'reverse':
+      return 'O-REV';
+    case 'mystery':
+      return 'MYSTERY';
   }
 }
 
@@ -403,8 +393,9 @@ export function getFlavorText(state: {
   magnetActive: boolean;
   ghostActive: boolean;
   invertActive: boolean;
-  blackoutActive: boolean;
-  lureActive: boolean;
+  blurActive: boolean;
+  oilSlickActive: boolean;
+  reverseActive: boolean;
   planeActive: boolean;
   planeWarningActive: boolean;
   policeActive: boolean;
@@ -433,16 +424,20 @@ export function getFlavorText(state: {
     return 'Traffic hold. Use the breathing room.';
   }
 
-  if (state.blackoutActive) {
-    return 'Blackout active. Follow HUD and coin glints.';
+  if (state.blurActive) {
+    return 'Vision hazy. Trust the shapes.';
+  }
+
+  if (state.reverseActive) {
+    return 'Controls flipped. Brain recalibrating.';
+  }
+
+  if (state.oilSlickActive) {
+    return 'Oil slick! Pedal feels like mud.';
   }
 
   if (state.invertActive) {
     return 'Reality flipped. Keep the rubber side up.';
-  }
-
-  if (state.lureActive) {
-    return 'Loose change incoming. Look alive.';
   }
 
   if (state.magnetActive) {

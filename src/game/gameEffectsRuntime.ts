@@ -2,7 +2,6 @@ import type { HudState, SpecialEffect, Vector2, WorldPickup } from '../shared/ty
 import { EFFECTS, JACKPOT, SPECIALS } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
 import {
-  adaptBlackoutEffectForSurface,
   getSpecialActivationMessage,
   getSpecialColor,
   getSpecialHudLabel,
@@ -13,21 +12,23 @@ interface EffectTimerState {
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
-  blackoutTimerMs: number;
-  lureTimerMs: number;
+  blurTimerMs: number;
+  oilSlickTimerMs: number;
+  reverseTimerMs: number;
 }
 
 interface EffectTimerUpdateResult extends EffectTimerState {
   invertExpired: boolean;
-  blackoutExpired: boolean;
+  blurExpired: boolean;
 }
 
 interface ActiveEffectsInput {
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
-  blackoutTimerMs: number;
-  lureTimerMs: number;
+  blurTimerMs: number;
+  oilSlickTimerMs: number;
+  reverseTimerMs: number;
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
   currentSurface: SurfaceSample;
@@ -40,16 +41,17 @@ export function tickEffectTimers(
 ): EffectTimerUpdateResult {
   const deltaMs = dtSeconds * 1000;
   const nextInvertTimerMs = Math.max(0, state.invertTimerMs - deltaMs);
-  const nextBlackoutTimerMs = Math.max(0, state.blackoutTimerMs - deltaMs);
+  const nextBlurTimerMs = Math.max(0, state.blurTimerMs - deltaMs);
 
   return {
     magnetTimerMs: Math.max(0, state.magnetTimerMs - deltaMs),
     ghostTimerMs: Math.max(0, state.ghostTimerMs - deltaMs),
     invertTimerMs: nextInvertTimerMs,
-    blackoutTimerMs: nextBlackoutTimerMs,
-    lureTimerMs: Math.max(0, state.lureTimerMs - deltaMs),
+    blurTimerMs: nextBlurTimerMs,
+    oilSlickTimerMs: Math.max(0, state.oilSlickTimerMs - deltaMs),
+    reverseTimerMs: Math.max(0, state.reverseTimerMs - deltaMs),
     invertExpired: state.invertTimerMs > 0 && nextInvertTimerMs === 0,
-    blackoutExpired: state.blackoutTimerMs > 0 && nextBlackoutTimerMs === 0,
+    blurExpired: state.blurTimerMs > 0 && nextBlurTimerMs === 0,
   };
 }
 
@@ -80,46 +82,14 @@ export function applyMagnetPullToPickups(
   }
 }
 
-/** Gently pulls nearby regular coins toward the player (lure effect, ignores specials). */
-export function applyLurePullToPickups(
-  worldPickups: WorldPickup[],
-  playerCenter: Vector2,
-  dtSeconds: number,
-): void {
-  for (const pickup of worldPickups) {
-    if (pickup.kind === 'special') {
-      continue;
-    }
-
-    const pickupCenter = {
-      x: pickup.rect.x + pickup.rect.width / 2,
-      y: pickup.rect.y + pickup.rect.height / 2,
-    };
-    const dx = playerCenter.x - pickupCenter.x;
-    const dy = playerCenter.y - pickupCenter.y;
-    const distance = Math.hypot(dx, dy);
-
-    if (distance > EFFECTS.LURE_PULL_RADIUS || distance < 1) {
-      continue;
-    }
-
-    const pull = Math.min(120, 40 + (EFFECTS.LURE_PULL_RADIUS - distance) * 0.35) * dtSeconds;
-    const moveX = (dx / distance) * pull;
-    const moveY = (dy / distance) * pull;
-    pickup.rect.x += moveX;
-    pickup.rect.y += moveY;
-  }
-}
-
 export interface SpecialEffectActivation {
   resolvedEffect: SpecialEffect;
   scoreBonus: number;
   timerMs: number;
-  policeDelayMs: number;
   messageText: string;
   messageColor: string;
   setInverted: boolean;
-  setBlackout: boolean;
+  setBlur: boolean;
 }
 
 /** Resolves a special effect into its activation parameters (score, timer, messages). */
@@ -127,99 +97,105 @@ export function resolveSpecialEffectActivation(
   effect: SpecialEffect,
   surface: SurfaceSample,
 ): SpecialEffectActivation {
-  const resolvedEffect = adaptBlackoutEffectForSurface(effect, surface);
-  switch (resolvedEffect) {
+  switch (effect) {
     case 'bonus':
       return {
-        resolvedEffect,
+        resolvedEffect: 'bonus',
         scoreBonus: SPECIALS.BONUS_SCORE,
         timerMs: 0,
-        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('bonus'),
         messageColor: getSpecialColor('bonus'),
         setInverted: false,
-        setBlackout: false,
+        setBlur: false,
       };
     case 'invert':
       return {
-        resolvedEffect,
+        resolvedEffect: 'invert',
         scoreBonus: 0,
         timerMs: EFFECTS.INVERT_DURATION_MS,
-        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('invert'),
         messageColor: getSpecialColor('invert'),
         setInverted: true,
-        setBlackout: false,
+        setBlur: false,
       };
     case 'magnet':
       return {
-        resolvedEffect,
+        resolvedEffect: 'magnet',
         scoreBonus: 0,
         timerMs: EFFECTS.MAGNET_DURATION_MS,
-        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('magnet'),
         messageColor: getSpecialColor('magnet'),
         setInverted: false,
-        setBlackout: false,
+        setBlur: false,
       };
     case 'ghost':
       return {
-        resolvedEffect,
+        resolvedEffect: 'ghost',
         scoreBonus: 0,
         timerMs: EFFECTS.GHOST_DURATION_MS,
-        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('ghost'),
         messageColor: getSpecialColor('ghost'),
         setInverted: false,
-        setBlackout: false,
+        setBlur: false,
       };
-    case 'blackout':
+    case 'blur':
       return {
-        resolvedEffect,
+        resolvedEffect: 'blur',
         scoreBonus: 0,
-        timerMs: EFFECTS.BLACKOUT_DURATION_MS,
-        policeDelayMs: 0,
-        messageText: getSpecialActivationMessage('blackout'),
-        messageColor: getSpecialColor('blackout'),
+        timerMs: EFFECTS.BLUR_DURATION_MS,
+        messageText: getSpecialActivationMessage('blur'),
+        messageColor: getSpecialColor('blur'),
         setInverted: false,
-        setBlackout: true,
+        setBlur: true,
       };
-    case 'cooldown':
+    case 'oil_slick':
       return {
-        resolvedEffect,
-        scoreBonus: EFFECTS.COOLDOWN_SCORE_BONUS,
-        timerMs: 0,
-        policeDelayMs: randomBetween(
-          EFFECTS.COOLDOWN_POLICE_DELAY_MIN_MS,
-          EFFECTS.COOLDOWN_POLICE_DELAY_MAX_MS,
-        ),
-        messageText: getSpecialActivationMessage('cooldown'),
-        messageColor: getSpecialColor('cooldown'),
-        setInverted: false,
-        setBlackout: false,
-      };
-    case 'lure':
-      return {
-        resolvedEffect,
+        resolvedEffect: 'oil_slick',
         scoreBonus: 0,
-        timerMs: EFFECTS.LURE_DURATION_MS,
-        policeDelayMs: 0,
-        messageText: getSpecialActivationMessage('lure'),
-        messageColor: getSpecialColor('lure'),
+        timerMs: EFFECTS.OIL_SLICK_DURATION_MS,
+        messageText: getSpecialActivationMessage('oil_slick'),
+        messageColor: getSpecialColor('oil_slick'),
         setInverted: false,
-        setBlackout: false,
+        setBlur: false,
       };
+    case 'reverse':
+      return {
+        resolvedEffect: 'reverse',
+        scoreBonus: 0,
+        timerMs: EFFECTS.REVERSE_DURATION_MS,
+        messageText: getSpecialActivationMessage('reverse'),
+        messageColor: getSpecialColor('reverse'),
+        setInverted: false,
+        setBlur: false,
+      };
+    case 'mystery': {
+      const pool: SpecialEffect[] = [
+        'bonus',
+        'magnet',
+        'invert',
+        'ghost',
+        'blur',
+        'oil_slick',
+        'reverse',
+      ];
+      const resolved = pool[Math.floor(Math.random() * pool.length)];
+      const inner = resolveSpecialEffectActivation(resolved, surface);
+      return {
+        ...inner,
+        messageText: getSpecialActivationMessage('mystery'),
+        messageColor: getSpecialColor('mystery'),
+      };
+    }
     case 'jackpot': {
       const jackpotBonus = Math.floor(randomBetween(JACKPOT.SCORE_MIN, JACKPOT.SCORE_MAX));
       return {
-        resolvedEffect,
+        resolvedEffect: 'jackpot',
         scoreBonus: jackpotBonus,
         timerMs: 0,
-        policeDelayMs: 0,
         messageText: getSpecialActivationMessage('jackpot'),
         messageColor: getSpecialColor('jackpot'),
         setInverted: false,
-        setBlackout: false,
+        setBlur: false,
       };
     }
   }
@@ -248,20 +224,6 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
     });
   }
 
-  if (input.blackoutTimerMs > 0) {
-    const blackoutHudEffect =
-      adaptBlackoutEffectForSurface('blackout', input.currentSurface) === 'invert'
-        ? 'invert'
-        : 'blackout';
-    effects.push({
-      effect: blackoutHudEffect,
-      label: getSpecialHudLabel(blackoutHudEffect),
-      remainingMs: input.blackoutTimerMs,
-      durationMs: EFFECTS.BLACKOUT_DURATION_MS,
-      color: getSpecialColor(blackoutHudEffect),
-    });
-  }
-
   if (input.ghostTimerMs > 0) {
     effects.push({
       effect: 'ghost',
@@ -272,13 +234,33 @@ export function getActiveEffectsForHud(input: ActiveEffectsInput): HudState['act
     });
   }
 
-  if (input.lureTimerMs > 0) {
+  if (input.blurTimerMs > 0) {
     effects.push({
-      effect: 'lure',
-      label: getSpecialHudLabel('lure'),
-      remainingMs: input.lureTimerMs,
-      durationMs: EFFECTS.LURE_DURATION_MS,
-      color: getSpecialColor('lure'),
+      effect: 'blur',
+      label: getSpecialHudLabel('blur'),
+      remainingMs: input.blurTimerMs,
+      durationMs: EFFECTS.BLUR_DURATION_MS,
+      color: getSpecialColor('blur'),
+    });
+  }
+
+  if (input.oilSlickTimerMs > 0) {
+    effects.push({
+      effect: 'oil_slick',
+      label: getSpecialHudLabel('oil_slick'),
+      remainingMs: input.oilSlickTimerMs,
+      durationMs: EFFECTS.OIL_SLICK_DURATION_MS,
+      color: getSpecialColor('oil_slick'),
+    });
+  }
+
+  if (input.reverseTimerMs > 0) {
+    effects.push({
+      effect: 'reverse',
+      label: getSpecialHudLabel('reverse'),
+      remainingMs: input.reverseTimerMs,
+      durationMs: EFFECTS.REVERSE_DURATION_MS,
+      color: getSpecialColor('reverse'),
     });
   }
 

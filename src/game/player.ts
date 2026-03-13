@@ -20,6 +20,7 @@ interface PlayerUpdateContext {
   boosting: boolean;
   slowed: boolean;
   onIce: boolean;
+  speedMultiplier?: number;
 }
 
 interface LastStepDiagnostics {
@@ -121,11 +122,13 @@ export class Player {
 
     const iceEntryMultiplier =
       onIce && this.iceEntryBoostMs > 0 ? PLAYER.ICE_ENTRY_BURST_MULTIPLIER : 1;
+    const extraMultiplier = context.speedMultiplier ?? 1;
     const topSpeed =
       (this.boostTimerMs > 0 ? PLAYER.BOOST_SPEED : PLAYER.BASE_SPEED) *
       (slowed ? PLAYER.SLOW_ZONE_MULTIPLIER : 1) *
       (onIce ? PLAYER.ICE_TOP_SPEED_MULTIPLIER : 1) *
-      iceEntryMultiplier;
+      iceEntryMultiplier *
+      extraMultiplier;
     const response = onIce ? PLAYER.ICE_RESPONSE : PLAYER.RESPONSE;
     const friction = onIce ? PLAYER.ICE_FRICTION : PLAYER.FRICTION;
 

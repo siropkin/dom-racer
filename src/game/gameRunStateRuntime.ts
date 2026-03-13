@@ -24,8 +24,9 @@ export interface ClearedEffectState {
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
-  blackoutTimerMs: number;
-  lureTimerMs: number;
+  blurTimerMs: number;
+  oilSlickTimerMs: number;
+  reverseTimerMs: number;
 }
 
 export interface BeginRunState extends ClearedEncounterState, ClearedEffectState {
@@ -78,8 +79,9 @@ export function createClearedEffectState(): ClearedEffectState {
     magnetTimerMs: 0,
     ghostTimerMs: 0,
     invertTimerMs: 0,
-    blackoutTimerMs: 0,
-    lureTimerMs: 0,
+    blurTimerMs: 0,
+    oilSlickTimerMs: 0,
+    reverseTimerMs: 0,
   };
 }
 

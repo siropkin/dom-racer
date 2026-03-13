@@ -98,6 +98,35 @@ export function spawnCelebrationParticles(particles: VfxParticle[], x: number, y
   }
 }
 
+/** Spawns 7-9 green burst particles for the "ESCAPED" celebration. */
+export function spawnEscapedCelebrationParticles(
+  particles: VfxParticle[],
+  x: number,
+  y: number,
+): void {
+  const count = 7 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+    const speed = 55 + Math.random() * 75;
+    const lifetime = 320 + Math.random() * 160;
+    particles.push({
+      x,
+      y,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed,
+      alpha: 1,
+      maxAlpha: 1,
+      lifetimeMs: lifetime,
+      maxLifetimeMs: lifetime,
+      radius: 2.5,
+      color: '#86efac',
+    });
+  }
+  if (particles.length > VFX_PARTICLE_CAP) {
+    particles.splice(0, particles.length - VFX_PARTICLE_CAP);
+  }
+}
+
 /** Spawns 8-10 gold sparkle particles for the "NEW BEST!" celebration. */
 export function spawnNewBestBurstParticles(particles: VfxParticle[], x: number, y: number): void {
   const count = 8 + Math.floor(Math.random() * 3);

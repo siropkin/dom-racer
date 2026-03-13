@@ -180,10 +180,11 @@ export function drawSpriteShowcaseOverlay({
     'magnet',
     'invert',
     'ghost',
-    'blackout',
-    'cooldown',
-    'lure',
     'jackpot',
+    'blur',
+    'oil_slick',
+    'reverse',
+    'mystery',
   ];
   specialEffects.forEach((effect, index) => {
     const pickup: WorldPickup = {

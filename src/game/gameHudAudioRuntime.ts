@@ -1,7 +1,7 @@
 import type { HudState, InputState } from '../shared/types';
 import { getActiveEffectsForHud } from './gameEffectsRuntime';
 import type { SurfaceSample } from './gameStateTypes';
-import { adaptBlackoutEffectForSurface, getFlavorText } from './gameRuntime';
+import { getFlavorText } from './gameRuntime';
 import {
   getObjectiveHudText,
   getObjectiveProgress,
@@ -22,8 +22,9 @@ interface BuildHudStateOptions {
   magnetTimerMs: number;
   ghostTimerMs: number;
   invertTimerMs: number;
-  blackoutTimerMs: number;
-  lureTimerMs: number;
+  blurTimerMs: number;
+  oilSlickTimerMs: number;
+  reverseTimerMs: number;
   policeDelayCueTimerMs: number;
   policeDelayCueDurationMs: number;
   policeRemainingMs: number | null;
@@ -48,15 +49,13 @@ export function isDriveInputActive(input: InputState): boolean {
 
 /** Assembles the complete HUD display state from current game parameters. */
 export function buildHudState(options: BuildHudStateOptions): HudState {
-  const blackoutActsAsInvert =
-    options.blackoutTimerMs > 0 &&
-    adaptBlackoutEffectForSurface('blackout', options.currentSurface) === 'invert';
   const activeEffects = getActiveEffectsForHud({
     magnetTimerMs: options.magnetTimerMs,
     ghostTimerMs: options.ghostTimerMs,
     invertTimerMs: options.invertTimerMs,
-    blackoutTimerMs: options.blackoutTimerMs,
-    lureTimerMs: options.lureTimerMs,
+    blurTimerMs: options.blurTimerMs,
+    oilSlickTimerMs: options.oilSlickTimerMs,
+    reverseTimerMs: options.reverseTimerMs,
     policeRemainingMs: null,
     policeDurationMs: null,
     currentSurface: options.currentSurface,
@@ -104,9 +103,10 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       boostActive: options.boostActive,
       magnetActive: options.magnetTimerMs > 0,
       ghostActive: options.ghostTimerMs > 0,
-      invertActive: options.invertTimerMs > 0 || blackoutActsAsInvert,
-      blackoutActive: options.blackoutTimerMs > 0 && !blackoutActsAsInvert,
-      lureActive: options.lureTimerMs > 0,
+      invertActive: options.invertTimerMs > 0,
+      blurActive: options.blurTimerMs > 0,
+      oilSlickActive: options.oilSlickTimerMs > 0,
+      reverseActive: options.reverseTimerMs > 0,
       nearMissCount: options.nearMissCount,
       objectivesCompleted: options.objectivesCompleted,
       planeActive: options.planeActive,

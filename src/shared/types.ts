@@ -25,11 +25,12 @@ export type SpecialEffect =
   | 'invert'
   | 'magnet'
   | 'ghost'
-  | 'blackout'
   | 'bonus'
-  | 'cooldown'
-  | 'lure'
-  | 'jackpot';
+  | 'jackpot'
+  | 'blur'
+  | 'oil_slick'
+  | 'reverse'
+  | 'mystery';
 export type HudEffectKind = SpecialEffect | 'police' | 'encounter';
 
 export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';

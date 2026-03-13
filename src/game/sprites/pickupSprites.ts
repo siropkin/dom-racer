@@ -77,7 +77,7 @@ export function drawSpecialPickupSprite(
   ctx.rotate(Math.sin(nowMs / 420) * 0.18);
   drawBorderedRect(ctx, -half, -half, half * 2, half * 2, 5, accent, '#ffffff', 1.4);
 
-  const labelColor = pickup.effect === 'blackout' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
+  const labelColor = pickup.effect === 'oil_slick' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
   ctx.fillStyle = labelColor;
   ctx.font = 'bold 8px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.textAlign = 'center';

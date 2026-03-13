@@ -32,13 +32,13 @@ body.dom-racer-invert {
   transition: filter 180ms ease;
 }
 
-body.dom-racer-blackout {
-  filter: brightness(0.16) contrast(1.22) saturate(0.86);
+body.dom-racer-blur {
+  filter: blur(4px) saturate(0.8);
   transition: filter 180ms ease;
 }
 
-body.dom-racer-invert.dom-racer-blackout {
-  filter: invert(1) hue-rotate(180deg) saturate(1.15) brightness(0.16) contrast(1.22);
+body.dom-racer-invert.dom-racer-blur {
+  filter: invert(1) hue-rotate(180deg) saturate(1.15) blur(4px);
 }
 
 .dom-racer-magnetized {

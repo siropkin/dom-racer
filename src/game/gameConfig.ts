@@ -23,8 +23,9 @@ export const TOAST = {
   MAX_CHARS: 8,
   MAX_VISIBLE: 8,
   DUPLICATE_WINDOW_MS: 260,
-  PICKUP_TTL_MS: 700,
-  EFFECT_TTL_MS: 900,
+  PICKUP_TTL_MS: 1_200,
+  EFFECT_TTL_MS: 1_400,
+  RUN_START_TTL_MS: 2_200,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -62,7 +63,6 @@ export const SPECIALS = {
   CAP_RETRY_MIN_MS: 2_600,
   CAP_RETRY_MAX_MS: 4_200,
   BONUS_SCORE: 40,
-  BLACKOUT_INVERT_SWAP_LIGHTNESS: 0.28,
   PREFERRED_EFFECT_BIAS: 0.52,
 } as const;
 
@@ -74,12 +74,10 @@ export const EFFECTS = {
   INVERT_DURATION_MS: 5_200,
   MAGNET_DURATION_MS: 6_200,
   GHOST_DURATION_MS: 5_600,
-  BLACKOUT_DURATION_MS: 4_200,
-  LURE_DURATION_MS: 5_400,
-  LURE_PULL_RADIUS: 300,
-  COOLDOWN_POLICE_DELAY_MIN_MS: 5_400,
-  COOLDOWN_POLICE_DELAY_MAX_MS: 8_200,
-  COOLDOWN_SCORE_BONUS: 15,
+  BLUR_DURATION_MS: 4_500,
+  OIL_SLICK_DURATION_MS: 3_500,
+  OIL_SLICK_SPEED_MULTIPLIER: 0.35,
+  REVERSE_DURATION_MS: 3_500,
 } as const;
 
 // ---------------------------------------------------------------------------

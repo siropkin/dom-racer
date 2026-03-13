@@ -179,7 +179,7 @@ function drawActiveEffects(
     }
 
     ctx.font = HUD_FONT;
-    const labelColorOnFill = effect.effect === 'blackout' ? '#f8fafc' : BAR_TEXT_ON_FILL;
+    const labelColorOnFill = effect.effect === 'oil_slick' ? '#f8fafc' : BAR_TEXT_ON_FILL;
     drawBarText(
       ctx,
       effect.label,

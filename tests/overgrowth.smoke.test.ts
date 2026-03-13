@@ -41,7 +41,7 @@ describe('overgrowth spawn, growth, collision smoke invariants', () => {
       getPageTitle: () => 'DOM Racer Smoke',
       sampleSurfaceAt: () => ({ lightness: 0.6, saturation: 0.2, hasGradient: false }),
       setPageInverted: () => undefined,
-      setPageBlackout: () => undefined,
+      setPageBlur: () => undefined,
       setMagnetUiState: () => undefined,
       onQuit: () => undefined,
       initialSoundEnabled: false,

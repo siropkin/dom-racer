@@ -151,7 +151,7 @@ function activate(): void {
     getPageTitle: () => document.title,
     sampleSurfaceAt,
     setPageInverted,
-    setPageBlackout,
+    setPageBlur,
     setMagnetUiState,
     onQuit: deactivate,
     initialSoundEnabled: soundEnabled,
@@ -181,7 +181,7 @@ function deactivate(): void {
   document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
   document.body.style.paddingRight = previousBodyPaddingRight;
   document.body.classList.remove('dom-racer-invert');
-  document.body.classList.remove('dom-racer-blackout');
+  document.body.classList.remove('dom-racer-blur');
   clearMagnetizedUi();
   window.removeEventListener('wheel', preventScrollWhileActive, true);
   window.removeEventListener('touchmove', preventScrollWhileActive, true);
@@ -259,8 +259,8 @@ function setPageInverted(inverted: boolean): void {
   document.body.classList.toggle('dom-racer-invert', inverted);
 }
 
-function setPageBlackout(active: boolean): void {
-  document.body.classList.toggle('dom-racer-blackout', active);
+function setPageBlur(active: boolean): void {
+  document.body.classList.toggle('dom-racer-blur', active);
 }
 
 function setMagnetUiState(state: {

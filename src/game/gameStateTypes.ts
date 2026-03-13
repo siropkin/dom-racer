@@ -74,7 +74,7 @@ export interface GameOptions {
   getPageTitle: () => string;
   sampleSurfaceAt: (point: Vector2) => SurfaceSample;
   setPageInverted: (active: boolean) => void;
-  setPageBlackout: (active: boolean) => void;
+  setPageBlur: (active: boolean) => void;
   setMagnetUiState: (state: { active: boolean; point: Vector2 | null; strength: number }) => void;
   onQuit: () => void;
   initialSoundEnabled: boolean;
