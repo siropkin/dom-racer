@@ -76,7 +76,7 @@ describe('police, plane, encounter stagger smoke invariants', () => {
     expect((game as any).world).not.toBeNull();
   });
 
-  it('spawns and expires airplane coin trail coins as short-lived route opportunities', () => {
+  it('spawns airplane coin trail coins that persist like regular coins', () => {
     (game as any).beginRun('manual');
     const runtimeWorld = (game as any).world as World;
     runtimeWorld.pickups = [];
@@ -91,12 +91,11 @@ describe('police, plane, encounter stagger smoke invariants', () => {
     expect(trailCoins.every((pickup) => pickup.kind === 'coin')).toBe(true);
     expect(trailCoins.every((pickup) => pickup.value === 10)).toBe(true);
 
-    (game as any).updatePlaneCoinTrail(4);
-    const trailCoinsAfterExpiry = runtimeWorld.pickups.filter((pickup) =>
+    const countBefore = trailCoins.length;
+    const trailCoinsAfterTime = runtimeWorld.pickups.filter((pickup) =>
       pickup.id.startsWith('plane-trail:'),
     );
-    expect(trailCoinsAfterExpiry).toHaveLength(0);
-    expect((game as any).planeCoinTrail).toBeNull();
+    expect(trailCoinsAfterTime).toHaveLength(countBefore);
   });
 
   it('uses lucky wind to gently reroute existing regular coins only', () => {

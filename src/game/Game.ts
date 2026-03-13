@@ -11,7 +11,6 @@ import type {
   GameOptions,
   GameOverState,
   PlaneBonusEventState,
-  PlaneCoinTrailState,
   PlaneWarningState,
   PoliceChaseState,
   PoliceWarningState,
@@ -126,7 +125,6 @@ import {
 } from './gameInputRuntime';
 import {
   applyPlaneLuckyWindToPickups,
-  advancePlaneCoinTrailState,
   advancePoliceDelayCueState,
   createPoliceDelayCueState,
   dispatchPlaneDropWithFallback,
@@ -196,7 +194,6 @@ export class Game {
   private toastSystem: ToastSystem;
   private specialSpawnCues: SpecialSpawnCue[];
   private planeBonusEvent: PlaneBonusEventState | null;
-  private planeCoinTrail: PlaneCoinTrailState | null;
   private policeDelayCueTimerMs: number;
   private policeDelayCueDurationMs: number;
   private planeBonusTimerMs: number;
@@ -290,7 +287,6 @@ export class Game {
     });
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
-    this.planeCoinTrail = null;
     this.policeDelayCueTimerMs = 0;
     this.policeDelayCueDurationMs = 0;
     this.planeBonusTimerMs = randomBetween(PLANE.INITIAL_MIN_MS, PLANE.INITIAL_MAX_MS);
@@ -521,7 +517,6 @@ export class Game {
     this.updateEffectTimers(dtSeconds);
     this.updateFocusMode(dtSeconds);
     this.updatePlaneWarning(dtSeconds);
-    this.updatePlaneCoinTrail(dtSeconds);
     this.updatePoliceDelayCue(dtSeconds);
 
     const currentBounds = this.player.getBounds();
@@ -964,7 +959,7 @@ export class Game {
       specialSpawnTimerMs: this.specialSpawnTimerMs,
       existingSpecialCount: this.dynamicPickups.filter((pickup) => pickup.kind === 'special')
         .length,
-      planeRouteActive: Boolean(this.planeCoinTrail),
+      planeRouteActive: false,
       dtSeconds,
     });
     this.specialSpawnTimerMs = step.specialSpawnTimerMs;
@@ -1207,11 +1202,6 @@ export class Game {
       this.world.pickups.push(pickup);
     }
 
-    this.planeCoinTrail = {
-      coinIds: trailPickups.map((pickup) => pickup.id),
-      ttlMs: PLANE.COIN_TRAIL_DURATION_MS,
-      durationMs: PLANE.COIN_TRAIL_DURATION_MS,
-    };
     this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE.LANE_SPECIAL_STAGGER_MS);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('COIN TRAIL', '#facc15', 'high');
@@ -1278,20 +1268,6 @@ export class Game {
     this.audio.playPlaneDrop();
     this.spawnEffectMessage('L-WIND', '#86efac', 'high');
     return true;
-  }
-
-  private updatePlaneCoinTrail(dtSeconds: number): void {
-    if (!this.world || !this.planeCoinTrail) {
-      return;
-    }
-
-    const nextTrailStep = advancePlaneCoinTrailState(
-      this.world.pickups,
-      this.planeCoinTrail,
-      dtSeconds,
-    );
-    this.world.pickups = nextTrailStep.worldPickups;
-    this.planeCoinTrail = nextTrailStep.planeCoinTrail;
   }
 
   private updatePoliceDelayCue(dtSeconds: number): void {
@@ -1727,7 +1703,6 @@ export class Game {
     this.planeWarning = cleared.planeWarning;
     this.specialSpawnCues = cleared.specialSpawnCues;
     this.planeBonusEvent = cleared.planeBonusEvent;
-    this.planeCoinTrail = cleared.planeCoinTrail;
   }
 
   private clearPoliceDelayCue(): void {

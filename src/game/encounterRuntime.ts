@@ -438,7 +438,7 @@ export function createPlaneCoinTrailRects(
     x: direction.x / magnitude,
     y: direction.y / magnitude,
   };
-  const halfLength = PLANE.COIN_TRAIL_LENGTH_PX / 2;
+  const trailLength = PLANE.COIN_TRAIL_LENGTH_PX;
   const halfSize = PLANE.COIN_TRAIL_COIN_SIZE_PX / 2;
   const minX = 8;
   const minY = 8;
@@ -446,7 +446,7 @@ export function createPlaneCoinTrailRects(
   const maxY = Math.max(minY, viewport.height - PLANE.COIN_TRAIL_COIN_SIZE_PX - 8);
   const rects: Rect[] = [];
 
-  for (let offset = -halfLength; offset <= halfLength; offset += PLANE.COIN_TRAIL_STEP_PX) {
+  for (let offset = -trailLength; offset <= 0; offset += PLANE.COIN_TRAIL_STEP_PX) {
     const centerX = center.x + dir.x * offset;
     const centerY = center.y + dir.y * offset;
     if (

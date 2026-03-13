@@ -31,12 +31,6 @@ export interface PlaneBonusEventState {
   effectMode: 'bonus-drop' | 'coin-trail' | 'spotlight' | 'lucky-wind' | 'police-delay';
 }
 
-export interface PlaneCoinTrailState {
-  coinIds: string[];
-  ttlMs: number;
-  durationMs: number;
-}
-
 export interface PoliceChaseState {
   x: number;
   y: number;

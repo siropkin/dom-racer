@@ -112,33 +112,9 @@ function drawControlsHint(
 
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_DIM;
-  ctx.fillText('V CAR  |  M SOUND', x + 12, y + 10);
-  drawSoundStateChip(ctx, x + 152, y + 8, state.soundEnabled);
-  ctx.font = HUD_FONT;
+  const soundLabel = state.soundEnabled ? 'MUSIC ON' : 'MUSIC OFF';
+  ctx.fillText(`V CAR  |  ${soundLabel}`, x + 12, y + 10);
   ctx.fillText('ARROWS DRIVE  |  ESC QUIT', x + 12, y + 30);
-}
-
-function drawSoundStateChip(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  soundEnabled: boolean,
-): void {
-  const label = soundEnabled ? 'ON' : 'OFF';
-  const border = soundEnabled ? '#67e8f9' : '#fca5a5';
-  const fill = soundEnabled ? 'rgba(8, 145, 178, 0.26)' : 'rgba(185, 28, 28, 0.26)';
-  const text = soundEnabled ? '#a5f3fc' : '#fecaca';
-  const width = 46;
-  const height = 16;
-
-  ctx.fillStyle = fill;
-  ctx.fillRect(x, y, width, height);
-  ctx.strokeStyle = border;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
-  ctx.font = HUD_FONT;
-  ctx.fillStyle = text;
-  ctx.fillText(label, x + 14, y + 3);
 }
 
 function drawActiveEffects(
