@@ -50,7 +50,7 @@ npm run build
 - Links and buttons spawn money pickups
 - Ambient special pickups spawn independently from normal money
 - `FLOW` streaks recolor regular coins to make the streak state obvious
-- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`
+- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`, `COOLDOWN`, `LURE`, plus a rare `JACKPOT` pickup
 - Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with edge warnings and a proper `GAME OVER` screen
 - Run auto-pauses with a clear overlay when the page/tab loses focus
@@ -78,6 +78,7 @@ The result is intentionally game-ish rather than perfectly literal. The goal is 
 - `BLACKOUT`: darkens the page for a short high-pressure stretch (adapts to `INVERT` on dark surfaces)
 - `COOLDOWN`: pushes back police spawn timing and gives a small score bonus
 - `LURE`: gently attracts distant coins toward the player (wider range, softer pull than `MAGNET`)
+- `JACKPOT`: very rare golden star that awards a large instant score bonus (+50–100)
 
 The active power-up panel in the top-right HUD shows remaining duration.
 
@@ -120,7 +121,7 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Core money loop | Mostly done | Lock the collectible loop |
 | Overgrowth difficulty | Done | Trees and bushes that grow over time |
 | Airplane event | Mostly done | Rare stylish world events |
-| Indie juice | Planned | Near-miss bonuses, page moods, police escalation |
+| Indie juice | Done | Near-miss bonuses, micro-objectives, rare jackpot |
 | Production hardening | In progress | Tests, structure, release readiness |
 | Presentation | In progress | README polish, screenshots, store assets |
 

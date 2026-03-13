@@ -9,6 +9,8 @@ import {
   getSpecialActivationMessage,
   getSpecialColor,
   getSpecialHudLabel,
+  JACKPOT_SCORE_MAX,
+  JACKPOT_SCORE_MIN,
   LURE_PULL_RADIUS,
   randomBetween,
 } from './gameRuntime';
@@ -238,6 +240,19 @@ export function resolveSpecialEffectActivation(
         setInverted: false,
         setBlackout: false,
       };
+    case 'jackpot': {
+      const jackpotBonus = Math.floor(randomBetween(JACKPOT_SCORE_MIN, JACKPOT_SCORE_MAX));
+      return {
+        resolvedEffect,
+        scoreBonus: jackpotBonus,
+        timerMs: 0,
+        policeDelayMs: 0,
+        messageText: getSpecialActivationMessage('jackpot'),
+        messageColor: getSpecialColor('jackpot'),
+        setInverted: false,
+        setBlackout: false,
+      };
+    }
   }
 }
 

@@ -44,6 +44,12 @@ import {
   resolveObjectiveTickStep,
   type MicroObjective,
 } from '../src/game/microObjectiveRuntime';
+import {
+  JACKPOT_SCORE_MIN,
+  JACKPOT_SCORE_MAX,
+  JACKPOT_SPAWN_CHANCE,
+  JACKPOT_PICKUP_SIZE,
+} from '../src/game/gameRuntime';
 
 vi.mock('../src/game/audio', () => {
   class MockAudioManager {
@@ -1730,5 +1736,71 @@ describe('game economy and police smoke invariants', () => {
     expect(OBJECTIVE_TEMPLATES.length).toBeGreaterThanOrEqual(8);
     const ids = OBJECTIVE_TEMPLATES.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('resolves jackpot activation with large score bonus and no timer', () => {
+    const surface = { lightness: 0.6, saturation: 0.2, hasGradient: false };
+    const jackpot = resolveSpecialEffectActivation('jackpot', surface);
+    expect(jackpot.resolvedEffect).toBe('jackpot');
+    expect(jackpot.scoreBonus).toBeGreaterThanOrEqual(JACKPOT_SCORE_MIN);
+    expect(jackpot.scoreBonus).toBeLessThanOrEqual(JACKPOT_SCORE_MAX);
+    expect(jackpot.timerMs).toBe(0);
+    expect(jackpot.policeDelayMs).toBe(0);
+    expect(jackpot.setInverted).toBe(false);
+    expect(jackpot.setBlackout).toBe(false);
+    expect(jackpot.messageText).toBe('JACKPOT!');
+  });
+
+  it('uses jackpot spawn chance constant within expected range', () => {
+    expect(JACKPOT_SPAWN_CHANCE).toBeGreaterThan(0);
+    expect(JACKPOT_SPAWN_CHANCE).toBeLessThanOrEqual(0.1);
+  });
+
+  it('uses a larger pickup size for jackpot than regular specials', () => {
+    expect(JACKPOT_PICKUP_SIZE).toBeGreaterThan(20);
+  });
+
+  it('spawns jackpot pickup when jackpot roll succeeds', () => {
+    (game as any).beginRun('manual');
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.02);
+    const spawned = (game as any).spawnSpecialPickup() as boolean;
+    randomSpy.mockRestore();
+
+    expect(spawned).toBe(true);
+    const runtimeWorld = (game as any).world as World;
+    const jackpots = runtimeWorld.pickups.filter(
+      (pickup) => pickup.kind === 'special' && pickup.effect === 'jackpot',
+    );
+    expect(jackpots.length).toBe(1);
+    expect(jackpots[0].rect.width).toBe(JACKPOT_PICKUP_SIZE);
+    expect(jackpots[0].rect.height).toBe(JACKPOT_PICKUP_SIZE);
+    expect(jackpots[0].label).toBe('JKP');
+  });
+
+  it('spawns regular special when jackpot roll fails', () => {
+    (game as any).beginRun('manual');
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const spawned = (game as any).spawnSpecialPickup() as boolean;
+    randomSpy.mockRestore();
+
+    expect(spawned).toBe(true);
+    const runtimeWorld = (game as any).world as World;
+    const jackpots = runtimeWorld.pickups.filter(
+      (pickup) => pickup.kind === 'special' && pickup.effect === 'jackpot',
+    );
+    expect(jackpots.length).toBe(0);
+    const specials = runtimeWorld.pickups.filter((pickup) => pickup.kind === 'special');
+    expect(specials.length).toBeGreaterThan(0);
+    expect(specials[0].rect.width).toBe(20);
+  });
+
+  it('activates jackpot effect with large score bonus in Game', () => {
+    (game as any).beginRun('manual');
+    expect((game as any).score).toBe(0);
+
+    (game as any).activateSpecialEffect('jackpot');
+
+    expect((game as any).score).toBeGreaterThanOrEqual(JACKPOT_SCORE_MIN);
+    expect((game as any).score).toBeLessThanOrEqual(JACKPOT_SCORE_MAX);
   });
 });

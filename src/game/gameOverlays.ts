@@ -160,7 +160,7 @@ export function drawSpriteShowcaseOverlay({
     isFlowCoin: true,
   });
 
-  const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout', 'cooldown', 'lure'];
+  const specialEffects: SpecialEffect[] = ['bonus', 'magnet', 'invert', 'ghost', 'blackout', 'cooldown', 'lure', 'jackpot'];
   specialEffects.forEach((effect, index) => {
     const pickup: WorldPickup = {
       id: `showcase:${effect}:${index}`,

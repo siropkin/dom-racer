@@ -68,6 +68,10 @@ export const PLANE_LUCKY_WIND_MAX_COINS = 8;
 export const COOLDOWN_POLICE_DELAY_MIN_MS = 5400;
 export const COOLDOWN_POLICE_DELAY_MAX_MS = 8200;
 export const COOLDOWN_SCORE_BONUS = 15;
+export const JACKPOT_SCORE_MIN = 50;
+export const JACKPOT_SCORE_MAX = 100;
+export const JACKPOT_SPAWN_CHANCE = 0.06;
+export const JACKPOT_PICKUP_SIZE = 26;
 export const LURE_PULL_RADIUS = 300;
 export const SPECIAL_VISIBLE_CAP = 2;
 export const SPECIAL_INITIAL_SPAWN_MIN_MS = 4800;
@@ -139,6 +143,7 @@ export const SHOWCASE_TOAST_MESSAGES = [
   'DONE!',
   'CLEAR!',
   'CHECK!',
+  'JACKPOT!',
 ] as const;
 export const SHOWCASE_THEMES: ShowcaseTheme[] = [
   {
@@ -196,6 +201,7 @@ const SPECIAL_LABELS: Record<SpecialEffect, string> = {
   blackout: 'BLK',
   cooldown: 'CDN',
   lure: 'LUR',
+  jackpot: 'JKP',
 };
 const SPECIAL_COLORS: Record<SpecialEffect, string> = {
   bonus: '#f9a8d4',
@@ -205,6 +211,7 @@ const SPECIAL_COLORS: Record<SpecialEffect, string> = {
   blackout: '#334155',
   cooldown: '#5eead4',
   lure: '#fbbf24',
+  jackpot: '#facc15',
 };
 const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
   bonus: 'ROSE',
@@ -214,6 +221,7 @@ const SPECIAL_COLOR_NAMES: Record<SpecialEffect, string> = {
   blackout: 'SLATE',
   cooldown: 'TEAL',
   lure: 'AMBER',
+  jackpot: 'GOLD',
 };
 const VEHICLE_DESIGNS: VehicleDesign[] = ['coupe', 'buggy', 'truck'];
 const VEHICLE_LABELS: Record<VehicleDesign, string> = {
@@ -347,7 +355,7 @@ export function getSpecialDropMessage(effect: SpecialEffect): string {
   return `${colorCode}-${getSpecialLabel(effect)}D`;
 }
 
-export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus' | 'cooldown'>): string {
+export function getSpecialHudLabel(effect: Exclude<SpecialEffect, 'bonus' | 'cooldown' | 'jackpot'>): string {
   switch (effect) {
     case 'magnet':
       return 'MAGNET CYAN';
@@ -378,6 +386,8 @@ export function getSpecialActivationMessage(effect: SpecialEffect): string {
       return `T-CDN+${COOLDOWN_SCORE_BONUS}`;
     case 'lure':
       return 'A-LUR';
+    case 'jackpot':
+      return 'JACKPOT!';
   }
 }
 

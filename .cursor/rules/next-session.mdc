@@ -2,6 +2,7 @@
 description: DOM Racer session context and handoff state for the next AI session
 alwaysApply: true
 ---
+<!-- ALL_TASKS_DONE -->
 
 # DOM Racer - Next Session Context
 
@@ -29,6 +30,7 @@ First, read:
 - `src/game/overgrowthRuntime.ts`
 - `src/game/nearMissRuntime.ts`
 - `src/game/microObjectiveRuntime.ts`
+- `src/game/pickupSprites.ts`
 - `src/content/domScanner.ts`
 - `src/content/main.ts`
 - `src/content/worldBuilder.ts`
@@ -41,12 +43,12 @@ First, read:
 
 ## Current State
 
-All hardening, presentation, and branding tasks are complete. Phase 1 new specials prototyping is complete. Phase 2 overgrowth difficulty is fully implemented. Phase 4 indie juice: near-miss bonus and micro-objectives are done.
+All phases are complete. No remaining actionable tasks.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
 2. **Phase 1 — New specials prototyping: `done`.** `COOLDOWN` and `LURE` are implemented and tested.
 3. **Phase 2 — Overgrowth difficulty: `done`.** Data model, spawn logic, growth stages, collision handling, and rendering are complete.
-4. **Phase 4 — Indie juice (pick one per session):** near-miss bonus and micro-objectives are done. Remaining: rare jackpot pickup. Skip police helicopter, daily modifiers, page moods for now.
+4. **Phase 4 — Indie juice: `done`.** Near-miss bonus, micro-objectives, and rare jackpot pickup are all implemented and tested.
 
 ## Current Known Context
 
@@ -89,8 +91,13 @@ All hardening, presentation, and branding tasks are complete. Phase 1 new specia
 - Objective state (active, delay, completed count, last template) resets on beginRun and stop.
 - Flavor text at 3+ objectives ("Checking boxes like a pro.") and 6+ ("Objective machine. HR wants a word.").
 - No duplicate template assignment in a row; score-threshold skip if score ≥80% of target.
+- Jackpot pickup: very rare special (~6% chance per special spawn roll), 26px golden star sprite with pulsing glow and sparkle particles.
+- Jackpot awards +50-100 score (random), instant activation, no timer, "JACKPOT!" toast in gold (#facc15).
+- Jackpot is NOT in `RANDOM_SPECIAL_EFFECTS`; spawns via separate chance roll before `pickSpecialEffect`.
+- Jackpot has longer spawn cue ring (1800ms vs 1200ms) and `value: 0` (score comes from activation).
+- 8 special effects total: bonus, magnet, invert, ghost, blackout, cooldown, lure, jackpot.
 - README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.
-- Smoke tests currently pass (`npm run test` -> 66 tests).
+- Smoke tests currently pass (`npm run test` -> 72 tests).
 - Release build profile remains active (`npm run build`, sourcemaps off by default).
 - `parseCssColor` and `rgbToHsl` utilities live in `src/shared/color.ts` (deduplicated from domScanner and main).
 - `cloneRect` is shared from `gameRuntime.ts` (removed duplicate from `pickupSpawnRuntime.ts`).

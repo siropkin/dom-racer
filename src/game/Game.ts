@@ -93,6 +93,8 @@ import {
   getSpecialLabel,
   getVehicleDesignLabel,
   isSpecialPickup,
+  JACKPOT_PICKUP_SIZE,
+  JACKPOT_SPAWN_CHANCE,
   pickOppositeShowcaseThemeIndex,
   pickSpecialEffect,
   PICKUP_COLORS,
@@ -1254,7 +1256,9 @@ export class Game {
       return false;
     }
 
-    const rect = this.findFreePickupRect(20);
+    const isJackpot = Math.random() < JACKPOT_SPAWN_CHANCE;
+    const pickupSize = isJackpot ? JACKPOT_PICKUP_SIZE : 20;
+    const rect = this.findFreePickupRect(pickupSize);
     if (!rect) {
       return false;
     }
@@ -1263,11 +1267,13 @@ export class Game {
       x: rect.x + rect.width / 2,
       y: rect.y + rect.height / 2,
     });
-    const effect = adaptBlackoutEffectForSurface(pickSpecialEffect(surface), surface);
+    const effect = isJackpot
+      ? 'jackpot' as const
+      : adaptBlackoutEffectForSurface(pickSpecialEffect(surface), surface);
     const pickup: WorldPickup = {
       id: `special:${effect}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
       rect,
-      value: 25,
+      value: isJackpot ? 0 : 25,
       kind: 'special',
       effect,
       accentColor: getSpecialColor(effect),
@@ -1275,7 +1281,7 @@ export class Game {
     };
     this.dynamicPickups.push(pickup);
     this.world.pickups.push(clonePickup(pickup));
-    this.enqueueSpecialSpawnCue(pickup);
+    this.enqueueSpecialSpawnCue(pickup, isJackpot ? 1800 : 1200);
     return true;
   }
 
@@ -1332,6 +1338,8 @@ export class Game {
         break;
       case 'cooldown':
         this.applyCooldownPoliceDelay(activation.policeDelayMs);
+        break;
+      case 'jackpot':
         break;
     }
 

@@ -57,7 +57,7 @@ As of this plan version, the game already includes:
 - score + time HUD with active power panel
 - page best / lifetime best persistence
 - random special items with spawn cue rings
-- power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages), `COOLDOWN`, `LURE`
+- power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT` (adaptive on dark pages), `COOLDOWN`, `LURE`, rare `JACKPOT`
 - police warning + chase with `GAME OVER` screen and `Space` restart
 - immediate auto-pause with overlay on focus loss
 - airplane flyover with five drop modes (bonus drop, coin trail, spotlight, lucky wind, police delay)
@@ -146,7 +146,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 1 | `done` | Clean up the core money loop |
 | Phase 2 | `done` | Add overgrowth difficulty with trees and bushes |
 | Phase 3 | `done` | Add airplane world-event prototype |
-| Phase 4 | `in progress` | Add research-driven indie juice systems |
+| Phase 4 | `done` | Add research-driven indie juice systems |
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `in progress` | README / presentation / branding pass |
 
@@ -190,16 +190,14 @@ Airplane sprite has been tuned for readability: compact silhouette, white contou
 
 ## Phase 4: Indie Juice Research Pass
 
-Status: `in progress`
+Status: `done`
 
 Candidate ideas: near-miss bonus, police helicopter escalation, risk-lane opportunities, page mood variants, micro-objectives, rare jackpot, daily modifiers.
 
 Completed:
 - [x] Near-miss bonus: detect close calls with obstacles/police, award +3-5 score, show floating "CLOSE!" / "TIGHT!" / "RAZOR!" / "WHEW!" toast, 800ms cooldown, flavor text at 4+ and 8+ near-misses
 - [x] Micro-objectives: per-run mini-goals with 8 template pool, HUD panel, +25 score bonus on completion, flavor text at 3+ and 6+ completed
-
-Remaining (pick one per session):
-- [ ] Rare jackpot pickup
+- [x] Rare jackpot pickup: very rare special (~6% chance when a special would spawn), large score bonus (+50-100), golden star sprite with pulsing glow and sparkle particles, "JACKPOT!" toast
 
 ## Phase 5: Production Hardening
 
@@ -263,6 +261,22 @@ When this roadmap is working, a good run should feel like this:
 - failure: stylish and readable, with immediate desire to retry
 
 ## Session Notes
+
+### Session — 2026-03-12 (h)
+
+- Implemented Phase 4 rare jackpot pickup — final indie juice item
+- Jackpot spawns with ~6% chance when a regular special would spawn (`JACKPOT_SPAWN_CHANCE = 0.06`)
+- Larger pickup size (26px vs 20px) for visual weight
+- Golden 6-pointed star sprite with pulsing outer glow, inner star highlight, and rotating sparkle particles
+- On collection: instant +50-100 score bonus (random), "JACKPOT!" toast in gold (#facc15), high priority
+- No timer, no side effects — purely a rare big-score moment
+- Jackpot is NOT in the `RANDOM_SPECIAL_EFFECTS` pool; spawns via separate chance roll before `pickSpecialEffect`
+- Longer spawn cue ring (1800ms vs 1200ms) to build anticipation
+- Added to sprite showcase (8 specials now: bonus, magnet, invert, ghost, blackout, cooldown, lure, jackpot)
+- Added "JACKPOT!" to showcase toast messages
+- 6 new smoke tests (activation resolution, spawn chance range, pickup size, spawn with forced roll, regular spawn when roll fails, Game-level activation)
+- Phase 4 marked `done` — all indie juice items complete
+- 72 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (g)
 
