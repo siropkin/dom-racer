@@ -160,6 +160,7 @@ DOM Racer stores sound setting, selected vehicle design, page best score, lifeti
 | Audio & visuals | Done | Adaptive contrast, biplane sprite, drone audio, popup |
 | Scoring & naming | Done | Scoring rework, toast simplification, police chase tuning |
 | HUD & compatibility | Done | HUD redesign, hotkey change, scrollbar fix, unsupported page detection |
+| Game logic audit & branding | Done | Code audit, design review, branding refresh with coupe sprite |
 
 ## Debug Mode
 

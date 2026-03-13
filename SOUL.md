@@ -39,6 +39,9 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Propeller biplane sprite with spinning blades and continuous drone audio
 - Increased master audio gain (0.68) with punchier plane drop SFX
 - Sound enrichment, auto-pause, first-play hint, run counter, lifetime milestones
+- Code audit (Phase 13): config consistency verified, all scoring multiples of 10, timer interactions correct, economy flow coherent, dead code removed
+- Design review (Phase 13): all 10 game systems have distinct non-overlapping purposes, difficulty curve matches SOUL.md arc
+- Branding refresh: icon, store cover, and store tile SVGs use the in-game coupe sprite silhouette
 
 ## Controls
 
