@@ -74,7 +74,7 @@ export const OBJECTIVE_TEMPLATES: readonly ObjectiveTemplate[] = [
   },
   {
     id: 'near_3',
-    label: '3 CLOSE CALLS',
+    label: '3 NEAR-MISS',
     target: 3,
     timeLimitMs: 25_000,
     tracker: 'near_misses',
