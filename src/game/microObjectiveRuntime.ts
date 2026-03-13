@@ -286,9 +286,7 @@ export function getObjectiveCompletionWord(completedCount: number): string {
 
 export function getObjectiveHudText(objective: MicroObjective): string {
   if (objective.tracker === 'survive_duration') {
-    const elapsed = Math.floor((objective.timeLimitMs - objective.timeRemainingMs) / 1000);
-    const total = Math.floor(objective.timeLimitMs / 1000);
-    return `${objective.label} ${elapsed}/${total}`;
+    return objective.label;
   }
 
   const progress = Math.min(objective.progress, objective.target);

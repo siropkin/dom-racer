@@ -268,7 +268,7 @@ describe('micro-objective smoke invariants', () => {
       timeLimitMs: 20_000,
       tracker: 'survive_duration',
     };
-    expect(getObjectiveHudText(surviveObj)).toBe('SURVIVE 20S 10/20');
+    expect(getObjectiveHudText(surviveObj)).toBe('SURVIVE 20S');
     expect(getObjectiveProgress(surviveObj)).toBeCloseTo(0.5, 1);
   });
 
