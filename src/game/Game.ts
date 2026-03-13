@@ -836,7 +836,6 @@ export class Game {
         const encounter = createPlaneBonusEncounter(this.world.viewport);
         this.planeBonusEvent = encounter.planeBonusEvent;
         this.planeWarning = encounter.planeWarning;
-        this.audio.playPlaneFlyover();
         this.spawnEffectMessage('PLANE', '#93c5fd', 'medium');
       }
       return;
@@ -847,6 +846,9 @@ export class Game {
       this.planeBonusEvent,
       dtSeconds,
     );
+    if (planeStep.enteredViewport) {
+      this.audio.playPlaneFlyover();
+    }
     if (planeStep.dropReady) {
       const dropSpawned = dispatchPlaneDropWithFallback(this.planeBonusEvent, {
         spawnBonusDrop: (x, y) => this.spawnPlaneBonusDrop(x, y),

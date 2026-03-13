@@ -52,8 +52,15 @@ No more meaningful extraction targets remain in `Game.ts`. The file is well-deco
 
 - Airplane drop modes remain: bonus drop, coin trail, spotlight, lucky wind, police delay (boost lane removed as confusing).
 - Plane drop dispatch/fallback remains in `src/game/planeDropRuntime.ts` and is retry-safe.
+- Plane drop coordinates center directly under the airplane (no y-offset).
+- Plane flyover sound plays when the plane enters the viewport (`flyoverSoundPlayed` flag), not at encounter creation.
 - All encounter/effect/spawn orchestration is extracted to focused runtime helpers.
 - `Game.ts` retains only side-effect orchestration, core loop, and render assembly.
+- Police car wheels match player car style (black boxes with white border).
+- Police car body and airplane contours have white borders for bright-page visibility.
+- Airplane sprite: narrower wings (wingSpan 28), wider body (bodyWidth 12, bodyLength 28), wider tail (tailWidth 8, tailHeight 8).
+- Scanner classifies `img`, `picture`, `video`, `canvas` as `ice`; `svg` remains `boost`.
+- Scanner detects YouTube/Vimeo iframes via `src` URL match and classifies them as `ice`.
 - `window.__domRacerDebug` must not exist in source/build.
 - Overgrowth remains intentionally deferred.
 - README includes indie/playful voice, "why this is fun" section, living roadmap table, airplane events section, and screenshots & motion placeholder section.

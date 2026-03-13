@@ -24,14 +24,14 @@ interface PlaneSpriteRenderOptions {
 }
 
 export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
-  bodyLength: 27,
-  bodyWidth: 10.6,
-  wingSpan: 36,
+  bodyLength: 28,
+  bodyWidth: 12,
+  wingSpan: 28,
   wingWidth: 7,
-  wingAccentSpan: 28,
+  wingAccentSpan: 22,
   wingAccentWidth: 4.2,
-  tailWidth: 6.4,
-  tailHeight: 7.4,
+  tailWidth: 8,
+  tailHeight: 8,
   propellerRadius: 5.6,
 };
 let runtimePlaneSpriteTuning: PlaneSpriteTuning = { ...DEFAULT_PLANE_SPRITE_TUNING };
@@ -95,8 +95,8 @@ export function renderPlaneSprite(
   ctx.fill();
 
   ctx.fillStyle = '#e2e8f0';
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 1.45;
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.roundRect(
     -tuning.bodyLength / 2,
@@ -111,15 +111,11 @@ export function renderPlaneSprite(
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(-cabinWidth / 2, -cabinHeight / 2, cabinWidth, cabinHeight);
 
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
-  ctx.fillRect(
-    wingOffsetX - tuning.wingWidth / 2 - 0.75,
-    -tuning.wingSpan / 2 - 0.75,
-    tuning.wingWidth + 1.5,
-    tuning.wingSpan + 1.5,
-  );
   ctx.fillStyle = '#93c5fd';
   ctx.fillRect(wingOffsetX - tuning.wingWidth / 2, -tuning.wingSpan / 2, tuning.wingWidth, tuning.wingSpan);
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(wingOffsetX - tuning.wingWidth / 2, -tuning.wingSpan / 2, tuning.wingWidth, tuning.wingSpan);
   ctx.fillStyle = '#1e3a8a';
   ctx.fillRect(
     wingOffsetX - tuning.wingAccentWidth / 2,
@@ -130,6 +126,14 @@ export function renderPlaneSprite(
 
   ctx.fillStyle = '#334155';
   ctx.fillRect(
+    -tuning.bodyLength / 2 + 2.2,
+    -tuning.tailHeight / 2,
+    tuning.tailWidth,
+    tuning.tailHeight,
+  );
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.0;
+  ctx.strokeRect(
     -tuning.bodyLength / 2 + 2.2,
     -tuning.tailHeight / 2,
     tuning.tailWidth,

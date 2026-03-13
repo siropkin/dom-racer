@@ -113,8 +113,8 @@ export function renderPoliceCarSprite(
   ctx.fill();
 
   ctx.fillStyle = '#e5e7eb';
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
   ctx.roundRect(-12, -7, 24, 14, 4);
   ctx.fill();
@@ -186,4 +186,7 @@ function drawPoliceWheel(ctx: CanvasRenderingContext2D, x: number, y: number): v
   ctx.beginPath();
   ctx.roundRect(x - 3.5, y - 1.8, 7, 3.6, 1.4);
   ctx.fill();
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
 }

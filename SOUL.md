@@ -765,6 +765,15 @@ Session note:
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (32 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
+- Current session lands playtest feedback fixes from manual browser testing.
+- Sprite visibility: police car wheels now use same style as player wheels (black box + white border); police car body stroke changed to white for bright-page visibility; airplane body, wings, and tail all received white contour borders.
+- Airplane sprite tuning: wings narrowed (wingSpan 36->28, wingAccentSpan 28->22), body widened (bodyWidth 10.6->12), tail widened (tailWidth 6.4->8, tailHeight 7.4->8), body length slightly increased (27->28) for a more compact and balanced silhouette.
+- Scanner: `canvas` elements now classify as `ice` (consistent with img/picture/video); YouTube/Vimeo iframes detected and classified as `ice` via `src` URL pattern matching.
+- Airplane flyover sound: moved from encounter creation time to when the plane actually enters the viewport (`flyoverSoundPlayed` flag on `PlaneBonusEventState`), so the sound plays when the plane is visible rather than during the off-screen warning.
+- Airplane drop position: removed y-offset from drop coordinates so items spawn directly at the plane's center position instead of offset below.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact.
+- Verification this session: `npm run test` (32 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
 ## Latest Session Progress And Learnings
 
 Status: `done`
@@ -776,6 +785,12 @@ Status: `done`
 - [x] Refined airplane sprite repeatedly (artifact cleanup, propeller readability, wing placement, bright-page contrast)
 - [x] Improved police/airplane event pacing to feel like alternating encounter beats instead of stacked noise
 - [x] Expanded `ice` feel with stronger handling identity and added police-on-ice behavior
+- [x] Police car wheels matched player car wheel style (black + white border) for cross-page visibility
+- [x] Police car body and airplane contours received white borders for bright-page readability
+- [x] Airplane sprite rebalanced: narrower wings, wider body/tail for a more compact silhouette
+- [x] Canvas elements and YouTube/Vimeo iframes classified as ice surfaces
+- [x] Airplane flyover sound deferred to viewport entry for audible flyover feedback
+- [x] Airplane drop position centered directly under plane body
 
 ### Practical learnings for future tuning
 
@@ -784,6 +799,8 @@ Status: `done`
 - Independent timers for major events create noisy overlap; a small encounter stagger dramatically improves readability
 - Adaptive effect resolution (`BLACKOUT` -> `INVERT` on dark surfaces) should be mirrored in HUD labels and flavor text
 - Surface mechanics are easier to feel when they include both handling change and tiny speed/trajectory cues
+- White contour borders on all vehicle/airplane sprites dramatically improve visibility on bright backgrounds
+- Sound effects timed to visual entry rather than encounter creation provide much better audio-visual correspondence
 
 Why this first:
 

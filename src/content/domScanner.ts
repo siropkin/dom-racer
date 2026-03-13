@@ -146,8 +146,16 @@ function classifyElement(
     return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
   }
 
-  if (['canvas', 'svg'].includes(tag)) {
+  if (tag === 'canvas') {
+    return area >= 400 ? [toScannedElement('ice', element, rect, fixed)] : [];
+  }
+
+  if (tag === 'svg') {
     return area >= 400 ? [toScannedElement('boost', element, rect, fixed)] : [];
+  }
+
+  if (tag === 'iframe' && isVideoEmbed(element)) {
+    return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
   }
 
   const results: ScannedElement[] = [];
@@ -390,6 +398,11 @@ function overlapRatio(left: Rect, right: Rect): number {
 
 function area(rect: Rect): number {
   return rect.width * rect.height;
+}
+
+function isVideoEmbed(element: HTMLElement): boolean {
+  const src = element.getAttribute('src') ?? '';
+  return /youtube\.com|youtube-nocookie\.com|youtu\.be|vimeo\.com/i.test(src);
 }
 
 function isPickupLink(

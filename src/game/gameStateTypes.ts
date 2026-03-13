@@ -26,6 +26,7 @@ export interface PlaneBonusEventState {
   traveledPx: number;
   dropAtPx: number;
   dropped: boolean;
+  flyoverSoundPlayed: boolean;
   effectMode:
     | 'bonus-drop'
     | 'coin-trail'

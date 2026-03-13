@@ -100,10 +100,9 @@ describe('scanner -> world smoke', () => {
     expect(videoElements.length).toBeGreaterThanOrEqual(1);
     expect(videoElements.every((entry) => entry.kind === 'ice')).toBe(true);
     expect(canvasElements.length).toBeGreaterThanOrEqual(1);
-    expect(canvasElements.every((entry) => entry.kind === 'boost')).toBe(true);
+    expect(canvasElements.every((entry) => entry.kind === 'ice')).toBe(true);
 
     const world = buildWorld(scanned, { width: 1200, height: 800 });
     expect(world.iceZones.length).toBeGreaterThan(0);
-    expect(world.boosts.length).toBeGreaterThan(0);
   });
 });

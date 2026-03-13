@@ -38,13 +38,15 @@ export function dispatchPlaneDropWithFallback(
   planeBonusEvent: PlaneBonusEventState,
   handlers: PlaneDropDispatchHandlers,
 ): boolean {
-  const bonusDrop = () => handlers.spawnBonusDrop(planeBonusEvent.x, planeBonusEvent.y + 14);
+  const dropX = planeBonusEvent.x;
+  const dropY = planeBonusEvent.y;
+  const bonusDrop = () => handlers.spawnBonusDrop(dropX, dropY);
 
   switch (planeBonusEvent.effectMode) {
     case 'coin-trail': {
       const spawned = handlers.spawnCoinTrail(
-        planeBonusEvent.x,
-        planeBonusEvent.y + 12,
+        dropX,
+        dropY,
         planeBonusEvent.vx,
         planeBonusEvent.vy,
       );
@@ -54,7 +56,7 @@ export function dispatchPlaneDropWithFallback(
       return true;
     }
     case 'spotlight': {
-      const spawned = handlers.spawnSpotlight(planeBonusEvent.x, planeBonusEvent.y + 14);
+      const spawned = handlers.spawnSpotlight(dropX, dropY);
       if (!spawned) {
         return bonusDrop();
       }
@@ -62,8 +64,8 @@ export function dispatchPlaneDropWithFallback(
     }
     case 'lucky-wind': {
       const spawned = handlers.spawnLuckyWind(
-        planeBonusEvent.x,
-        planeBonusEvent.y + 12,
+        dropX,
+        dropY,
         planeBonusEvent.vx,
         planeBonusEvent.vy,
       );

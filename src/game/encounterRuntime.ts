@@ -107,6 +107,7 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
       traveledPx: 0,
       dropAtPx: distance * randomBetween(0.36, 0.64),
       dropped: false,
+      flyoverSoundPlayed: false,
       effectMode,
     },
     planeWarning: {
@@ -121,7 +122,7 @@ export function advancePlaneBonusEventState(
   viewport: World['viewport'],
   planeBonusEvent: PlaneBonusEventState,
   dtSeconds: number,
-): { dropReady: boolean; completed: boolean } {
+): { dropReady: boolean; completed: boolean; enteredViewport: boolean } {
   const stepX = planeBonusEvent.vx * dtSeconds;
   const stepY = planeBonusEvent.vy * dtSeconds;
   planeBonusEvent.ttlMs = Math.max(0, planeBonusEvent.ttlMs - dtSeconds * 1000);
@@ -130,6 +131,11 @@ export function advancePlaneBonusEventState(
   planeBonusEvent.traveledPx += Math.hypot(stepX, stepY);
 
   const dropReady = !planeBonusEvent.dropped && planeBonusEvent.traveledPx >= planeBonusEvent.dropAtPx;
+  const onscreen = !isPointOutsideViewport(viewport, planeBonusEvent.x, planeBonusEvent.y, 20);
+  const enteredViewport = onscreen && !planeBonusEvent.flyoverSoundPlayed;
+  if (enteredViewport) {
+    planeBonusEvent.flyoverSoundPlayed = true;
+  }
   const offscreen = isPointOutsideViewport(
     viewport,
     planeBonusEvent.x,
@@ -139,9 +145,9 @@ export function advancePlaneBonusEventState(
   const completed =
     planeBonusEvent.ttlMs === 0 ||
     planeBonusEvent.traveledPx >= planeBonusEvent.distancePx + 24 ||
-    offscreen;
+    (offscreen && planeBonusEvent.flyoverSoundPlayed);
 
-  return { dropReady, completed };
+  return { dropReady, completed, enteredViewport };
 }
 
 export function tickPoliceSpawnCountdown(
