@@ -124,7 +124,15 @@ export function createBeginRunState(nowMs: number): BeginRunState {
   };
 }
 
-export function createCaughtGameOverTransitionState(nowMs: number): CaughtGameOverTransitionState {
+export function createCaughtGameOverTransitionState(
+  nowMs: number,
+  runStats: {
+    runElapsedMs: number;
+    coinsCollected: number;
+    nearMisses: number;
+    objectivesCompleted: number;
+  },
+): CaughtGameOverTransitionState {
   return {
     ...createClearedEncounterState(),
     ...createClearedEffectState(),
@@ -132,6 +140,10 @@ export function createCaughtGameOverTransitionState(nowMs: number): CaughtGameOv
     gameOverState: {
       reason: 'caught',
       startedAtMs: nowMs,
+      runElapsedMs: runStats.runElapsedMs,
+      coinsCollected: runStats.coinsCollected,
+      nearMisses: runStats.nearMisses,
+      objectivesCompleted: runStats.objectivesCompleted,
     },
     spriteShowcaseActive: false,
     startTimeMs: 0,

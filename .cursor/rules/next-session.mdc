@@ -54,18 +54,23 @@ First, read:
 
 ## Current State
 
-Phases 1-7 complete. Code organization pass complete. Ready for Phase 8.
+Goal: publish to Chrome Web Store. Implementing Phase 8 player experience + store preparation.
 
 1. **Skipped (blocked on interactive browser):** Manual scanner/gameplay verification, screenshot/GIF captures. Do not attempt these.
-2. ~~**Code organization pass — done:**~~
-   - ~~Split gameRenderRuntime.ts~~ → 189 lines. VFX in `vfxRuntime.ts`, overgrowth rendering in `overgrowthRuntime.ts`.
-   - ~~Split test file~~ → 7 test files + `testHelpers.ts` (79 tests).
-   - ~~Clean up gameRuntime.ts~~ → 444 lines. All legacy re-exports removed; consumers import config groups from `gameConfig.ts`.
-   - ~~Reduce Game.ts~~ → 1860 lines. Police chase lifecycle extracted to `resolvePoliceChaseTickStep` in `encounterRuntime.ts`. Remaining lines are genuine orchestration.
-   - ~~Trim handoff context~~ → done (this section).
-3. **Phase 8 planned (next):** See `SOUL.md` Phase 8 for player experience & store readiness items.
-
-<!-- ALL_TASKS_DONE -->
+2. **Phase 8 — Player experience (implement in order):**
+   - ~~First-play hint overlay~~ — DONE
+   - ~~Run summary stats on game-over~~ — DONE
+   - ~~Run grade S/A/B/C/D on game-over~~ — DONE
+   - Daily modifier (~40 lines) — deterministic daily rule twist from pool of 5-6 options
+   - Sound enrichment (~25 lines total) — coin pitch variation, near-miss whoosh, objective chime
+   - Score-gated vehicle unlocks (~25 lines) — buggy at 500 lifetime, truck at 1500
+3. **Store preparation (after Phase 8):**
+   - Add MIT LICENSE file
+   - Add privacy policy section to README
+   - Update manifest.json description to store-friendly pitch
+   - Add `npm run package` script to build and create dist ZIP
+   - Version bump to 1.0.0
+   - Final build + test + lint verification
 
 ## Essential Context
 

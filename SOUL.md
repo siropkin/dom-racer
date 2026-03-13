@@ -152,7 +152,7 @@ Keep `DOM Racer` readable, funny, and instantly playable: simple money rules, ra
 | Phase 5 | `done` | Production hardening and test coverage |
 | Phase 6 | `done` | README / presentation / branding pass |
 | Phase 7 | `done` | Micro-polish & feel tweaks |
-| Phase 8 | `planned` | Player experience & store readiness |
+| Phase 8 | `in progress` | Player experience & store readiness |
 
 ## Phase 1: Core Money Loop
 
@@ -296,7 +296,7 @@ Small, high-impact tweaks drawn from indie game juice research. Each item is ind
 
 ## Phase 8: Player Experience & Store Readiness
 
-Status: `planned`
+Status: `in progress`
 
 These are the gaps between "good game" and "game people actually want to keep installed." Identified by looking at what happens during a real player's first 5 minutes and first 5 days.
 
@@ -304,14 +304,14 @@ These are the gaps between "good game" and "game people actually want to keep in
 
 Right now: press Shift+R, game starts, no context. 79% of players abandon games within 30 seconds if confused (PlayGama 2025 research). The fix is tiny:
 
-- [ ] **First-play hint overlay**: On the VERY FIRST run ever (check `runsStarted === 1` in persistence), show a 3-line semi-transparent overlay for 4 seconds: "WASD to drive / Collect coins / Avoid police". Then fade out. Never shows again. This is the cheapest possible onboarding with the highest abandon-rate reduction.
+- [x] **First-play hint overlay**: On the VERY FIRST run ever (check `runsStarted === 1` in persistence), show a 3-line semi-transparent overlay for 4 seconds: "WASD to drive / Collect coins / Avoid police". Then fade out. Never shows again. This is the cheapest possible onboarding with the highest abandon-rate reduction.
 
 ### The "Why Should I Play Again?" Problem
 
 Right now: you die, you see your score, you press Space. But you don't know HOW the run went. Was it good? Was it interesting? Every roguelike and arcade game that retains players shows a run summary.
 
-- [ ] **Run summary on game-over screen**: Below the score, show 3-4 compact stats from the run: time survived, coins collected, near-misses landed, objectives completed. Just text, no fancy UI. Takes ~30 lines. Makes every run feel like it told a story — "wow I had 12 near-misses that time" is a reason to play again.
-- [ ] **Run grade**: Based on score + time + near-misses, assign a simple letter grade (D, C, B, A, S) shown big on game-over. Players will chase S-rank on their favorite pages. One-line formula, enormous replay motivation.
+- [x] **Run summary on game-over screen**: Below the score, show 3-4 compact stats from the run: time survived, coins collected, near-misses landed, objectives completed. Just text, no fancy UI. Takes ~30 lines. Makes every run feel like it told a story — "wow I had 12 near-misses that time" is a reason to play again.
+- [x] **Run grade**: Based on score + time + near-misses, assign a simple letter grade (D, C, B, A, S) shown big on game-over. Players will chase S-rank on their favorite pages. One-line formula, enormous replay motivation.
 
 ### The "One More Day" Problem
 
@@ -403,6 +403,15 @@ When this roadmap is working, a good run should feel like this:
 - Ran full lint:fix + format pass — zero issues
 - 72 tests pass, build clean, lint clean, format clean, no `__domRacerDebug` in source or dist
 - All production readiness tasks (items 2-6 in next-session) marked complete
+
+### Session — 2026-03-12 (r)
+
+- Phase 8 player experience: first-play hint, run summary, run grade
+- First-play hint overlay: shows "WASD to drive / Collect coins / Avoid police" for 4s on very first run (runNumber === 1), fades out over 500ms, never shows again
+- Run summary stats on game-over: compact one-line stats below score showing TIME, COINS, CLOSE (near-misses), OBJ (objectives completed)
+- Run grade: large colored letter grade (S/A/B/C/D) between score and stats on game-over screen, based on score and time thresholds
+- Expanded `GameOverState` to carry run stats (elapsedMs, coinsCollected, nearMisses, objectivesCompleted) captured at moment of game over
+- 79 tests pass, build clean, lint clean, no `__domRacerDebug` in source or dist
 
 ### Session — 2026-03-12 (l)
 

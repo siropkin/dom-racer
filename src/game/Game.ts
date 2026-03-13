@@ -87,6 +87,7 @@ import {
 } from './pickupSpawnRuntime';
 import {
   drawCaughtGameOverOverlay,
+  drawFirstPlayHintOverlay,
   drawPausedOverlay,
   drawSpriteShowcaseOverlay,
 } from './gameOverlays';
@@ -230,6 +231,7 @@ export class Game {
   private newBestCelebrated: boolean;
   private getPageTintColor: (() => string | null) | undefined;
   private pageTintColor: string | null;
+  private firstPlayHintTimerMs: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -328,6 +330,7 @@ export class Game {
     this.pageBestScoreAtRunStart = options.initialPageBestScore;
     this.newBestCelebrated = false;
     this.pageTintColor = null;
+    this.firstPlayHintTimerMs = 0;
   }
 
   start(): void {
@@ -631,6 +634,10 @@ export class Game {
     this.applyLure(dtSeconds);
     this.updateUiEffects();
 
+    if (this.firstPlayHintTimerMs > 0) {
+      this.firstPlayHintTimerMs = Math.max(0, this.firstPlayHintTimerMs - dtSeconds * 1000);
+    }
+
     this.toastSystem.update(dtSeconds);
     this.updateSpecialSpawnCues(dtSeconds);
     updateVfxParticles(this.vfxParticles, dtSeconds);
@@ -747,6 +754,15 @@ export class Game {
       currentSurface,
     });
     drawHud(ctx, this.world.viewport, hudState);
+
+    if (this.firstPlayHintTimerMs > 0) {
+      const hintAlpha = this.firstPlayHintTimerMs < 500 ? this.firstPlayHintTimerMs / 500 : 1;
+      drawFirstPlayHintOverlay({
+        ctx,
+        viewport: this.world.viewport,
+        alpha: hintAlpha,
+      });
+    }
   }
 
   private drawSpriteShowcase(): void {
@@ -1763,11 +1779,18 @@ export class Game {
     this.applyWorld(this.createWorld(), true);
     this.lastFrameMs = nextRunState.lastFrameMs;
 
+    this.firstPlayHintTimerMs = this.runNumber === 1 ? 4500 : 0;
     this.spawnEffectMessage(`RUN #${this.runNumber}`, '#e2e8f0', 'medium');
   }
 
   private enterCaughtGameOver(): void {
-    const transition = createCaughtGameOverTransitionState(performance.now());
+    const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+    const transition = createCaughtGameOverTransitionState(performance.now(), {
+      runElapsedMs,
+      coinsCollected: this.coinsCollectedTotal,
+      nearMisses: this.nearMissCount,
+      objectivesCompleted: this.objectiveCompletedCount,
+    });
     this.finishCurrentRun('caught');
     this.startTimeMs = transition.startTimeMs;
     this.setInverted(false);
@@ -1811,6 +1834,10 @@ export class Game {
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
       runNumber: this.runNumber,
+      runElapsedMs: this.gameOverState.runElapsedMs,
+      coinsCollected: this.gameOverState.coinsCollected,
+      nearMisses: this.gameOverState.nearMisses,
+      objectivesCompleted: this.gameOverState.objectivesCompleted,
     });
   }
 
