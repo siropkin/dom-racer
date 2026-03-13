@@ -10,7 +10,6 @@ import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
 
 interface PlaneDropDispatchHandlers {
   spawnBonusDrop: (x: number, y: number) => boolean;
-  spawnBoostLane: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnCoinTrail: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnSpotlight: (x: number, y: number) => boolean;
   spawnLuckyWind: (x: number, y: number, vx: number, vy: number) => boolean;
@@ -42,18 +41,6 @@ export function dispatchPlaneDropWithFallback(
   const bonusDrop = () => handlers.spawnBonusDrop(planeBonusEvent.x, planeBonusEvent.y + 14);
 
   switch (planeBonusEvent.effectMode) {
-    case 'boost-lane': {
-      const spawned = handlers.spawnBoostLane(
-        planeBonusEvent.x,
-        planeBonusEvent.y + 12,
-        planeBonusEvent.vx,
-        planeBonusEvent.vy,
-      );
-      if (!spawned) {
-        return bonusDrop();
-      }
-      return true;
-    }
     case 'coin-trail': {
       const spawned = handlers.spawnCoinTrail(
         planeBonusEvent.x,

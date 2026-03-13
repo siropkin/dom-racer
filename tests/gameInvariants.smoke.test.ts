@@ -552,10 +552,9 @@ describe('game economy and police smoke invariants', () => {
       traveledPx: 899,
       dropAtPx: 899,
       dropped: false,
-      effectMode: 'boost-lane',
+      effectMode: 'coin-trail',
     };
     (game as any).spawnPlaneBonusDrop = () => false;
-    (game as any).spawnPlaneBoostLane = () => false;
     (game as any).spawnPlaneCoinTrail = () => false;
     (game as any).spawnPlaneSpotlight = () => false;
     (game as any).spawnPlaneLuckyWind = () => false;

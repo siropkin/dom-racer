@@ -32,7 +32,7 @@ First, read:
 - `tests/scannerWorld.smoke.test.ts`
 
 Current known context:
-- Airplane drop modes remain: bonus drop, boost lane, coin trail, spotlight, lucky wind, police delay.
+- Airplane drop modes remain: bonus drop, coin trail, spotlight, lucky wind, police delay (boost lane removed as confusing).
 - Plane drop dispatch/fallback remains in `src/game/planeDropRuntime.ts` and is retry-safe (`dispatchPlaneDropWithFallback` returns success; `Game.ts` only marks `dropped` on actual spawn).
 - Lucky-wind reroute orchestration remains in `src/game/planeDropRuntime.ts` (`applyPlaneLuckyWindToPickups`).
 - Coin-trail and police-delay cue lifecycles remain in `src/game/planeDropRuntime.ts`.

@@ -1,7 +1,7 @@
 import type { Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { renderPlaneSprite } from './planeSprite';
 import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
-import type { PlaneBonusEventState, PlaneBoostLaneState, SpecialSpawnCue } from './gameStateTypes';
+import type { PlaneBonusEventState, SpecialSpawnCue } from './gameStateTypes';
 
 export function drawPickups(
   ctx: CanvasRenderingContext2D,
@@ -117,31 +117,6 @@ export function drawPlaneBonusEvent(
       snapToPixel: true,
     },
   );
-}
-
-export function drawPlaneBoostLane(
-  ctx: CanvasRenderingContext2D,
-  planeBoostLane: PlaneBoostLaneState | null,
-  nowMs: number,
-): void {
-  if (!planeBoostLane) {
-    return;
-  }
-
-  const life = Math.max(0, Math.min(1, planeBoostLane.ttlMs / Math.max(1, planeBoostLane.durationMs)));
-  const pulse = 0.86 + Math.sin(nowMs / 130) * 0.14;
-
-  ctx.save();
-  for (const [index, rect] of planeBoostLane.rects.entries()) {
-    const shimmer = 0.82 + Math.sin(nowMs / 94 + index * 0.74) * 0.18;
-    const alpha = Math.max(0.06, life * 0.24 * pulse * shimmer);
-    ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
-    ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    ctx.strokeStyle = `rgba(186, 230, 253, ${Math.max(0.18, life * 0.56)})`;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
-  }
-  ctx.restore();
 }
 
 export function advanceFocusModeAlpha(

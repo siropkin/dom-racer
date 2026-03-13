@@ -1,7 +1,6 @@
 import type { Rect, Vector2, World } from '../shared/types';
 import type {
   PlaneBonusEventState,
-  PlaneBoostLaneState,
   PlaneWarningState,
   PoliceChaseState,
   PoliceWarningState,
@@ -9,10 +8,6 @@ import type {
 import { clamp, rectCenter } from '../shared/utils';
 import {
   blendAngle,
-  PLANE_BOOST_LANE_LENGTH_PX,
-  PLANE_BOOST_LANE_STEP_PX,
-  PLANE_BOOST_LANE_WIDTH_PX,
-  PLANE_BOOST_LANE_CHANCE,
   PLANE_COIN_TRAIL_CHANCE,
   PLANE_COIN_TRAIL_COIN_SIZE_PX,
   PLANE_COIN_TRAIL_LENGTH_PX,
@@ -72,22 +67,6 @@ export function tickPlaneWarningState(
   return planeWarning;
 }
 
-export function tickPlaneBoostLaneState(
-  planeBoostLane: PlaneBoostLaneState | null,
-  dtSeconds: number,
-): PlaneBoostLaneState | null {
-  if (!planeBoostLane) {
-    return null;
-  }
-
-  planeBoostLane.ttlMs = Math.max(0, planeBoostLane.ttlMs - dtSeconds * 1000);
-  if (planeBoostLane.ttlMs === 0) {
-    return null;
-  }
-
-  return planeBoostLane;
-}
-
 export function createPlaneBonusEncounter(viewport: World['viewport']): {
   planeBonusEvent: PlaneBonusEventState;
   planeWarning: PlaneWarningState;
@@ -102,15 +81,12 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
 
   const effectRoll = Math.random();
   const effectMode =
-    effectRoll < PLANE_BOOST_LANE_CHANCE
-      ? 'boost-lane'
-      : effectRoll < PLANE_BOOST_LANE_CHANCE + PLANE_COIN_TRAIL_CHANCE
-        ? 'coin-trail'
-        : effectRoll < PLANE_BOOST_LANE_CHANCE + PLANE_COIN_TRAIL_CHANCE + PLANE_SPOTLIGHT_CHANCE
-          ? 'spotlight'
+    effectRoll < PLANE_COIN_TRAIL_CHANCE
+      ? 'coin-trail'
+      : effectRoll < PLANE_COIN_TRAIL_CHANCE + PLANE_SPOTLIGHT_CHANCE
+        ? 'spotlight'
         : effectRoll <
-            PLANE_BOOST_LANE_CHANCE +
-              PLANE_COIN_TRAIL_CHANCE +
+            PLANE_COIN_TRAIL_CHANCE +
               PLANE_SPOTLIGHT_CHANCE +
               PLANE_LUCKY_WIND_CHANCE
           ? Math.random() < PLANE_POLICE_DELAY_MODE_CHANCE
@@ -418,62 +394,6 @@ export function isPointOutsideViewport(
   padding: number,
 ): boolean {
   return x < -padding || y < -padding || x > viewport.width + padding || y > viewport.height + padding;
-}
-
-export function createPlaneBoostLaneRects(
-  viewport: World['viewport'],
-  center: Vector2,
-  direction: Vector2,
-): Rect[] {
-  const magnitude = Math.hypot(direction.x, direction.y);
-  if (magnitude < 0.001) {
-    return [];
-  }
-
-  const dir = {
-    x: direction.x / magnitude,
-    y: direction.y / magnitude,
-  };
-  const halfLength = PLANE_BOOST_LANE_LENGTH_PX / 2;
-  const halfWidth = PLANE_BOOST_LANE_WIDTH_PX / 2;
-  const minX = 8;
-  const minY = 8;
-  const maxX = Math.max(minX, viewport.width - PLANE_BOOST_LANE_WIDTH_PX - 8);
-  const maxY = Math.max(minY, viewport.height - PLANE_BOOST_LANE_WIDTH_PX - 8);
-  const rects: Rect[] = [];
-
-  for (let offset = -halfLength; offset <= halfLength; offset += PLANE_BOOST_LANE_STEP_PX) {
-    const centerX = center.x + dir.x * offset;
-    const centerY = center.y + dir.y * offset;
-    if (
-      centerX < -halfWidth ||
-      centerY < -halfWidth ||
-      centerX > viewport.width + halfWidth ||
-      centerY > viewport.height + halfWidth
-    ) {
-      continue;
-    }
-
-    const rect: Rect = {
-      x: clamp(centerX - halfWidth, minX, maxX),
-      y: clamp(centerY - halfWidth, minY, maxY),
-      width: PLANE_BOOST_LANE_WIDTH_PX,
-      height: PLANE_BOOST_LANE_WIDTH_PX,
-    };
-
-    const duplicate = rects.some(
-      (existing) =>
-        Math.abs(existing.x - rect.x) < 0.5 &&
-        Math.abs(existing.y - rect.y) < 0.5 &&
-        existing.width === rect.width &&
-        existing.height === rect.height,
-    );
-    if (!duplicate) {
-      rects.push(rect);
-    }
-  }
-
-  return rects;
 }
 
 export function createPlaneCoinTrailRects(

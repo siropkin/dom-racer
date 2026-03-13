@@ -2,7 +2,6 @@ import type { WorldPickup } from '../shared/types';
 import type {
   GameOverState,
   PlaneBonusEventState,
-  PlaneBoostLaneState,
   PlaneCoinTrailState,
   PlaneWarningState,
   PoliceChaseState,
@@ -25,7 +24,6 @@ export interface ClearedEncounterState {
   planeWarning: PlaneWarningState | null;
   specialSpawnCues: SpecialSpawnCue[];
   planeBonusEvent: PlaneBonusEventState | null;
-  planeBoostLane: PlaneBoostLaneState | null;
   planeCoinTrail: PlaneCoinTrailState | null;
 }
 
@@ -88,7 +86,6 @@ export function createClearedEncounterState(): ClearedEncounterState {
     planeWarning: null,
     specialSpawnCues: [],
     planeBonusEvent: null,
-    planeBoostLane: null,
     planeCoinTrail: null,
   };
 }

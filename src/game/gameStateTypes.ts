@@ -1,5 +1,4 @@
 import type {
-  Rect,
   Vector2,
   VehicleDesign,
   World,
@@ -29,17 +28,10 @@ export interface PlaneBonusEventState {
   dropped: boolean;
   effectMode:
     | 'bonus-drop'
-    | 'boost-lane'
     | 'coin-trail'
     | 'spotlight'
     | 'lucky-wind'
     | 'police-delay';
-}
-
-export interface PlaneBoostLaneState {
-  rects: Rect[];
-  ttlMs: number;
-  durationMs: number;
 }
 
 export interface PlaneCoinTrailState {

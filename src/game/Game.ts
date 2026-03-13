@@ -11,7 +11,6 @@ import type {
   GameOptions,
   GameOverState,
   PlaneBonusEventState,
-  PlaneBoostLaneState,
   PlaneCoinTrailState,
   PlaneWarningState,
   PoliceChaseState,
@@ -30,11 +29,9 @@ import {
   beginPoliceLeaving,
   createPlaneBonusEncounter,
   createPoliceChase,
-  createPlaneBoostLaneRects,
   createPlaneCoinTrailRects,
   getPoliceRect,
   isPoliceOffscreen,
-  tickPlaneBoostLaneState,
   tickPlaneWarningState,
   tickPoliceChaseDuration,
   tickPoliceSpawnCountdown,
@@ -44,7 +41,6 @@ import {
   advanceSpecialSpawnCues,
   drawFocusModeLayer,
   drawPickups,
-  drawPlaneBoostLane,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
 } from './gameRenderRuntime';
@@ -104,7 +100,6 @@ import {
   PLANE_AFTER_POLICE_MAX_MS,
   PLANE_AFTER_POLICE_MIN_MS,
   PLANE_BONUS_PICKUP_SIZE,
-  PLANE_BOOST_LANE_DURATION_MS,
   PLANE_COIN_TRAIL_DURATION_MS,
   PLANE_EVENT_INITIAL_MAX_MS,
   PLANE_EVENT_INITIAL_MIN_MS,
@@ -199,7 +194,6 @@ export class Game {
   private toastSystem: ToastSystem;
   private specialSpawnCues: SpecialSpawnCue[];
   private planeBonusEvent: PlaneBonusEventState | null;
-  private planeBoostLane: PlaneBoostLaneState | null;
   private planeCoinTrail: PlaneCoinTrailState | null;
   private policeDelayCueTimerMs: number;
   private policeDelayCueDurationMs: number;
@@ -275,7 +269,6 @@ export class Game {
     });
     this.specialSpawnCues = [];
     this.planeBonusEvent = null;
-    this.planeBoostLane = null;
     this.planeCoinTrail = null;
     this.policeDelayCueTimerMs = 0;
     this.policeDelayCueDurationMs = 0;
@@ -462,7 +455,6 @@ export class Game {
     this.updateEffectTimers(dtSeconds);
     this.updateFocusMode(dtSeconds);
     this.updatePlaneWarning(dtSeconds);
-    this.updatePlaneBoostLane(dtSeconds);
     this.updatePlaneCoinTrail(dtSeconds);
     this.updatePoliceDelayCue(dtSeconds);
 
@@ -567,7 +559,6 @@ export class Game {
       this.player ? rectCenter(this.player.getBounds()) : null,
       this.focusModeAlpha,
     );
-    drawPlaneBoostLane(ctx, this.planeBoostLane, performance.now());
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     drawSpecialSpawnCues(ctx, this.specialSpawnCues, getSpecialLabel('blackout'));
     drawPickups(ctx, this.world.pickups, this.comboTimerMs, this.pickupComboCount, performance.now());
@@ -843,7 +834,7 @@ export class Game {
     const step = resolveAmbientSpecialSpawnStep({
       specialSpawnTimerMs: this.specialSpawnTimerMs,
       existingSpecialCount: this.dynamicPickups.filter((pickup) => pickup.kind === 'special').length,
-      planeRouteActive: Boolean(this.planeBoostLane || this.planeCoinTrail),
+      planeRouteActive: Boolean(this.planeCoinTrail),
       dtSeconds,
     });
     this.specialSpawnTimerMs = step.specialSpawnTimerMs;
@@ -892,7 +883,6 @@ export class Game {
     if (planeStep.dropReady) {
       const dropSpawned = dispatchPlaneDropWithFallback(this.planeBonusEvent, {
         spawnBonusDrop: (x, y) => this.spawnPlaneBonusDrop(x, y),
-        spawnBoostLane: (x, y, vx, vy) => this.spawnPlaneBoostLane(x, y, vx, vy),
         spawnCoinTrail: (x, y, vx, vy) => this.spawnPlaneCoinTrail(x, y, vx, vy),
         spawnSpotlight: (x, y) => this.spawnPlaneSpotlight(x, y),
         spawnLuckyWind: (x, y, vx, vy) => this.spawnPlaneLuckyWind(x, y, vx, vy),
@@ -937,27 +927,6 @@ export class Game {
     this.enqueueSpecialSpawnCue(pickup);
     this.audio.playPlaneDrop();
     this.spawnEffectMessage(getSpecialDropMessage('bonus'), getSpecialColor('bonus'), 'high');
-    return true;
-  }
-
-  private spawnPlaneBoostLane(x: number, y: number, vx: number, vy: number): boolean {
-    if (!this.world) {
-      return false;
-    }
-
-    const laneRects = createPlaneBoostLaneRects(this.world.viewport, { x, y }, { x: vx, y: vy });
-    if (laneRects.length === 0) {
-      return false;
-    }
-
-    this.planeBoostLane = {
-      rects: laneRects,
-      ttlMs: PLANE_BOOST_LANE_DURATION_MS,
-      durationMs: PLANE_BOOST_LANE_DURATION_MS,
-    };
-    this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
-    this.audio.playPlaneDrop();
-    this.spawnEffectMessage('JET LANE', '#7dd3fc', 'high');
     return true;
   }
 
@@ -1072,10 +1041,6 @@ export class Game {
     return true;
   }
 
-  private updatePlaneBoostLane(dtSeconds: number): void {
-    this.planeBoostLane = tickPlaneBoostLaneState(this.planeBoostLane, dtSeconds);
-  }
-
   private updatePlaneCoinTrail(dtSeconds: number): void {
     if (!this.world || !this.planeCoinTrail) {
       return;
@@ -1107,11 +1072,7 @@ export class Game {
       return [];
     }
 
-    if (!this.planeBoostLane) {
-      return this.world.boosts;
-    }
-
-    return [...this.world.boosts, ...this.planeBoostLane.rects];
+    return this.world.boosts;
   }
 
   private spawnQueuedCoins(count: number): boolean {
@@ -1508,7 +1469,6 @@ export class Game {
     this.planeWarning = cleared.planeWarning;
     this.specialSpawnCues = cleared.specialSpawnCues;
     this.planeBonusEvent = cleared.planeBonusEvent;
-    this.planeBoostLane = cleared.planeBoostLane;
     this.planeCoinTrail = cleared.planeCoinTrail;
   }
 

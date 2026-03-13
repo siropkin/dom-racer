@@ -51,7 +51,7 @@ npm run build
 - Ambient special pickups spawn independently from normal money
 - `FLOW` streaks recolor regular coins to make the streak state obvious
 - Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`
-- Airplane flyovers with six drop modes: bonus drop, boost lane, coin trail, spotlight, lucky wind, police delay
+- Airplane flyovers with five drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay
 - Police chases with edge warnings and a proper `GAME OVER` screen
 - Run auto-pauses with a clear overlay when the page/tab loses focus
 - Sound toggle, vehicle design toggle, sprite showcase debug mode
@@ -81,10 +81,9 @@ The active power-up panel in the top-right HUD shows remaining duration.
 
 ## Airplane Events
 
-A propeller plane occasionally crosses the arena and drops one of six route moments:
+A propeller plane occasionally crosses the arena and drops one of five route moments:
 
 - **Bonus drop**: a special pickup appears at the drop point
-- **Boost lane**: a temporary speed strip is painted across the map
 - **Coin trail**: a short-lived line of regular coins spawns along the flight path
 - **Spotlight**: an existing special pickup gets highlighted with a longer cue
 - **Lucky wind**: nearby coins are gently nudged into a readable route

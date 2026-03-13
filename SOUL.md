@@ -261,6 +261,7 @@ Status: `in progress`
 - [x] Improve police and airplane sprite contrast for bright-page readability
 - [x] Show sound state (`ON` / `OFF`) in the same HUD hint line as `M` and `SOUND`
 - [x] Run a toast stacking readability pass (overlap/spacing/legibility when multiple messages are active)
+- [ ] Remove toast notification messages when special pickups spawn (spawn cue ring is sufficient, toast adds noise)
 - [ ] Verify the map still reads quickly without adding visual noise
 
 ### 7. Verification Pass
@@ -319,6 +320,7 @@ Status: `done`
 Goal: make image-heavy pages feel playful without replacing route decisions with raw speed.
 
 - [x] Change scanned `img` / `picture` surfaces from `boost` to `ice`
+- [ ] Change scanned `video` surfaces from `boost` to `ice` (consistent with `img` / `picture`)
 - [x] Keep visually reactive UI surfaces as `boost` so boost moments remain readable and intentional
 - [x] Implement `ice` handling with low grip + low friction + tiny entry speed burst + subtle drift
 - [x] Make police chase movement react to `ice` surfaces too
@@ -387,7 +389,7 @@ Goal: add a rare, stylish world event that changes the map in a playful way.
 
 - [x] `Bonus drop`: airplane drops a bonus-only special pickup
 - [x] `Coin trail`: airplane leaves a short line of coins across the map
-- [x] `Boost lane`: airplane paints a temporary speed strip
+- [x] ~~`Boost lane`~~: removed (confusing visual, looked like empty boxes on most pages)
 - [x] `Lucky wind`: airplane gently nudges nearby coins into a route
 - [x] `Spotlight`: airplane reveals or highlights a special
 - [ ] `Garden trim`: airplane cuts back bushes / trees and opens a lane
@@ -401,10 +403,12 @@ Status: `done`
 - [x] Implement one `bonus drop` pickup event (`BON`) with rarity/cooldown timing
 - [x] Add airplane edge warning indicator (`NYOOM`) before entry
 - [x] Stabilize and tune airplane sprite readability in gameplay (shape, propeller, contrast, placement)
+- [ ] Move airplane wings closer to cabin for a more compact, readable silhouette
+- [ ] Widen airplane tail for better silhouette balance and readability
 - [x] Add and tune a "cool" airplane sound profile that is noticeable without becoming noisy
 - [x] Stagger airplane and police cadence to reduce same-time overlap noise
 - [x] Implement `coin trail`
-- [x] Implement temporary `boost lane`
+- [x] ~~Implement temporary `boost lane`~~ (removed: visual was confusing, looked like empty boxes)
 - [x] Add cooldown / rarity rules
 
 Definition of done:
