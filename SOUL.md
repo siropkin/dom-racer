@@ -198,6 +198,7 @@ Completed:
 - Release build profile (sourcemaps off), permissions doc, release checklist
 - No `__domRacerDebug` in source or build
 - Duplicate `parseCssColor`/`rgbToHsl` extracted from domScanner and main into `src/shared/color.ts`
+- Duplicate `cloneRect` removed from `pickupSpawnRuntime.ts`; now imports from `gameRuntime.ts`
 
 ## Phase 6: README / Presentation
 
@@ -222,7 +223,7 @@ Completed:
 - [x] Updated `dom-racer-store-cover.svg` to show the real car in gameplay context
 - [x] Top-down perspective consistent with in-game look (body #2563EB, roof #1D4ED8, wheels #111827 with #F8FAFC border)
 - [x] Updated `generate_assets.py` to read SVGs from disk instead of embedding duplicate strings
-- [ ] Regenerate PNGs via `npm run brand` (requires macOS `sips` tool)
+- [x] Regenerated PNGs via `npm run brand` (icon16–512, promo tile, store cover)
 
 ## Practical Learnings
 
@@ -244,6 +245,14 @@ When this roadmap is working, a good run should feel like this:
 - mid game: more routing decisions, specials, rising police pressure
 - late game: overgrown map, tighter routes, high-score tension
 - failure: stylish and readable, with immediate desire to retry
+
+## Session Notes
+
+### Session — 2026-03-12
+
+- Deduplicated `cloneRect` from `pickupSpawnRuntime.ts` (now imports from `gameRuntime.ts`)
+- Regenerated all branding PNGs via `npm run brand` (icon16–512, promo tile 440x280, store cover 1280x800)
+- 32 tests pass, build clean, no `__domRacerDebug` in source or dist
 
 ## Notes For Future Models
 

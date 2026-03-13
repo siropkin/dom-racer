@@ -1,6 +1,7 @@
 import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
 import {
+  cloneRect,
   PLANE_LANE_SPECIAL_STAGGER_MS,
   randomBetween,
   REGULAR_COIN_LOW_PRESSURE_THRESHOLD,
@@ -335,11 +336,3 @@ export function resolveRegularCoinSpawnStep(options: {
   };
 }
 
-function cloneRect(rect: Rect): Rect {
-  return {
-    x: rect.x,
-    y: rect.y,
-    width: rect.width,
-    height: rect.height,
-  };
-}
