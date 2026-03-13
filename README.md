@@ -1,88 +1,61 @@
 # DOM Racer
 
-DOM Racer is a Chrome / Edge extension that turns the visible parts of any webpage into a playful top-down racer.
+A Chrome / Edge extension that turns any webpage into a tiny arcade track.
 
-Links and buttons become loot. Text becomes geometry. Colorful surfaces can become boosts. Random power-ups spawn into the arena. Police cars show up when you get too comfortable.
+Links become loot. Text becomes walls. Images become ice. Buttons become coins. Police show up when you get too comfortable. An airplane drops weird gifts from the sky. The page you were reading five seconds ago is now a hostile little arena, and you love it.
 
-It is built as a Manifest V3 extension with a TypeScript + Vite workflow and runs directly as a content-script overlay on top of the current page.
+## Why This Is Fun
 
-## What It Feels Like
+Most browser extensions add features. This one turns your tab into a game.
 
-- Drive around the live DOM instead of a traditional game map
-- Collect money from visible UI
-- Chain pickups into `FLOW`
-- Grab random power-ups like `MAGNET`, `INVERT`, `GHOST`, and `BLACKOUT`
-- Dodge police chases and survive long enough to push your page best
-- Keep your settings, vehicle choice, and score history between runs
+The magic is that every page plays differently. A docs page is a maze of text walls. A dashboard is an open racetrack with scattered buttons. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you press the hotkey.
+
+Then: coins to chase, power-ups to grab, a combo system that rewards greed, police cars that punish staying too long, and a propeller plane that drops route moments across the map. The difficulty curve is simple: the longer you survive, the weirder it gets.
 
 ## Store-Friendly Pitch
 
 DOM Racer turns every page into a tiny arcade track: dash through live UI, scoop coin lines, trigger weird specials, and survive cleanly telegraphed police pressure without leaving your tab.
 
-## Current Features
-
-- `Shift + R` (or alternate ``Shift + ` ``) toggles the game on any page
-- Page text is scanned into readable wall geometry
-- Images and pictures can become slippery ice zones
-- Reactive visual surfaces can become speed-up zones
-- Links and buttons both spawn money pickups
-- Ambient special pickups spawn independently from normal money
-- `FLOW` streaks recolor regular coins to make the streak state obvious
-- Police chases include an edge warning and a proper `GAME OVER` screen
-- The run auto-pauses with a clear overlay when the page/tab loses focus
-- Sound can be toggled in-game
-- Vehicle design can be cycled in-game
-- `Shift + D` opens a sprite/debug showcase mode
-- Page best and lifetime best are persisted through storage
-- Extension icons and store assets can be regenerated from source artwork
-
-## Controls
-
-### In Game
-
-- `Shift + R` or ``Shift + ` ``: toggle DOM Racer on or off
-- `WASD` / arrow keys: drive
-- `R`: restart the current run
-- `V`: switch vehicle design
-- `M`: toggle sound
-- `Shift + D`: open/close sprite showcase mode
-- `Esc`: quit
-
-### On Police Game Over
-
-- `Space`: restart
-- `Esc`: quit
-
-## Local Development
+## Quick Start
 
 ```bash
 npm install
-npm run brand
 npm run build
 ```
 
-### Useful Commands
+1. Open Chrome or Edge extensions page
+2. Enable Developer Mode
+3. Click `Load unpacked` and select the `dist/` directory
+4. Open any page and press `Shift + R` (or ``Shift + ` ``)
 
-```bash
-npm run dev
-npm run build
-npm run typecheck
-npm run brand
-```
+## Controls
 
-- `npm run dev`: rebuild the extension on file changes into `dist/`
-- `npm run build`: type-check and produce a production build in `dist/`
-- `npm run typecheck`: run TypeScript only
-- `npm run brand`: regenerate extension icons and marketplace graphics from `branding/`
+| Context | Key | Action |
+|---|---|---|
+| Anywhere | `Shift + R` or ``Shift + ` `` | Toggle DOM Racer |
+| In game | `WASD` / arrow keys | Drive |
+| In game | `R` | Restart run |
+| In game | `V` | Switch vehicle design |
+| In game | `M` | Toggle sound |
+| In game | `Shift + D` | Sprite showcase mode |
+| In game | `Esc` | Quit |
+| Game over | `Space` | Restart |
+| Game over | `Esc` | Quit |
 
-## Load Unpacked In Chrome Or Edge
+## Current Features
 
-1. Run `npm run build`
-2. Open the extensions page
-3. Enable Developer Mode
-4. Click `Load unpacked`
-5. Select the `dist/` directory
-6. Open any page and press `Shift + R` (or alternate ``Shift + ` ``)
+- Page text is scanned into readable wall geometry
+- Images and pictures become slippery ice zones
+- Reactive visual surfaces become speed-up zones
+- Links and buttons spawn money pickups
+- Ambient special pickups spawn independently from normal money
+- `FLOW` streaks recolor regular coins to make the streak state obvious
+- Power-ups: `MAGNET`, `INVERT`, `GHOST`, `BLACKOUT`
+- Airplane flyovers with six drop modes: bonus drop, boost lane, coin trail, spotlight, lucky wind, police delay
+- Police chases with edge warnings and a proper `GAME OVER` screen
+- Run auto-pauses with a clear overlay when the page/tab loses focus
+- Sound toggle, vehicle design toggle, sprite showcase debug mode
+- Page best and lifetime best scores persist through storage
 
 ## How The World Is Built
 
@@ -91,47 +64,52 @@ DOM Racer scans the currently visible page and translates it into a compact arca
 - Large fixed UI near page edges becomes barriers
 - Links and button-like elements become money pickups
 - Text blocks are converted into wall slices using visible text bounds
-- Images and pictures can become ice
-- Visually reactive surfaces can become boosts
-- Random special pickups are spawned into free space during the run
+- Images and pictures become ice
+- Visually reactive surfaces become boosts
+- Random special pickups spawn into free space during the run
 
 The result is intentionally game-ish rather than perfectly literal. The goal is to preserve the feel of the page while still making it readable and fun as a racer.
 
 ## Power-Ups
 
-- `MAGNET`: pulls coins toward the player
+- `MAGNET`: pulls coins and specials toward the player
 - `INVERT`: flips page colors
-- `GHOST`: temporarily relaxes some movement pressure
-- `BLACKOUT`: darkens the page for a short high-pressure stretch
+- `GHOST`: temporarily relaxes movement pressure and blocks police lock
+- `BLACKOUT`: darkens the page for a short high-pressure stretch (adapts to `INVERT` on dark surfaces)
 
 The active power-up panel in the top-right HUD shows remaining duration.
 
+## Airplane Events
+
+A propeller plane occasionally crosses the arena and drops one of six route moments:
+
+- **Bonus drop**: a special pickup appears at the drop point
+- **Boost lane**: a temporary speed strip is painted across the map
+- **Coin trail**: a short-lived line of regular coins spawns along the flight path
+- **Spotlight**: an existing special pickup gets highlighted with a longer cue
+- **Lucky wind**: nearby coins are gently nudged into a readable route
+- **Police delay**: police spawn timing is briefly pushed back
+
+Each mode has its own fallback: if conditions are not right at drop time, the plane safely resolves to a bonus drop instead.
+
 ## Persistence
 
-DOM Racer stores:
+DOM Racer stores sound setting, selected vehicle design, page best score, lifetime best score, and per-page run stats using `chrome.storage.local` (with `localStorage` fallback).
 
-- sound setting
-- selected vehicle design
-- page best score
-- lifetime best score
-- per-page run stats
+## Roadmap
 
-Storage uses `chrome.storage.local` when available, with `localStorage` fallback for compatibility.
+| Phase | Status | Goal |
+|---|---|---|
+| Core money loop | Mostly done | Lock the collectible loop |
+| Overgrowth difficulty | Planned | Trees and bushes that grow over time |
+| Airplane event | Mostly done | Rare stylish world events |
+| Indie juice | Planned | Near-miss bonuses, page moods, police escalation |
+| Production hardening | In progress | Tests, structure, release readiness |
+| Presentation | In progress | README polish, screenshots, store assets |
 
 ## Debug Mode
 
-Debugging now stays inside the game overlay instead of exposing a page-level API.
-
-Use `Shift + D` to open the sprite/debug showcase mode for visual checks and quick style validation.
-
-## Branding Assets
-
-Branding source files live in `branding/`.
-
-Generated assets include:
-
-- extension icons in `public/icons/`
-- marketplace assets in `public/marketplace/`
+Use `Shift + D` to open the sprite/debug showcase mode for visual checks and quick style validation. No page-level debug API is exposed.
 
 ## Project Layout
 
@@ -144,19 +122,25 @@ src/shared/      Shared types, utils, persistence helpers
 src/styles/      Overlay and page-effect styles
 ```
 
+## Development
+
+```bash
+npm run dev       # Rebuild on file changes
+npm run build     # Type-check + production build
+npm run typecheck # TypeScript only
+npm run test      # Run smoke tests
+npm run brand     # Regenerate extension icons and marketplace graphics
+```
+
 ## Stack
 
-- Manifest V3
-- TypeScript
-- Vite
-- Canvas 2D
-- Web Audio API
+Manifest V3, TypeScript, Vite, Canvas 2D, Web Audio API.
 
 ## Notes
 
-- The extension is designed for local loading during development
-- It only requests `storage` permission
-- The game runs on top of the current page and intentionally blocks native page interaction while active
+- The extension only requests `storage` permission
+- The game runs on top of the current page and blocks native interaction while active
+- Host scope uses `<all_urls>` because the core interaction model requires running on arbitrary pages
 
 ## License
 

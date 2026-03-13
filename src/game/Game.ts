@@ -74,9 +74,11 @@ import {
 } from './policeSprite';
 import {
   getCoinRefillDelayMs,
+  getSpecialSpawnRespawnDelayMs,
   canSpawnRegularCoinRect,
   findFreePickupRect,
   findFreePickupRectNear,
+  resolveAmbientSpecialSpawnStep,
   spawnQueuedCoinsFromAnchors,
 } from './pickupSpawnRuntime';
 import { drawCaughtGameOverOverlay, drawPausedOverlay, drawSpriteShowcaseOverlay } from './gameOverlays';
@@ -132,14 +134,8 @@ import {
   REGULAR_COIN_VISIBLE_CAP,
   SHOWCASE_THEMES,
   shufflePickups,
-  SPECIAL_CAP_RETRY_MAX_MS,
-  SPECIAL_CAP_RETRY_MIN_MS,
   SPECIAL_INITIAL_SPAWN_MAX_MS,
   SPECIAL_INITIAL_SPAWN_MIN_MS,
-  SPECIAL_RESPAWN_MAX_MS,
-  SPECIAL_RESPAWN_MIN_MS,
-  SPECIAL_RETRY_MAX_MS,
-  SPECIAL_RETRY_MIN_MS,
   SPECIAL_VISIBLE_CAP,
   TOAST_DUPLICATE_WINDOW_MS,
   TOAST_EFFECT_TTL_MS,
@@ -843,30 +839,18 @@ export class Game {
       return;
     }
 
-    if (this.planeBoostLane || this.planeCoinTrail) {
-      // Keep temporary plane-route moments readable by delaying ambient specials a bit.
-      this.specialSpawnTimerMs = Math.max(this.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS);
-      return;
-    }
+    const step = resolveAmbientSpecialSpawnStep({
+      specialSpawnTimerMs: this.specialSpawnTimerMs,
+      existingSpecialCount: this.dynamicPickups.filter((pickup) => pickup.kind === 'special').length,
+      planeRouteActive: Boolean(this.planeBoostLane || this.planeCoinTrail),
+      dtSeconds,
+    });
+    this.specialSpawnTimerMs = step.specialSpawnTimerMs;
 
-    this.specialSpawnTimerMs = Math.max(0, this.specialSpawnTimerMs - dtSeconds * 1000);
-    if (this.specialSpawnTimerMs > 0) {
-      return;
+    if (step.shouldAttemptSpawn) {
+      const spawned = this.spawnSpecialPickup();
+      this.specialSpawnTimerMs = getSpecialSpawnRespawnDelayMs(spawned);
     }
-
-    const existingSpecials = this.dynamicPickups.filter((pickup) => pickup.kind === 'special').length;
-    if (existingSpecials >= SPECIAL_VISIBLE_CAP) {
-      this.specialSpawnTimerMs = randomBetween(
-        SPECIAL_CAP_RETRY_MIN_MS,
-        SPECIAL_CAP_RETRY_MAX_MS,
-      );
-      return;
-    }
-
-    const spawned = this.spawnSpecialPickup();
-    this.specialSpawnTimerMs = spawned
-      ? randomBetween(SPECIAL_RESPAWN_MIN_MS, SPECIAL_RESPAWN_MAX_MS)
-      : randomBetween(SPECIAL_RETRY_MIN_MS, SPECIAL_RETRY_MAX_MS);
   }
 
   private updatePlaneBonusEvent(dtSeconds: number): void {

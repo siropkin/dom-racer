@@ -14,6 +14,7 @@ import {
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
 import { applyMagnetPullToPickups } from '../src/game/gameEffectsRuntime';
 import { getFlavorText } from '../src/game/gameRuntime';
+import { resolveAmbientSpecialSpawnStep, getSpecialSpawnRespawnDelayMs } from '../src/game/pickupSpawnRuntime';
 
 vi.mock('../src/game/audio', () => {
   class MockAudioManager {
@@ -811,5 +812,49 @@ describe('game economy and police smoke invariants', () => {
 
     expect(hudState.activeEffects.some((effect) => effect.label === 'WEE-OO')).toBe(true);
     expect(hudState.activeEffects.some((effect) => effect.label === 'NYOOM')).toBe(true);
+  });
+
+  it('keeps extracted ambient special spawn scheduling unchanged', () => {
+    const staggered = resolveAmbientSpecialSpawnStep({
+      specialSpawnTimerMs: 500,
+      existingSpecialCount: 0,
+      planeRouteActive: true,
+      dtSeconds: 0.5,
+    });
+    expect(staggered.shouldAttemptSpawn).toBe(false);
+    expect(staggered.specialSpawnTimerMs).toBeGreaterThanOrEqual(1500);
+
+    const waiting = resolveAmbientSpecialSpawnStep({
+      specialSpawnTimerMs: 3000,
+      existingSpecialCount: 0,
+      planeRouteActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(waiting.shouldAttemptSpawn).toBe(false);
+    expect(waiting.specialSpawnTimerMs).toBe(2500);
+
+    const atCap = resolveAmbientSpecialSpawnStep({
+      specialSpawnTimerMs: 0,
+      existingSpecialCount: 2,
+      planeRouteActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(atCap.shouldAttemptSpawn).toBe(false);
+    expect(atCap.specialSpawnTimerMs).toBeGreaterThan(0);
+
+    const ready = resolveAmbientSpecialSpawnStep({
+      specialSpawnTimerMs: 200,
+      existingSpecialCount: 0,
+      planeRouteActive: false,
+      dtSeconds: 0.5,
+    });
+    expect(ready.shouldAttemptSpawn).toBe(true);
+    expect(ready.specialSpawnTimerMs).toBe(0);
+
+    const respawnDelay = getSpecialSpawnRespawnDelayMs(true);
+    expect(respawnDelay).toBeGreaterThan(0);
+    const retryDelay = getSpecialSpawnRespawnDelayMs(false);
+    expect(retryDelay).toBeGreaterThan(0);
+    expect(respawnDelay).toBeGreaterThanOrEqual(retryDelay * 0.5);
   });
 });

@@ -1,6 +1,7 @@
 import type { Rect, Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
 import {
+  PLANE_LANE_SPECIAL_STAGGER_MS,
   randomBetween,
   REGULAR_COIN_LOW_PRESSURE_THRESHOLD,
   REGULAR_COIN_REFILL_FAST_MAX_MS,
@@ -10,6 +11,13 @@ import {
   REGULAR_COIN_REFILL_MAX_MS,
   REGULAR_COIN_REFILL_MIN_MS,
   REGULAR_COIN_SCORE,
+  SPECIAL_CAP_RETRY_MAX_MS,
+  SPECIAL_CAP_RETRY_MIN_MS,
+  SPECIAL_RESPAWN_MAX_MS,
+  SPECIAL_RESPAWN_MIN_MS,
+  SPECIAL_RETRY_MAX_MS,
+  SPECIAL_RETRY_MIN_MS,
+  SPECIAL_VISIBLE_CAP,
 } from './gameRuntime';
 
 interface PickupSpawnBlockers {
@@ -232,6 +240,51 @@ function nextSpawnableCoinAnchor(
   }
 
   return null;
+}
+
+export interface AmbientSpecialSpawnStep {
+  specialSpawnTimerMs: number;
+  shouldAttemptSpawn: boolean;
+}
+
+export function resolveAmbientSpecialSpawnStep(options: {
+  specialSpawnTimerMs: number;
+  existingSpecialCount: number;
+  planeRouteActive: boolean;
+  dtSeconds: number;
+}): AmbientSpecialSpawnStep {
+  if (options.planeRouteActive) {
+    return {
+      specialSpawnTimerMs: Math.max(options.specialSpawnTimerMs, PLANE_LANE_SPECIAL_STAGGER_MS),
+      shouldAttemptSpawn: false,
+    };
+  }
+
+  const nextTimerMs = Math.max(0, options.specialSpawnTimerMs - options.dtSeconds * 1000);
+  if (nextTimerMs > 0) {
+    return {
+      specialSpawnTimerMs: nextTimerMs,
+      shouldAttemptSpawn: false,
+    };
+  }
+
+  if (options.existingSpecialCount >= SPECIAL_VISIBLE_CAP) {
+    return {
+      specialSpawnTimerMs: randomBetween(SPECIAL_CAP_RETRY_MIN_MS, SPECIAL_CAP_RETRY_MAX_MS),
+      shouldAttemptSpawn: false,
+    };
+  }
+
+  return {
+    specialSpawnTimerMs: nextTimerMs,
+    shouldAttemptSpawn: true,
+  };
+}
+
+export function getSpecialSpawnRespawnDelayMs(spawned: boolean): number {
+  return spawned
+    ? randomBetween(SPECIAL_RESPAWN_MIN_MS, SPECIAL_RESPAWN_MAX_MS)
+    : randomBetween(SPECIAL_RETRY_MIN_MS, SPECIAL_RETRY_MAX_MS);
 }
 
 function cloneRect(rect: Rect): Rect {

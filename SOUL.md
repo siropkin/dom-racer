@@ -472,6 +472,7 @@ Status: `in progress`
 - [x] Keep airplane drop completion retry-safe when a drop path fails in-frame (do not mark `dropped` until a spawn actually succeeds)
 - [x] Extract focus-loss pause transition state orchestration from `src/game/Game.ts` into `src/game/gameRunStateRuntime.ts` while keeping audio/input side effects in `Game.ts`
 - [x] Extract magnet pull motion orchestration from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without behavior drift
+- [x] Extract ambient special spawn scheduling from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -509,9 +510,10 @@ Goal: make the project page feel as cool as the game.
 ### README
 
 - [x] Rewrite `README.md` to match the current game instead of the MVP
-- [ ] Make the voice more indie and playful
-- [ ] Add a sharp “why this is fun” section
-- [ ] Add a living roadmap section
+- [x] Make the voice more indie and playful
+- [x] Add a sharp “why this is fun” section
+- [x] Add a living roadmap section
+- [x] Add airplane events section covering all six drop modes
 - [x] Add a short store-friendly pitch block
 
 ### Presentation Assets
@@ -711,6 +713,12 @@ Session note:
 - Previous commit state on `main` before this session:
   - `9528056` (HUD sound-state clarity, airplane audio polish, toast readability pass)
   - `f374289` (SOUL commit-state note refresh)
+
+- Current session lands the locked hybrid pair in one pass: bounded ambient-special-spawn scheduling extraction plus bounded Phase 6 README polish.
+- Hardening delivery: ambient special spawn scheduling logic moved from `Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`), preserving plane-route stagger, cap-retry, and respawn/retry timer semantics.
+- Feature delivery: README rewritten with a more indie/playful voice, a "why this is fun" section explaining per-page variety, a living roadmap table, and a dedicated airplane events section covering all six drop modes.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (25 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 
