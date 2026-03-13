@@ -185,9 +185,9 @@ export function renderPlaneSprite(
   drawBorderedRect(
     ctx,
     tailX,
-    -tuning.tailHeight / 2,
-    tuning.tailWidth,
+    -tuning.tailWidth / 2,
     tuning.tailHeight,
+    tuning.tailWidth,
     1.2,
     '#475569',
     '#f8fafc',
