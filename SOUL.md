@@ -404,7 +404,7 @@ Status: `done`
 - [x] Add airplane edge warning indicator (`NYOOM`) before entry
 - [x] Stabilize and tune airplane sprite readability in gameplay (shape, propeller, contrast, placement)
 - [ ] Move airplane wings closer to cabin for a more compact, readable silhouette
-- [ ] Widen airplane tail for better silhouette balance and readability
+- [x] Widen airplane tail for better silhouette balance and readability
 - [x] Add and tune a "cool" airplane sound profile that is noticeable without becoming noisy
 - [x] Stagger airplane and police cadence to reduce same-time overlap noise
 - [x] Implement `coin trail`
@@ -478,6 +478,7 @@ Status: `in progress`
 - [x] Extract magnet pull motion orchestration from `src/game/Game.ts` into `src/game/gameEffectsRuntime.ts` without behavior drift
 - [x] Extract ambient special spawn scheduling from `src/game/Game.ts` into `src/game/pickupSpawnRuntime.ts` (`resolveAmbientSpecialSpawnStep`, `getSpecialSpawnRespawnDelayMs`) without behavior drift
 - [x] Extract focus-mode alpha animation calculation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`advanceFocusModeAlpha`) without behavior drift
+- [x] Extract page lightness estimation from `src/game/Game.ts` into `src/game/gameRenderRuntime.ts` (`estimatePageLightness`) without behavior drift
 - [x] Add/adjust smoke coverage for whichever extraction lands in the same session
 
 ### Test Coverage
@@ -736,6 +737,12 @@ Session note:
 - Feature delivery: ambient special pickups no longer spawn a toast notification message; the existing spawn cue ring provides sufficient visual feedback, reducing HUD noise.
 - This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
 - Verification this session: `npm run test` (28 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
+
+- Current session lands the locked hybrid pair in one pass: bounded page-lightness estimation extraction plus bounded airplane tail readability follow-up.
+- Hardening delivery: page lightness estimation calculation moved from `Game.ts` into `src/game/gameRenderRuntime.ts` (`estimatePageLightness`), preserving sprite showcase auto-theme selection behavior.
+- Feature delivery: airplane sprite `tailWidth` widened from `4.8` to `6.4` for a more readable tail silhouette, closing the Phase 3 tail-balance readability item.
+- This session keeps police catch -> `GAME OVER` -> `Space` restart flow and special-vs-regular economy separation intact, with no tuning-constant changes.
+- Verification this session: `npm run test` (29 smoke tests), `npm run build`, and `__domRacerDebug` absence re-audited in both `src/` and `dist/`.
 
 ## Latest Session Progress And Learnings
 

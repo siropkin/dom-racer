@@ -44,6 +44,7 @@ import {
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
+  estimatePageLightness,
 } from './gameRenderRuntime';
 import {
   BLACKOUT_EFFECT_DURATION_MS,
@@ -155,7 +156,7 @@ import {
   dispatchPlaneDropWithFallback,
 } from './planeDropRuntime';
 import { ToastSystem, type ToastPriority } from './toastSystem';
-import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
+import { rectCenter, rectsIntersect } from '../shared/utils';
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -641,32 +642,7 @@ export class Game {
       return 0.5;
     }
 
-    const samplePoints = [
-      { x: 0.18, y: 0.2 },
-      { x: 0.5, y: 0.2 },
-      { x: 0.82, y: 0.2 },
-      { x: 0.18, y: 0.5 },
-      { x: 0.5, y: 0.5 },
-      { x: 0.82, y: 0.5 },
-      { x: 0.18, y: 0.8 },
-      { x: 0.5, y: 0.8 },
-      { x: 0.82, y: 0.8 },
-    ];
-
-    let total = 0;
-    let count = 0;
-    for (const point of samplePoints) {
-      const sample = this.sampleSurfaceAt({
-        x: this.world.viewport.width * point.x,
-        y: this.world.viewport.height * point.y,
-      });
-      if (Number.isFinite(sample.lightness)) {
-        total += clamp(sample.lightness, 0, 1);
-        count += 1;
-      }
-    }
-
-    return count > 0 ? total / count : 0.5;
+    return estimatePageLightness(this.world.viewport, this.sampleSurfaceAt);
   }
 
   private handleKeyDown = (event: KeyboardEvent): void => {

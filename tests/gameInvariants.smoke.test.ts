@@ -6,7 +6,7 @@ import {
   createPoliceDelayCueState,
 } from '../src/game/planeDropRuntime';
 import { advancePoliceChasing, resolvePlaneEncounterSchedulingStep } from '../src/game/encounterRuntime';
-import { advanceFocusModeAlpha, advanceSpecialSpawnCues } from '../src/game/gameRenderRuntime';
+import { advanceFocusModeAlpha, advanceSpecialSpawnCues, estimatePageLightness } from '../src/game/gameRenderRuntime';
 import {
   resolveFocusPauseTransitionState,
   shouldPauseForPageFocus,
@@ -920,5 +920,37 @@ describe('game economy and police smoke invariants', () => {
 
     const toastMessages = (game as any).toastSystem['messages'] as Array<{ text: string }>;
     expect(toastMessages).toHaveLength(0);
+  });
+
+  it('keeps extracted page lightness estimation unchanged', () => {
+    const viewport = { width: 1280, height: 720 };
+    const brightSampler = () => ({ lightness: 0.9, saturation: 0.1, hasGradient: false });
+    const darkSampler = () => ({ lightness: 0.15, saturation: 0.05, hasGradient: false });
+    const mixedCallIndex = { i: 0 };
+    const mixedSampler = () => {
+      mixedCallIndex.i += 1;
+      return {
+        lightness: mixedCallIndex.i % 2 === 0 ? 0.8 : 0.2,
+        saturation: 0.1,
+        hasGradient: false,
+      };
+    };
+
+    const bright = estimatePageLightness(viewport, brightSampler);
+    expect(bright).toBeCloseTo(0.9, 1);
+
+    const dark = estimatePageLightness(viewport, darkSampler);
+    expect(dark).toBeCloseTo(0.15, 1);
+
+    const mixed = estimatePageLightness(viewport, mixedSampler);
+    expect(mixed).toBeGreaterThan(0.1);
+    expect(mixed).toBeLessThan(0.9);
+
+    const fallback = estimatePageLightness(viewport, () => ({
+      lightness: Number.NaN,
+      saturation: 0,
+      hasGradient: false,
+    }));
+    expect(fallback).toBe(0.5);
   });
 });

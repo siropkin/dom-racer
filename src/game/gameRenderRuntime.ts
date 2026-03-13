@@ -1,7 +1,9 @@
 import type { Vector2, ViewportSize, WorldPickup } from '../shared/types';
+import { clamp } from '../shared/utils';
 import { renderPlaneSprite } from './planeSprite';
 import { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
 import type { PlaneBonusEventState, SpecialSpawnCue } from './gameStateTypes';
+import type { SurfaceSample } from './gameRuntime';
 
 export function drawPickups(
   ctx: CanvasRenderingContext2D,
@@ -127,6 +129,37 @@ export function advanceFocusModeAlpha(
   const target = policeActive ? 0 : 1;
   const rate = target > currentAlpha ? 1.1 : 2.6;
   return currentAlpha + (target - currentAlpha) * Math.min(1, dtSeconds * rate * 6);
+}
+
+const PAGE_LIGHTNESS_SAMPLE_POINTS = [
+  { x: 0.18, y: 0.2 },
+  { x: 0.5, y: 0.2 },
+  { x: 0.82, y: 0.2 },
+  { x: 0.18, y: 0.5 },
+  { x: 0.5, y: 0.5 },
+  { x: 0.82, y: 0.5 },
+  { x: 0.18, y: 0.8 },
+  { x: 0.5, y: 0.8 },
+  { x: 0.82, y: 0.8 },
+];
+
+export function estimatePageLightness(
+  viewport: ViewportSize,
+  sampleSurfaceAt: (point: Vector2) => SurfaceSample,
+): number {
+  let total = 0;
+  let count = 0;
+  for (const point of PAGE_LIGHTNESS_SAMPLE_POINTS) {
+    const sample = sampleSurfaceAt({
+      x: viewport.width * point.x,
+      y: viewport.height * point.y,
+    });
+    if (Number.isFinite(sample.lightness)) {
+      total += clamp(sample.lightness, 0, 1);
+      count += 1;
+    }
+  }
+  return count > 0 ? total / count : 0.5;
 }
 
 export function drawFocusModeLayer(

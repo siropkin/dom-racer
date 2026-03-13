@@ -30,7 +30,7 @@ export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
   wingWidth: 7,
   wingAccentSpan: 28,
   wingAccentWidth: 4.2,
-  tailWidth: 4.8,
+  tailWidth: 6.4,
   tailHeight: 7.4,
   propellerRadius: 5.6,
 };
