@@ -1,31 +1,24 @@
 <svg width="1280" height="800" viewBox="0 0 1280 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="64" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#020617"/>
-      <stop offset="0.48" stop-color="#1e1b4b"/>
-      <stop offset="1" stop-color="#0e7490"/>
-    </linearGradient>
-  </defs>
-
-  <rect width="1280" height="800" fill="url(#bg)"/>
-
-  <!-- Decorative sweeps -->
-  <path d="M72 640C252 540 400 450 580 418C780 382 1000 420 1210 580" stroke="#67e8f9" stroke-opacity="0.06" stroke-width="24" stroke-linecap="round"/>
-  <path d="M140 110C340 165 450 250 620 380" stroke="#a78bfa" stroke-opacity="0.06" stroke-width="16" stroke-linecap="round"/>
+  <!-- Pixel-art background: 8 stepped horizontal bands (dark → indigo → teal) -->
+  <rect x="0" y="0"   width="1280" height="100" fill="#020617"/>
+  <rect x="0" y="100" width="1280" height="100" fill="#070820"/>
+  <rect x="0" y="200" width="1280" height="100" fill="#0d0c2c"/>
+  <rect x="0" y="300" width="1280" height="100" fill="#151339"/>
+  <rect x="0" y="400" width="1280" height="100" fill="#1e1b4b"/>
+  <rect x="0" y="500" width="1280" height="100" fill="#1a2c58"/>
+  <rect x="0" y="600" width="1280" height="100" fill="#124c6c"/>
+  <rect x="0" y="700" width="1280" height="100" fill="#0e7490"/>
 
   <!-- Pixel-art "DOM" (5-wide letters, gap 2, scale 24) -->
   <g fill="#f8fafc" transform="translate(412, 200) scale(24)">
-    <!-- D -->
     <rect x="0" y="0" width="4" height="1"/>
     <rect x="0" y="1" width="1" height="3"/>
     <rect x="4" y="1" width="1" height="3"/>
     <rect x="0" y="4" width="4" height="1"/>
-    <!-- O (offset 7) -->
     <rect x="8" y="0" width="3" height="1"/>
     <rect x="7" y="1" width="1" height="3"/>
     <rect x="11" y="1" width="1" height="3"/>
     <rect x="8" y="4" width="3" height="1"/>
-    <!-- M (offset 14) -->
     <rect x="14" y="0" width="1" height="5"/>
     <rect x="18" y="0" width="1" height="5"/>
     <rect x="15" y="1" width="1" height="1"/>
@@ -35,30 +28,25 @@
 
   <!-- Pixel-art "RACER" (5-wide letters, gap 1, scale 24) -->
   <g fill="#f8fafc" transform="translate(292, 344) scale(24)">
-    <!-- R -->
     <rect x="0" y="0" width="1" height="5"/>
     <rect x="1" y="0" width="3" height="1"/>
     <rect x="4" y="1" width="1" height="1"/>
     <rect x="1" y="2" width="3" height="1"/>
     <rect x="3" y="3" width="1" height="1"/>
     <rect x="4" y="4" width="1" height="1"/>
-    <!-- A (offset 6) -->
     <rect x="7" y="0" width="3" height="1"/>
     <rect x="6" y="1" width="1" height="1"/>
     <rect x="10" y="1" width="1" height="1"/>
     <rect x="6" y="2" width="5" height="1"/>
     <rect x="6" y="3" width="1" height="2"/>
     <rect x="10" y="3" width="1" height="2"/>
-    <!-- C (offset 12) -->
     <rect x="13" y="0" width="4" height="1"/>
     <rect x="12" y="1" width="1" height="3"/>
     <rect x="13" y="4" width="4" height="1"/>
-    <!-- E (offset 18) -->
     <rect x="18" y="0" width="1" height="5"/>
     <rect x="19" y="0" width="4" height="1"/>
     <rect x="19" y="2" width="3" height="1"/>
     <rect x="19" y="4" width="4" height="1"/>
-    <!-- R (offset 24) -->
     <rect x="24" y="0" width="1" height="5"/>
     <rect x="25" y="0" width="3" height="1"/>
     <rect x="28" y="1" width="1" height="1"/>
@@ -67,9 +55,8 @@
     <rect x="28" y="4" width="1" height="1"/>
   </g>
 
-  <!-- Pixel subtitle "TURN ANY PAGE INTO AN ARCADE TRACK" as small pixel blocks -->
+  <!-- Pixel subtitle divider -->
   <g fill="#94a3b8" fill-opacity="0.8" transform="translate(340, 510) scale(4)">
-    <!-- Simplified pixel dots as a decorative divider -->
     <rect x="0" y="0" width="3" height="3"/>
     <rect x="8" y="0" width="3" height="3"/>
     <rect x="16" y="0" width="3" height="3"/>
@@ -83,28 +70,14 @@
     <rect x="134" y="0" width="16" height="3"/>
   </g>
 
-  <!-- Pixel coins scattered -->
-  <g fill="#fbbf24">
-    <g transform="translate(180, 560) scale(12)">
-      <rect x="1" y="0" width="1" height="1"/>
-      <rect x="0" y="1" width="3" height="1"/>
-      <rect x="1" y="2" width="1" height="1"/>
-    </g>
-    <g transform="translate(1020, 280) scale(14)">
-      <rect x="1" y="0" width="1" height="1"/>
-      <rect x="0" y="1" width="3" height="1"/>
-      <rect x="1" y="2" width="1" height="1"/>
-    </g>
-    <g transform="translate(1080, 600) scale(10)">
-      <rect x="1" y="0" width="1" height="1"/>
-      <rect x="0" y="1" width="3" height="1"/>
-      <rect x="1" y="2" width="1" height="1"/>
-    </g>
+  <!-- Single pixel coin (top-right accent) -->
+  <g fill="#fbbf24" transform="translate(1020, 280) scale(14)">
+    <rect x="1" y="0" width="1" height="1"/>
+    <rect x="0" y="1" width="3" height="1"/>
+    <rect x="1" y="2" width="1" height="1"/>
   </g>
   <g fill="#fde68a">
-    <rect x="192" y="572" width="12" height="12"/>
     <rect x="1034" y="294" width="14" height="14"/>
-    <rect x="1090" y="610" width="10" height="10"/>
   </g>
 
   <!-- Pixel speed lines -->
@@ -112,14 +85,6 @@
     <rect x="90" y="370" width="56" height="6"/>
     <rect x="70" y="392" width="84" height="6"/>
     <rect x="100" y="414" width="48" height="6"/>
-  </g>
-
-  <!-- Pixel sparkles -->
-  <g fill="#fff">
-    <rect x="1120" y="140" width="14" height="14" fill-opacity="0.7"/>
-    <rect x="1180" y="240" width="10" height="10" fill-opacity="0.45"/>
-    <rect x="160" y="680" width="12" height="12" fill-opacity="0.35"/>
-    <rect x="900" y="680" width="10" height="10" fill-opacity="0.4"/>
   </g>
 
   <!-- Pixel road stripe at bottom -->

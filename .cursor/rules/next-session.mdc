@@ -192,20 +192,20 @@ Design reference: `docs/discovery-helicopter-train.md`
 ## Phase 19 — Branding Pixel-Art Backgrounds
 
 ### 19A. Icon Background Redesign
-- [ ] Replace the smooth linear gradient background in `branding/dom-racer-icon.svg` with a pixel-art style background
-- [ ] Use chunky rectangular color blocks, dithering patterns, or stepped color bands instead of smooth gradients
-- [ ] Keep the purple → blue → cyan color palette but render it as visible pixel blocks (e.g., 8×8 or 16×16 pixel grid with stepped color fills)
-- [ ] The grid pattern overlay can stay but should feel integrated with the pixelated background
-- [ ] Keep the "DR" pixel monogram and pixel coin — only the background changes
-- [ ] Ensure the icon still reads well at 16×16, 32×32, and 128×128 sizes
+- [x] Replace the smooth linear gradient background in `branding/dom-racer-icon.svg` with a pixel-art style background
+- [x] Use chunky rectangular color blocks, dithering patterns, or stepped color bands instead of smooth gradients
+- [x] Keep the purple → blue → cyan color palette but render it as visible pixel blocks (e.g., 8×8 or 16×16 pixel grid with stepped color fills)
+- [x] The grid pattern overlay can stay but should feel integrated with the pixelated background
+- [x] Keep the "DR" pixel monogram and pixel coin — only the background changes
+- [x] Ensure the icon still reads well at 16×16, 32×32, and 128×128 sizes
 
 ### 19B. Store Cover Background Redesign
-- [ ] Replace the smooth gradient background in `branding/dom-racer-store-cover.svg` with a pixel-art style background
-- [ ] Use stepped color bands or subtle dithering — keep it clean and quiet, not busy
-- [ ] Remove the smooth bezier sweep decorations — replace with minimal pixel-art equivalents or remove entirely
-- [ ] Reduce the number of decorative elements (fewer scattered coins, fewer sparkles) — the wordmark should dominate
-- [ ] Keep the "DOM RACER" pixel wordmark and pixel road stripe — they are the focus
-- [ ] The overall feel should be "calm retro title screen" not a cluttered arcade flyer
+- [x] Replace the smooth gradient background in `branding/dom-racer-store-cover.svg` with a pixel-art style background
+- [x] Use stepped color bands or subtle dithering — keep it clean and quiet, not busy
+- [x] Remove the smooth bezier sweep decorations — replace with minimal pixel-art equivalents or remove entirely
+- [x] Reduce the number of decorative elements (fewer scattered coins, fewer sparkles) — the wordmark should dominate
+- [x] Keep the "DOM RACER" pixel wordmark and pixel road stripe — they are the focus
+- [x] The overall feel should be "calm retro title screen" not a cluttered arcade flyer
 
 ### 19C. Store Tile Background Redesign
 - [ ] Replace the smooth gradient background in `branding/dom-racer-store-tile.svg` with a matching pixel-art background
