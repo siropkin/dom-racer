@@ -32,6 +32,7 @@ interface DrawCaughtGameOverOptions {
   startedAtMs: number;
   score: number;
   runNumber: number;
+  deathMessage?: string;
 }
 
 interface DrawFirstPlayHintOptions {
@@ -270,7 +271,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.restore();
 }
 
-/** Renders the "BUSTED BY POLICE — GAME OVER" screen with score and restart prompt. */
+/** Renders the game-over screen with score and restart prompt. */
 export function drawCaughtGameOverOverlay({
   ctx,
   viewport,
@@ -278,6 +279,7 @@ export function drawCaughtGameOverOverlay({
   startedAtMs,
   score,
   runNumber,
+  deathMessage = 'BUSTED BY POLICE',
 }: DrawCaughtGameOverOptions): void {
   const { width, height } = viewport;
   const flash = Math.sin((nowMs - startedAtMs) / 240) > 0 ? 1 : 0.72;
@@ -291,7 +293,7 @@ export function drawCaughtGameOverOverlay({
   strokeThenFill(ctx, '#94a3b8', `RUN #${runNumber}`, width / 2, height / 2 - 84);
 
   ctx.font = 'bold 18px "SFMono-Regular", "JetBrains Mono", monospace';
-  strokeThenFill(ctx, '#f87171', 'BUSTED BY POLICE', width / 2, height / 2 - 62);
+  strokeThenFill(ctx, '#f87171', deathMessage, width / 2, height / 2 - 62);
 
   ctx.font = 'bold 48px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.lineWidth = 6;

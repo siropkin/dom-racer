@@ -107,12 +107,15 @@ export function createBeginRunState(nowMs: number): BeginRunState {
   };
 }
 
-export function createCaughtGameOverTransitionState(nowMs: number): CaughtGameOverTransitionState {
+export function createCaughtGameOverTransitionState(
+  nowMs: number,
+  reason: 'caught' | 'train' = 'caught',
+): CaughtGameOverTransitionState {
   return {
     ...createClearedEncounterState(),
     ...createClearedEffectState(),
     gameOverState: {
-      reason: 'caught',
+      reason,
       startedAtMs: nowMs,
     },
     spriteShowcaseActive: false,

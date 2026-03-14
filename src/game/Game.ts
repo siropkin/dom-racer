@@ -16,6 +16,7 @@ import type {
   PoliceWarningState,
   SpecialSpawnCue,
   SurfaceSample,
+  TrainState,
 } from './gameStateTypes';
 import { AudioManager } from './audio';
 import {
@@ -28,6 +29,7 @@ import {
   SPECIALS,
   TIMING,
   TOAST,
+  TRAIN,
   VEHICLE_STATS,
 } from './gameConfig';
 import { drawHud } from './hud';
@@ -50,8 +52,17 @@ import {
   drawPickups,
   drawPlaneBonusEvent,
   drawSpecialSpawnCues,
+  drawTrainEdgeWarning,
+  drawTrainEncounter,
   estimatePageLightness,
 } from './gameRenderRuntime';
+import {
+  advanceTrainCrossing,
+  checkTrainCollision,
+  createTrainEvent,
+  getInitialTrainSpawnTimerMs,
+  resolveTrainSpawnStep,
+} from './trainRuntime';
 import {
   drawSpeedLines,
   drawVfxParticles,
@@ -243,6 +254,9 @@ export class Game {
   private viewportScaleFactor: number;
   private pageLightness: number;
   private policeChaseCount: number;
+  private trainState: TrainState | null;
+  private trainSpawnTimerMs: number;
+  private trainEventsThisRun: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -347,6 +361,9 @@ export class Game {
     this.viewportScaleFactor = 1;
     this.pageLightness = 0.5;
     this.policeChaseCount = 0;
+    this.trainState = null;
+    this.trainSpawnTimerMs = getInitialTrainSpawnTimerMs();
+    this.trainEventsThisRun = 0;
   }
 
   start(): void {
@@ -391,6 +408,9 @@ export class Game {
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
+    this.trainState = null;
+    this.trainSpawnTimerMs = getInitialTrainSpawnTimerMs();
+    this.trainEventsThisRun = 0;
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
     this.nearMissCooldownMs = 0;
@@ -612,6 +632,13 @@ export class Game {
       return;
     }
 
+    const trainHit = this.updateTrain(dtSeconds);
+    if (trainHit) {
+      this.render();
+      this.frameHandle = window.requestAnimationFrame(this.tick);
+      return;
+    }
+
     this.updateNearMiss(dtSeconds, activeObstacles);
 
     const pickupStep = resolvePickupCollectionStep({
@@ -720,9 +747,11 @@ export class Game {
       magnetActive: this.magnetTimerMs > 0,
     });
     this.drawPoliceCar();
+    this.drawTrainEncounterIfActive();
     drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     this.drawPlaneWarning();
     this.drawPoliceWarning();
+    this.drawTrainWarningIfActive();
     this.toastSystem.draw(this.context);
     ctx.restore();
 
@@ -1122,7 +1151,8 @@ export class Game {
       const schedulingStep = resolvePlaneEncounterSchedulingStep({
         planeBonusTimerMs: this.planeBonusTimerMs,
         hasRunProgress: this.score >= PLANE.EVENT_MIN_SCORE || this.coinsCollectedTotal >= 4,
-        policeOrWarningActive: Boolean(this.policeChase) || Boolean(this.policeWarning),
+        policeOrWarningActive:
+          Boolean(this.policeChase) || Boolean(this.policeWarning) || Boolean(this.trainState),
         dtSeconds,
       });
       this.planeBonusTimerMs = schedulingStep.planeBonusTimerMs;
@@ -1502,7 +1532,7 @@ export class Game {
       policeChase: this.policeChase,
       policeWarning: this.policeWarning,
       policeSpawnTimerMs: this.policeSpawnTimerMs,
-      planeBonusActive: Boolean(this.planeBonusEvent),
+      planeBonusActive: Boolean(this.planeBonusEvent) || Boolean(this.trainState),
       planeWarningActive: Boolean(this.planeWarning),
       score: this.score,
       hasRunProgress:
@@ -1552,6 +1582,93 @@ export class Game {
     }
 
     return { active: step.active, urgency: step.urgency, caught: step.caught };
+  }
+
+  private updateTrain(dtSeconds: number): boolean {
+    if (!this.world || !this.player) {
+      return false;
+    }
+
+    if (this.trainState) {
+      const tickResult = advanceTrainCrossing(this.trainState, this.world.viewport, dtSeconds);
+      this.trainState = tickResult.train;
+
+      if (this.trainState) {
+        const crossing = this.trainState.phase === 'crossing';
+        this.audio.updateTrainRumble(
+          crossing,
+          crossing
+            ? this.trainState.progressPx / (this.world.viewport.width + this.trainState.rail.width)
+            : 0,
+        );
+
+        if (
+          checkTrainCollision(
+            this.trainState,
+            this.world.viewport,
+            this.player.getBounds(),
+            this.ghostTimerMs > 0,
+          )
+        ) {
+          this.enterTrainGameOver();
+          return true;
+        }
+      }
+
+      if (tickResult.completed) {
+        this.audio.updateTrainRumble(false, 0);
+        this.policeSpawnTimerMs = Math.max(this.policeSpawnTimerMs, ENCOUNTER.STAGGER_MS);
+        this.planeBonusTimerMs = Math.max(this.planeBonusTimerMs, ENCOUNTER.STAGGER_MS);
+      }
+
+      return false;
+    }
+
+    if (this.world.railCandidates.length === 0) {
+      return false;
+    }
+
+    const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+    const step = resolveTrainSpawnStep({
+      trainSpawnTimerMs: this.trainSpawnTimerMs,
+      runElapsedMs,
+      trainEventsThisRun: this.trainEventsThisRun,
+      railCandidateCount: this.world.railCandidates.length,
+      policeOrWarningActive: Boolean(this.policeChase) || Boolean(this.policeWarning),
+      planeOrWarningActive: Boolean(this.planeBonusEvent) || Boolean(this.planeWarning),
+      trainActive: false,
+      dtSeconds,
+    });
+    this.trainSpawnTimerMs = step.trainSpawnTimerMs;
+
+    if (step.shouldSpawn) {
+      this.trainState = createTrainEvent(this.world.railCandidates);
+      this.trainEventsThisRun += 1;
+      this.trainSpawnTimerMs = TRAIN.COOLDOWN_MS;
+      this.policeSpawnTimerMs = Math.max(this.policeSpawnTimerMs, ENCOUNTER.STAGGER_MS);
+      this.planeBonusTimerMs = Math.max(this.planeBonusTimerMs, ENCOUNTER.STAGGER_MS);
+      this.audio.playTrainHorn();
+    }
+
+    return false;
+  }
+
+  private enterTrainGameOver(): void {
+    const transition = createCaughtGameOverTransitionState(performance.now(), 'train');
+    this.finishCurrentRun('caught');
+    this.startTimeMs = transition.startTimeMs;
+    this.setInverted(false);
+    this.setBlur(false);
+    this.setMagnetUiState({ active: false, point: null, strength: 0 });
+    this.audio.stop();
+    this.clearEffectRuntimeState();
+    this.clearEncounterRuntimeState();
+    this.clearPoliceDelayCue();
+    this.trainState = null;
+    this.spriteShowcaseActive = transition.spriteShowcaseActive;
+    this.toastSystem.clear();
+    this.resetInput();
+    this.gameOverState = transition.gameOverState;
   }
 
   private drawPoliceCar(): void {
@@ -1604,6 +1721,22 @@ export class Game {
         performance.now(),
       );
     }
+  }
+
+  private drawTrainEncounterIfActive(): void {
+    if (!this.world || !this.trainState) {
+      return;
+    }
+
+    drawTrainEncounter(this.context, this.trainState, this.world.viewport, performance.now());
+  }
+
+  private drawTrainWarningIfActive(): void {
+    if (!this.world || !this.trainState) {
+      return;
+    }
+
+    drawTrainEdgeWarning(this.context, this.world.viewport, this.trainState, performance.now());
   }
 
   private drawPlaneWarning(): void {
@@ -1802,6 +1935,9 @@ export class Game {
     this.policeSpawnTimerMs = nextRunState.policeSpawnTimerMs;
     this.gameOverState = nextRunState.gameOverState;
     this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
+    this.trainState = null;
+    this.trainSpawnTimerMs = getInitialTrainSpawnTimerMs();
+    this.trainEventsThisRun = 0;
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
     this.policeChaseCount = 0;
@@ -1848,6 +1984,7 @@ export class Game {
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
+    this.trainState = null;
     this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.toastSystem.clear();
     this.resetInput();
@@ -1865,6 +2002,7 @@ export class Game {
     this.clearEffectRuntimeState();
     this.clearEncounterRuntimeState();
     this.clearPoliceDelayCue();
+    this.trainState = null;
     this.toastSystem.clear();
     this.resetInput();
   }
@@ -1873,6 +2011,8 @@ export class Game {
     if (!this.world || !this.gameOverState) {
       return;
     }
+    const deathMessage =
+      this.gameOverState.reason === 'train' ? 'HIT BY TRAIN' : 'BUSTED BY POLICE';
     drawCaughtGameOverOverlay({
       ctx: this.context,
       viewport: this.world.viewport,
@@ -1880,6 +2020,7 @@ export class Game {
       startedAtMs: this.gameOverState.startedAtMs,
       score: this.score,
       runNumber: this.runNumber,
+      deathMessage,
     });
   }
 

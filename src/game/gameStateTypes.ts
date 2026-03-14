@@ -64,7 +64,7 @@ export interface TrainState {
 }
 
 export interface GameOverState {
-  reason: 'caught';
+  reason: 'caught' | 'train';
   startedAtMs: number;
 }
 
