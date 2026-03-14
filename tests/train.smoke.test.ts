@@ -118,6 +118,53 @@ describe('train encounter smoke invariants', () => {
       expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
       expect(world.railCandidates[0].axis).toBe('horizontal');
     });
+
+    it('produces rail candidates from thin divider elements (below MIN_DIMENSION)', () => {
+      const viewport = { width: 1280, height: 720 };
+      const elements = [
+        {
+          id: 'rail:div:0:400:1280:2:divider:',
+          kind: 'rail' as const,
+          rect: { x: 0, y: 400, width: 1280, height: 2 },
+          tagName: 'div',
+          fixed: false,
+        },
+      ];
+      const world = buildWorld(elements, viewport);
+      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
+      expect(world.railCandidates[0].axis).toBe('horizontal');
+    });
+
+    it('produces rail candidates from CSS border rects', () => {
+      const viewport = { width: 1280, height: 720 };
+      const elements = [
+        {
+          id: 'rail:nav:0:64:1280:1:border-bottom:',
+          kind: 'rail' as const,
+          rect: { x: 0, y: 64, width: 1280, height: 1 },
+          tagName: 'nav',
+          fixed: false,
+        },
+      ];
+      const world = buildWorld(elements, viewport);
+      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
+      expect(world.railCandidates[0].axis).toBe('horizontal');
+    });
+
+    it('rejects border rail rect that is too short', () => {
+      const viewport = { width: 1280, height: 720 };
+      const elements = [
+        {
+          id: 'rail:div:0:64:300:1:border-bottom:',
+          kind: 'rail' as const,
+          rect: { x: 0, y: 64, width: 300, height: 1 },
+          tagName: 'div',
+          fixed: false,
+        },
+      ];
+      const world = buildWorld(elements, viewport);
+      expect(world.railCandidates.length).toBe(0);
+    });
   });
 
   describe('train spawn timing', () => {
