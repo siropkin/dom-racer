@@ -5,126 +5,135 @@
       <stop offset="0.48" stop-color="#1e1b4b"/>
       <stop offset="1" stop-color="#0e7490"/>
     </linearGradient>
-    <linearGradient id="browser" x1="160" y1="100" x2="1120" y2="640" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0f172a"/>
-      <stop offset="1" stop-color="#111827"/>
-    </linearGradient>
-    <linearGradient id="arena" x1="190" y1="170" x2="1080" y2="620" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#111827"/>
-      <stop offset="1" stop-color="#1e293b"/>
-    </linearGradient>
-    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
-      <path d="M36 0H0V36" stroke="#fff" stroke-opacity="0.05" stroke-width="1.2"/>
-    </pattern>
   </defs>
 
-  <!-- Background -->
   <rect width="1280" height="800" fill="url(#bg)"/>
-  <path d="M72 640C252 540 400 450 580 418C780 382 1000 420 1210 580" stroke="#67e8f9" stroke-opacity="0.1" stroke-width="24" stroke-linecap="round"/>
-  <path d="M140 110C340 165 450 250 620 380" stroke="#a78bfa" stroke-opacity="0.1" stroke-width="16" stroke-linecap="round"/>
 
-  <!-- Browser window -->
-  <rect x="160" y="100" width="960" height="520" rx="28" fill="url(#browser)" stroke="#fff" stroke-opacity="0.1" stroke-width="1.5"/>
+  <!-- Decorative sweeps -->
+  <path d="M72 640C252 540 400 450 580 418C780 382 1000 420 1210 580" stroke="#67e8f9" stroke-opacity="0.06" stroke-width="24" stroke-linecap="round"/>
+  <path d="M140 110C340 165 450 250 620 380" stroke="#a78bfa" stroke-opacity="0.06" stroke-width="16" stroke-linecap="round"/>
 
-  <!-- Title bar -->
-  <rect x="160" y="100" width="960" height="48" rx="28" fill="#0b1120"/>
-  <circle cx="194" cy="124" r="7" fill="#fb7185"/>
-  <circle cx="218" cy="124" r="7" fill="#fbbf24"/>
-  <circle cx="242" cy="124" r="7" fill="#34d399"/>
-  <rect x="276" y="111" width="280" height="24" rx="12" fill="#111827" stroke="#fff" stroke-opacity="0.06"/>
-  <text x="302" y="128" fill="#64748b" font-size="12" font-weight="500" font-family="Arial, sans-serif">https://example.com</text>
-
-  <!-- Game arena -->
-  <rect x="190" y="164" width="900" height="428" rx="20" fill="url(#arena)"/>
-  <rect x="190" y="164" width="900" height="428" rx="20" fill="url(#grid)"/>
-
-  <!-- HUD: Score/Time (merged info block) -->
-  <rect x="218" y="190" width="140" height="72" rx="16" fill="#0f172a" fill-opacity="0.8" stroke="#fff" stroke-opacity="0.08"/>
-  <text x="238" y="218" fill="#e2e8f0" font-size="16" font-weight="800" font-family="Arial, sans-serif">TIME 01:28</text>
-  <text x="238" y="244" fill="#fde68a" font-size="16" font-weight="700" font-family="Arial, sans-serif">SCORE 170</text>
-
-  <!-- HUD: Powers -->
-  <rect x="912" y="186" width="150" height="100" rx="16" fill="#0f172a" fill-opacity="0.8" stroke="#fff" stroke-opacity="0.08"/>
-  <text x="932" y="214" fill="#bfdbfe" font-size="14" font-weight="800" font-family="Arial, sans-serif">POWERS</text>
-  <rect x="932" y="226" width="110" height="14" rx="7" fill="#1e293b"/>
-  <rect x="932" y="226" width="88" height="14" rx="7" fill="#22d3ee"/>
-  <text x="932" y="264" fill="#c4b5fd" font-size="13" font-weight="700" font-family="Arial, sans-serif">GHOST 05s</text>
-
-  <!-- HUD: Best scores -->
-  <rect x="920" y="496" width="146" height="68" rx="16" fill="#0f172a" fill-opacity="0.8" stroke="#fff" stroke-opacity="0.08"/>
-  <text x="940" y="522" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Arial, sans-serif">PAGE BEST 240</text>
-  <text x="940" y="544" fill="#64748b" font-size="12" font-weight="600" font-family="Arial, sans-serif">LIFE BEST 780</text>
-
-  <!-- DOM elements -->
-  <rect x="264" y="314" width="116" height="68" rx="16" fill="#1e293b" stroke="#a78bfa" stroke-opacity="0.22"/>
-  <text x="292" y="354" fill="#e9d5ff" font-size="16" font-weight="700" font-family="Arial, sans-serif">&lt;div&gt;</text>
-
-  <rect x="424" y="240" width="172" height="36" rx="18" fill="#1e293b" stroke="#fcd34d" stroke-opacity="0.22"/>
-  <text x="462" y="264" fill="#fde68a" font-size="14" font-weight="700" font-family="Arial, sans-serif">Link loot</text>
-
-  <rect x="820" y="356" width="100" height="42" rx="14" fill="#1e3a8a" stroke="#93c5fd" stroke-opacity="0.35"/>
-  <text x="840" y="382" fill="#dbeafe" font-size="14" font-weight="700" font-family="Arial, sans-serif">Button</text>
-
-  <rect x="448" y="444" width="148" height="88" rx="18" fill="#0f172a" stroke="#67e8f9" stroke-opacity="0.2"/>
-  <text x="480" y="494" fill="#a5f3fc" font-size="15" font-weight="700" font-family="Arial, sans-serif">Boost zone</text>
-
-  <!-- Coin -->
-  <circle cx="772" cy="250" r="20" fill="#fbbf24"/>
-  <circle cx="772" cy="250" r="14" fill="#fde68a"/>
-  <ellipse cx="768" cy="244" rx="5" ry="3.5" fill="#fff" fill-opacity="0.35" transform="rotate(-18 768 244)"/>
-
-  <!-- In-game coupe (cross-shaped, ~660,380, scale ~5x, facing up) -->
-  <!-- Wheels -->
-  <rect x="623" y="340" width="8" height="18" rx="3" fill="#111827" stroke="#f8fafc" stroke-width="2"/>
-  <rect x="701" y="340" width="8" height="18" rx="3" fill="#111827" stroke="#f8fafc" stroke-width="2"/>
-  <rect x="623" y="410" width="8" height="18" rx="3" fill="#111827" stroke="#f8fafc" stroke-width="2"/>
-  <rect x="701" y="410" width="8" height="18" rx="3" fill="#111827" stroke="#f8fafc" stroke-width="2"/>
-  <!-- Body (narrow vertical bar) -->
-  <rect x="636" y="326" width="60" height="118" rx="22" fill="#2563eb" stroke="#f8fafc" stroke-width="3"/>
-  <!-- Cabin (wider horizontal bar — cross shape) -->
-  <rect x="624" y="358" width="84" height="54" rx="16" fill="#1d4ed8" stroke="#f8fafc" stroke-width="2.5"/>
-  <!-- Center stripe -->
-  <rect x="661" y="348" width="10" height="74" rx="1" fill="#e2e8f0"/>
-  <!-- Windshield -->
-  <rect x="638" y="370" width="56" height="16" rx="4" fill="#dbeafe"/>
-  <!-- Rear window -->
-  <rect x="642" y="396" width="48" height="10" rx="3" fill="#dbeafe" fill-opacity="0.55"/>
-  <!-- Headlights -->
-  <rect x="648" y="330" width="10" height="8" rx="2.5" fill="#cbd5e1"/>
-  <rect x="674" y="330" width="10" height="8" rx="2.5" fill="#cbd5e1"/>
-  <!-- Taillights -->
-  <rect x="648" y="432" width="10" height="8" rx="2.5" fill="#ef4444"/>
-  <rect x="674" y="432" width="10" height="8" rx="2.5" fill="#ef4444"/>
-
-  <!-- Edge warning indicator (police approach from right) -->
-  <rect x="1064" y="370" width="8" height="48" rx="4" fill="#fca5a5" fill-opacity="0.7"/>
-  <rect x="1076" y="378" width="4" height="32" rx="2" fill="#ef4444" fill-opacity="0.5"/>
-
-  <!-- Pixel-art "DOM RACER" wordmark -->
-  <g fill="#f8fafc" transform="translate(160,660)">
+  <!-- Pixel-art "DOM" (5-wide letters, gap 2, scale 24) -->
+  <g fill="#f8fafc" transform="translate(412, 200) scale(24)">
     <!-- D -->
-    <rect x="0" y="0" width="5" height="25"/><rect x="5" y="0" width="5" height="5"/><rect x="10" y="0" width="5" height="5"/><rect x="15" y="5" width="5" height="15"/><rect x="10" y="20" width="5" height="5"/><rect x="5" y="20" width="5" height="5"/>
-    <!-- O -->
-    <rect x="25" y="0" width="15" height="5"/><rect x="25" y="20" width="15" height="5"/><rect x="25" y="5" width="5" height="15"/><rect x="35" y="5" width="5" height="15"/>
-    <!-- M -->
-    <rect x="48" y="0" width="5" height="25"/><rect x="68" y="0" width="5" height="25"/><rect x="53" y="5" width="5" height="5"/><rect x="63" y="5" width="5" height="5"/><rect x="58" y="10" width="5" height="5"/>
-    <!-- gap -->
-    <!-- R -->
-    <rect x="88" y="0" width="5" height="25"/><rect x="93" y="0" width="10" height="5"/><rect x="103" y="5" width="5" height="5"/><rect x="93" y="10" width="10" height="5"/><rect x="98" y="15" width="5" height="5"/><rect x="103" y="20" width="5" height="5"/>
-    <!-- A -->
-    <rect x="115" y="5" width="5" height="20"/><rect x="135" y="5" width="5" height="20"/><rect x="120" y="0" width="15" height="5"/><rect x="120" y="12" width="15" height="5"/>
-    <!-- C -->
-    <rect x="148" y="0" width="15" height="5"/><rect x="148" y="20" width="15" height="5"/><rect x="148" y="5" width="5" height="15"/>
-    <!-- E -->
-    <rect x="170" y="0" width="5" height="25"/><rect x="175" y="0" width="10" height="5"/><rect x="175" y="10" width="10" height="5"/><rect x="175" y="20" width="10" height="5"/>
-    <!-- R -->
-    <rect x="192" y="0" width="5" height="25"/><rect x="197" y="0" width="10" height="5"/><rect x="207" y="5" width="5" height="5"/><rect x="197" y="10" width="10" height="5"/><rect x="202" y="15" width="5" height="5"/><rect x="207" y="20" width="5" height="5"/>
+    <rect x="0" y="0" width="4" height="1"/>
+    <rect x="0" y="1" width="1" height="3"/>
+    <rect x="4" y="1" width="1" height="3"/>
+    <rect x="0" y="4" width="4" height="1"/>
+    <!-- O (offset 7) -->
+    <rect x="8" y="0" width="3" height="1"/>
+    <rect x="7" y="1" width="1" height="3"/>
+    <rect x="11" y="1" width="1" height="3"/>
+    <rect x="8" y="4" width="3" height="1"/>
+    <!-- M (offset 14) -->
+    <rect x="14" y="0" width="1" height="5"/>
+    <rect x="18" y="0" width="1" height="5"/>
+    <rect x="15" y="1" width="1" height="1"/>
+    <rect x="17" y="1" width="1" height="1"/>
+    <rect x="16" y="2" width="1" height="1"/>
   </g>
-  <text x="160" y="700" fill="#94a3b8" font-size="16" font-weight="500" font-family="Arial, Helvetica, sans-serif">Turn any webpage into a tiny arcade track.</text>
 
-  <!-- Sparkles -->
+  <!-- Pixel-art "RACER" (5-wide letters, gap 1, scale 24) -->
+  <g fill="#f8fafc" transform="translate(292, 344) scale(24)">
+    <!-- R -->
+    <rect x="0" y="0" width="1" height="5"/>
+    <rect x="1" y="0" width="3" height="1"/>
+    <rect x="4" y="1" width="1" height="1"/>
+    <rect x="1" y="2" width="3" height="1"/>
+    <rect x="3" y="3" width="1" height="1"/>
+    <rect x="4" y="4" width="1" height="1"/>
+    <!-- A (offset 6) -->
+    <rect x="7" y="0" width="3" height="1"/>
+    <rect x="6" y="1" width="1" height="1"/>
+    <rect x="10" y="1" width="1" height="1"/>
+    <rect x="6" y="2" width="5" height="1"/>
+    <rect x="6" y="3" width="1" height="2"/>
+    <rect x="10" y="3" width="1" height="2"/>
+    <!-- C (offset 12) -->
+    <rect x="13" y="0" width="4" height="1"/>
+    <rect x="12" y="1" width="1" height="3"/>
+    <rect x="13" y="4" width="4" height="1"/>
+    <!-- E (offset 18) -->
+    <rect x="18" y="0" width="1" height="5"/>
+    <rect x="19" y="0" width="4" height="1"/>
+    <rect x="19" y="2" width="3" height="1"/>
+    <rect x="19" y="4" width="4" height="1"/>
+    <!-- R (offset 24) -->
+    <rect x="24" y="0" width="1" height="5"/>
+    <rect x="25" y="0" width="3" height="1"/>
+    <rect x="28" y="1" width="1" height="1"/>
+    <rect x="25" y="2" width="3" height="1"/>
+    <rect x="27" y="3" width="1" height="1"/>
+    <rect x="28" y="4" width="1" height="1"/>
+  </g>
+
+  <!-- Pixel subtitle "TURN ANY PAGE INTO AN ARCADE TRACK" as small pixel blocks -->
+  <g fill="#94a3b8" fill-opacity="0.8" transform="translate(340, 510) scale(4)">
+    <!-- Simplified pixel dots as a decorative divider -->
+    <rect x="0" y="0" width="3" height="3"/>
+    <rect x="8" y="0" width="3" height="3"/>
+    <rect x="16" y="0" width="3" height="3"/>
+    <rect x="24" y="0" width="30" height="3"/>
+    <rect x="59" y="0" width="3" height="3"/>
+    <rect x="67" y="0" width="3" height="3"/>
+    <rect x="75" y="0" width="30" height="3"/>
+    <rect x="110" y="0" width="3" height="3"/>
+    <rect x="118" y="0" width="3" height="3"/>
+    <rect x="126" y="0" width="3" height="3"/>
+    <rect x="134" y="0" width="16" height="3"/>
+  </g>
+
+  <!-- Pixel coins scattered -->
+  <g fill="#fbbf24">
+    <g transform="translate(180, 560) scale(12)">
+      <rect x="1" y="0" width="1" height="1"/>
+      <rect x="0" y="1" width="3" height="1"/>
+      <rect x="1" y="2" width="1" height="1"/>
+    </g>
+    <g transform="translate(1020, 280) scale(14)">
+      <rect x="1" y="0" width="1" height="1"/>
+      <rect x="0" y="1" width="3" height="1"/>
+      <rect x="1" y="2" width="1" height="1"/>
+    </g>
+    <g transform="translate(1080, 600) scale(10)">
+      <rect x="1" y="0" width="1" height="1"/>
+      <rect x="0" y="1" width="3" height="1"/>
+      <rect x="1" y="2" width="1" height="1"/>
+    </g>
+  </g>
+  <g fill="#fde68a">
+    <rect x="192" y="572" width="12" height="12"/>
+    <rect x="1034" y="294" width="14" height="14"/>
+    <rect x="1090" y="610" width="10" height="10"/>
+  </g>
+
+  <!-- Pixel speed lines -->
+  <g fill="#67e8f9" fill-opacity="0.25">
+    <rect x="90" y="370" width="56" height="6"/>
+    <rect x="70" y="392" width="84" height="6"/>
+    <rect x="100" y="414" width="48" height="6"/>
+  </g>
+
+  <!-- Pixel sparkles -->
   <g fill="#fff">
-    <path d="M1100 82L1110 108L1136 118L1110 128L1100 154L1090 128L1064 118L1090 108Z" fill-opacity="0.78"/>
-    <path d="M1186 218L1194 238L1214 246L1194 254L1186 274L1178 254L1158 246L1178 238Z" fill-opacity="0.58"/>
+    <rect x="1120" y="140" width="14" height="14" fill-opacity="0.7"/>
+    <rect x="1180" y="240" width="10" height="10" fill-opacity="0.45"/>
+    <rect x="160" y="680" width="12" height="12" fill-opacity="0.35"/>
+    <rect x="900" y="680" width="10" height="10" fill-opacity="0.4"/>
+  </g>
+
+  <!-- Pixel road stripe at bottom -->
+  <g fill="#475569" fill-opacity="0.3">
+    <rect x="200" y="720" width="40" height="8"/>
+    <rect x="280" y="720" width="40" height="8"/>
+    <rect x="360" y="720" width="40" height="8"/>
+    <rect x="440" y="720" width="40" height="8"/>
+    <rect x="520" y="720" width="40" height="8"/>
+    <rect x="600" y="720" width="40" height="8"/>
+    <rect x="680" y="720" width="40" height="8"/>
+    <rect x="760" y="720" width="40" height="8"/>
+    <rect x="840" y="720" width="40" height="8"/>
+    <rect x="920" y="720" width="40" height="8"/>
+    <rect x="1000" y="720" width="40" height="8"/>
   </g>
 </svg>

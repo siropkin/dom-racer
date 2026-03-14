@@ -5,94 +5,100 @@
       <stop offset="0.5" stop-color="#1e1b4b"/>
       <stop offset="1" stop-color="#164e63"/>
     </linearGradient>
-    <linearGradient id="panel" x1="16" y1="24" x2="170" y2="252" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#7c3aed"/>
-      <stop offset="1" stop-color="#2563eb"/>
-    </linearGradient>
   </defs>
 
-  <!-- Background -->
   <rect x="8" y="8" width="424" height="264" rx="32" fill="url(#bg)"/>
 
   <!-- Decorative sweeps -->
-  <path d="M30 216C80 168 140 140 200 128C250 118 320 108 420 82" stroke="#67e8f9" stroke-opacity="0.16" stroke-width="14" stroke-linecap="round"/>
-  <path d="M24 78C54 96 78 116 108 144" stroke="#a78bfa" stroke-opacity="0.16" stroke-width="10" stroke-linecap="round"/>
+  <path d="M30 216C80 168 140 140 200 128C250 118 320 108 420 82" stroke="#67e8f9" stroke-opacity="0.1" stroke-width="14" stroke-linecap="round"/>
+  <path d="M24 78C54 96 78 116 108 144" stroke="#a78bfa" stroke-opacity="0.1" stroke-width="10" stroke-linecap="round"/>
 
-  <!-- Left panel with car -->
-  <rect x="18" y="28" width="148" height="224" rx="30" fill="url(#panel)"/>
-  <rect x="18" y="28" width="148" height="224" rx="30" stroke="#fff" stroke-opacity="0.12"/>
-
-  <!-- Coupe in panel (cross-shaped, centered ~92, 132, scale ~3.5x, facing up) -->
-  <!-- Wheels -->
-  <rect x="63" y="102" width="6" height="14" rx="2" fill="#111827" stroke="#f8fafc" stroke-width="1.2"/>
-  <rect x="115" y="102" width="6" height="14" rx="2" fill="#111827" stroke="#f8fafc" stroke-width="1.2"/>
-  <rect x="63" y="148" width="6" height="14" rx="2" fill="#111827" stroke="#f8fafc" stroke-width="1.2"/>
-  <rect x="115" y="148" width="6" height="14" rx="2" fill="#111827" stroke="#f8fafc" stroke-width="1.2"/>
-  <!-- Body (narrow vertical bar) -->
-  <rect x="72" y="96" width="40" height="74" rx="14" fill="#2563eb" stroke="#f8fafc" stroke-width="2"/>
-  <!-- Cabin (wider horizontal bar — cross shape) -->
-  <rect x="62" y="116" width="60" height="34" rx="10" fill="#1d4ed8" stroke="#f8fafc" stroke-width="1.6"/>
-  <!-- Center stripe -->
-  <rect x="88" y="106" width="8" height="54" rx="1" fill="#e2e8f0"/>
-  <!-- Windshield -->
-  <rect x="72" y="124" width="40" height="10" rx="3" fill="#dbeafe"/>
-  <!-- Rear window -->
-  <rect x="76" y="140" width="32" height="6" rx="2" fill="#dbeafe" fill-opacity="0.55"/>
-  <!-- Headlights -->
-  <rect x="80" y="98" width="7" height="5" rx="1.5" fill="#cbd5e1"/>
-  <rect x="97" y="98" width="7" height="5" rx="1.5" fill="#cbd5e1"/>
-  <!-- Taillights -->
-  <rect x="80" y="162" width="7" height="5" rx="1.5" fill="#ef4444"/>
-  <rect x="97" y="162" width="7" height="5" rx="1.5" fill="#ef4444"/>
-
-  <!-- Coin -->
-  <circle cx="136" cy="74" r="12" fill="#fbbf24"/>
-  <circle cx="136" cy="74" r="8.5" fill="#fde68a"/>
-  <ellipse cx="133" cy="71" rx="3.5" ry="2.5" fill="#fff" fill-opacity="0.35" transform="rotate(-15 133 71)"/>
-
-  <!-- Sparkle -->
-  <path d="M36 60L40 72L52 76L40 80L36 92L32 80L20 76L32 72Z" fill="#fff" fill-opacity="0.65"/>
-
-  <!-- Pixel-art "DOM RACER" wordmark -->
-  <g fill="#f8fafc" transform="translate(184,68)">
-    <!-- D -->
-    <rect x="0" y="0" width="3" height="15"/><rect x="3" y="0" width="3" height="3"/><rect x="6" y="0" width="3" height="3"/><rect x="9" y="3" width="3" height="9"/><rect x="6" y="12" width="3" height="3"/><rect x="3" y="12" width="3" height="3"/>
-    <!-- O -->
-    <rect x="16" y="0" width="9" height="3"/><rect x="16" y="12" width="9" height="3"/><rect x="16" y="3" width="3" height="9"/><rect x="22" y="3" width="3" height="9"/>
-    <!-- M -->
-    <rect x="30" y="0" width="3" height="15"/><rect x="42" y="0" width="3" height="15"/><rect x="33" y="3" width="3" height="3"/><rect x="39" y="3" width="3" height="3"/><rect x="36" y="6" width="3" height="3"/>
-    <!-- gap -->
-    <!-- R -->
-    <rect x="56" y="0" width="3" height="15"/><rect x="59" y="0" width="6" height="3"/><rect x="65" y="3" width="3" height="3"/><rect x="59" y="6" width="6" height="3"/><rect x="62" y="9" width="3" height="3"/><rect x="65" y="12" width="3" height="3"/>
-    <!-- A -->
-    <rect x="73" y="3" width="3" height="12"/><rect x="85" y="3" width="3" height="12"/><rect x="76" y="0" width="9" height="3"/><rect x="76" y="7" width="9" height="3"/>
-    <!-- C -->
-    <rect x="93" y="0" width="9" height="3"/><rect x="93" y="12" width="9" height="3"/><rect x="93" y="3" width="3" height="9"/>
-    <!-- E -->
-    <rect x="107" y="0" width="3" height="15"/><rect x="110" y="0" width="6" height="3"/><rect x="110" y="6" width="6" height="3"/><rect x="110" y="12" width="6" height="3"/>
-    <!-- R -->
-    <rect x="120" y="0" width="3" height="15"/><rect x="123" y="0" width="6" height="3"/><rect x="129" y="3" width="3" height="3"/><rect x="123" y="6" width="6" height="3"/><rect x="126" y="9" width="3" height="3"/><rect x="129" y="12" width="3" height="3"/>
+  <!-- Pixel-art "DOM" (scale 9) -->
+  <g fill="#f8fafc" transform="translate(135, 42) scale(9)">
+    <rect x="0" y="0" width="4" height="1"/>
+    <rect x="0" y="1" width="1" height="3"/>
+    <rect x="4" y="1" width="1" height="3"/>
+    <rect x="0" y="4" width="4" height="1"/>
+    <rect x="8" y="0" width="3" height="1"/>
+    <rect x="7" y="1" width="1" height="3"/>
+    <rect x="11" y="1" width="1" height="3"/>
+    <rect x="8" y="4" width="3" height="1"/>
+    <rect x="14" y="0" width="1" height="5"/>
+    <rect x="18" y="0" width="1" height="5"/>
+    <rect x="15" y="1" width="1" height="1"/>
+    <rect x="17" y="1" width="1" height="1"/>
+    <rect x="16" y="2" width="1" height="1"/>
   </g>
-  <text x="184" y="100" fill="#94a3b8" font-size="13" font-weight="500" font-family="Arial, Helvetica, sans-serif">Every page is a racetrack.</text>
+
+  <!-- Pixel-art "RACER" (scale 9) -->
+  <g fill="#f8fafc" transform="translate(90, 96) scale(9)">
+    <rect x="0" y="0" width="1" height="5"/>
+    <rect x="1" y="0" width="3" height="1"/>
+    <rect x="4" y="1" width="1" height="1"/>
+    <rect x="1" y="2" width="3" height="1"/>
+    <rect x="3" y="3" width="1" height="1"/>
+    <rect x="4" y="4" width="1" height="1"/>
+    <rect x="7" y="0" width="3" height="1"/>
+    <rect x="6" y="1" width="1" height="1"/>
+    <rect x="10" y="1" width="1" height="1"/>
+    <rect x="6" y="2" width="5" height="1"/>
+    <rect x="6" y="3" width="1" height="2"/>
+    <rect x="10" y="3" width="1" height="2"/>
+    <rect x="13" y="0" width="4" height="1"/>
+    <rect x="12" y="1" width="1" height="3"/>
+    <rect x="13" y="4" width="4" height="1"/>
+    <rect x="18" y="0" width="1" height="5"/>
+    <rect x="19" y="0" width="4" height="1"/>
+    <rect x="19" y="2" width="3" height="1"/>
+    <rect x="19" y="4" width="4" height="1"/>
+    <rect x="24" y="0" width="1" height="5"/>
+    <rect x="25" y="0" width="3" height="1"/>
+    <rect x="28" y="1" width="1" height="1"/>
+    <rect x="25" y="2" width="3" height="1"/>
+    <rect x="27" y="3" width="1" height="1"/>
+    <rect x="28" y="4" width="1" height="1"/>
+  </g>
+
+  <!-- Pixel divider dots -->
+  <g fill="#94a3b8" fill-opacity="0.5">
+    <rect x="160" y="152" width="4" height="4"/>
+    <rect x="172" y="152" width="4" height="4"/>
+    <rect x="184" y="152" width="4" height="4"/>
+    <rect x="196" y="152" width="20" height="4"/>
+    <rect x="224" y="152" width="4" height="4"/>
+    <rect x="236" y="152" width="20" height="4"/>
+    <rect x="264" y="152" width="4" height="4"/>
+    <rect x="276" y="152" width="4" height="4"/>
+  </g>
 
   <!-- Feature pills -->
-  <rect x="184" y="136" width="70" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
-  <text x="219" y="154" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700" font-family="Arial, sans-serif">LOOT</text>
-
-  <rect x="260" y="136" width="78" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
-  <text x="299" y="154" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700" font-family="Arial, sans-serif">POLICE</text>
-
-  <rect x="344" y="136" width="76" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
-  <text x="382" y="154" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="700" font-family="Arial, sans-serif">POWERS</text>
-
-  <rect x="184" y="170" width="76" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
-  <text x="222" y="188" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700" font-family="Arial, sans-serif">GOALS</text>
-
-  <rect x="266" y="170" width="78" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
-  <text x="305" y="188" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700" font-family="Arial, sans-serif">PLANES</text>
+  <rect x="72" y="172" width="62" height="24" rx="2" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
+  <text x="103" y="189" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="700" font-family="monospace">LOOT</text>
+  <rect x="140" y="172" width="70" height="24" rx="2" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
+  <text x="175" y="189" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="700" font-family="monospace">POLICE</text>
+  <rect x="216" y="172" width="70" height="24" rx="2" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
+  <text x="251" y="189" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="700" font-family="monospace">POWERS</text>
+  <rect x="292" y="172" width="70" height="24" rx="2" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
+  <text x="327" y="189" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700" font-family="monospace">GOALS</text>
 
   <!-- Hotkey hint -->
-  <rect x="184" y="218" width="110" height="24" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
-  <text x="239" y="234" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700" font-family="monospace">Shift + Space</text>
-  <text x="302" y="234" fill="#475569" font-size="11" font-weight="500" font-family="Arial, sans-serif">to play</text>
+  <rect x="120" y="212" width="200" height="22" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="220" y="227" text-anchor="middle" fill="#64748b" font-size="10" font-weight="700" font-family="monospace">Shift + Space to play</text>
+
+  <!-- Pixel coins -->
+  <g fill="#fbbf24" transform="translate(380, 40) scale(7)">
+    <rect x="1" y="0" width="1" height="1"/>
+    <rect x="0" y="1" width="3" height="1"/>
+    <rect x="1" y="2" width="1" height="1"/>
+  </g>
+  <rect x="387" y="47" width="7" height="7" fill="#fde68a"/>
+  <g fill="#fbbf24" transform="translate(36, 120) scale(6)">
+    <rect x="1" y="0" width="1" height="1"/>
+    <rect x="0" y="1" width="3" height="1"/>
+    <rect x="1" y="2" width="1" height="1"/>
+  </g>
+
+  <!-- Pixel sparkles -->
+  <rect x="400" y="240" width="8" height="8" fill="#fff" fill-opacity="0.5"/>
+  <rect x="32" y="44" width="6" height="6" fill="#fff" fill-opacity="0.6"/>
 </svg>
