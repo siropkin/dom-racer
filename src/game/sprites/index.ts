@@ -16,3 +16,4 @@ export {
   type HelicopterPose,
   type HelicopterRenderOptions,
 } from './helicopterSprite';
+export { renderTrainSprite, renderRailFlash } from './trainSprite';

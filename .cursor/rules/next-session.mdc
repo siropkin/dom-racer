@@ -130,22 +130,22 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Define `TrainState` interface in `src/game/gameStateTypes.ts`: rail rect, axis, travel progress, warning state, direction
 
 ### 18C. Train Runtime
-- [ ] Create `src/game/trainRuntime.ts` with lifecycle: idle → warning → crossing → cooldown
-- [ ] `resolveTrainSpawnStep`: check timing thresholds, rail candidates exist, not overlapping with police/plane encounters
-- [ ] `advanceTrainCrossing`: move train rect along rail axis at configured speed
-- [ ] `getTrainRect`: compute current train collision rect from rail + progress
-- [ ] Collision detection: `rectsIntersect` with player bounds — instant game over
-- [ ] Ghost effect grants immunity to train collision
-- [ ] Stagger with police/plane via existing `ENCOUNTER.STAGGER_MS` pattern
+- [x] Create `src/game/trainRuntime.ts` with lifecycle: idle → warning → crossing → cooldown
+- [x] `resolveTrainSpawnStep`: check timing thresholds, rail candidates exist, not overlapping with police/plane encounters
+- [x] `advanceTrainCrossing`: move train rect along rail axis at configured speed
+- [x] `getTrainRect`: compute current train collision rect from rail + progress
+- [x] Collision detection: `rectsIntersect` with player bounds — instant game over
+- [x] Ghost effect grants immunity to train collision
+- [x] Stagger with police/plane via existing `ENCOUNTER.STAGGER_MS` pattern
 
 ### 18D. Train Sprite
-- [ ] Create `src/game/sprites/trainSprite.ts` with `renderTrainSprite` function
-- [ ] Caltrain-style design: locomotive + 2-3 passenger cars
-- [ ] Colors: silver/gray body with red stripe accent (Caltrain livery)
-- [ ] Horizontal trains: left-to-right or right-to-left along rail
-- [ ] Vertical trains: top-to-bottom or bottom-to-top along rail
-- [ ] Rail flash effect: the rail line pulses/highlights briefly during warning phase
-- [ ] Export from `src/game/sprites/index.ts` barrel
+- [x] Create `src/game/sprites/trainSprite.ts` with `renderTrainSprite` function
+- [x] Caltrain-style design: locomotive + 2-3 passenger cars
+- [x] Colors: silver/gray body with red stripe accent (Caltrain livery)
+- [x] Horizontal trains: left-to-right or right-to-left along rail
+- [x] Vertical trains: top-to-bottom or bottom-to-top along rail
+- [x] Rail flash effect: the rail line pulses/highlights briefly during warning phase
+- [x] Export from `src/game/sprites/index.ts` barrel
 
 ### 18E. Train Audio
 - [ ] Add train horn warning SFX to `src/game/audio.ts` — plays during warning phase
