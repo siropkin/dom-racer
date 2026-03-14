@@ -63,19 +63,19 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Existing chase duration escalation formula applies to both variants — no special casing
 
 ### 17C. Helicopter Sprite
-- [ ] Create `src/game/sprites/helicopterSprite.ts` with `renderHelicopterSprite` function
-- [ ] Top-down silhouette: oval body (~34×18), tail boom extending backward
-- [ ] Spinning rotor disc: semi-transparent circle with 2-3 rotating blade lines (faster spin than plane propeller)
-- [ ] Police light bar on body: reuse blue/red flash pattern from `policeSprite.ts`
-- [ ] Searchlight cone: subtle semi-transparent radial gradient projecting toward player position (decorative only, no gameplay effect)
-- [ ] Export from `src/game/sprites/index.ts` barrel
+- [x] Create `src/game/sprites/helicopterSprite.ts` with `renderHelicopterSprite` function
+- [x] Top-down silhouette: oval body (~34×18), tail boom extending backward
+- [x] Spinning rotor disc: semi-transparent circle with 2-3 rotating blade lines (faster spin than plane propeller)
+- [x] Police light bar on body: reuse blue/red flash pattern from `policeSprite.ts`
+- [x] Searchlight cone: subtle semi-transparent radial gradient projecting toward player position (decorative only, no gameplay effect)
+- [x] Export from `src/game/sprites/index.ts` barrel
 
 ### 17D. Helicopter Audio
-- [ ] Add `updateHelicopterChop(active: boolean, urgency: number)` to `src/game/audio.ts`
-- [ ] Distinct from plane drone: square wave oscillators at ~120-140Hz, faster LFO at ~22-28Hz for "thwap-thwap-thwap" chopper sound
-- [ ] Bandpass filter centered ~400-600Hz
-- [ ] Replaces police siren audio during helicopter chases — stop siren, start rotor chop on helicopter spawn; reverse on helicopter leave
-- [ ] Fade in/out matching existing drone/siren patterns
+- [x] Add `updateHelicopterChop(active: boolean, urgency: number)` to `src/game/audio.ts`
+- [x] Distinct from plane drone: square wave oscillators at ~120-140Hz, faster LFO at ~22-28Hz for "thwap-thwap-thwap" chopper sound
+- [x] Bandpass filter centered ~400-600Hz
+- [x] Replaces police siren audio during helicopter chases — stop siren, start rotor chop on helicopter spawn; reverse on helicopter leave
+- [x] Fade in/out matching existing drone/siren patterns
 
 ### 17E. Helicopter Rendering & HUD
 - [ ] Fix airplane render order: airplane should draw on top of the player car (higher z-index) since it flies overhead — adjust draw order in `gameRenderRuntime.ts`

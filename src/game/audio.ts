@@ -21,6 +21,12 @@ export class AudioManager {
   private droneOscillatorB: OscillatorNode | null;
   private droneLfoOscillator: OscillatorNode | null;
   private droneLfoGain: GainNode | null;
+  private chopGain: GainNode | null;
+  private chopFilter: BiquadFilterNode | null;
+  private chopOscillatorA: OscillatorNode | null;
+  private chopOscillatorB: OscillatorNode | null;
+  private chopLfoOscillator: OscillatorNode | null;
+  private chopLfoGain: GainNode | null;
   private enabled: boolean;
 
   constructor(initiallyEnabled: boolean) {
@@ -44,6 +50,12 @@ export class AudioManager {
     this.droneOscillatorB = null;
     this.droneLfoOscillator = null;
     this.droneLfoGain = null;
+    this.chopGain = null;
+    this.chopFilter = null;
+    this.chopOscillatorA = null;
+    this.chopOscillatorB = null;
+    this.chopLfoOscillator = null;
+    this.chopLfoGain = null;
     this.enabled = initiallyEnabled;
   }
 
@@ -312,6 +324,51 @@ export class AudioManager {
     }
   }
 
+  /**
+   * Continuous rotor chop for helicopter chases.
+   * Distinct from plane drone: square-wave oscillators at ~120-140Hz with faster
+   * LFO at ~22-28Hz for a "thwap-thwap-thwap" chopper sound.
+   */
+  updateHelicopterChop(active: boolean, urgency: number): void {
+    if (!this.enabled) {
+      if (this.chopGain && this.context) {
+        const now = this.context.currentTime;
+        this.chopGain.gain.cancelScheduledValues(now);
+        this.chopGain.gain.setTargetAtTime(0, now, 0.03);
+      }
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    const chop = this.ensureChopNodes();
+    const normalizedUrgency = Math.max(0, Math.min(1, urgency));
+    const targetGain = active ? 0.014 + normalizedUrgency * 0.022 : 0;
+    const baseFrequency = 120 + normalizedUrgency * 20;
+    const filterFrequency = 400 + normalizedUrgency * 200;
+    const chopRate = 22 + normalizedUrgency * 6;
+
+    chop.gain.cancelScheduledValues(now);
+    chop.gain.setTargetAtTime(targetGain, now, 0.05);
+
+    if (this.chopOscillatorA && this.chopOscillatorB) {
+      this.chopOscillatorA.frequency.cancelScheduledValues(now);
+      this.chopOscillatorB.frequency.cancelScheduledValues(now);
+      this.chopOscillatorA.frequency.setTargetAtTime(baseFrequency, now, 0.07);
+      this.chopOscillatorB.frequency.setTargetAtTime(baseFrequency * 1.52, now, 0.07);
+    }
+
+    if (this.chopFilter) {
+      this.chopFilter.frequency.cancelScheduledValues(now);
+      this.chopFilter.frequency.setTargetAtTime(filterFrequency, now, 0.06);
+    }
+
+    if (this.chopLfoOscillator) {
+      this.chopLfoOscillator.frequency.cancelScheduledValues(now);
+      this.chopLfoOscillator.frequency.setTargetAtTime(chopRate, now, 0.08);
+    }
+  }
+
   playPlaneDrop(): void {
     if (!this.enabled) {
       return;
@@ -395,7 +452,7 @@ export class AudioManager {
     }
 
     const now = this.context.currentTime;
-    for (const gain of [this.engineGain, this.policeGain, this.droneGain]) {
+    for (const gain of [this.engineGain, this.policeGain, this.droneGain, this.chopGain]) {
       if (gain) {
         gain.gain.cancelScheduledValues(now);
         gain.gain.setTargetAtTime(0, now, 0.02);
@@ -591,6 +648,62 @@ export class AudioManager {
     this.droneLfoOscillator = lfoOscillator;
     this.droneLfoGain = lfoGain;
     return droneGain;
+  }
+
+  private ensureChopNodes(): GainNode {
+    if (
+      this.chopGain &&
+      this.chopFilter &&
+      this.chopOscillatorA &&
+      this.chopOscillatorB &&
+      this.chopLfoOscillator &&
+      this.chopLfoGain
+    ) {
+      return this.chopGain;
+    }
+
+    const context = this.ensureContext();
+    const masterGain = this.ensureMasterGain();
+    const chopGain = context.createGain();
+    chopGain.gain.value = 0;
+    const chopFilter = context.createBiquadFilter();
+    chopFilter.type = 'bandpass';
+    chopFilter.frequency.value = 500;
+    chopFilter.Q.value = 1.8;
+
+    const oscillatorA = context.createOscillator();
+    oscillatorA.type = 'square';
+    oscillatorA.frequency.value = 130;
+
+    const oscillatorB = context.createOscillator();
+    oscillatorB.type = 'square';
+    oscillatorB.frequency.value = 198;
+
+    const lfoOscillator = context.createOscillator();
+    lfoOscillator.type = 'sine';
+    lfoOscillator.frequency.value = 24;
+    const lfoGain = context.createGain();
+    lfoGain.gain.value = 28;
+
+    lfoOscillator.connect(lfoGain);
+    lfoGain.connect(oscillatorA.detune);
+    lfoGain.connect(oscillatorB.detune);
+    oscillatorA.connect(chopFilter);
+    oscillatorB.connect(chopFilter);
+    chopFilter.connect(chopGain);
+    chopGain.connect(masterGain);
+
+    lfoOscillator.start();
+    oscillatorA.start();
+    oscillatorB.start();
+
+    this.chopGain = chopGain;
+    this.chopFilter = chopFilter;
+    this.chopOscillatorA = oscillatorA;
+    this.chopOscillatorB = oscillatorB;
+    this.chopLfoOscillator = lfoOscillator;
+    this.chopLfoGain = lfoGain;
+    return chopGain;
   }
 
   private playTone(options: {

@@ -11,3 +11,8 @@ export {
 } from './policeSprite';
 export { renderPlaneSprite, type PlaneSpritePose } from './planeSprite';
 export { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
+export {
+  renderHelicopterSprite,
+  type HelicopterPose,
+  type HelicopterRenderOptions,
+} from './helicopterSprite';
