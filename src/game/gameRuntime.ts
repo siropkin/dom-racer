@@ -288,10 +288,10 @@ export function getVehicleDesignLabel(design: VehicleDesign): string {
 // ---------------------------------------------------------------------------
 
 export type DailyModifierKind =
+  | 'NONE'
   | 'DOUBLE_COINS'
   | 'FAST_POLICE'
   | 'EXTRA_SPECIALS'
-  | 'SLIPPERY'
   | 'EARLY_OVERGROWTH';
 
 export interface DailyModifier {
@@ -299,15 +299,20 @@ export interface DailyModifier {
   label: string;
 }
 
+const NONE_MODIFIER: DailyModifier = { kind: 'NONE', label: '' };
+
 const DAILY_MODIFIERS: readonly DailyModifier[] = [
   { kind: 'DOUBLE_COINS', label: 'DOUBLE COINS' },
   { kind: 'FAST_POLICE', label: 'FAST POLICE' },
   { kind: 'EXTRA_SPECIALS', label: 'EXTRA SPECIALS' },
-  { kind: 'SLIPPERY', label: 'SLIPPERY' },
   { kind: 'EARLY_OVERGROWTH', label: 'EARLY OVERGROWTH' },
 ];
 
-export function getDailyModifier(): DailyModifier {
+export function getDailyModifier(lifetimeTotalScore = 0): DailyModifier {
+  if (lifetimeTotalScore <= 0) {
+    return NONE_MODIFIER;
+  }
+
   const dateStr = new Date().toDateString();
   let hash = 0;
   for (let i = 0; i < dateStr.length; i++) {

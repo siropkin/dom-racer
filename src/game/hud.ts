@@ -94,9 +94,11 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
       HUD_MARGIN + 28,
     );
 
-    ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
-    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 46);
-  } else {
+    if (state.dailyModifierLabel) {
+      ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
+      ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 46);
+    }
+  } else if (state.dailyModifierLabel) {
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
     ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 28);
   }

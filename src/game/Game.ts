@@ -358,8 +358,8 @@ export class Game {
     this.newBestCelebrated = false;
     this.pageTintColor = null;
     this.firstPlayHintTimerMs = 0;
-    this.dailyModifier = getDailyModifier();
     this.lifetimeTotalScore = options.initialLifetimeTotalScore;
+    this.dailyModifier = getDailyModifier(this.lifetimeTotalScore);
     this.viewportScaleFactor = 1;
     this.pageLightness = 0.5;
     this.policeChaseCount = 0;
@@ -560,8 +560,7 @@ export class Game {
 
     const currentBounds = this.player.getBounds();
     const zoneBoosting = isBoosting(currentBounds, this.getActiveBoostZones());
-    const onIce =
-      isOnIceZone(currentBounds, this.world.iceZones) || this.dailyModifier.kind === 'SLIPPERY';
+    const onIce = isOnIceZone(currentBounds, this.world.iceZones);
     const activeObstacles = [
       ...this.world.obstacles,
       ...getOvergrowthObstacles(this.overgrowthNodes),
@@ -2042,7 +2041,7 @@ export class Game {
 
     this.pageLightness = this.estimatePageLightness();
 
-    this.dailyModifier = getDailyModifier();
+    this.dailyModifier = getDailyModifier(this.lifetimeTotalScore);
     if (this.dailyModifier.kind === 'FAST_POLICE') {
       this.policeSpawnTimerMs = Math.round(this.policeSpawnTimerMs * 0.7);
     }
