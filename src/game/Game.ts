@@ -112,6 +112,8 @@ import {
   drawFirstPlayHintOverlay,
   drawPausedOverlay,
   drawSpriteShowcaseOverlay,
+  getShowcaseSoundButtonAt,
+  type ShowcaseSoundId,
 } from './gameOverlays';
 import { Player } from './player';
 import {
@@ -377,6 +379,7 @@ export class Game {
     this.canvas.focus({ preventScroll: true });
     window.addEventListener('keydown', this.handleKeyDown, true);
     window.addEventListener('keyup', this.handleKeyUp, true);
+    this.canvas.addEventListener('mousedown', this.handleCanvasClick);
     window.addEventListener('blur', this.handleWindowFocusChange, true);
     window.addEventListener('focus', this.handleWindowFocusChange, true);
     document.addEventListener('visibilitychange', this.handleWindowFocusChange, true);
@@ -393,6 +396,7 @@ export class Game {
     this.running = false;
     window.removeEventListener('keydown', this.handleKeyDown, true);
     window.removeEventListener('keyup', this.handleKeyUp, true);
+    this.canvas.removeEventListener('mousedown', this.handleCanvasClick);
     window.removeEventListener('blur', this.handleWindowFocusChange, true);
     window.removeEventListener('focus', this.handleWindowFocusChange, true);
     document.removeEventListener('visibilitychange', this.handleWindowFocusChange, true);
@@ -950,6 +954,69 @@ export class Game {
       event.preventDefault();
     }
   };
+
+  private handleCanvasClick = (event: MouseEvent): void => {
+    if (!this.spriteShowcaseActive) {
+      return;
+    }
+
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const soundId = getShowcaseSoundButtonAt(x, y);
+    if (soundId) {
+      void this.audio.resume();
+      this.playShowcaseSound(soundId);
+    }
+  };
+
+  private showcaseSirenActive = false;
+  private showcaseHeliActive = false;
+  private showcaseRumbleActive = false;
+
+  private resetShowcaseSoundToggles(): void {
+    this.showcaseSirenActive = false;
+    this.showcaseHeliActive = false;
+    this.showcaseRumbleActive = false;
+  }
+
+  private playShowcaseSound(id: ShowcaseSoundId): void {
+    switch (id) {
+      case 'pickup':
+        this.audio.playPickup();
+        break;
+      case 'police-alert':
+        this.audio.playPoliceAlert();
+        break;
+      case 'siren':
+        this.showcaseSirenActive = !this.showcaseSirenActive;
+        void this.audio.updatePoliceSiren(this.showcaseSirenActive, 0.5);
+        break;
+      case 'heli-chop':
+        this.showcaseHeliActive = !this.showcaseHeliActive;
+        this.audio.updateHelicopterChop(this.showcaseHeliActive, 0.5);
+        break;
+      case 'plane-flyover':
+        this.audio.playPlaneFlyover();
+        break;
+      case 'plane-drop':
+        this.audio.playPlaneDrop();
+        break;
+      case 'train-horn':
+        this.audio.playTrainHorn();
+        break;
+      case 'train-rumble':
+        this.showcaseRumbleActive = !this.showcaseRumbleActive;
+        this.audio.updateTrainRumble(this.showcaseRumbleActive, 0.5);
+        break;
+      case 'near-miss':
+        this.audio.playNearMissWhoosh();
+        break;
+      case 'objective':
+        this.audio.playObjectiveChime();
+        break;
+    }
+  }
 
   private resetInput(): void {
     resetInputState(this.input);
@@ -1995,6 +2062,7 @@ export class Game {
     const transition = createSpriteShowcaseTransitionState();
     this.spriteShowcaseActive = transition.spriteShowcaseActive;
     this.autoPickSpriteShowcaseTheme();
+    this.resetShowcaseSoundToggles();
     this.audio.stop();
     this.setInverted(false);
     this.setBlur(false);

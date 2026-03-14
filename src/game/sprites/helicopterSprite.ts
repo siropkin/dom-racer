@@ -102,9 +102,7 @@ export function renderHelicopterSprite(
   ctx.fill();
 
   // --- fuselage body (oval) — flashes red/blue when chasing ---
-  const bodyColor = options.chasing
-    ? (sirenPhase ? '#93c5fd' : '#fca5a5')
-    : '#cbd5e1';
+  const bodyColor = options.chasing ? (sirenPhase ? '#93c5fd' : '#fca5a5') : '#cbd5e1';
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
   ctx.ellipse(0, 0, halfBody, BODY_H / 2, 0, 0, Math.PI * 2);

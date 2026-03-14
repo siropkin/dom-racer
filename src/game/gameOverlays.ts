@@ -87,7 +87,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.fillStyle = theme.subtitle;
   ctx.font = '11px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.fillText('SHIFT+D TO EXIT + RESTART', 20, 38);
-  ctx.fillText(`ARROWS THEME: ${theme.name}`, 20, 54);
+  ctx.fillText(`ARROWS THEME: ${theme.name}  ·  CLICK SOUNDS TO PREVIEW`, 20, 54);
   ctx.fillText(`AUTO PAGE LUMA: ${Math.round(pageLightness * 100)}%`, 20, 70);
 
   const carsBaseY = 102;
@@ -315,7 +315,86 @@ export function drawSpriteShowcaseOverlay({
     ctx.fillText(text, x + 4, y + 11);
   });
 
+  const soundBtnW = 78;
+  const soundBtnH = 16;
+  const soundBtnGap = 4;
+  const soundCols = 2;
+  const soundPanelX = toastPanelX;
+  const soundPanelY =
+    toastPanelY +
+    Math.ceil(SHOWCASE_TOAST_MESSAGES.length / toastCols) * (toastHeight + toastGap) +
+    18;
+  ctx.fillStyle = theme.toastPanel;
+  const soundPanelW = soundCols * soundBtnW + (soundCols - 1) * soundBtnGap + 16;
+  const soundPanelH =
+    Math.ceil(SHOWCASE_SOUND_BUTTONS.length / soundCols) * (soundBtnH + soundBtnGap) + 32;
+  ctx.fillRect(soundPanelX - 8, soundPanelY - 22, soundPanelW, soundPanelH);
+  ctx.fillStyle = theme.subtitle;
+  ctx.font = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('SOUNDS (CLICK)', soundPanelX - 2, soundPanelY - 8);
+
+  _lastSoundButtonRects.length = 0;
+  SHOWCASE_SOUND_BUTTONS.forEach((btn, index) => {
+    const col = index % soundCols;
+    const row = Math.floor(index / soundCols);
+    const bx = soundPanelX + col * (soundBtnW + soundBtnGap);
+    const by = soundPanelY + row * (soundBtnH + soundBtnGap);
+    ctx.fillStyle = theme.toastCard;
+    ctx.fillRect(bx, by, soundBtnW, soundBtnH);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx + 0.5, by + 0.5, soundBtnW - 1, soundBtnH - 1);
+    ctx.fillStyle = '#7dd3fc';
+    ctx.font = 'bold 8px "SFMono-Regular", "JetBrains Mono", monospace';
+    ctx.fillText(btn.label, bx + 4, by + 11);
+    _lastSoundButtonRects.push({ x: bx, y: by, w: soundBtnW, h: soundBtnH, id: btn.id });
+  });
+
   ctx.restore();
+}
+
+export type ShowcaseSoundId =
+  | 'pickup'
+  | 'police-alert'
+  | 'siren'
+  | 'heli-chop'
+  | 'plane-flyover'
+  | 'plane-drop'
+  | 'train-horn'
+  | 'train-rumble'
+  | 'near-miss'
+  | 'objective';
+
+const SHOWCASE_SOUND_BUTTONS: { id: ShowcaseSoundId; label: string }[] = [
+  { id: 'pickup', label: 'COIN' },
+  { id: 'police-alert', label: 'POLICE ALERT' },
+  { id: 'siren', label: 'SIREN' },
+  { id: 'heli-chop', label: 'HELI CHOP' },
+  { id: 'plane-flyover', label: 'PLANE' },
+  { id: 'plane-drop', label: 'PLANE DROP' },
+  { id: 'train-horn', label: 'TRAIN HORN' },
+  { id: 'train-rumble', label: 'TRAIN RUMBLE' },
+  { id: 'near-miss', label: 'NEAR MISS' },
+  { id: 'objective', label: 'OBJECTIVE' },
+];
+
+interface SoundButtonRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  id: ShowcaseSoundId;
+}
+
+const _lastSoundButtonRects: SoundButtonRect[] = [];
+
+export function getShowcaseSoundButtonAt(cx: number, cy: number): ShowcaseSoundId | null {
+  for (const btn of _lastSoundButtonRects) {
+    if (cx >= btn.x && cx < btn.x + btn.w && cy >= btn.y && cy < btn.y + btn.h) {
+      return btn.id;
+    }
+  }
+  return null;
 }
 
 /** Renders the game-over screen with score and restart prompt. */
