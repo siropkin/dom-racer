@@ -73,19 +73,19 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 22 — Popup, Manifest & Marketplace Review
 
 ### 22A. Popup HTML
-- [ ] Read `public/popup.html` and review: layout, content accuracy, visual alignment with HUD style
-- [ ] Verify all power-up descriptions are accurate (check against current 9 specials)
-- [ ] Verify controls listed match actual hotkeys
-- [ ] Check "Start Game" button functionality description
-- [ ] Fix any stale text or styling issues
+- [x] Read `public/popup.html` and review: layout, content accuracy, visual alignment with HUD style
+- [x] Verify all power-up descriptions are accurate (check against current 9 specials)
+- [x] Verify controls listed match actual hotkeys
+- [x] Check "Start Game" button functionality description
+- [x] Fix any stale text or styling issues
 
 ### 22B. Manifest & Store Listing
-- [ ] Review `public/manifest.json`: name, version, description, permissions, icons
-- [ ] Manifest description should be concise and enticing (≤132 chars for Chrome Web Store)
-- [ ] Verify all icon sizes exist and are correct (16, 32, 48, 128)
-- [ ] Review `branding/` SVGs: are store cover (1280×800) and tile (440×280) accurate?
-- [ ] Cross-check README "What Happens During a Run" section with actual gameplay
-- [ ] Update `INSTALL-FOR-FRIENDS.md` if anything changed
+- [x] Review `public/manifest.json`: name, version, description, permissions, icons
+- [x] Manifest description should be concise and enticing (≤132 chars for Chrome Web Store)
+- [x] Verify all icon sizes exist and are correct (16, 32, 48, 128)
+- [x] Review `branding/` SVGs: are store cover (1280×800) and tile (440×280) accurate?
+- [x] Cross-check README "What Happens During a Run" section with actual gameplay
+- [x] Update `INSTALL-FOR-FRIENDS.md` if anything changed
 
 ### 22C. Phase 22 Closeout
 - [ ] `npm run test` green, `npm run build` clean
