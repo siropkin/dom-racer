@@ -42,7 +42,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Sound enrichment, auto-pause, first-play hint, run counter, lifetime milestones
 - Code audit (Phase 13): config consistency verified, all scoring multiples of 10, timer interactions correct, economy flow coherent, dead code removed
 - Design review (Phase 13): all 10 game systems have distinct non-overlapping purposes, difficulty curve matches SOUL.md arc
-- Branding refresh: icon, store cover, and store tile SVGs use the in-game coupe sprite silhouette
+- Branding refresh: icon, store cover, and store tile SVGs use pixel-art stepped color band backgrounds (purple → cyan palette) with the in-game coupe sprite silhouette
 - Phase 14 UX truth pass: HUD controls fix (WASD/ARROWS, M key prefix, fixed layout), center-biased spawn, form control scanning, overgrowth ladder rewrite, special pickup shape grouping
 
 ## Controls

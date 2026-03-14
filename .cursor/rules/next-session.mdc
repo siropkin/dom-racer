@@ -34,7 +34,7 @@ First, read:
 
 ## Current State
 
-Phases 1-18 complete. 104 smoke tests across 9 files. All passing, clean build.
+Phases 1-19 complete. 104 smoke tests across 9 files. All passing, clean build. No pending phases.
 
 Key decisions from completed phases:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
@@ -208,17 +208,17 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] The overall feel should be "calm retro title screen" not a cluttered arcade flyer
 
 ### 19C. Store Tile Background Redesign
-- [ ] Replace the smooth gradient background in `branding/dom-racer-store-tile.svg` with a matching pixel-art background
-- [ ] Must feel consistent with the icon and cover — same quiet pixel-art language
-- [ ] Remove the smooth bezier sweep decorations
-- [ ] Reduce decorative noise — keep only the wordmark, feature pills, hotkey hint, and one small pixel coin at most
-- [ ] Feature pill and hotkey hint rounded corners can stay (they're UI elements, not branding art)
+- [x] Replace the smooth gradient background in `branding/dom-racer-store-tile.svg` with a matching pixel-art background
+- [x] Must feel consistent with the icon and cover — same quiet pixel-art language
+- [x] Remove the smooth bezier sweep decorations
+- [x] Reduce decorative noise — keep only the wordmark, feature pills, hotkey hint, and one small pixel coin at most
+- [x] Feature pill and hotkey hint rounded corners can stay (they're UI elements, not branding art)
 
 ### 19D. Regenerate PNGs & Verify
-- [ ] Run `python3 branding/generate_assets.py` to regenerate all PNGs
-- [ ] Verify PNGs look correct at target sizes (icons at 16-512px, tile at 440×280, cover at 1280×800)
-- [ ] Run `npm run build` to ensure dist/ picks up updated assets
-- [ ] Commit all SVG and PNG changes
+- [x] Run `python3 branding/generate_assets.py` to regenerate all PNGs
+- [x] Verify PNGs look correct at target sizes (icons at 16-512px, tile at 440×280, cover at 1280×800)
+- [x] Run `npm run build` to ensure dist/ picks up updated assets
+- [x] Commit all SVG and PNG changes
 
 ## Essential Context
 

@@ -1,17 +1,21 @@
 <svg width="440" height="280" viewBox="0 0 440 280" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="440" y2="280" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0f172a"/>
-      <stop offset="0.5" stop-color="#1e1b4b"/>
-      <stop offset="1" stop-color="#164e63"/>
-    </linearGradient>
+    <clipPath id="bg-clip">
+      <rect x="8" y="8" width="424" height="264" rx="32"/>
+    </clipPath>
   </defs>
 
-  <rect x="8" y="8" width="424" height="264" rx="32" fill="url(#bg)"/>
-
-  <!-- Decorative sweeps -->
-  <path d="M30 216C80 168 140 140 200 128C250 118 320 108 420 82" stroke="#67e8f9" stroke-opacity="0.1" stroke-width="14" stroke-linecap="round"/>
-  <path d="M24 78C54 96 78 116 108 144" stroke="#a78bfa" stroke-opacity="0.1" stroke-width="10" stroke-linecap="round"/>
+  <!-- Pixel-art background: 8 stepped horizontal bands (dark → indigo → teal) -->
+  <g clip-path="url(#bg-clip)">
+    <rect x="8" y="8"   width="424" height="33" fill="#020617"/>
+    <rect x="8" y="41"  width="424" height="33" fill="#070820"/>
+    <rect x="8" y="74"  width="424" height="33" fill="#0d0c2c"/>
+    <rect x="8" y="107" width="424" height="33" fill="#151339"/>
+    <rect x="8" y="140" width="424" height="33" fill="#1e1b4b"/>
+    <rect x="8" y="173" width="424" height="33" fill="#1a2c58"/>
+    <rect x="8" y="206" width="424" height="33" fill="#124c6c"/>
+    <rect x="8" y="239" width="424" height="33" fill="#0e7490"/>
+  </g>
 
   <!-- Pixel-art "DOM" (scale 9) -->
   <g fill="#f8fafc" transform="translate(135, 42) scale(9)">
@@ -85,20 +89,11 @@
   <rect x="120" y="212" width="200" height="22" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
   <text x="220" y="227" text-anchor="middle" fill="#64748b" font-size="10" font-weight="700" font-family="monospace">Shift + Space to play</text>
 
-  <!-- Pixel coins -->
+  <!-- Single pixel coin (top-right accent) -->
   <g fill="#fbbf24" transform="translate(380, 40) scale(7)">
     <rect x="1" y="0" width="1" height="1"/>
     <rect x="0" y="1" width="3" height="1"/>
     <rect x="1" y="2" width="1" height="1"/>
   </g>
   <rect x="387" y="47" width="7" height="7" fill="#fde68a"/>
-  <g fill="#fbbf24" transform="translate(36, 120) scale(6)">
-    <rect x="1" y="0" width="1" height="1"/>
-    <rect x="0" y="1" width="3" height="1"/>
-    <rect x="1" y="2" width="1" height="1"/>
-  </g>
-
-  <!-- Pixel sparkles -->
-  <rect x="400" y="240" width="8" height="8" fill="#fff" fill-opacity="0.5"/>
-  <rect x="32" y="44" width="6" height="6" fill="#fff" fill-opacity="0.6"/>
 </svg>
