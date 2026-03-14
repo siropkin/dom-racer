@@ -31,7 +31,7 @@ alwaysApply: false
 | 20 | `done` | Gameplay audit (research-informed) |
 | 21 | `done` | Sprite & visual consistency pass |
 | 22 | `done` | Popup, manifest & marketplace review |
-| 23 | `pending` | Debug screen (sprite showcase) polish |
+| 23 | `done` | Debug screen (sprite showcase) polish |
 | 24 | `pending` | HUD text fitting & layout |
 | 25 | `pending` | Code refactoring & production readiness |
 | 26 | `pending` | Game state collision & edge-case testing |
@@ -56,6 +56,8 @@ alwaysApply: false
 **Phase 21** — Sprite & visual consistency pass: audited all sprite files across player vehicles, encounters, pickups, and overgrowth. Fixed buggy missing `drawContourOutline` keyline (coupe and truck already had it). All encounter sprites (police, helicopter, plane, train) confirmed visually consistent. Coin, special pickup shapes, and overgrowth stages all well-designed and readable.
 
 **Phase 22** — Popup, manifest & marketplace review: added missing Nitro boost (Space) control to popup.html controls table. All 9 power-up tags verified accurate. Manifest description (102 chars) within ≤132 limit. All icon sizes (16/32/48/128) present. Store cover (1280×800) and tile (440×280) SVGs confirmed. README gameplay section cross-checked. INSTALL-FOR-FRIENDS.md already up to date.
+
+**Phase 23** — Debug screen (sprite showcase) polish: added VEHICLES, ENCOUNTERS, PICKUPS section labels to the showcase. All sprites, edge warnings (police/chopper/plane/train), sound test buttons with active states, and train positioning verified. Theme cycling (arrow keys) and enter/exit restore confirmed clean.
 
 ## Post-Phase Polish
 

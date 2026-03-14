@@ -106,8 +106,8 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Test that entering/exiting showcase cleanly restores game state
 
 ### 23C. Phase 23 Closeout
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 24 — HUD Text Fitting & Layout
 
