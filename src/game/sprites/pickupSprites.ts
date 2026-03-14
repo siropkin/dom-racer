@@ -1,10 +1,13 @@
-import type { WorldPickup } from '../../shared/types';
+import type { SpecialEffect, WorldPickup } from '../../shared/types';
 import {
   applyAdaptiveShadow,
   clearAdaptiveShadow,
   drawBorderedRect,
   traceStarPath,
 } from './spriteHelpers';
+
+const HELPFUL_EFFECTS: ReadonlySet<SpecialEffect> = new Set(['bonus', 'magnet', 'ghost', 'invert']);
+const HARMFUL_EFFECTS: ReadonlySet<SpecialEffect> = new Set(['blur', 'oil_slick', 'reverse']);
 
 export function drawRegularCoinSprite(
   ctx: CanvasRenderingContext2D,
@@ -71,6 +74,22 @@ export function drawSpecialPickupSprite(
     return;
   }
 
+  const effect = pickup.effect as SpecialEffect;
+
+  if (HELPFUL_EFFECTS.has(effect)) {
+    drawHelpfulPickup(ctx, pickup, options);
+  } else if (HARMFUL_EFFECTS.has(effect)) {
+    drawHarmfulPickup(ctx, pickup, options);
+  } else {
+    drawMysteryPickup(ctx, pickup, options);
+  }
+}
+
+function drawHelpfulPickup(
+  ctx: CanvasRenderingContext2D,
+  pickup: WorldPickup,
+  options: { centerX: number; centerY: number; radius: number; spin: number; nowMs: number },
+): void {
   const { centerX, centerY, radius, spin, nowMs } = options;
   const accent = pickup.accentColor ?? '#f8fafc';
   const pulse = 0.88 + spin * 0.2;
@@ -87,12 +106,144 @@ export function drawSpecialPickupSprite(
   applyAdaptiveShadow(ctx);
   drawBorderedRect(ctx, -half, -half, half * 2, half * 2, 5, accent, '#ffffff', 1.4);
 
-  const labelColor = pickup.effect === 'oil_slick' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
+  const inset = 2.4;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.roundRect(-half + inset, -half + inset, half * 2 - inset * 2, half * 2 - inset * 2, 3);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.lineWidth = 1.3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  const chevY = -half + 2.8;
+  const chevW = 3.2;
+  const chevH = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-chevW, chevY + chevH);
+  ctx.lineTo(0, chevY);
+  ctx.lineTo(chevW, chevY + chevH);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+  ctx.lineJoin = 'miter';
+
+  const labelColor = 'rgba(15, 23, 42, 0.86)';
   ctx.fillStyle = labelColor;
   ctx.font = 'bold 8px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.fillText(pickup.label ?? 'FX', 0, 1.5);
+  ctx.restore();
+}
+
+function drawHarmfulPickup(
+  ctx: CanvasRenderingContext2D,
+  pickup: WorldPickup,
+  options: { centerX: number; centerY: number; radius: number; spin: number; nowMs: number },
+): void {
+  const { centerX, centerY, radius, spin, nowMs } = options;
+  const accent = pickup.accentColor ?? '#f8fafc';
+  const pulse = 0.88 + spin * 0.2;
+  const half = radius * pulse;
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY + 3, half + 3, radius * 0.78, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(Math.sin(nowMs / 420) * 0.18);
+  applyAdaptiveShadow(ctx);
+
+  ctx.save();
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.roundRect(-half * 0.78, -half * 0.78, half * 1.56, half * 1.56, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  const inset = 2;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.roundRect(
+    -half * 0.78 + inset,
+    -half * 0.78 + inset,
+    half * 1.56 - inset * 2,
+    half * 1.56 - inset * 2,
+    2,
+  );
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'round';
+  const tickLen = 2.6;
+  const tipY = -half * 0.78 * Math.SQRT2;
+  ctx.beginPath();
+  ctx.moveTo(-tickLen, tipY - tickLen * 0.3);
+  ctx.lineTo(-tickLen * 0.15, tipY + tickLen * 0.6);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(tickLen, tipY - tickLen * 0.3);
+  ctx.lineTo(tickLen * 0.15, tipY + tickLen * 0.6);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  const labelColor = pickup.effect === 'oil_slick' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.86)';
+  ctx.fillStyle = labelColor;
+  ctx.font = 'bold 7px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillText(pickup.label ?? 'FX', 0, 0.5);
+  ctx.restore();
+}
+
+function drawMysteryPickup(
+  ctx: CanvasRenderingContext2D,
+  pickup: WorldPickup,
+  options: { centerX: number; centerY: number; radius: number; spin: number; nowMs: number },
+): void {
+  const { centerX, centerY, radius, spin, nowMs } = options;
+  const accent = pickup.accentColor ?? '#f8fafc';
+  const pulse = 0.88 + spin * 0.2;
+  const r = radius * pulse;
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY + 3, r + 3, radius * 0.78, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(Math.sin(nowMs / 280) * 0.28);
+  applyAdaptiveShadow(ctx);
+
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  const shimmer = (Math.sin(nowMs / 200) * 0.5 + 0.5) * 0.35;
+  ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 + shimmer})`;
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 2.4, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.86)';
+  ctx.font = 'bold 8px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(pickup.label ?? '?', 0, 0.5);
   ctx.restore();
 }
 

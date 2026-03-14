@@ -54,8 +54,8 @@ First, read:
 
 ## Current State
 
-Phases 1-13 complete.
-Phase 13 delivered: Code-level audit (config consistency, scoring math, timer interactions, economy flow, dead code removal), design-level review (all 10 systems confirmed distinct, difficulty curve matches SOUL.md arc), branding refresh (coupe sprite silhouette in SVGs, stale references fixed, PNGs regenerated).
+Phases 1-14 complete.
+Phase 14 delivered: HUD controls fix (WASD/ARROWS drive text, M key prefix for music, fixed-position layout preventing jitter), info block spacing normalized, center-biased spawn point, form control DOM scanning (inputs/textareas/selects/radios/checkboxes become slow zones + overgrowth anchors), overgrowth ladder rewrite (grass → bush → tree single escalation replacing bush/tree two-kind system), special pickup readability pass (helpful=rounded square+chevron, harmful=diamond, mystery=circle).
 
 ## Phase 9 — Play-test Polish (UX, specials overhaul, screens)
 
@@ -299,7 +299,7 @@ Every phase MUST end with a closeout pass (see `phases.mdc` for full protocol). 
 - 5 airplane drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier configured. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
-- 80 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
+- 81 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
 - Daily modifier system: `getDailyModifier()` in `gameRuntime.ts`, applied per-run in `beginRun`, 5 modifiers: DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, SLIPPERY, EARLY_OVERGROWTH.
 - Vehicle unlock thresholds: `VEHICLES` config in `gameConfig.ts`, `getUnlockedVehicleDesigns`/`getNextUnlockedVehicleDesign` in `gameRuntime.ts`. Unlock toast via `showVehicleUnlockToast` on Game.
 - Sound enrichment: coin pitch variation in `playPickup()`, `playNearMissWhoosh()`, `playObjectiveChime()` in `audio.ts`.
@@ -323,8 +323,14 @@ Every phase MUST end with a closeout pass (see `phases.mdc` for full protocol). 
 - Phase 13 code audit: all config values internally consistent, all scoring paths produce multiples of 10, timer interactions correct (pause/unpause drift compensation, viewport scaling), economy flow coherent. No remaining dead code.
 - Phase 13 design review: all 10 game systems (coins, specials, police, plane, overgrowth, near-miss, objectives, daily modifiers, vehicles, VFX) confirmed distinct and non-overlapping. Difficulty curve matches SOUL.md arc. No gameplay changes recommended.
 - Branding refresh: `dom-racer-icon.svg`, `dom-racer-store-cover.svg`, `dom-racer-store-tile.svg` redesigned with in-game coupe sprite silhouette. Stale references (BLACKOUT, WEE-OO, Shift+R, COMBOS) removed from SVGs. All PNGs regenerated via `generate_assets.py`.
-- No Phase 14 defined. Remaining manual tasks: play-testing on real pages, capturing screenshots/GIFs, Chrome Web Store upload (`npm run package`).
-- HUD merged into single top-left info block: score+time (row 1), best+life (row 2), daily modifier label (row 3). Controls hint panel removed (popup provides controls).
+- Phase 14 delivered: HUD controls fix, center-biased spawn, form control scanning, overgrowth ladder rewrite, special pickup shape grouping.
+- HUD controls panel: line 1 `WASD/ARROWS | SPACE NITRO`, line 2 fixed-position `V CAR`, `M MUSIC ON/OFF`, `ESC QUIT` to prevent jitter.
+- Info block rows use consistent 18px vertical spacing.
+- Spawn point targets viewport center (was bottom-biased at 82%).
+- Form controls (input/textarea/select/radio/checkbox) scanned as `wall` → `slowZones`, overgrowth anchors include `slowZones` in addition to `obstacles`.
+- Overgrowth: single `OvergrowthStage = 'grass' | 'bush' | 'tree'` ladder. `OvergrowthKind` removed. Config renamed: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. `BUSH_CHANCE` removed.
+- Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + upward chevron, harmful (blur/oil_slick/reverse) = diamond/rotated square, mystery = circle, jackpot = star (unchanged).
+- HUD merged into single top-left info block: score+time (row 1), best+life (row 2), daily modifier label (row 3).
 - Daily modifier shown as persistent HUD label ("TODAY: DOUBLE COINS"), not a run-start toast.
 - Game toggle hotkey changed from Shift+R to Shift+Space (Shift+Backtick still works).
 - Extension popup has "Start Game" button that sends `{ action: 'toggle-game' }` message to content script via `chrome.tabs.sendMessage`. Content script listens via `chrome.runtime.onMessage`.

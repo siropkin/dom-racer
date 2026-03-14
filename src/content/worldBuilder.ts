@@ -124,16 +124,16 @@ function findSpawnPoint(
   const blockers = [...obstacles, ...hazards, ...deadSpots];
   const target = {
     x: viewport.width / 2,
-    y: viewport.height * 0.82,
+    y: viewport.height / 2,
   };
 
   let bestPosition: Vector2 = {
     x: Math.max(16, viewport.width / 2 - PLAYER_SIZE.width / 2),
-    y: Math.max(16, viewport.height * 0.78),
+    y: Math.max(16, viewport.height / 2),
   };
   let bestScore = Number.NEGATIVE_INFINITY;
 
-  for (let y = viewport.height - PLAYER_SIZE.height - 24; y >= viewport.height * 0.35; y -= 28) {
+  for (let y = viewport.height - PLAYER_SIZE.height - 16; y >= PLAYER_SIZE.height + 16; y -= 28) {
     for (let x = 16; x <= viewport.width - PLAYER_SIZE.width - 16; x += 28) {
       const candidate = {
         x,
@@ -148,7 +148,7 @@ function findSpawnPoint(
 
       const clearance = nearestClearance(candidate, blockers, viewport);
       const center = rectCenter(candidate);
-      const biasScore = -Math.sqrt(distanceSquared(center, target)) * 0.42 + center.y * 0.08;
+      const biasScore = -Math.sqrt(distanceSquared(center, target)) * 0.5;
       const score = clearance + biasScore;
 
       if (score > bestScore) {

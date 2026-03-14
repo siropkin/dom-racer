@@ -19,12 +19,12 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 ## What Exists
 
 - Three vehicle designs (coupe, buggy, truck) with score-gated unlocks
-- Page scanning: text → walls, images → ice, links → coins, SVG → boost
+- Page scanning: text → slow zones, form controls → slow zones + overgrowth anchors, images/video/canvas → ice, links/buttons → coins, SVG → boost
 - HUD: POWER panel (top-right), GOAL panel (bottom-center), merged info block (top-left: score/time, bests, daily modifier)
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
 - Police chases with escalating duration and siren flash
 - Airplane flyovers with five drop modes
-- Overgrowth: bushes/trees grow from barriers after ~35s, narrowing routes
+- Overgrowth: grass → bush → tree escalation ladder from barriers/slow zones after ~35s, narrowing routes
 - Near-miss visual feedback (toast + VFX particles) for grazing obstacles
 - Coin-collection goals with x2/x3/x4 multiplier tiers (+20/+30/+40 bonus) and countdown timers
 - Daily modifier (5 rule twists, deterministic from date)
@@ -42,6 +42,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Code audit (Phase 13): config consistency verified, all scoring multiples of 10, timer interactions correct, economy flow coherent, dead code removed
 - Design review (Phase 13): all 10 game systems have distinct non-overlapping purposes, difficulty curve matches SOUL.md arc
 - Branding refresh: icon, store cover, and store tile SVGs use the in-game coupe sprite silhouette
+- Phase 14 UX truth pass: HUD controls fix (WASD/ARROWS, M key prefix, fixed layout), center-biased spawn, form control scanning, overgrowth ladder rewrite, special pickup shape grouping
 
 ## Controls
 
@@ -79,7 +80,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 80 smoke tests across 8 focused test files
+- 81 smoke tests across 8 focused test files
 
 ## Research References
 

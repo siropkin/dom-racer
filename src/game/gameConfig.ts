@@ -164,9 +164,8 @@ export const OVERGROWTH = {
   SPAWN_INTERVAL_MIN_MS: 9_000,
   SPAWN_INTERVAL_MAX_MS: 15_000,
   MAX_NODES: 8,
-  GROWTH_SMALL_TO_MEDIUM_MS: 6_000,
-  GROWTH_MEDIUM_TO_LARGE_MS: 10_000,
-  BUSH_CHANCE: 0.55,
+  GROWTH_GRASS_TO_BUSH_MS: 6_000,
+  GROWTH_BUSH_TO_TREE_MS: 10_000,
 } as const;
 
 // ---------------------------------------------------------------------------

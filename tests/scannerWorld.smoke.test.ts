@@ -105,4 +105,66 @@ describe('scanner -> world smoke', () => {
     const world = buildWorld(scanned, { width: 1200, height: 800 });
     expect(world.iceZones.length).toBeGreaterThan(0);
   });
+
+  it('classifies form controls as wall (slowZones) for overgrowth anchoring', () => {
+    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
+    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+
+    const textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.style.opacity = '1';
+    setRect(textInput, { x: 100, y: 200, width: 200, height: 32 });
+    document.body.appendChild(textInput);
+
+    const textarea = document.createElement('textarea');
+    textarea.style.opacity = '1';
+    setRect(textarea, { x: 100, y: 300, width: 300, height: 80 });
+    document.body.appendChild(textarea);
+
+    const select = document.createElement('select');
+    select.style.opacity = '1';
+    setRect(select, { x: 100, y: 420, width: 180, height: 32 });
+    document.body.appendChild(select);
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.style.opacity = '1';
+    setRect(checkbox, { x: 100, y: 500, width: 20, height: 20 });
+    document.body.appendChild(checkbox);
+
+    const disabledInput = document.createElement('input');
+    disabledInput.type = 'text';
+    disabledInput.disabled = true;
+    disabledInput.style.opacity = '1';
+    setRect(disabledInput, { x: 400, y: 200, width: 200, height: 32 });
+    document.body.appendChild(disabledInput);
+
+    const scanned = scanVisibleDom(null);
+
+    const textInputScanned = scanned.filter(
+      (e) => e.tagName === 'input' && e.rect.x === 100 && e.rect.y === 200,
+    );
+    expect(textInputScanned).toHaveLength(1);
+    expect(textInputScanned[0].kind).toBe('wall');
+
+    const textareaScanned = scanned.filter((e) => e.tagName === 'textarea');
+    expect(textareaScanned).toHaveLength(1);
+    expect(textareaScanned[0].kind).toBe('wall');
+
+    const selectScanned = scanned.filter((e) => e.tagName === 'select');
+    expect(selectScanned).toHaveLength(1);
+    expect(selectScanned[0].kind).toBe('wall');
+
+    const checkboxScanned = scanned.filter(
+      (e) => e.tagName === 'input' && e.rect.x === 100 && e.rect.y === 500,
+    );
+    expect(checkboxScanned).toHaveLength(1);
+    expect(checkboxScanned[0].kind).toBe('wall');
+
+    const disabledScanned = scanned.filter((e) => e.tagName === 'input' && e.rect.x === 400);
+    expect(disabledScanned).toHaveLength(0);
+
+    const world = buildWorld(scanned, { width: 1200, height: 800 });
+    expect(world.slowZones.length).toBeGreaterThanOrEqual(2);
+  });
 });

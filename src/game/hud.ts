@@ -72,7 +72,7 @@ export function drawHud(
 function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
   const hasBests = state.pageBestScore > 0 || state.lifetimeBestScore > 0;
   const w = 170;
-  const h = hasBests ? 68 : 48;
+  const h = hasBests ? 64 : 44;
   ctx.fillStyle = HUD_PANEL_BG;
   ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, h);
   ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
@@ -83,7 +83,7 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
   ctx.fillText(
     `SCORE ${state.score.toString().padStart(4, '0')}  ${formatElapsed(state.elapsedMs)}`,
     HUD_MARGIN + 10,
-    HUD_MARGIN + 12,
+    HUD_MARGIN + 10,
   );
 
   if (hasBests) {
@@ -91,14 +91,14 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
     ctx.fillText(
       `BEST ${state.pageBestScore.toString().padStart(4, '0')}  LIFE ${state.lifetimeBestScore.toString().padStart(4, '0')}`,
       HUD_MARGIN + 10,
-      HUD_MARGIN + 30,
+      HUD_MARGIN + 28,
     );
 
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
-    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 50);
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 46);
   } else {
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
-    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 30);
+    ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 28);
   }
 }
 
@@ -122,9 +122,15 @@ function drawControlsHint(
 
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_DIM;
-  const soundLabel = state.soundEnabled ? 'MUSIC ON' : 'MUSIC OFF';
-  ctx.fillText(`ARROWS DRIVE  |  SPACE NITRO`, x + 12, y + 10);
-  ctx.fillText(`V CAR  |  ${soundLabel}  |  ESC QUIT`, x + 12, y + 30);
+  ctx.textAlign = 'left';
+  ctx.fillText('WASD/ARROWS  |  SPACE NITRO', x + 12, y + 10);
+
+  ctx.fillText('V CAR', x + 12, y + 30);
+  const soundLabel = state.soundEnabled ? 'M MUSIC ON' : 'M MUSIC OFF';
+  ctx.fillText(soundLabel, x + 72, y + 30);
+  ctx.textAlign = 'right';
+  ctx.fillText('ESC QUIT', x + w - 12, y + 30);
+  ctx.textAlign = 'left';
 }
 
 function drawActiveEffects(

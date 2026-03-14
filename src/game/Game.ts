@@ -1014,7 +1014,7 @@ export class Game {
     this.overgrowthSpawnTimerMs = step.overgrowthSpawnTimerMs;
 
     if (step.shouldSpawn) {
-      const anchors = [...this.world.obstacles];
+      const anchors = [...this.world.obstacles, ...this.world.slowZones];
       const playerBounds = this.player ? this.player.getBounds() : null;
       const spawnBlockers = [
         ...(playerBounds ? [playerBounds] : []),

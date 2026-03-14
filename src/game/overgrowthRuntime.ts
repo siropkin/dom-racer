@@ -4,13 +4,11 @@ import { OVERGROWTH } from './gameConfig';
 import { cloneRect, randomBetween } from './gameRuntime';
 import { applyAdaptiveShadow } from './sprites';
 
-export type OvergrowthKind = 'bush' | 'tree';
-export type OvergrowthStage = 'small' | 'medium' | 'large';
+export type OvergrowthStage = 'grass' | 'bush' | 'tree';
 export type OvergrowthEdge = 'top' | 'right' | 'bottom' | 'left';
 
 export interface OvergrowthNode {
   id: string;
-  kind: OvergrowthKind;
   rect: Rect;
   anchorRect: Rect;
   anchorEdge: OvergrowthEdge;
@@ -24,12 +22,12 @@ export const OVERGROWTH_SPAWN_INTERVAL_MIN_MS = OVERGROWTH.SPAWN_INTERVAL_MIN_MS
 export const OVERGROWTH_SPAWN_INTERVAL_MAX_MS = OVERGROWTH.SPAWN_INTERVAL_MAX_MS;
 export const OVERGROWTH_MAX_NODES = OVERGROWTH.MAX_NODES;
 
-export const OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS = OVERGROWTH.GROWTH_SMALL_TO_MEDIUM_MS;
-export const OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS = OVERGROWTH.GROWTH_MEDIUM_TO_LARGE_MS;
+export const OVERGROWTH_GROWTH_GRASS_TO_BUSH_MS = OVERGROWTH.GROWTH_GRASS_TO_BUSH_MS;
+export const OVERGROWTH_GROWTH_BUSH_TO_TREE_MS = OVERGROWTH.GROWTH_BUSH_TO_TREE_MS;
 
-const OVERGROWTH_SMALL_DEPTH = 10;
-const OVERGROWTH_MEDIUM_DEPTH = 20;
-const OVERGROWTH_LARGE_DEPTH = 32;
+const OVERGROWTH_GRASS_DEPTH = 10;
+const OVERGROWTH_BUSH_DEPTH = 20;
+const OVERGROWTH_TREE_DEPTH = 32;
 
 const OVERGROWTH_MIN_SPAN = 18;
 const OVERGROWTH_MAX_SPAN = 44;
@@ -39,7 +37,6 @@ export interface OvergrowthSpawnStep {
   shouldSpawn: boolean;
 }
 
-/** Checks whether a new overgrowth node should spawn this frame. */
 export function resolveOvergrowthSpawnStep(options: {
   overgrowthSpawnTimerMs: number;
   runElapsedMs: number;
@@ -68,7 +65,6 @@ export function getOvergrowthRespawnDelayMs(): number {
   return randomBetween(OVERGROWTH_SPAWN_INTERVAL_MIN_MS, OVERGROWTH_SPAWN_INTERVAL_MAX_MS);
 }
 
-/** Attempts to place a new overgrowth node along a random barrier edge. */
 export function trySpawnOvergrowthNode(
   anchors: Rect[],
   existingNodes: OvergrowthNode[],
@@ -87,7 +83,7 @@ export function trySpawnOvergrowthNode(
 
     for (const edge of shuffledEdges) {
       const span = randomBetween(OVERGROWTH_MIN_SPAN, OVERGROWTH_MAX_SPAN);
-      const rect = computeOvergrowthRect(anchor, edge, OVERGROWTH_SMALL_DEPTH, span);
+      const rect = computeOvergrowthRect(anchor, edge, OVERGROWTH_GRASS_DEPTH, span);
       if (!rect) {
         continue;
       }
@@ -105,14 +101,12 @@ export function trySpawnOvergrowthNode(
         continue;
       }
 
-      const kind: OvergrowthKind = Math.random() < OVERGROWTH.BUSH_CHANCE ? 'bush' : 'tree';
       return {
-        id: `overgrowth:${kind}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
-        kind,
+        id: `overgrowth:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
         rect,
         anchorRect: cloneRect(anchor),
         anchorEdge: edge,
-        stage: 'small',
+        stage: 'grass',
         growthMs: 0,
         spawnedAtRunMs: runElapsedMs,
       };
@@ -122,7 +116,6 @@ export function trySpawnOvergrowthNode(
   return null;
 }
 
-/** Advances growth timers on all overgrowth nodes, promoting stages when thresholds are reached. */
 export function advanceOvergrowthGrowth(
   nodes: OvergrowthNode[],
   dtSeconds: number,
@@ -132,14 +125,14 @@ export function advanceOvergrowthGrowth(
   for (const node of nodes) {
     node.growthMs += deltaMs;
 
-    if (node.stage === 'small' && node.growthMs >= OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS) {
-      node.stage = 'medium';
+    if (node.stage === 'grass' && node.growthMs >= OVERGROWTH_GROWTH_GRASS_TO_BUSH_MS) {
+      node.stage = 'bush';
       node.growthMs = 0;
-      node.rect = growRect(node.anchorRect, node.anchorEdge, OVERGROWTH_MEDIUM_DEPTH, node.rect);
-    } else if (node.stage === 'medium' && node.growthMs >= OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS) {
-      node.stage = 'large';
+      node.rect = growRect(node.anchorRect, node.anchorEdge, OVERGROWTH_BUSH_DEPTH, node.rect);
+    } else if (node.stage === 'bush' && node.growthMs >= OVERGROWTH_GROWTH_BUSH_TO_TREE_MS) {
+      node.stage = 'tree';
       node.growthMs = 0;
-      node.rect = growRect(node.anchorRect, node.anchorEdge, OVERGROWTH_LARGE_DEPTH, node.rect);
+      node.rect = growRect(node.anchorRect, node.anchorEdge, OVERGROWTH_TREE_DEPTH, node.rect);
     }
   }
 
@@ -148,12 +141,12 @@ export function advanceOvergrowthGrowth(
 
 export function getOvergrowthSlowZones(nodes: OvergrowthNode[]): Rect[] {
   return nodes
-    .filter((node) => node.stage === 'small' || node.stage === 'medium')
+    .filter((node) => node.stage === 'grass' || node.stage === 'bush')
     .map((node) => cloneRect(node.rect));
 }
 
 export function getOvergrowthObstacles(nodes: OvergrowthNode[]): Rect[] {
-  return nodes.filter((node) => node.stage === 'large').map((node) => cloneRect(node.rect));
+  return nodes.filter((node) => node.stage === 'tree').map((node) => cloneRect(node.rect));
 }
 
 function getUsableEdges(anchor: Rect): OvergrowthEdge[] {
@@ -262,39 +255,19 @@ function growRect(
 // Overgrowth rendering
 // ---------------------------------------------------------------------------
 
-interface ClusterStyle {
+interface OvergrowthStyle {
   body: string;
   dark: string;
   light: string;
   alpha: number;
+  trunk?: string;
+  branch?: string;
 }
 
-const BUSH_STYLES: Readonly<Record<OvergrowthStage, ClusterStyle>> = {
-  small: { body: '#4ade80', dark: '#16a34a', light: '#bbf7d0', alpha: 0.55 },
-  medium: { body: '#22c55e', dark: '#15803d', light: '#86efac', alpha: 0.75 },
-  large: { body: '#16a34a', dark: '#166534', light: '#4ade80', alpha: 0.92 },
-};
-
-const TREE_STYLES: Readonly<
-  Record<OvergrowthStage, ClusterStyle & { trunk: string; branch: string }>
-> = {
-  small: {
-    body: '#34d399',
-    dark: '#059669',
-    light: '#a7f3d0',
-    alpha: 0.55,
-    trunk: '#92400e',
-    branch: '#a16207',
-  },
-  medium: {
-    body: '#10b981',
-    dark: '#047857',
-    light: '#6ee7b7',
-    alpha: 0.75,
-    trunk: '#78350f',
-    branch: '#92400e',
-  },
-  large: {
+const OVERGROWTH_STYLES: Readonly<Record<OvergrowthStage, OvergrowthStyle>> = {
+  grass: { body: '#86efac', dark: '#4ade80', light: '#dcfce7', alpha: 0.45 },
+  bush: { body: '#22c55e', dark: '#15803d', light: '#86efac', alpha: 0.75 },
+  tree: {
     body: '#059669',
     dark: '#064e3b',
     light: '#34d399',
@@ -354,7 +327,6 @@ function getOvergrowthEntryScale(growthMs: number): number {
   return 0.6 + clamp(growthMs / 1200, 0, 1) * 0.4;
 }
 
-/** Renders all active overgrowth nodes (bushes and trees) with growth and sway animation. */
 export function drawOvergrowthNodes(
   ctx: CanvasRenderingContext2D,
   nodes: OvergrowthNode[],
@@ -366,16 +338,16 @@ export function drawOvergrowthNodes(
 
   ctx.save();
   for (const node of nodes) {
-    if (node.kind === 'bush') {
-      drawOvergrowthBush(ctx, node, nowMs);
-    } else {
+    if (node.stage === 'tree') {
       drawOvergrowthTree(ctx, node, nowMs);
+    } else {
+      drawOvergrowthCluster(ctx, node, nowMs);
     }
   }
   ctx.restore();
 }
 
-function drawOvergrowthBush(
+function drawOvergrowthCluster(
   ctx: CanvasRenderingContext2D,
   node: OvergrowthNode,
   nowMs: number,
@@ -384,13 +356,13 @@ function drawOvergrowthBush(
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
   const scale = getOvergrowthEntryScale(growthMs);
-  const style = BUSH_STYLES[stage];
+  const style = OVERGROWTH_STYLES[stage];
 
   const sway = Math.sin(nowMs / 1100 + cx * 0.013) * 0.7;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
   const spread = Math.min(rect.width, rect.height) * 0.5 * scale;
   const seed = ((cx * 7.3 + cy * 13.7) | 0) & 0xff;
-  const count = stage === 'small' ? 4 : stage === 'medium' ? 6 : 8;
+  const count = stage === 'grass' ? 3 : 6;
   const clusters = buildClusterLayout(count, spread, seed);
 
   ctx.save();
@@ -425,11 +397,11 @@ function drawOvergrowthTree(
   node: OvergrowthNode,
   nowMs: number,
 ): void {
-  const { rect, stage, growthMs } = node;
+  const { rect, growthMs } = node;
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
   const scale = getOvergrowthEntryScale(growthMs);
-  const style = TREE_STYLES[stage];
+  const style = OVERGROWTH_STYLES.tree;
 
   const sway = Math.sin(nowMs / 1300 + cx * 0.011) * 0.5;
   const entryAlpha = 0.7 + clamp(growthMs / 800, 0, 1) * 0.3;
@@ -445,8 +417,8 @@ function drawOvergrowthTree(
   ctx.ellipse(cx, cy + spread * 0.12, spread * 0.65, spread * 0.45, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const branchCount = stage === 'small' ? 3 : stage === 'medium' ? 4 : 5;
-  ctx.strokeStyle = style.branch;
+  const branchCount = 5;
+  ctx.strokeStyle = style.branch!;
   ctx.lineCap = 'round';
   ctx.lineWidth = Math.max(1.2, spread * 0.1);
   for (let i = 0; i < branchCount; i += 1) {
@@ -460,15 +432,15 @@ function drawOvergrowthTree(
   ctx.lineCap = 'butt';
 
   const trunkR = Math.max(2, spread * 0.14);
-  ctx.fillStyle = style.trunk;
+  ctx.fillStyle = style.trunk!;
   ctx.beginPath();
   ctx.arc(cx, cy, trunkR, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = style.branch;
+  ctx.strokeStyle = style.branch!;
   ctx.lineWidth = 0.6;
   ctx.stroke();
 
-  const count = stage === 'small' ? 4 : stage === 'medium' ? 6 : 9;
+  const count = 9;
   const clusters = buildClusterLayout(count, spread, seed);
 
   for (const c of clusters) {

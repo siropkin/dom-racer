@@ -131,6 +131,10 @@ function classifyElement(
     return [toScannedElement('pickup', element, rect, fixed)];
   }
 
+  if (isFormControl(element, rect, viewportArea, fixed)) {
+    return [toScannedElement('wall', element, rect, fixed)];
+  }
+
   if (['img', 'picture'].includes(tag)) {
     return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
   }
@@ -449,6 +453,64 @@ function isPickupButton(
     (element instanceof HTMLInputElement ? element.value : element.textContent?.trim()) ||
     '';
   return label.trim().length > 0;
+}
+
+const FORM_INPUT_TYPES = new Set([
+  'text',
+  'email',
+  'password',
+  'search',
+  'url',
+  'tel',
+  'number',
+  'date',
+  'radio',
+  'checkbox',
+]);
+
+function isFormControl(
+  element: HTMLElement,
+  rect: Rect,
+  viewportArea: number,
+  fixed: boolean,
+): boolean {
+  if (fixed) {
+    return false;
+  }
+
+  const tag = element.tagName.toLowerCase();
+  if (tag === 'textarea' || tag === 'select') {
+    // ok
+  } else if (tag === 'input' && element instanceof HTMLInputElement) {
+    const inputType = (element.type || 'text').toLowerCase();
+    if (!FORM_INPUT_TYPES.has(inputType)) {
+      return false;
+    }
+  } else {
+    return false;
+  }
+
+  if (
+    (element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement ||
+      element instanceof HTMLSelectElement) &&
+    element.disabled
+  ) {
+    return false;
+  }
+
+  const area = rect.width * rect.height;
+  if (area < 120 || area > viewportArea * 0.15) {
+    return false;
+  }
+
+  if (
+    element.closest('header, nav, footer, [role="navigation"], [role="tablist"], [role="menu"]')
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 function capPickups(elements: ScannedElement[]): ScannedElement[] {

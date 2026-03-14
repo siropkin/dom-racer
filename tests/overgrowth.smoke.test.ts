@@ -5,8 +5,8 @@ import {
   getOvergrowthSlowZones,
   resolveOvergrowthSpawnStep,
   trySpawnOvergrowthNode,
-  OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS,
-  OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS,
+  OVERGROWTH_GROWTH_BUSH_TO_TREE_MS,
+  OVERGROWTH_GROWTH_GRASS_TO_BUSH_MS,
   OVERGROWTH_MAX_NODES,
   OVERGROWTH_SPAWN_START_MS,
   type OvergrowthNode,
@@ -86,71 +86,66 @@ describe('overgrowth spawn, growth, collision smoke invariants', () => {
     expect(step.shouldSpawn).toBe(false);
   });
 
-  it('spawns overgrowth nodes from barrier anchors', () => {
+  it('spawns overgrowth nodes as grass from barrier anchors', () => {
     const anchors = [
       { x: 0, y: 0, width: 200, height: 60 },
       { x: 0, y: 700, width: 200, height: 40 },
     ];
     const node = trySpawnOvergrowthNode(anchors, [], [], 40_000);
     expect(node).not.toBeNull();
-    expect(node!.stage).toBe('small');
-    expect(node!.kind === 'bush' || node!.kind === 'tree').toBe(true);
+    expect(node!.stage).toBe('grass');
     expect(node!.rect.width).toBeGreaterThan(0);
     expect(node!.rect.height).toBeGreaterThan(0);
   });
 
-  it('grows overgrowth from small to medium to large', () => {
+  it('grows overgrowth from grass to bush to tree', () => {
     const nodes: OvergrowthNode[] = [
       {
         id: 'test:overgrowth:1',
-        kind: 'bush',
         rect: { x: 50, y: 60, width: 30, height: 10 },
         anchorRect: { x: 0, y: 0, width: 200, height: 60 },
         anchorEdge: 'bottom',
-        stage: 'small',
+        stage: 'grass',
         growthMs: 0,
         spawnedAtRunMs: 35_000,
       },
     ];
 
-    advanceOvergrowthGrowth(nodes, OVERGROWTH_GROWTH_SMALL_TO_MEDIUM_MS / 1000 + 0.1);
-    expect(nodes[0].stage).toBe('medium');
+    advanceOvergrowthGrowth(nodes, OVERGROWTH_GROWTH_GRASS_TO_BUSH_MS / 1000 + 0.1);
+    expect(nodes[0].stage).toBe('bush');
     expect(nodes[0].rect.height).toBeGreaterThan(10);
 
-    advanceOvergrowthGrowth(nodes, OVERGROWTH_GROWTH_MEDIUM_TO_LARGE_MS / 1000 + 0.1);
-    expect(nodes[0].stage).toBe('large');
+    advanceOvergrowthGrowth(nodes, OVERGROWTH_GROWTH_BUSH_TO_TREE_MS / 1000 + 0.1);
+    expect(nodes[0].stage).toBe('tree');
     expect(nodes[0].rect.height).toBeGreaterThan(20);
   });
 
-  it('classifies small/medium overgrowth as slow zones and large as obstacles', () => {
+  it('classifies grass/bush overgrowth as slow zones and tree as obstacles', () => {
     const nodes: OvergrowthNode[] = [
       {
-        id: 'test:overgrowth:small',
-        kind: 'bush',
+        id: 'test:overgrowth:grass',
         rect: { x: 50, y: 60, width: 30, height: 10 },
         anchorRect: { x: 0, y: 0, width: 200, height: 60 },
         anchorEdge: 'bottom',
-        stage: 'small',
+        stage: 'grass',
         growthMs: 0,
         spawnedAtRunMs: 35_000,
       },
       {
-        id: 'test:overgrowth:medium',
-        kind: 'tree',
+        id: 'test:overgrowth:bush',
         rect: { x: 100, y: 60, width: 30, height: 20 },
         anchorRect: { x: 0, y: 0, width: 200, height: 60 },
         anchorEdge: 'bottom',
-        stage: 'medium',
+        stage: 'bush',
         growthMs: 0,
         spawnedAtRunMs: 36_000,
       },
       {
-        id: 'test:overgrowth:large',
-        kind: 'tree',
+        id: 'test:overgrowth:tree',
         rect: { x: 150, y: 60, width: 30, height: 32 },
         anchorRect: { x: 0, y: 0, width: 200, height: 60 },
         anchorEdge: 'bottom',
-        stage: 'large',
+        stage: 'tree',
         growthMs: 0,
         spawnedAtRunMs: 37_000,
       },
@@ -169,11 +164,10 @@ describe('overgrowth spawn, growth, collision smoke invariants', () => {
     (game as any).overgrowthNodes = [
       {
         id: 'stale:overgrowth',
-        kind: 'bush',
         rect: { x: 50, y: 60, width: 30, height: 10 },
         anchorRect: { x: 0, y: 0, width: 200, height: 60 },
         anchorEdge: 'bottom',
-        stage: 'small',
+        stage: 'grass',
         growthMs: 0,
         spawnedAtRunMs: 35_000,
       },
