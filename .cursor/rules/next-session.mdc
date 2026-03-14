@@ -54,8 +54,8 @@ First, read:
 
 ## Current State
 
-Phases 1-15 complete.
-Phase 15 delivered: Popup visual language unified with HUD (accent bars, darker bg, minimal rounding, shape-prefixed special tags), pixel-art wordmark in README and branding SVGs, README shortened and inaccuracies fixed, store listing refreshed.
+Phases 1-16 complete.
+Phase 16 delivered: Discovery research for helicopter and train encounters. Design memos in `docs/discovery-helicopter-train.md`. Recommendation: build helicopter as Phase 17, spike train rail detection separately.
 
 ## Phase 9 — Play-test Polish (UX, specials overhaul, screens)
 
