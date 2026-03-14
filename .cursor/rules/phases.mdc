@@ -34,7 +34,8 @@ alwaysApply: false
 | 23 | `pending` | Debug screen (sprite showcase) polish |
 | 24 | `pending` | HUD text fitting & layout |
 | 25 | `pending` | Code refactoring & production readiness |
-| 26 | `pending` | Git hygiene (.cursor removal) |
+| 26 | `pending` | Game state collision & edge-case testing |
+| 27 | `pending` | Git hygiene (.cursor removal) |
 
 ## Phase Summaries
 

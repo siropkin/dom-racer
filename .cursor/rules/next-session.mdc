@@ -156,15 +156,50 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [ ] Update SOUL.md, README.md with final test count and bundle size
 - [ ] Commit
 
-## Phase 26 — Git Hygiene
+## Phase 26 — Game State Collision & Edge-Case Testing
 
-### 26A. Remove .cursor from Git Tracking
+### 26A. Encounter Overlap Stress Tests
+- [ ] Write tests: what happens when police chase + train + plane are all scheduled to spawn at the same time? Verify stagger prevents triple-overlap.
+- [ ] Test: police chase starts during train warning phase — do both render correctly without visual conflicts?
+- [ ] Test: ghost activates during helicopter chase AND train crossing simultaneously — both should be dismissed/immune
+- [ ] Test: game over from train collision while police chase is active — verify clean state teardown (no orphaned audio/timers)
+- [ ] Test: game over from police catch while train is in warning phase — verify train state is cleared
+
+### 26B. Effect Interaction Tests
+- [ ] Test: all 9 special effects activated in rapid succession — no crashes, timers don't interfere
+- [ ] Test: mystery resolves to each possible effect — no edge-case crashes
+- [ ] Test: invert + blur active simultaneously — both clear correctly when timers expire
+- [ ] Test: oil_slick + reverse active simultaneously — speed and steering both affected, both clear independently
+- [ ] Test: magnet pulls coins while ghost is active — should work (ghost only affects collisions, not magnet pull)
+
+### 26C. Lifecycle Edge Cases
+- [ ] Test: rapid restart (R key) during police chase — clean state reset, no stale timers
+- [ ] Test: rapid restart during train crossing — clean state reset
+- [ ] Test: pause/unpause during game over screen — should not resume gameplay
+- [ ] Test: beginRun resets ALL stateful fields — audit every field in Game.ts constructor vs beginRun for mismatches
+- [ ] Test: multiple beginRun calls in rapid succession — no double-initialization or leaked state
+
+### 26D. Boundary & Overflow Tests
+- [ ] Test: player at viewport edge during police chase — police doesn't get stuck outside bounds
+- [ ] Test: train crossing on very small viewport (400×300) — hitbox and visual still make sense
+- [ ] Test: very long run (simulated 5+ minutes) — no timer overflow, no memory growth from VFX particles or toast accumulation
+- [ ] Test: score overflow — verify score display handles 99999+ correctly
+- [ ] Test: overgrowth node count — verify nodes don't grow unbounded over long runs
+
+### 26E. Phase 26 Closeout
+- [ ] All new tests pass alongside existing 100
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 27 — Git Hygiene
+
+### 27A. Remove .cursor from Git Tracking
 - [ ] Run `git rm --cached .cursor/rules/next-session.mdc .cursor/rules/phases.mdc`
 - [ ] Verify `.cursor` is in `.gitignore` (it already is)
 - [ ] Commit with message "chore: remove .cursor rules from git tracking"
 - [ ] Verify `git ls-files .cursor/` returns nothing
 
-### 26B. Final Session Closeout
+### 27B. Final Session Closeout
 - [ ] `npm run test` green, `npm run build` clean
 - [ ] Update SOUL.md and next-session.mdc with final state
 - [ ] Create final commit
