@@ -10,271 +10,39 @@ First, read:
 - `SOUL.md` (project context for AI agents)
 - `README.md`
 - `.cursor/rules/phases.mdc` (development phases and learnings)
-- `docs/release-checklist.md`
 - `src/game/Game.ts`
 - `src/game/gameConfig.ts`
 - `src/game/gameRuntime.ts`
 - `src/game/gameStateTypes.ts`
-- `src/game/gameRunStateRuntime.ts`
-- `src/game/gameEconomyRuntime.ts`
-- `src/game/pickupSpawnRuntime.ts`
 - `src/game/encounterRuntime.ts`
-- `src/game/planeDropRuntime.ts`
-- `src/game/gameRenderRuntime.ts`
-- `src/game/vfxRuntime.ts`
-- `src/game/gameOverlays.ts`
-- `src/game/gameHudAudioRuntime.ts`
-- `src/game/gameInputRuntime.ts`
-- `src/game/gameEffectsRuntime.ts`
-- `src/game/sprites/planeSprite.ts`
-- `src/game/sprites/playerSprite.ts`
-- `src/game/sprites/policeSprite.ts`
-- `src/game/sprites/pickupSprites.ts`
-- `src/game/sprites/spriteHelpers.ts`
-- `src/game/sprites/index.ts`
 - `src/game/overgrowthRuntime.ts`
-- `src/game/nearMissRuntime.ts`
-- `src/game/microObjectiveRuntime.ts`
+- `src/game/gameRenderRuntime.ts`
+- `src/game/gameOverlays.ts`
+- `src/game/sprites/pickupSprites.ts`
+- `src/game/sprites/policeSprite.ts`
+- `src/game/sprites/planeSprite.ts`
+- `src/game/sprites/spriteHelpers.ts`
+- `src/game/audio.ts`
+- `src/game/hud.ts`
 - `src/content/domScanner.ts`
-- `src/content/main.ts`
 - `src/content/worldBuilder.ts`
 - `src/shared/types.ts`
-- `src/shared/color.ts`
-- `vite.config.ts`
-- `package.json`
-- `tests/testHelpers.ts`
-- `tests/economy.smoke.test.ts`
-- `tests/specials.smoke.test.ts`
-- `tests/encounters.smoke.test.ts`
-- `tests/overgrowth.smoke.test.ts`
-- `tests/nearMiss.smoke.test.ts`
-- `tests/objectives.smoke.test.ts`
-- `tests/vfx.smoke.test.ts`
-- `tests/scannerWorld.smoke.test.ts`
+- `docs/discovery-helicopter-train.md`
 
 ## Current State
 
-Phases 1-16 complete.
-Phase 16 delivered: Discovery research for helicopter and train encounters. Design memos in `docs/discovery-helicopter-train.md`. Recommendation: build helicopter as Phase 17, spike train rail detection separately.
+Phases 1-16 complete. 81 smoke tests across 8 files. All passing, clean build.
 
-## Phase 9 — Play-test Polish (UX, specials overhaul, screens)
-
-### 9A. Toast System Overhaul
-- [x] Increase toast TTL — messages disappear too fast to read (PICKUP_TTL_MS: 700→1200, EFFECT_TTL_MS: 900→1400)
-- [x] Coin pickup toasts: show collected amount (`+10`, `+50`) instead of flavor words like "SWEET!"
-- [x] Remove encounter-start toasts: no toast for police warning ("WEE-OO"), police spawn ("POLICE!"), or plane ("PLANE") — edge screen indicators are sufficient
-- [x] Keep "ESCAPED" but replace it with a celebration animation (like goal-complete but visually distinct — maybe green burst particles + chime)
-- [x] Run-start toasts ("RUN #N", "TODAY: modifier") display too fast — increase TTL or use a different presentation (e.g., brief center-screen text that fades)
-
-### 9B. Specials Overhaul
-**Remove:** BLACKOUT, COOLDOWN, LURE (blackout too aggressive, cooldown/lure too abstract)
-**Keep:** BONUS (+40 instant), MAGNET (pull coins), INVERT (flip colors), GHOST (phase through), JACKPOT (rare +50-100)
-**Add new:**
-- [x] **BLUR** — CSS `filter: blur(...)` on page for ~4-5s. Hazy/dreamy, still playable but challenging visibility. Replaces blackout as the "hard to see" effect.
-- [x] **OIL_SLICK** — Negative. Dramatically slows car for ~3-4s. Dark/oily visual cue.
-- [x] **REVERSE** — Negative. Flips steering controls for ~3-4s. Disorienting and funny.
-- [x] **MYSTERY** — "?" symbol pickup. Randomly activates any other special (good or bad). Medium spawn frequency.
-
-New special lineup (9 total): BONUS, MAGNET, INVERT, GHOST, JACKPOT, BLUR, OIL_SLICK, REVERSE, MYSTERY
-- Update `gameConfig.ts` EFFECTS section (remove blackout/cooldown/lure durations, add blur/oil_slick/reverse)
-- Update `gameRuntime.ts` (`pickSpecialEffect`, `getSpecialColor`, `getSpecialLabel`, remove `adaptBlackoutEffectForSurface`)
-- Update `gameEffectsRuntime.ts` (new effect timers + activation logic)
-- Update `Game.ts` (new effect application, remove blackout/cooldown/lure wiring)
-- Update `hud.ts` (HUD bar display for new effects)
-- Update `sprites/pickupSprites.ts` (new pickup visuals: blur=haze icon, oil_slick=dark blob, reverse=arrows, mystery=?)
-- Update `gameOverlays.ts` showcase
-- Update `content/main.ts` (CSS blur effect on page, remove blackout CSS)
-- Update all affected tests
-- Remove daily modifier SLIPPERY interactions with old effects
-
-### 9C. Game Over Screen Simplification
-- [x] Remove stats detail row (coins, time, near-misses, goals count)
-- [x] Remove letter grade (S/A/B/C/D) and `computeRunGrade` function
-- [x] Keep: RUN #, "BUSTED BY POLICE", "GAME OVER", SCORE, restart/quit prompts
-- [x] Result: cleaner, less busy screen
-
-### 9D. Pause System Fixes
-- [x] Freeze ALL timers when paused: power-up effect timers, objective timer, police chase timer, coin spawn timer, overgrowth timer, plane timer, special spawn timer
-- [x] Currently `tick()` short-circuits on pause but timers use `performance.now()` deltas — ensure no timer drift by compensating `startTimeMs` on unpause
-- [x] Game over state should NOT trigger pause overlay when tab loses focus
-- [x] "Return to the tab to resume" text: change animation to match game-over flashing (`Math.sin(...)` toggle between 1 and 0.72)
-
-### 9E. Overlay Screens (Paused + Game Over)
-- [x] Remove dark background fill (`rgba(2, 6, 23, 0.86/0.94)`) — make background transparent
-- [x] Add text stroke/contour borders to all text elements so they remain readable on any page surface (dark and bright)
-- [x] Apply to both `drawPausedOverlay` and `drawCaughtGameOverOverlay` in `gameOverlays.ts`
-
-### 9F. Controls Hint Panel
-- [x] Sound indicator: replace colored ON/OFF chip (`drawSoundStateChip`) with plain text "MUSIC ON" / "MUSIC OFF" in same style as other text
-- [x] Uniform text color: all text in controls hint uses the same color (HUD_TEXT_DIM), no special coloring for arrows/esc lines
-
-### 9G. Airplane Fixes
-- [x] Coin trail position: spawn trail coins BEHIND the plane (along already-flown path), not at/ahead of current position
-- [x] Coin trail persistence: remove TTL expiry (`COIN_TRAIL_DURATION_MS`), let trail coins stay like regular coins until collected
-- [x] Remove `PlaneCoinTrailState` tracking and `advancePlaneCoinTrailState` cleanup logic
-- [x] Only specials should have timed expiry, not regular coins
-
-### 9H. Ice Physics Tuning
-- [x] More lateral drift on ice — car should slide sideways more noticeably
-- [x] Less forward momentum on ice — reduce forward speed retention
-- [x] Player should feel the drift happening, not just "moving forward on a slippery surface"
-- [x] Tune `PLAYER.ICE_*` constants: increase `ICE_DRIFT_ACCELERATION`, decrease `ICE_FRICTION`, adjust `ICE_RESPONSE`
-
-### 9I. Screen-Size Scaling
-- [x] Power-up durations scale with viewport area: larger screens → proportionally longer effect durations
-- [x] Police chase timers scale similarly: larger screens → proportionally longer chase/escape windows
-- [x] Reference size: ~1280×720 = baseline. Scale factor = `sqrt(viewportArea / referenceArea)`
-- [x] Apply scale factor in `beginRun` or when effects activate, not in config constants
-
-### 9J. Global Settings
-- [x] Sound preference saved globally via `chrome.storage.local` with a shared key (not per-page)
-- [x] When sound is toggled in one tab, other tabs pick it up on next game start (no live sync needed, just shared persistence)
-- [x] Check `src/shared/` persistence helpers for current storage approach and unify
-
-### 9K. Phase 9 Closeout
-- [x] Refactor & simplify: remove all dead code from removed specials (blackout/cooldown/lure), extract duplication, clean up function signatures that lost parameters
-- [x] Productionize: no debug artifacts, no `console.log`, no `__domRacerDebug`, no TODO hacks
-- [x] Update tests: fix broken tests (specials tests will break heavily), add tests for new specials (blur, oil_slick, reverse, mystery), `npm run test` green
-- [x] Lint & format: `npm run lint:fix && npm run format`, zero warnings
-- [x] Build: `npm run build` clean
-- [x] Docs: update `SOUL.md` (new specials list, removed features), `README.md` (power-ups section), `next-session.mdc` (essential context), `phases.mdc` (mark phase 9 done, add learnings)
-- [x] Commit: single clean commit for phase deliverables
-
-## Phase 10 — Audio, Visuals & Presentation
-
-### 10A. Sound Volume
-- [x] Increase master gain (currently 0.42) — game sounds too quiet when user has background music
-- [x] Consider 0.65-0.75 range, or make volume configurable
-
-### 10B. Airplane Audio
-- [x] Add continuous propeller drone/buzz while plane is crossing the viewport (not just the single flyover SFX on entry)
-- [x] Drone should fade in as plane approaches, sustain while visible, fade out as it exits
-- [x] Better drop SFX — current `playPlaneDrop` is subtle, make it punchier
-
-### 10C. Airplane Sprite Redesign
-- [x] Redesign to look like a classic propeller biplane (currently doesn't look recognizable as airplane)
-- [x] Visible propeller, wings, tail, fuselage in `sprites/planeSprite.ts`
-- [x] Keep white contour borders for visibility
-
-### 10D. Adaptive Sprite Contrast
-- [x] Add adaptive outlines/shadows to ALL sprites based on background surface
-- [x] Dark outline/shadow on bright backgrounds, bright outline/glow on dark backgrounds
-- [x] Applies to: player car, police car, airplane, coins, special pickups, overgrowth nodes
-- [x] Use `estimatePageLightness` or per-sprite surface sampling to determine which outline to use
-- [x] Implement in `sprites/spriteHelpers.ts` as a shared utility
-
-### 10E. Extension Popup
-- [x] Create popup HTML/CSS/JS (`public/popup.html`, `src/popup/`)
-- [x] Add `"action": { "default_popup": "popup.html" }` to manifest.json
-- [x] Content: game name "DOM RACER", brief description, controls table, author name, Buy Me a Coffee link
-- [x] Style: indie 2D game aesthetic — pixel-ish fonts, dark background, accent colors matching game HUD, compact layout
-
-### 10F. README Update
-- [x] Add Buy Me a Coffee link: `https://buymeacoffee.com/ivan.seredkin`
-- [x] Update specials list (remove blackout/cooldown/lure, add blur/oil_slick/reverse/mystery) — done in 9K
-- [x] Update feature descriptions to match new state — done in 9K
-
-### 10G. Phase 10 Closeout
-- [x] Refactor & simplify: extract duplication, reduce file sizes, rename for clarity, remove dead code
-- [x] Productionize: no debug artifacts, no `console.log`, no `__domRacerDebug`, no TODO hacks
-- [x] Update tests: fix broken tests, add new tests for new features, `npm run test` green
-- [x] Lint & format: `npm run lint:fix && npm run format`, zero warnings
-- [x] Build: `npm run build` clean
-- [x] Docs: update `SOUL.md`, `README.md`, `next-session.mdc`, `phases.mdc`
-- [x] Commit: single clean commit for phase deliverables
-
-## Phase 11 — Scoring, Toasts & Naming Cleanup
-
-### 11A. Economy & Scoring Rework
-- [x] Make all score increments multiples of 10 — audit every scoring path
-- [x] Near-miss: remove scoring entirely (`scoreBonus → 0`), keep visual feedback (toast text + VFX particles)
-- [x] Objective completion toast: show actual points awarded ("+20", "+30", "+40") instead of multiplier label
-- [x] Adjust objective bonuses to multiples of 10: x2=+20 (keep), x3=35→30, x4=50→40
-- [x] Jackpot toast: show the actual randomized amount (e.g., "+70") instead of "JACKPOT!"
-- [x] BONUS special toast: show "+40" cleanly (currently "R-BON+40" — simplify to "+40")
-- [x] Daily modifier DOUBLE_COINS: verify it shows "+20" per coin (2×10), not confusing
-
-### 11B. Toast & Naming Simplification
-- [x] Simplify special HUD labels — "MAGNET" not "MAGNET CYAN", "GHOST" not "GHOST VIOLET", etc. in `getSpecialHudLabel`
-- [x] Simplify special activation toasts — "MAGNET" not "C-MAG", "BLUR" not "P-BLR", etc. in `getSpecialActivationMessage`
-- [x] Remove airplane drop toast — no toast near car when plane drops an item
-- [x] Remove airplane NYOOM progress bar from POWER panel — remove plane warning entry from `buildHudState` activeEffects
-- [x] Vehicle switch toast: dismiss previous vehicle toast before showing new one (fast V presses)
-
-### 11C. Police Chase & Airplane Fixes
-- [x] Reduce police chase base duration — currently 5600–7800ms, target ~4000–6000ms for shorter, more intense chases
-- [x] Fix airplane tail rotation — currently 90 degrees wrong in `planeSprite.ts`
-
-### 11D. Phase 11 Closeout
-- [x] Refactor & simplify
-- [x] Productionize
-- [x] Update tests
-- [x] Lint & format
-- [x] Build
-- [x] Docs (SOUL.md, README, next-session.mdc, phases.mdc)
-- [x] Commit
-
-## Phase 12 — HUD Redesign & Compatibility
-
-### 12A. HUD Layout Redesign
-- [x] Merge top-left (score/time) and bottom-left (page best / lifetime best) into one compact info block
-- [x] Remove controls hint panel entirely — extension popup now provides this info
-- [x] Add persistent daily modifier indicator in the HUD (small label, not a toast)
-- [x] Remove the daily modifier run-start toast (replaced by HUD indicator)
-- [x] Keep run-start toast "RUN #N" but remove "TODAY: ..." line
-
-### 12B. Hotkey & Popup Start
-- [x] Change game toggle hotkey from Shift+R to Shift+Space
-- [x] Keep Shift+Backtick as alternative (already exists in code)
-- [x] Add "Start Game" button to extension popup — sends message to content script to toggle the game
-- [x] Update popup text to show new hotkey (Shift+Space)
-
-### 12C. Scrollbar Fix
-- [x] Replace `overflow: hidden` with `scrollbar-gutter: stable` approach to prevent content jump when game starts
-- [x] Preserve scroll prevention (wheel + touchmove listeners stay)
-- [x] Test on pages with and without native scrollbars
-
-### 12D. Unsupported Page Detection
-- [x] After scanning, detect if the page has too few scannable elements for viable gameplay (too few coins, no obstacles)
-- [x] Show an indie-game-style "sad screen" on the canvas — friendly message like "This page doesn't have enough to race on" with a small sad car
-- [x] Dismissable with Esc or the toggle hotkey
-- [x] Handles Gmail, Figma, and other heavily-iframe'd or SPA pages gracefully
-
-### 12E. Phase 12 Closeout
-- [x] Refactor & simplify
-- [x] Productionize
-- [x] Update tests
-- [x] Lint & format
-- [x] Build
-- [x] Docs
-- [x] Commit
-
-## Phase 13 — Game Logic Audit & Branding
-
-### 13A. Code-Level Audit
-- [x] Verify all `gameConfig.ts` values are internally consistent (no stale references, no conflicting timers)
-- [x] Verify scoring math: every score path awards multiples of 10 (after Phase 11 changes)
-- [x] Verify timer interactions: pause/unpause drift compensation, effect timers, viewport scaling
-- [x] Verify economy flow: coins → score → objectives → bonuses → daily modifiers — all coherent
-- [x] Check for dead code, unused exports, orphaned config values
-
-### 13B. Design-Level Review & Branding
-- [x] Review each system's purpose: does it serve a clear, distinct gameplay role?
-- [x] Identify redundancies or overlapping feedback (e.g., are any toasts/visuals doubling up?)
-- [x] Verify difficulty curve matches SOUL.md arc: early (clean) → mid (decisions) → late (pressure) → failure (stylish retry)
-- [x] Document any recommendations for simplification or removal
-- [x] Redesign branding SVGs using the in-game coupe sprite from `playerSprite.ts`
-- [x] Update `dom-racer-icon.svg`, `dom-racer-store-cover.svg`, `dom-racer-store-tile.svg`
-- [x] Regenerate PNGs via `generate_assets.py`
-
-### 13C. Phase 13 Closeout
-- [x] Refactor & simplify
-- [x] Productionize
-- [x] Update tests
-- [x] Lint & format
-- [x] Build
-- [x] Docs
-- [x] Commit
+Key decisions from completed phases:
+- 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
+- Overgrowth: grass → bush → tree single escalation ladder
+- Special pickup shapes: helpful=rounded square+chevron, harmful=diamond, mystery=circle, jackpot=star
+- Form controls scanned as slow zones + overgrowth anchors
+- HUD controls: `WASD/ARROWS` left, `SPACE NITRO` right (no separators), line 2 fixed-position columns
+- Spawn strongly center-biased
+- All score increments multiples of 10
+- Pixel-art SVG wordmark in branding, block-character logo in README
+- Popup styled to match HUD (accent bars, minimal rounding, shape-prefixed special tags)
 
 ## Phase 17 — Police Helicopter Late-Game Escalation
 
@@ -415,72 +183,25 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [ ] Docs — update SOUL.md (add train encounter), README.md (add train to gameplay section), next-session.mdc, phases.mdc
 - [ ] Commit
 
-## Phase Closeout Protocol
-
-Every phase MUST end with a closeout pass (see `phases.mdc` for full protocol). In short:
-1. Refactor & simplify — dead code, duplication, naming
-2. Productionize — no debug artifacts or hacks
-3. Tests — green, updated, new coverage
-4. Lint & format — zero warnings
-5. Build — clean
-6. Docs — SOUL.md, README, next-session.mdc, phases.mdc all updated
-7. Commit — concise message summarizing deliverables
-
 ## Essential Context
 
 - `window.__domRacerDebug` must not exist in source/build.
-- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES). All runtime files import these groups directly.
-- `gameRuntime.ts` is a lean utility module: `cloneWorld`, `clonePickup`, `cloneRect`, `randomBetween`, `blendAngle`, `shufflePickups`, `isSpecialPickup`, `pickSpecialEffect`, `getFlavorText`, `getDailyModifier`, special/vehicle accessors, showcase data. No re-exports.
-- `SurfaceSample` interface lives in `gameStateTypes.ts` (not gameRuntime).
-- Police chase lifecycle (`resolvePoliceChaseTickStep`) in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time.
-- 9 special effects: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery.
-- Simplified micro-objectives: 6 coin-collection templates across x2/x3/x4 multiplier tiers. GOAL panel matches POWER panel pattern in HUD.
-- 5 airplane drop modes: bonus drop, coin trail, spotlight, lucky wind, police delay.
+- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES).
+- Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
-- ESLint + Prettier configured. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
+- ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
 - 81 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
-- Daily modifier system: `getDailyModifier()` in `gameRuntime.ts`, applied per-run in `beginRun`, 5 modifiers: DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, SLIPPERY, EARLY_OVERGROWTH.
-- Vehicle unlock thresholds: `VEHICLES` config in `gameConfig.ts`, `getUnlockedVehicleDesigns`/`getNextUnlockedVehicleDesign` in `gameRuntime.ts`. Unlock toast via `showVehicleUnlockToast` on Game.
-- Sound enrichment: coin pitch variation in `playPickup()`, `playNearMissWhoosh()`, `playObjectiveChime()` in `audio.ts`.
-- Adaptive sprite contrast: `setPageLightnessForSprites()` in `spriteHelpers.ts`, `applyAdaptiveShadow()`/`clearAdaptiveShadow()` used by all sprite renderers. Page lightness estimated once per run via `estimatePageLightness()`.
-- Extension popup: static HTML in `public/popup.html`, wired via `manifest.json` `action.default_popup`. No JS build step.
-- Propeller drone audio: `updatePropellerDrone()` in `audio.ts`, continuous buzz with fade-in/fade-out based on plane travel progress.
-- Master audio gain: 0.68 (increased from 0.42 in Phase 10).
-- All score increments are multiples of 10: coins=10, bonus=40, jackpot=50-100 (steps of 10), objectives=20/30/40, near-miss=0, special pickup value=0.
-- Near-miss: visual feedback only (toast word + VFX particles), no score bonus.
-- Objective bonuses: x2=+20, x3=+30, x4=+40. Toast shows just "+N", no completion word.
-- Special HUD labels: plain names ("MAGNET", "GHOST", etc.), no color suffixes.
-- Special activation toasts: plain names ("MAGNET", "INVERT", etc.), no cryptic codes.
-- Jackpot toast shows actual randomized amount ("+70"), not "JACKPOT!".
-- BONUS toast shows "+40", not "R-BON+40".
-- No airplane drop toasts (plane SFX and spawn cue ring are sufficient).
-- NYOOM progress bar removed from POWER panel (edge warning indicator remains).
-- Vehicle switch toast dedup: `toastSystem.dismissMatching()` clears previous vehicle toast before showing new one.
-- `TOAST.MAX_CHARS` increased to 9 (was 8) to accommodate "OIL SLICK".
-- Dead code removed in Phase 11 closeout: `SPECIAL_COLOR_NAMES`, `getSpecialColorName`, `getSpecialDropMessage`, `OBJECTIVE_SCORE_BONUS`, `OBJECTIVES.SCORE_BONUS`, `getObjectiveCompletionWord`, `NEAR_MISS.SCORE_MIN/MAX`.
-- Dead code removed in Phase 13A audit: `PICKUP_WORDS`, `PICKUP_COLORS`, `getNextVehicleDesign`, `VEHICLE_DESIGNS` array (from `gameRuntime.ts`); `OBJECTIVE_TOAST_TTL_MS` (from `microObjectiveRuntime.ts`); `'encounter'` variant from `HudEffectKind` type (from `types.ts`).
-- Phase 13 code audit: all config values internally consistent, all scoring paths produce multiples of 10, timer interactions correct (pause/unpause drift compensation, viewport scaling), economy flow coherent. No remaining dead code.
-- Phase 13 design review: all 10 game systems (coins, specials, police, plane, overgrowth, near-miss, objectives, daily modifiers, vehicles, VFX) confirmed distinct and non-overlapping. Difficulty curve matches SOUL.md arc. No gameplay changes recommended.
-- Branding refresh: `dom-racer-icon.svg`, `dom-racer-store-cover.svg`, `dom-racer-store-tile.svg` redesigned with in-game coupe sprite silhouette. Stale references (BLACKOUT, WEE-OO, Shift+R, COMBOS) removed from SVGs. All PNGs regenerated via `generate_assets.py`.
-- Phase 14 delivered: HUD controls fix, center-biased spawn, form control scanning, overgrowth ladder rewrite, special pickup shape grouping.
-- HUD controls panel: line 1 `WASD/ARROWS | SPACE NITRO`, line 2 fixed-position `V CAR`, `M MUSIC ON/OFF`, `ESC QUIT` to prevent jitter.
-- Info block rows use consistent 18px vertical spacing.
-- Spawn point targets viewport center (was bottom-biased at 82%).
-- Form controls (input/textarea/select/radio/checkbox) scanned as `wall` → `slowZones`, overgrowth anchors include `slowZones` in addition to `obstacles`.
-- Overgrowth: single `OvergrowthStage = 'grass' | 'bush' | 'tree'` ladder. `OvergrowthKind` removed. Config renamed: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. `BUSH_CHANCE` removed.
-- Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + upward chevron, harmful (blur/oil_slick/reverse) = diamond/rotated square, mystery = circle, jackpot = star (unchanged).
-- HUD merged into single top-left info block: score+time (row 1), best+life (row 2), daily modifier label (row 3).
-- Daily modifier shown as persistent HUD label ("TODAY: DOUBLE COINS"), not a run-start toast.
-- Game toggle hotkey changed from Shift+R to Shift+Space (Shift+Backtick still works).
-- Extension popup has "Start Game" button that sends `{ action: 'toggle-game' }` message to content script via `chrome.tabs.sendMessage`. Content script listens via `chrome.runtime.onMessage`.
-- `HudState` includes `dailyModifierLabel: string`, passed through `buildHudState`.
-- Scrollbar fix: only `<body>` gets `overflow: hidden`, `<html>` overflow is untouched so scrollbar stays visible and no content jump occurs. Wheel/touchmove listeners prevent actual scrolling.
-- Unsupported page detection: after `createWorld()` in `activate()`, if `pickups < 2` or total geometry (obstacles+slowZones+iceZones+boosts) < 1, draws a sleeping-car "sad screen" on the canvas instead of creating a Game. Dismissable with Esc or Shift+Space.
-
-## Upcoming Phases
-
-- **Phase 17 — Police Helicopter:** Late-game escalation. 3rd police chase becomes a helicopter (ignores obstacles, wide turns, rotor audio, searchlight). Extend `PoliceChaseState` with `variant` field. ~7 files + tests.
-- **Phase 18 — Train Encounter:** Environmental hazard on pages with long borders. Rail detection via obstacle post-processing + `<hr>` scanning. Caltrain-style sprite, instant game over on collision. Only spawns when page has valid rail candidates (~15-25% of pages). ~9 files + tests.
+- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time.
+- Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Config: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. Anchors from obstacles + slowZones.
+- Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + chevron, harmful (blur/oil_slick/reverse) = diamond, mystery = circle, jackpot = star.
+- Form controls (input/textarea/select/radio/checkbox) scanned as `wall` → `slowZones`.
+- All score increments multiples of 10. Near-miss is visual-only (no score).
+- Extension popup: static HTML in `public/popup.html`. No JS build step.
+- Adaptive sprite contrast: `applyAdaptiveShadow()`/`clearAdaptiveShadow()` in `spriteHelpers.ts`.
+- Branding: pixel-art SVG wordmark in `branding/`, PNGs generated via `generate_assets.py` using `rsvg-convert`.
+- Game toggle: Shift+Space (or Shift+Backtick). Popup "Start Game" button also toggles.
+- Scrollbar: only `<body>` gets `overflow: hidden`. Wheel/touchmove listeners prevent scrolling.
+- Unsupported page detection: sad screen when too few elements to race on.
 
 ## Constraints To Preserve
 
