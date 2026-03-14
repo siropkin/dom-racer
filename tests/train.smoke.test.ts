@@ -210,7 +210,8 @@ describe('train encounter smoke invariants', () => {
         { rect: { x: 0, y: 356, width: 1280, height: 4 }, axis: 'horizontal' },
       ]);
       train.phase = 'crossing';
-      train.progressPx = viewport.width / 2;
+      train.direction = 1;
+      train.progressPx = viewport.width;
 
       const playerOnRail: Rect = { x: 600, y: 352, width: 28, height: 16 };
       expect(checkTrainCollision(train, viewport, playerOnRail, false)).toBe(true);
