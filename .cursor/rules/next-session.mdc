@@ -159,18 +159,18 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 26 — Game State Collision & Edge-Case Testing
 
 ### 26A. Encounter Overlap Stress Tests
-- [ ] Write tests: what happens when police chase + train + plane are all scheduled to spawn at the same time? Verify stagger prevents triple-overlap.
-- [ ] Test: police chase starts during train warning phase — do both render correctly without visual conflicts?
-- [ ] Test: ghost activates during helicopter chase AND train crossing simultaneously — both should be dismissed/immune
-- [ ] Test: game over from train collision while police chase is active — verify clean state teardown (no orphaned audio/timers)
-- [ ] Test: game over from police catch while train is in warning phase — verify train state is cleared
+- [x] Write tests: what happens when police chase + train + plane are all scheduled to spawn at the same time? Verify stagger prevents triple-overlap.
+- [x] Test: police chase starts during train warning phase — do both render correctly without visual conflicts?
+- [x] Test: ghost activates during helicopter chase AND train crossing simultaneously — both should be dismissed/immune
+- [x] Test: game over from train collision while police chase is active — verify clean state teardown (no orphaned audio/timers)
+- [x] Test: game over from police catch while train is in warning phase — verify train state is cleared
 
 ### 26B. Effect Interaction Tests
-- [ ] Test: all 9 special effects activated in rapid succession — no crashes, timers don't interfere
-- [ ] Test: mystery resolves to each possible effect — no edge-case crashes
-- [ ] Test: invert + blur active simultaneously — both clear correctly when timers expire
-- [ ] Test: oil_slick + reverse active simultaneously — speed and steering both affected, both clear independently
-- [ ] Test: magnet pulls coins while ghost is active — should work (ghost only affects collisions, not magnet pull)
+- [x] Test: all 9 special effects activated in rapid succession — no crashes, timers don't interfere
+- [x] Test: mystery resolves to each possible effect — no edge-case crashes
+- [x] Test: invert + blur active simultaneously — both clear correctly when timers expire
+- [x] Test: oil_slick + reverse active simultaneously — speed and steering both affected, both clear independently
+- [x] Test: magnet pulls coins while ghost is active — should work (ghost only affects collisions, not magnet pull)
 
 ### 26C. Lifecycle Edge Cases
 - [ ] Test: rapid restart (R key) during police chase — clean state reset, no stale timers
