@@ -81,7 +81,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 100 smoke tests across 9 focused test files (160 KB bundle, 44 KB gzip)
+- 119 smoke tests across 10 focused test files (160 KB bundle, 44 KB gzip)
 
 ## Research References
 
