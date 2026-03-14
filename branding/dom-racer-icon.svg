@@ -8,52 +8,16 @@
     </pattern>
   </defs>
 
-  <!-- Pixel-art background: 8×8 diagonal color blocks (purple → cyan) -->
+  <!-- Pixel-art background: 8 horizontal stepped bands (dark → teal), matching store cover -->
   <g clip-path="url(#bg-clip)">
-    <!-- Row 0 -->
-    <rect x="72"  y="72" width="220" height="110" fill="#7c3aed"/>
-    <rect x="292" y="72" width="220" height="110" fill="#6d28d9"/>
-    <rect x="512" y="72" width="220" height="110" fill="#5b21b6"/>
-    <rect x="732" y="72" width="220" height="110" fill="#4338ca"/>
-    <!-- Row 1 -->
-    <rect x="72"  y="182" width="110" height="110" fill="#7c3aed"/>
-    <rect x="182" y="182" width="220" height="110" fill="#6d28d9"/>
-    <rect x="402" y="182" width="220" height="110" fill="#5b21b6"/>
-    <rect x="622" y="182" width="220" height="110" fill="#4338ca"/>
-    <rect x="842" y="182" width="110" height="110" fill="#2563eb"/>
-    <!-- Row 2 -->
-    <rect x="72"  y="292" width="220" height="110" fill="#6d28d9"/>
-    <rect x="292" y="292" width="220" height="110" fill="#5b21b6"/>
-    <rect x="512" y="292" width="220" height="110" fill="#4338ca"/>
-    <rect x="732" y="292" width="220" height="110" fill="#2563eb"/>
-    <!-- Row 3 -->
-    <rect x="72"  y="402" width="110" height="110" fill="#6d28d9"/>
-    <rect x="182" y="402" width="220" height="110" fill="#5b21b6"/>
-    <rect x="402" y="402" width="220" height="110" fill="#4338ca"/>
-    <rect x="622" y="402" width="220" height="110" fill="#2563eb"/>
-    <rect x="842" y="402" width="110" height="110" fill="#0284c7"/>
-    <!-- Row 4 -->
-    <rect x="72"  y="512" width="220" height="110" fill="#5b21b6"/>
-    <rect x="292" y="512" width="220" height="110" fill="#4338ca"/>
-    <rect x="512" y="512" width="220" height="110" fill="#2563eb"/>
-    <rect x="732" y="512" width="220" height="110" fill="#0284c7"/>
-    <!-- Row 5 -->
-    <rect x="72"  y="622" width="110" height="110" fill="#5b21b6"/>
-    <rect x="182" y="622" width="220" height="110" fill="#4338ca"/>
-    <rect x="402" y="622" width="220" height="110" fill="#2563eb"/>
-    <rect x="622" y="622" width="220" height="110" fill="#0284c7"/>
-    <rect x="842" y="622" width="110" height="110" fill="#0891b2"/>
-    <!-- Row 6 -->
-    <rect x="72"  y="732" width="220" height="110" fill="#4338ca"/>
-    <rect x="292" y="732" width="220" height="110" fill="#2563eb"/>
-    <rect x="512" y="732" width="220" height="110" fill="#0284c7"/>
-    <rect x="732" y="732" width="220" height="110" fill="#0891b2"/>
-    <!-- Row 7 -->
-    <rect x="72"  y="842" width="110" height="110" fill="#4338ca"/>
-    <rect x="182" y="842" width="220" height="110" fill="#2563eb"/>
-    <rect x="402" y="842" width="220" height="110" fill="#0284c7"/>
-    <rect x="622" y="842" width="220" height="110" fill="#0891b2"/>
-    <rect x="842" y="842" width="110" height="110" fill="#06b6d4"/>
+    <rect x="72" y="72"  width="880" height="110" fill="#020617"/>
+    <rect x="72" y="182" width="880" height="110" fill="#070820"/>
+    <rect x="72" y="292" width="880" height="110" fill="#0d0c2c"/>
+    <rect x="72" y="402" width="880" height="110" fill="#151339"/>
+    <rect x="72" y="512" width="880" height="110" fill="#1e1b4b"/>
+    <rect x="72" y="622" width="880" height="110" fill="#1a2c58"/>
+    <rect x="72" y="732" width="880" height="110" fill="#124c6c"/>
+    <rect x="72" y="842" width="880" height="110" fill="#0e7490"/>
   </g>
 
   <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#grid)"/>
