@@ -49,11 +49,7 @@ export function renderTrainSprite(
 // Rail flash effect (warning + crossing phases)
 // ---------------------------------------------------------------------------
 
-export function renderRailFlash(
-  ctx: CanvasRenderingContext2D,
-  train: TrainState,
-  now: number,
-): void {
+function renderRailFlash(ctx: CanvasRenderingContext2D, train: TrainState, now: number): void {
   const pulse = 0.15 + 0.25 * (0.5 + 0.5 * Math.sin(now / 80));
 
   ctx.save();

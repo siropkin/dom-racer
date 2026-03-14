@@ -134,32 +134,6 @@ export function getTrainRect(train: TrainState, viewport: ViewportSize): Rect {
   };
 }
 
-export function getTrainBodyRect(train: TrainState, viewport: ViewportSize): Rect {
-  if (train.axis === 'horizontal') {
-    const startX = train.direction === 1 ? -train.rail.width : viewport.width;
-    const currentX = startX + train.direction * train.progressPx;
-    const centerY = train.rail.y + train.rail.height / 2;
-
-    return {
-      x: currentX,
-      y: centerY - TRAIN.BODY_HEIGHT / 2,
-      width: train.rail.width,
-      height: TRAIN.BODY_HEIGHT,
-    };
-  }
-
-  const startY = train.direction === 1 ? -train.rail.height : viewport.height;
-  const currentY = startY + train.direction * train.progressPx;
-  const centerX = train.rail.x + train.rail.width / 2;
-
-  return {
-    x: centerX - TRAIN.BODY_HEIGHT / 2,
-    y: currentY,
-    width: TRAIN.BODY_HEIGHT,
-    height: train.rail.height,
-  };
-}
-
 // ---------------------------------------------------------------------------
 // Collision detection
 // ---------------------------------------------------------------------------

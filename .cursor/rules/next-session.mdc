@@ -22,8 +22,10 @@ First, read:
 - `src/game/sprites/policeSprite.ts`
 - `src/game/sprites/helicopterSprite.ts`
 - `src/game/sprites/planeSprite.ts`
+- `src/game/sprites/trainSprite.ts`
 - `src/game/sprites/spriteHelpers.ts`
 - `src/game/audio.ts`
+- `src/game/trainRuntime.ts`
 - `src/game/hud.ts`
 - `src/content/domScanner.ts`
 - `src/content/worldBuilder.ts`
@@ -32,7 +34,7 @@ First, read:
 
 ## Current State
 
-Phases 1-17 complete. Phase 18 tasks 18A-18H complete. 104 smoke tests across 9 files. All passing, clean build.
+Phases 1-18 complete. 104 smoke tests across 9 files. All passing, clean build.
 
 Key decisions from completed phases:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
@@ -45,6 +47,7 @@ Key decisions from completed phases:
 - Pixel-art SVG wordmark in branding, block-character logo in README
 - Popup styled to match HUD (accent bars, minimal rounding, shape-prefixed special tags)
 - Police helicopter from chase #3+: airborne movement (ignores obstacles/ice), rotor chop audio, amber "CHOPPER" edge warning, searchlight toward player
+- Train encounters: rail detection from `<hr>` elements + long thin obstacles, Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
 
 ## Phase 17 — Police Helicopter Late-Game Escalation
 
@@ -178,13 +181,13 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Test stagger with police/plane prevents overlap
 
 ### 18I. Phase 18 Closeout
-- [ ] Refactor & simplify
-- [ ] Productionize — no debug artifacts
-- [ ] Update tests — `npm run test` green
-- [ ] Lint & format — zero warnings
-- [ ] Build — clean
-- [ ] Docs — update SOUL.md (add train encounter), README.md (add train to gameplay section), next-session.mdc, phases.mdc
-- [ ] Commit
+- [x] Refactor & simplify
+- [x] Productionize — no debug artifacts
+- [x] Update tests — `npm run test` green
+- [x] Lint & format — zero warnings
+- [x] Build — clean
+- [x] Docs — update SOUL.md (add train encounter), README.md (add train to gameplay section), next-session.mdc, phases.mdc
+- [x] Commit
 
 ## Phase 19 — Branding Pixel-Art Backgrounds
 
@@ -220,7 +223,7 @@ Design reference: `docs/discovery-helicopter-train.md`
 ## Essential Context
 
 - `window.__domRacerDebug` must not exist in source/build.
-- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES).
+- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, TRAIN, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES).
 - Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
