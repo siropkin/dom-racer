@@ -95,6 +95,7 @@ export interface HudState {
   objectiveMultiplierLabel: string | null;
   policeChaseRemainingMs: number | null;
   policeChaseDurationMs: number | null;
+  policeChaseVariant: 'car' | 'helicopter' | null;
   activeEffects: Array<{
     effect: HudEffectKind;
     label: string;

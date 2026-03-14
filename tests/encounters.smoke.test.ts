@@ -7,6 +7,8 @@ import {
 } from '../src/game/planeDropRuntime';
 import {
   advancePoliceChasing,
+  createPoliceChase,
+  resolvePoliceChaseTickStep,
   resolvePlaneEncounterSchedulingStep,
 } from '../src/game/encounterRuntime';
 import { buildHudState } from '../src/game/gameHudAudioRuntime';
@@ -25,6 +27,7 @@ vi.mock('../src/game/audio', () => {
     playPlaneFlyover(): void {}
     playPlaneDrop(): void {}
     updatePropellerDrone(): void {}
+    updateHelicopterChop(): void {}
     async resume(): Promise<void> {}
   }
   return { AudioManager: MockAudioManager };
@@ -567,5 +570,116 @@ describe('police, plane, encounter stagger smoke invariants', () => {
     });
     expect(ready.shouldStartEncounter).toBe(true);
     expect(ready.planeBonusTimerMs).toBe(0);
+  });
+
+  it('spawns car variant for chase #1 and #2, helicopter for chase #3+', () => {
+    const viewport = { width: 1280, height: 720 };
+    const chase1 = createPoliceChase(viewport, 'right', 30000, 1, 1);
+    expect(chase1.variant).toBe('car');
+    const chase2 = createPoliceChase(viewport, 'right', 30000, 1, 2);
+    expect(chase2.variant).toBe('car');
+    const chase3 = createPoliceChase(viewport, 'right', 30000, 1, 3);
+    expect(chase3.variant).toBe('helicopter');
+    const chase4 = createPoliceChase(viewport, 'right', 30000, 1, 4);
+    expect(chase4.variant).toBe('helicopter');
+  });
+
+  it('helicopter ignores ice in chasing movement', () => {
+    const normalChase = {
+      x: 140,
+      y: 180,
+      angle: 0,
+      remainingMs: 6000,
+      durationMs: 6000,
+      phase: 'chasing' as const,
+      exitEdge: 'right' as const,
+      variant: 'helicopter' as const,
+    };
+    const iceChase = { ...normalChase };
+    const target = { x: 420, y: 180 };
+
+    advancePoliceChasing(normalChase, 0.5, target, 80, false);
+    advancePoliceChasing(iceChase, 0.5, target, 80, true);
+
+    const normalDist = Math.hypot(normalChase.x - 140, normalChase.y - 180);
+    const iceDist = Math.hypot(iceChase.x - 140, iceChase.y - 180);
+    expect(Math.abs(normalDist - iceDist)).toBeLessThan(0.1);
+  });
+
+  it('helicopter uses configured speed instead of score-based speed', () => {
+    const heliChase = {
+      x: 140,
+      y: 180,
+      angle: 0,
+      remainingMs: 6000,
+      durationMs: 6000,
+      phase: 'chasing' as const,
+      exitEdge: 'right' as const,
+      variant: 'helicopter' as const,
+    };
+    const carChase = {
+      x: 140,
+      y: 180,
+      angle: 0,
+      remainingMs: 6000,
+      durationMs: 6000,
+      phase: 'chasing' as const,
+      exitEdge: 'right' as const,
+      variant: 'car' as const,
+    };
+    const target = { x: 420, y: 180 };
+
+    advancePoliceChasing(heliChase, 0.5, target, 80, false);
+    advancePoliceChasing(carChase, 0.5, target, 80, false);
+
+    const heliDist = Math.hypot(heliChase.x - 140, heliChase.y - 180);
+    const carDist = Math.hypot(carChase.x - 140, carChase.y - 180);
+    expect(heliDist).not.toBeCloseTo(carDist, 0);
+  });
+
+  it('ghost dismisses helicopter chase same as car', () => {
+    const viewport = { width: 1280, height: 720 };
+    const chase = createPoliceChase(viewport, 'right', 60000, 1, 3);
+    expect(chase.variant).toBe('helicopter');
+    expect(chase.phase).toBe('chasing');
+
+    const result = resolvePoliceChaseTickStep({
+      viewport,
+      iceZones: [],
+      playerBounds: { x: 600, y: 350, width: 22, height: 12 },
+      playerCenter: { x: 611, y: 356 },
+      ghostActive: true,
+      policeChase: chase,
+      policeWarning: null,
+      policeSpawnTimerMs: 12000,
+      planeBonusActive: false,
+      planeWarningActive: false,
+      score: 100,
+      hasRunProgress: true,
+      runElapsedMs: 60000,
+      dtSeconds: 0.016,
+      policeChaseCount: 3,
+    });
+
+    expect(result.events).toContain('ghost-dismiss');
+    expect(result.policeChase?.phase).toBe('leaving');
+  });
+
+  it('chase duration escalation works for helicopter variant', () => {
+    const viewport = { width: 1280, height: 720 };
+    const earlyChase = createPoliceChase(viewport, 'right', 10000, 1, 3);
+    const lateChase = createPoliceChase(viewport, 'right', 150000, 1, 3);
+    expect(earlyChase.variant).toBe('helicopter');
+    expect(lateChase.variant).toBe('helicopter');
+    expect(lateChase.durationMs).toBeGreaterThan(earlyChase.durationMs - 1000);
+  });
+
+  it('resets chase count on beginRun', () => {
+    (game as any).beginRun('manual');
+    (game as any).running = true;
+    (game as any).policeChaseCount = 5;
+
+    (game as any).beginRun();
+    expect((game as any).policeChaseCount).toBe(0);
   });
 });

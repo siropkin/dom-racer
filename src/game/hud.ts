@@ -215,8 +215,10 @@ function buildGoalRows(state: HudState): GoalBarRow[] {
   const rows: GoalBarRow[] = [];
 
   if (state.policeChaseRemainingMs !== null && state.policeChaseDurationMs !== null) {
+    const policeText =
+      state.policeChaseVariant === 'helicopter' ? 'CHOPPER - ESCAPE!' : 'POLICE - ESCAPE!';
     rows.push({
-      text: 'POLICE - ESCAPE!',
+      text: policeText,
       color: '#f87171',
       timeRemainingMs: state.policeChaseRemainingMs,
       timeLimitMs: state.policeChaseDurationMs,

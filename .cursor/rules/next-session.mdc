@@ -31,7 +31,7 @@ First, read:
 
 ## Current State
 
-Phases 1-16 complete. 81 smoke tests across 8 files. All passing, clean build.
+Phases 1-16 complete. 87 smoke tests across 8 files. All passing, clean build.
 
 Key decisions from completed phases:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
@@ -78,18 +78,18 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Fade in/out matching existing drone/siren patterns
 
 ### 17E. Helicopter Rendering & HUD
-- [ ] Fix airplane render order: airplane should draw on top of the player car (higher z-index) since it flies overhead — adjust draw order in `gameRenderRuntime.ts`
-- [ ] In `gameRenderRuntime.ts`: branch on `policeChase.variant` to call `renderHelicopterSprite` instead of `renderPoliceSprite`
-- [ ] Edge warning indicator: use same system but with amber flash colors (`#fbbf24` on / `#92400e` off) and label "CHOPPER" instead of standard police warning
-- [ ] GOAL panel police bar: show "CHOPPER - ESCAPE!" text when variant is helicopter, keep red color
-- [ ] Helicopter renders above player car visually (draw after player in render order, same as airplane)
+- [x] Fix airplane render order: airplane should draw on top of the player car (higher z-index) since it flies overhead — adjust draw order in `gameRenderRuntime.ts`
+- [x] In `gameRenderRuntime.ts`: branch on `policeChase.variant` to call `renderHelicopterSprite` instead of `renderPoliceSprite`
+- [x] Edge warning indicator: use same system but with amber flash colors (`#fbbf24` on / `#92400e` off) and label "CHOPPER" instead of standard police warning
+- [x] GOAL panel police bar: show "CHOPPER - ESCAPE!" text when variant is helicopter, keep red color
+- [x] Helicopter renders above player car visually (draw after player in render order, same as airplane)
 
 ### 17F. Helicopter Tests
-- [ ] Update `tests/encounters.smoke.test.ts`: test that chase #1 and #2 have `variant: 'car'`, chase #3+ has `variant: 'helicopter'`
-- [ ] Test helicopter ignores obstacles and ice in movement
-- [ ] Test ghost dismisses helicopter
-- [ ] Test chase duration escalation still works for helicopter variant
-- [ ] Test chase count resets on `beginRun`
+- [x] Update `tests/encounters.smoke.test.ts`: test that chase #1 and #2 have `variant: 'car'`, chase #3+ has `variant: 'helicopter'`
+- [x] Test helicopter ignores obstacles and ice in movement
+- [x] Test ghost dismisses helicopter
+- [x] Test chase duration escalation still works for helicopter variant
+- [x] Test chase count resets on `beginRun`
 
 ### 17G. Phase 17 Closeout
 - [ ] Refactor & simplify
@@ -222,7 +222,7 @@ Design reference: `docs/discovery-helicopter-train.md`
 - Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
-- 81 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
+- 87 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
 - Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time.
 - Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Config: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. Anchors from obstacles + slowZones.
 - Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + chevron, harmful (blur/oil_slick/reverse) = diamond, mystery = circle, jackpot = star.

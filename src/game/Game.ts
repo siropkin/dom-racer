@@ -81,6 +81,7 @@ import {
 } from './gameRunStateRuntime';
 import {
   renderEdgeWarningIndicator,
+  renderHelicopterSprite,
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
   setPageLightnessForSprites,
@@ -594,7 +595,9 @@ export class Game {
     }
 
     const policeStep = this.updatePoliceChase(dtSeconds);
-    void this.audio.updatePoliceSiren(policeStep.active, policeStep.urgency);
+    const isHelicopterChase = this.policeChase?.variant === 'helicopter';
+    void this.audio.updatePoliceSiren(policeStep.active && !isHelicopterChase, policeStep.urgency);
+    this.audio.updateHelicopterChop(policeStep.active && !!isHelicopterChase, policeStep.urgency);
     if (policeStep.caught) {
       this.render();
       this.frameHandle = window.requestAnimationFrame(this.tick);
@@ -700,7 +703,6 @@ export class Game {
       this.focusModeAlpha,
     );
     drawOvergrowthNodes(ctx, this.overgrowthNodes, performance.now());
-    drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     drawSpecialSpawnCues(ctx, this.specialSpawnCues);
     drawPickups(ctx, this.world.pickups, performance.now());
     drawVfxParticles(ctx, this.vfxParticles);
@@ -718,6 +720,7 @@ export class Game {
       magnetActive: this.magnetTimerMs > 0,
     });
     this.drawPoliceCar();
+    drawPlaneBonusEvent(ctx, this.planeBonusEvent, performance.now());
     this.drawPlaneWarning();
     this.drawPoliceWarning();
     this.toastSystem.draw(this.context);
@@ -728,6 +731,8 @@ export class Game {
       this.isPoliceChasing() && this.policeChase ? this.policeChase.remainingMs : null;
     const policeDurationMs =
       this.isPoliceChasing() && this.policeChase ? this.policeChase.durationMs : null;
+    const policeChaseVariant =
+      this.isPoliceChasing() && this.policeChase ? this.policeChase.variant : null;
     const hudState = buildHudState({
       score: this.score,
       elapsedMs: performance.now() - this.startTimeMs,
@@ -750,6 +755,7 @@ export class Game {
       policeDelayCueDurationMs: this.policeDelayCueDurationMs,
       policeRemainingMs,
       policeDurationMs,
+      policeChaseVariant,
       planeActive: Boolean(this.planeBonusEvent),
       planeWarningActive: Boolean(this.planeWarning),
       planeWarningRemainingMs: this.planeWarning ? this.planeWarning.remainingMs : null,
@@ -1553,12 +1559,21 @@ export class Game {
       return;
     }
 
-    renderPoliceCarSprite(
-      this.context,
-      this.policeChase,
-      performance.now(),
-      this.policeChase.phase === 'chasing',
-    );
+    if (this.policeChase.variant === 'helicopter') {
+      const playerBounds = this.player?.getBounds();
+      renderHelicopterSprite(this.context, this.policeChase, performance.now(), {
+        chasing: this.policeChase.phase === 'chasing',
+        playerX: playerBounds ? playerBounds.x + playerBounds.width / 2 : undefined,
+        playerY: playerBounds ? playerBounds.y + playerBounds.height / 2 : undefined,
+      });
+    } else {
+      renderPoliceCarSprite(
+        this.context,
+        this.policeChase,
+        performance.now(),
+        this.policeChase.phase === 'chasing',
+      );
+    }
   }
 
   private isPoliceChasing(): boolean {
@@ -1570,12 +1585,25 @@ export class Game {
       return;
     }
 
-    renderPoliceWarningIndicator(
-      this.context,
-      this.world.viewport,
-      this.policeWarning,
-      performance.now(),
-    );
+    const nextIsHelicopter = this.policeChaseCount + 1 >= POLICE.HELICOPTER_CHASE_THRESHOLD;
+
+    if (nextIsHelicopter) {
+      renderEdgeWarningIndicator(this.context, this.world.viewport, performance.now(), {
+        edge: this.policeWarning.edge,
+        label: 'CHOPPER',
+        colorOn: '#fbbf24',
+        colorOff: '#92400e',
+        flashPeriodMs: 70,
+        padding: 20,
+      });
+    } else {
+      renderPoliceWarningIndicator(
+        this.context,
+        this.world.viewport,
+        this.policeWarning,
+        performance.now(),
+      );
+    }
   }
 
   private drawPlaneWarning(): void {

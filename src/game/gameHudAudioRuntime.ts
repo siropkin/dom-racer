@@ -30,6 +30,7 @@ interface BuildHudStateOptions {
   policeDelayCueDurationMs: number;
   policeRemainingMs: number | null;
   policeDurationMs: number | null;
+  policeChaseVariant?: 'car' | 'helicopter' | null;
   planeActive: boolean;
   planeWarningActive: boolean;
   planeWarningRemainingMs: number | null;
@@ -119,6 +120,7 @@ export function buildHudState(options: BuildHudStateOptions): HudState {
       : null,
     policeChaseRemainingMs: options.policeActive ? options.policeRemainingMs : null,
     policeChaseDurationMs: options.policeActive ? options.policeDurationMs : null,
+    policeChaseVariant: options.policeActive ? (options.policeChaseVariant ?? 'car') : null,
     activeEffects,
   };
 }
