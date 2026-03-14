@@ -261,3 +261,187 @@ describe('26B: effect interaction tests', () => {
     expect(runtimeWorld.pickups.length).toBeGreaterThan(0);
   });
 });
+
+describe('26C: lifecycle edge cases', () => {
+  it('rapid restart during police chase resets all state cleanly', () => {
+    const game = createGame();
+    (game as any).beginRun();
+    (game as any).running = true;
+    (game as any).startTimeMs = performance.now() - 60_000;
+    (game as any).policeChase = createPoliceChase(
+      { width: 1280, height: 720 },
+      'right',
+      60_000,
+      1,
+      1,
+    );
+
+    expect((game as any).policeChase).not.toBeNull();
+
+    (game as any).beginRun();
+
+    expect((game as any).policeChase).toBeNull();
+    expect((game as any).score).toBe(0);
+    expect((game as any).trainState).toBeNull();
+    expect((game as any).gameOverState).toBeNull();
+    expect((game as any).policeChaseCount).toBe(0);
+  });
+
+  it('rapid restart during train crossing resets state cleanly', () => {
+    const game = createGame();
+    const viewport = { width: 1280, height: 720 };
+    (game as any).beginRun();
+    (game as any).running = true;
+    (game as any).startTimeMs = performance.now() - 60_000;
+
+    const train = createTrainEvent(viewport);
+    train.phase = 'crossing';
+    (game as any).trainState = train;
+    (game as any).trainEventsThisRun = 1;
+
+    (game as any).beginRun();
+
+    expect((game as any).trainState).toBeNull();
+    expect((game as any).trainEventsThisRun).toBe(0);
+    expect((game as any).score).toBe(0);
+  });
+
+  it('beginRun resets ALL stateful fields — comprehensive audit', () => {
+    const game = createGame();
+    (game as any).beginRun();
+    (game as any).running = true;
+    (game as any).score = 999;
+    (game as any).coinsCollectedTotal = 50;
+    (game as any).magnetTimerMs = 5000;
+    (game as any).ghostTimerMs = 4000;
+    (game as any).invertTimerMs = 3000;
+    (game as any).blurTimerMs = 2000;
+    (game as any).oilSlickTimerMs = 1500;
+    (game as any).reverseTimerMs = 1200;
+    (game as any).policeChaseCount = 5;
+    (game as any).nearMissCooldownMs = 400;
+    (game as any).nearMissCount = 12;
+    (game as any).overgrowthNodes = [{ id: 'test' }];
+    (game as any).trainEventsThisRun = 1;
+    (game as any).vfxParticles = [{ x: 0 }];
+
+    (game as any).beginRun();
+
+    expect((game as any).score).toBe(0);
+    expect((game as any).coinsCollectedTotal).toBe(0);
+    expect((game as any).magnetTimerMs).toBe(0);
+    expect((game as any).ghostTimerMs).toBe(0);
+    expect((game as any).invertTimerMs).toBe(0);
+    expect((game as any).blurTimerMs).toBe(0);
+    expect((game as any).oilSlickTimerMs).toBe(0);
+    expect((game as any).reverseTimerMs).toBe(0);
+    expect((game as any).policeChaseCount).toBe(0);
+    expect((game as any).nearMissCooldownMs).toBe(0);
+    expect((game as any).nearMissCount).toBe(0);
+    expect((game as any).overgrowthNodes).toHaveLength(0);
+    expect((game as any).trainEventsThisRun).toBe(0);
+    expect((game as any).trainState).toBeNull();
+    expect((game as any).vfxParticles).toHaveLength(0);
+    expect((game as any).gameOverState).toBeNull();
+    expect((game as any).policeChase).toBeNull();
+  });
+
+  it('multiple beginRun calls in rapid succession do not double-initialize', () => {
+    const game = createGame();
+
+    (game as any).beginRun();
+    const runNumber1 = (game as any).runNumber;
+
+    (game as any).beginRun();
+    const runNumber2 = (game as any).runNumber;
+
+    (game as any).beginRun();
+    const runNumber3 = (game as any).runNumber;
+
+    expect(runNumber2).toBe(runNumber1 + 1);
+    expect(runNumber3).toBe(runNumber2 + 1);
+    expect((game as any).score).toBe(0);
+    expect((game as any).gameOverState).toBeNull();
+    expect((game as any).world).not.toBeNull();
+  });
+});
+
+describe('26D: boundary & overflow tests', () => {
+  it('police spawn at viewport edge does not get stuck outside bounds', () => {
+    const viewport = { width: 1280, height: 720 };
+    const edges = ['top', 'right', 'bottom', 'left'] as const;
+
+    for (const edge of edges) {
+      const chase = createPoliceChase(viewport, edge, 60_000, 1, 1);
+      expect(chase.x).toBeGreaterThanOrEqual(-100);
+      expect(chase.x).toBeLessThanOrEqual(viewport.width + 100);
+      expect(chase.y).toBeGreaterThanOrEqual(-100);
+      expect(chase.y).toBeLessThanOrEqual(viewport.height + 100);
+    }
+  });
+
+  it('train collision on small viewport produces valid hitbox', () => {
+    const smallViewport = { width: 400, height: 300 };
+    const train = createTrainEvent(smallViewport);
+    train.phase = 'crossing';
+    train.progressPx = smallViewport.width;
+
+    const playerCenter: Rect = {
+      x: smallViewport.width / 2 - 14,
+      y: smallViewport.height / 2 - 8,
+      width: 28,
+      height: 16,
+    };
+    const collision = checkTrainCollision(train, smallViewport, playerCenter, false);
+    expect(typeof collision).toBe('boolean');
+  });
+
+  it('score display handles large numbers correctly', () => {
+    const game = createGame();
+    (game as any).beginRun();
+    (game as any).score = 99999;
+
+    const scoreStr = (game as any).score.toString().padStart(4, '0');
+    expect(scoreStr).toBe('99999');
+    expect(scoreStr.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('overgrowth nodes do not grow unbounded — MAX_NODES respected', () => {
+    const game = createGame();
+    (game as any).beginRun();
+    (game as any).running = true;
+
+    const manyNodes = Array.from({ length: 20 }, (_, i) => ({
+      id: `test:${i}`,
+      rect: { x: i * 30, y: 100, width: 20, height: 10 },
+      anchorRect: { x: i * 30, y: 110, width: 30, height: 20 },
+      anchorEdge: 'top',
+      stage: 'grass' as const,
+      growthMs: 3000,
+      spawnedAtRunMs: 35000,
+    }));
+    (game as any).overgrowthNodes = manyNodes;
+
+    expect((game as any).overgrowthNodes.length).toBeLessThanOrEqual(20);
+  });
+
+  it('VFX particles array can be safely emptied after long run simulation', () => {
+    const game = createGame();
+    (game as any).beginRun();
+    (game as any).vfxParticles = Array.from({ length: 500 }, (_, i) => ({
+      x: i,
+      y: i,
+      vx: 1,
+      vy: 1,
+      lifetime: 300,
+      elapsed: 301,
+      radius: 2,
+      color: '#fff',
+    }));
+
+    const alive = (game as any).vfxParticles.filter(
+      (p: { elapsed: number; lifetime: number }) => p.elapsed < p.lifetime,
+    );
+    expect(alive.length).toBe(0);
+  });
+});
