@@ -6,7 +6,7 @@ export interface PlaneSpritePose {
   angle: number;
 }
 
-export interface PlaneSpriteTuning {
+interface PlaneSpriteTuning {
   bodyLength: number;
   bodyWidth: number;
   wingSpan: number;

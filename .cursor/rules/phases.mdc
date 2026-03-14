@@ -51,9 +51,9 @@ alwaysApply: false
 
 **Phase 17 — Police Helicopter:** `PoliceChaseState.variant` ('car' | 'helicopter'). Helicopter spawns from chase #3+ via `POLICE.HELICOPTER_CHASE_THRESHOLD`. Airborne movement (ignores obstacles/ice), helicopter sprite with spinning rotor and searchlight, rotor chop audio replacing siren, amber "CHOPPER" edge warning, "CHOPPER - ESCAPE!" GOAL panel text. Ghost still dismisses. 6 new tests (87 total).
 
-**Phase 18 — Train Encounter:** Rail detection from `<hr>` elements and long thin obstacles/slowZones (aspect ratio >12:1, >60% viewport span). `TrainState` lifecycle (idle → warning → crossing → cooldown). Caltrain-style multi-car sprite with horizontal/vertical support. Train horn + crossing rumble audio. Yellow "TRAIN" edge warning. "HIT BY TRAIN" game over. Ghost immunity. Encounter stagger with police/plane. TRAIN config section (9 constants). 17 new tests (104 total).
+**Phase 18 — Train Encounter:** Rail detection from `<hr>` elements, CSS borders on wide containers, thin separator divs, and long thin obstacles/slowZones (aspect ratio >12:1, >60% viewport span). `TrainState` lifecycle (idle → warning → crossing → cooldown). Caltrain-style multi-car sprite with horizontal/vertical support. Train horn + crossing rumble audio. Yellow "TRAIN" edge warning. "HIT BY TRAIN" game over. Ghost immunity. Encounter stagger with police/plane. TRAIN config section (9 constants). 20 new tests (107 total).
 
-**Phase 19 — Branding Pixel-Art Backgrounds:** Replaced smooth linear gradients in all three branding SVGs (icon, store cover, store tile) with pixel-art stepped color bands. Icon uses 8×8 diagonal color blocks (purple → cyan). Cover uses 8 horizontal bands (near-black → teal). Tile uses 8 horizontal bands with clipPath for rounded corners. Removed bezier sweep decorations and reduced decorative noise across all assets. PNGs regenerated via `rsvg-convert`.
+**Phase 19 — Branding Pixel-Art Backgrounds:** Replaced smooth linear gradients in all three branding SVGs (icon, store cover, store tile) with pixel-art horizontal stepped color bands (dark navy → teal). Removed bezier sweep decorations and reduced decorative noise. PNGs regenerated via `rsvg-convert`.
 
 ## Phase Closeout Protocol
 
@@ -95,7 +95,8 @@ Every phase ends with a mandatory closeout pass before marking `done`:
 - Code audits catch orphaned config values that accumulate across phases
 - Store listing docs rot fast — audit with every major phase
 - Police helicopter is a clean late-game escalation via PoliceChaseState variant field
-- Train encounters are novel but only ~15-25% page coverage — validate detection first
+- Train encounters are novel — expanded rail detection (CSS borders, thin dividers) dramatically increased page coverage beyond initial ~15-25%
+- Sprite showcase sound test panel needs force-enable of AudioManager (bypass user's sound toggle)
 
 ## Success Criteria
 

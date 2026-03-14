@@ -6,14 +6,8 @@ export {
   renderEdgeWarningIndicator,
   renderPoliceCarSprite,
   type PoliceEdge,
-  type PoliceWarningRenderState,
-  type PoliceCarPose,
 } from './policeSprite';
-export { renderPlaneSprite, type PlaneSpritePose } from './planeSprite';
+export { renderPlaneSprite } from './planeSprite';
 export { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';
-export {
-  renderHelicopterSprite,
-  type HelicopterPose,
-  type HelicopterRenderOptions,
-} from './helicopterSprite';
+export { renderHelicopterSprite } from './helicopterSprite';
 export { renderTrainSprite } from './trainSprite';

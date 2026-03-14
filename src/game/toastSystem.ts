@@ -1,3 +1,5 @@
+import { clamp } from '../shared/utils';
+
 export type ToastPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export interface ToastMessageInput {
@@ -226,14 +228,4 @@ function toastsOverlap(
   const horizontal = Math.abs(aX - bX) < (aWidth + bWidth) / 2 + gap;
   const vertical = Math.abs(aY - bY) < (aHeight + bHeight) / 2 + gap;
   return horizontal && vertical;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (value < min) {
-    return min;
-  }
-  if (value > max) {
-    return max;
-  }
-  return value;
 }

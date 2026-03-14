@@ -320,7 +320,7 @@ export function getDailyModifier(): DailyModifier {
 // Vehicle unlocks
 // ---------------------------------------------------------------------------
 
-export function getUnlockedVehicleDesigns(lifetimeTotalScore: number): VehicleDesign[] {
+function getUnlockedVehicleDesigns(lifetimeTotalScore: number): VehicleDesign[] {
   const designs: VehicleDesign[] = ['coupe'];
   if (lifetimeTotalScore >= VEHICLES.BUGGY_UNLOCK_SCORE) designs.push('buggy');
   if (lifetimeTotalScore >= VEHICLES.TRUCK_UNLOCK_SCORE) designs.push('truck');

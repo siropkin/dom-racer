@@ -129,7 +129,7 @@ export function advancePlaneBonusEventState(
 }
 
 /** Counts down the police spawn timer and triggers a warning when close to spawning. */
-export function tickPoliceSpawnCountdown(
+function tickPoliceSpawnCountdown(
   policeSpawnTimerMs: number,
   policeWarning: PoliceWarningState | null,
   dtSeconds: number,
@@ -185,7 +185,7 @@ export function createPoliceChase(
   };
 }
 
-export function beginPoliceLeaving(
+function beginPoliceLeaving(
   viewport: World['viewport'],
   policeChase: PoliceChaseState,
 ): PoliceChaseState {
@@ -194,12 +194,12 @@ export function beginPoliceLeaving(
   return policeChase;
 }
 
-export function tickPoliceChaseDuration(policeChase: PoliceChaseState, dtSeconds: number): boolean {
+function tickPoliceChaseDuration(policeChase: PoliceChaseState, dtSeconds: number): boolean {
   policeChase.remainingMs = Math.max(0, policeChase.remainingMs - dtSeconds * 1000);
   return policeChase.remainingMs === 0;
 }
 
-export function advancePoliceLeaving(
+function advancePoliceLeaving(
   viewport: World['viewport'],
   policeChase: PoliceChaseState,
   dtSeconds: number,
@@ -266,7 +266,7 @@ function getPoliceCenter(police: { x: number; y: number }): Vector2 {
   };
 }
 
-export function getRandomPoliceEdge(): PoliceEdge {
+function getRandomPoliceEdge(): PoliceEdge {
   const edge = Math.floor(Math.random() * 4);
   switch (edge) {
     case 0:
@@ -280,7 +280,7 @@ export function getRandomPoliceEdge(): PoliceEdge {
   }
 }
 
-export function getNearestPoliceExitEdge(
+function getNearestPoliceExitEdge(
   viewport: World['viewport'],
   police: { x: number; y: number },
 ): PoliceEdge {
@@ -296,7 +296,7 @@ export function getNearestPoliceExitEdge(
   return distances[0].edge;
 }
 
-export function getPoliceExitTarget(
+function getPoliceExitTarget(
   viewport: World['viewport'],
   police: { x: number; y: number; exitEdge: PoliceEdge },
 ): { x: number; y: number } {
@@ -314,7 +314,7 @@ export function getPoliceExitTarget(
   }
 }
 
-export function isPoliceOffscreen(
+function isPoliceOffscreen(
   viewport: World['viewport'],
   police: { x: number; y: number },
   padding: number,
@@ -328,7 +328,7 @@ export function isPoliceOffscreen(
   );
 }
 
-export function createPlaneCornerPath(viewport: World['viewport']): PlanePath {
+function createPlaneCornerPath(viewport: World['viewport']): PlanePath {
   const startCorner = getRandomPlaneCorner();
   const endCorner = getOppositePlaneCorner(startCorner);
   return {
@@ -734,7 +734,7 @@ function isOnIceZone(rect: Rect, iceZones: Rect[]): boolean {
   return iceZones.some((zone) => rectsIntersect(rect, zone));
 }
 
-export function getPoliceSpawn(
+function getPoliceSpawn(
   viewport: World['viewport'],
   edge: PoliceEdge,
 ): { x: number; y: number; angle: number } {

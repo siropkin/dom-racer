@@ -34,7 +34,7 @@ First, read:
 
 ## Current State
 
-Phases 1-19 complete. 104 smoke tests across 9 files. All passing, clean build. No pending phases.
+Phases 1-19 complete. 107 smoke tests across 9 files. All passing, clean build. No pending phases. Production readiness audit done (dead code removed, docs updated).
 
 Key decisions from completed phases:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
@@ -47,7 +47,8 @@ Key decisions from completed phases:
 - Pixel-art SVG wordmark in branding, block-character logo in README
 - Popup styled to match HUD (accent bars, minimal rounding, shape-prefixed special tags)
 - Police helicopter from chase #3+: airborne movement (ignores obstacles/ice), rotor chop audio, amber "CHOPPER" edge warning, searchlight toward player
-- Train encounters: rail detection from `<hr>` elements + long thin obstacles, Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
+- Train encounters: rail detection from CSS borders on wide containers, thin separator divs, `<hr>` elements, and long thin obstacles; Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
+- Sprite showcase (Shift+D): clickable sound test panel previews all audio (works even when sound is toggled off)
 
 ## Phase 17 — Police Helicopter Late-Game Escalation
 
@@ -227,7 +228,7 @@ Design reference: `docs/discovery-helicopter-train.md`
 - Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
-- 104 smoke tests across 9 files. `npm run test` / `npm run build` must pass.
+- 107 smoke tests across 9 files. `npm run test` / `npm run build` must pass.
 - Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time. From chase #3+ (`POLICE.HELICOPTER_CHASE_THRESHOLD`), variant switches to helicopter with airborne movement, rotor chop audio, and amber warning.
 - Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Config: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. Anchors from obstacles + slowZones.
 - Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + chevron, harmful (blur/oil_slick/reverse) = diamond, mystery = circle, jackpot = star.
