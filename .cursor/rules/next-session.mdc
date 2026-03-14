@@ -184,6 +184,36 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [ ] Docs — update SOUL.md (add train encounter), README.md (add train to gameplay section), next-session.mdc, phases.mdc
 - [ ] Commit
 
+## Phase 19 — Branding Pixel-Art Backgrounds
+
+### 19A. Icon Background Redesign
+- [ ] Replace the smooth linear gradient background in `branding/dom-racer-icon.svg` with a pixel-art style background
+- [ ] Use chunky rectangular color blocks, dithering patterns, or stepped color bands instead of smooth gradients
+- [ ] Keep the purple → blue → cyan color palette but render it as visible pixel blocks (e.g., 8×8 or 16×16 pixel grid with stepped color fills)
+- [ ] The grid pattern overlay can stay but should feel integrated with the pixelated background
+- [ ] Keep the "DR" pixel monogram and pixel coin — only the background changes
+- [ ] Ensure the icon still reads well at 16×16, 32×32, and 128×128 sizes
+
+### 19B. Store Cover Background Redesign
+- [ ] Replace the smooth gradient background in `branding/dom-racer-store-cover.svg` with a pixel-art game scene background
+- [ ] Options: pixel-art starfield, pixel checkerboard road, pixelated cityscape silhouette, or stepped color bands with dithering
+- [ ] Remove the smooth bezier sweep decorations — replace with pixel-art equivalents (blocky lines, pixel dots)
+- [ ] Keep the "DOM RACER" pixel wordmark, pixel coins, pixel speed lines, and pixel road stripe — only the background and decorative elements change
+- [ ] The overall feel should be "classic 2D indie game title screen" not "modern app landing page"
+
+### 19C. Store Tile Background Redesign
+- [ ] Replace the smooth gradient background in `branding/dom-racer-store-tile.svg` with a matching pixel-art background
+- [ ] Must feel consistent with the icon and cover backgrounds (same pixel-art language)
+- [ ] Remove the smooth bezier sweep decorations — replace with pixel-art equivalents
+- [ ] Keep the "DOM RACER" pixel wordmark, feature pills, hotkey hint, pixel coins
+- [ ] Feature pill and hotkey hint rounded corners can stay (they're UI elements, not branding art)
+
+### 19D. Regenerate PNGs & Verify
+- [ ] Run `python3 branding/generate_assets.py` to regenerate all PNGs
+- [ ] Verify PNGs look correct at target sizes (icons at 16-512px, tile at 440×280, cover at 1280×800)
+- [ ] Run `npm run build` to ensure dist/ picks up updated assets
+- [ ] Commit all SVG and PNG changes
+
 ## Essential Context
 
 - `window.__domRacerDebug` must not exist in source/build.
