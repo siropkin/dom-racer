@@ -92,6 +92,10 @@ export function drawSpriteShowcaseOverlay({
   ctx.fillText(`ARROWS THEME: ${theme.name}`, 20, 54);
   ctx.fillText(`AUTO PAGE LUMA: ${Math.round(pageLightness * 100)}%`, 20, 70);
 
+  ctx.fillStyle = theme.subtitle;
+  ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('VEHICLES', 70, 86);
+
   const carsBaseY = 102;
   const carXs = [80, 130, 180] as const;
   const designs: VehicleDesign[] = ['coupe', 'buggy', 'truck'];
@@ -127,6 +131,10 @@ export function drawSpriteShowcaseOverlay({
       nowMs,
     });
   });
+
+  ctx.fillStyle = theme.subtitle;
+  ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('ENCOUNTERS', width * 0.52 - 10, carsBaseY - 20);
 
   renderPlaneSprite(ctx, { x: width * 0.52, y: carsBaseY - 6, angle: 0.48 }, nowMs, {
     wobbleRadians: Math.sin(nowMs / 220) * 0.022,
@@ -193,6 +201,9 @@ export function drawSpriteShowcaseOverlay({
     padding: 20,
   });
   const pickupsY = Math.max(176, Math.min(height - 72, carsBaseY + 112));
+  ctx.fillStyle = theme.subtitle;
+  ctx.font = 'bold 9px "SFMono-Regular", "JetBrains Mono", monospace';
+  ctx.fillText('PICKUPS', 70, pickupsY - 14);
   const coinRadius = 9;
   const coinSpinA = Math.abs(Math.sin(nowMs / 180));
   const coinSpinB = Math.abs(Math.sin(nowMs / 180 + 0.75));

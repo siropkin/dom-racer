@@ -94,16 +94,16 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 23 — Debug Screen (Sprite Showcase) Polish
 
 ### 23A. Showcase Layout & Content
-- [ ] Review overall layout of sprite showcase (Shift+D): spacing, alignment, readability
-- [ ] Verify all sprites render correctly in the showcase
-- [ ] Verify all edge warning indicators are visible (police, chopper, plane, train)
-- [ ] Verify sound test panel buttons all work and show active state correctly
-- [ ] Check that showcase train renders at a sensible position
+- [x] Review overall layout of sprite showcase (Shift+D): spacing, alignment, readability
+- [x] Verify all sprites render correctly in the showcase
+- [x] Verify all edge warning indicators are visible (police, chopper, plane, train)
+- [x] Verify sound test panel buttons all work and show active state correctly
+- [x] Check that showcase train renders at a sensible position
 
 ### 23B. Showcase UX
-- [ ] Add labels near each sprite group (VEHICLES, ENCOUNTERS, PICKUPS, etc.) if missing
-- [ ] Ensure theme cycling (arrow keys) works for all themes
-- [ ] Test that entering/exiting showcase cleanly restores game state
+- [x] Add labels near each sprite group (VEHICLES, ENCOUNTERS, PICKUPS, etc.) if missing
+- [x] Ensure theme cycling (arrow keys) works for all themes
+- [x] Test that entering/exiting showcase cleanly restores game state
 
 ### 23C. Phase 23 Closeout
 - [ ] `npm run test` green, `npm run build` clean
