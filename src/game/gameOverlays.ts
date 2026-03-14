@@ -1,4 +1,5 @@
 import type { SpecialEffect, VehicleDesign, ViewportSize, WorldPickup } from '../shared/types';
+import type { TrainState } from './gameStateTypes';
 import {
   SHOWCASE_THEMES,
   SHOWCASE_TOAST_MESSAGES,
@@ -13,6 +14,8 @@ import {
   renderPoliceCarSprite,
   renderPoliceWarningIndicator,
   renderPlayerSprite,
+  renderHelicopterSprite,
+  renderTrainSprite,
   drawRegularCoinSprite,
   drawSpecialPickupSprite,
 } from './sprites';
@@ -139,6 +142,21 @@ export function drawSpriteShowcaseOverlay({
     nowMs,
   );
 
+  renderHelicopterSprite(
+    ctx,
+    {
+      x: width * 0.82,
+      y: carsBaseY - 12,
+      angle: -0.18,
+    },
+    nowMs,
+    {
+      chasing: true,
+      playerX: width * 0.82 + 50,
+      playerY: carsBaseY + 30,
+    },
+  );
+
   renderPoliceWarningIndicator(
     ctx,
     viewport,
@@ -153,6 +171,24 @@ export function drawSpriteShowcaseOverlay({
     colorOff: '#be185d',
     flashPeriodMs: 82,
     padding: 18,
+  });
+
+  renderEdgeWarningIndicator(ctx, viewport, nowMs, {
+    edge: 'top',
+    label: 'CHOPPER',
+    colorOn: '#fbbf24',
+    colorOff: '#92400e',
+    flashPeriodMs: 70,
+    padding: 20,
+  });
+
+  renderEdgeWarningIndicator(ctx, viewport, nowMs, {
+    edge: 'bottom',
+    label: 'TRAIN',
+    colorOn: '#eab308',
+    colorOff: '#713f12',
+    flashPeriodMs: 90,
+    padding: 20,
   });
   const pickupsY = Math.max(176, Math.min(height - 72, carsBaseY + 112));
   const coinRadius = 9;
@@ -235,6 +271,17 @@ export function drawSpriteShowcaseOverlay({
     },
   ];
   drawOvergrowthNodes(ctx, showcaseOvergrowthNodes, nowMs);
+
+  const trainShowcaseY = Math.max(overgrowthY + 48, Math.min(height - 44, carsBaseY + 180));
+  const showcaseTrain: TrainState = {
+    rail: { x: 0, y: trainShowcaseY, width: width, height: 3 },
+    axis: 'horizontal',
+    direction: 1,
+    progressPx: width * 0.55,
+    phase: 'crossing',
+    warningRemainingMs: 0,
+  };
+  renderTrainSprite(ctx, showcaseTrain, viewport, nowMs);
 
   const toastCols = 3;
   const toastWidth = 66;
