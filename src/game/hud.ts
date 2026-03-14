@@ -78,6 +78,11 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
   ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
   ctx.fillRect(HUD_MARGIN, HUD_MARGIN, w, HUD_ACCENT_HEIGHT);
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(HUD_MARGIN, HUD_MARGIN, w, h);
+  ctx.clip();
+
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_COLOR;
   ctx.fillText(
@@ -102,6 +107,8 @@ function drawInfoBlock(ctx: CanvasRenderingContext2D, state: HudState): void {
     ctx.fillStyle = 'rgba(103, 232, 249, 0.72)';
     ctx.fillText(`TODAY: ${state.dailyModifierLabel}`, HUD_MARGIN + 10, HUD_MARGIN + 28);
   }
+
+  ctx.restore();
 }
 
 function drawControlsHint(

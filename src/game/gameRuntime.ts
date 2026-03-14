@@ -301,7 +301,7 @@ const DAILY_MODIFIERS: readonly DailyModifier[] = [
   { kind: 'DOUBLE_COINS', label: 'DOUBLE COINS' },
   { kind: 'FAST_POLICE', label: 'FAST POLICE' },
   { kind: 'EXTRA_SPECIALS', label: 'EXTRA SPECIALS' },
-  { kind: 'EARLY_OVERGROWTH', label: 'EARLY OVERGROWTH' },
+  { kind: 'EARLY_OVERGROWTH', label: 'EARLY GROWTH' },
 ];
 
 export function getDailyModifier(lifetimeTotalScore = 0): DailyModifier {

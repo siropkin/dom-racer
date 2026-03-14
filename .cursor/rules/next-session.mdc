@@ -112,16 +112,16 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 24 — HUD Text Fitting & Layout
 
 ### 24A. Text Overflow Audit
-- [ ] "TODAY: EARLY OVERGROWTH" is too wide for the info section — truncate or abbreviate long modifier labels
-- [ ] Audit all HUD text for overflow: score display, timer, best scores, controls hint, daily modifier
-- [ ] Check HUD at small viewport sizes (e.g., 800×600) — does anything clip or overlap?
-- [ ] Verify GOAL panel police bar text fits: "BUSTED BY POLICE", "CHOPPER - ESCAPE!", "HIT BY TRAIN"
-- [ ] Check POWER panel effect labels — do long names like "OIL SLICK" fit?
+- [x] "TODAY: EARLY OVERGROWTH" is too wide for the info section — truncate or abbreviate long modifier labels
+- [x] Audit all HUD text for overflow: score display, timer, best scores, controls hint, daily modifier
+- [x] Check HUD at small viewport sizes (e.g., 800×600) — does anything clip or overlap?
+- [x] Verify GOAL panel police bar text fits: "BUSTED BY POLICE", "CHOPPER - ESCAPE!", "HIT BY TRAIN"
+- [x] Check POWER panel effect labels — do long names like "OIL SLICK" fit?
 
 ### 24B. Layout Consistency
-- [ ] Verify line 2 fixed-position columns (WASD/ARROWS left, SPACE NITRO right) alignment
-- [ ] Confirm HUD scales correctly with `viewportScaleFactor`
-- [ ] Test HUD on both wide (1920px) and narrow (800px) viewports
+- [x] Verify line 2 fixed-position columns (WASD/ARROWS left, SPACE NITRO right) alignment
+- [x] Confirm HUD scales correctly with `viewportScaleFactor`
+- [x] Test HUD on both wide (1920px) and narrow (800px) viewports
 
 ### 24C. Phase 24 Closeout
 - [ ] `npm run test` green, `npm run build` clean
