@@ -406,7 +406,9 @@ export class Game {
       this.frameHandle = null;
     }
 
+    this.audio.setEnabled(this.soundEnabled);
     this.audio.stop();
+    this.resetShowcaseSoundToggles();
     this.setInverted(false);
     this.setBlur(false);
     this.setMagnetUiState({ active: false, point: null, strength: 0 });
@@ -890,6 +892,8 @@ export class Game {
         event.preventDefault();
         if (this.spriteShowcaseActive) {
           this.spriteShowcaseActive = false;
+          this.audio.setEnabled(this.soundEnabled);
+          this.resetShowcaseSoundToggles();
           this.beginRun();
         } else {
           this.enterSpriteShowcaseMode();
@@ -965,6 +969,7 @@ export class Game {
     const y = event.clientY - rect.top;
     const soundId = getShowcaseSoundButtonAt(x, y);
     if (soundId) {
+      this.audio.setEnabled(true);
       void this.audio.resume();
       this.playShowcaseSound(soundId);
     }
