@@ -187,9 +187,9 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Test: overgrowth node count — verify nodes don't grow unbounded over long runs
 
 ### 26E. Phase 26 Closeout
-- [ ] All new tests pass alongside existing 100
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] All new tests pass alongside existing 100
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 27 — Git Hygiene
 

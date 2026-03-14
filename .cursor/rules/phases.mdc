@@ -34,7 +34,7 @@ alwaysApply: false
 | 23 | `done` | Debug screen (sprite showcase) polish |
 | 24 | `done` | HUD text fitting & layout |
 | 25 | `done` | Code refactoring & production readiness |
-| 26 | `pending` | Game state collision & edge-case testing |
+| 26 | `done` | Game state collision & edge-case testing |
 | 27 | `pending` | Git hygiene (.cursor removal) |
 
 ## Phase Summaries
@@ -62,6 +62,8 @@ alwaysApply: false
 **Phase 24** — HUD text fitting & layout: abbreviated "EARLY OVERGROWTH" → "EARLY GROWTH" to fit info panel, added clip region to info block for overflow safety. All HUD panels (info, POWER, GOAL, controls hint) verified at narrow/wide viewports with no text clipping or overlap.
 
 **Phase 25** — Code refactoring & production readiness: fixed circular dependency (gameStateTypes → sprites → trainSprite) by extracting ViewportEdge to shared/types. Internalized unused exports (OVERLAY_ROOT_ID, getTrainRect). Zero `as any`, `console.log`, `__domRacerDebug`, `TODO/FIXME`. All 15 config sections verified used. Bundle: 160 KB (44 KB gzip). No dev-only code leaks.
+
+**Phase 26** — Game state collision & edge-case testing: 19 new tests across encounter overlap stress (stagger prevents triple-overlap, ghost dismisses helicopter + prevents train collision), effect interactions (9-effect rapid succession, mystery resolution, dual-effect independence), lifecycle edge cases (rapid restart field resets, comprehensive beginRun audit, multiple rapid beginRun calls), and boundary tests (police edge spawn, small viewport train, score overflow, overgrowth bounds, VFX cleanup). Total: 119 tests across 10 files.
 
 ## Post-Phase Polish
 
