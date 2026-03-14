@@ -33,7 +33,7 @@ alwaysApply: false
 | 22 | `done` | Popup, manifest & marketplace review |
 | 23 | `done` | Debug screen (sprite showcase) polish |
 | 24 | `done` | HUD text fitting & layout |
-| 25 | `pending` | Code refactoring & production readiness |
+| 25 | `done` | Code refactoring & production readiness |
 | 26 | `pending` | Game state collision & edge-case testing |
 | 27 | `pending` | Git hygiene (.cursor removal) |
 
@@ -60,6 +60,8 @@ alwaysApply: false
 **Phase 23** — Debug screen (sprite showcase) polish: added VEHICLES, ENCOUNTERS, PICKUPS section labels to the showcase. All sprites, edge warnings (police/chopper/plane/train), sound test buttons with active states, and train positioning verified. Theme cycling (arrow keys) and enter/exit restore confirmed clean.
 
 **Phase 24** — HUD text fitting & layout: abbreviated "EARLY OVERGROWTH" → "EARLY GROWTH" to fit info panel, added clip region to info block for overflow safety. All HUD panels (info, POWER, GOAL, controls hint) verified at narrow/wide viewports with no text clipping or overlap.
+
+**Phase 25** — Code refactoring & production readiness: fixed circular dependency (gameStateTypes → sprites → trainSprite) by extracting ViewportEdge to shared/types. Internalized unused exports (OVERLAY_ROOT_ID, getTrainRect). Zero `as any`, `console.log`, `__domRacerDebug`, `TODO/FIXME`. All 15 config sections verified used. Bundle: 160 KB (44 KB gzip). No dev-only code leaks.
 
 ## Post-Phase Polish
 

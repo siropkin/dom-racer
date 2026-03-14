@@ -147,14 +147,14 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Run `npm run lint:fix && npm run format` — zero warnings
 
 ### 25D. Bundle & Performance
-- [ ] Check bundle size — flag anything over 200 KB
-- [ ] Verify no unused modules are included in the build
-- [ ] Check that dev-only code doesn't leak into production build
+- [x] Check bundle size — flag anything over 200 KB
+- [x] Verify no unused modules are included in the build
+- [x] Check that dev-only code doesn't leak into production build
 
 ### 25E. Phase 25 Closeout
-- [ ] Final `npm run test` green, `npm run build` clean
-- [ ] Update SOUL.md, README.md with final test count and bundle size
-- [ ] Commit
+- [x] Final `npm run test` green, `npm run build` clean
+- [x] Update SOUL.md, README.md with final test count and bundle size
+- [x] Commit
 
 ## Phase 26 — Game State Collision & Edge-Case Testing
 
