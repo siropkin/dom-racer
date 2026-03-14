@@ -1,4 +1,4 @@
-export const OVERLAY_ROOT_ID = 'dom-racer-root';
+const OVERLAY_ROOT_ID = 'dom-racer-root';
 
 export interface OverlayElements {
   root: HTMLDivElement;

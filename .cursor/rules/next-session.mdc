@@ -130,21 +130,21 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 25 — Code Refactoring & Production Readiness
 
 ### 25A. File Structure & Organization
-- [ ] Review 41 source files — any that should be merged or split?
-- [ ] Check naming consistency: `*Runtime.ts` pattern, `*Sprite.ts` pattern
-- [ ] Verify all imports use the barrel pattern (`./sprites`) where appropriate
-- [ ] Check for circular dependencies
+- [x] Review 41 source files — any that should be merged or split?
+- [x] Check naming consistency: `*Runtime.ts` pattern, `*Sprite.ts` pattern
+- [x] Verify all imports use the barrel pattern (`./sprites`) where appropriate
+- [x] Check for circular dependencies
 
 ### 25B. Dead Code & Unused Exports
-- [ ] Run dead code audit: unused exports, orphaned functions, stale imports
-- [ ] Remove any `export` on module-internal functions
-- [ ] Check for duplicate utility functions across files
+- [x] Run dead code audit: unused exports, orphaned functions, stale imports
+- [x] Remove any `export` on module-internal functions
+- [x] Check for duplicate utility functions across files
 
 ### 25C. Type Safety & Code Quality
-- [ ] Search for `as any` casts — eliminate or document necessity
-- [ ] Search for `console.log`, `__domRacerDebug`, `TODO`, `FIXME`
-- [ ] Verify all config values in `gameConfig.ts` are actually used
-- [ ] Run `npm run lint:fix && npm run format` — zero warnings
+- [x] Search for `as any` casts — eliminate or document necessity
+- [x] Search for `console.log`, `__domRacerDebug`, `TODO`, `FIXME`
+- [x] Verify all config values in `gameConfig.ts` are actually used
+- [x] Run `npm run lint:fix && npm run format` — zero warnings
 
 ### 25D. Bundle & Performance
 - [ ] Check bundle size — flag anything over 200 KB

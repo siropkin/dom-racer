@@ -20,6 +20,8 @@ export interface ViewportSize {
   height: number;
 }
 
+export type ViewportEdge = 'top' | 'right' | 'bottom' | 'left';
+
 export type VehicleDesign = 'coupe' | 'buggy' | 'truck';
 export type SpecialEffect =
   | 'invert'

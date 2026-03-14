@@ -108,7 +108,7 @@ export function advanceTrainCrossing(
 // Train rect computation
 // ---------------------------------------------------------------------------
 
-export function getTrainRect(train: TrainState, viewport: ViewportSize): Rect {
+function getTrainRect(train: TrainState, viewport: ViewportSize): Rect {
   if (train.axis === 'horizontal') {
     const startX = train.direction === 1 ? -train.rail.width : viewport.width;
     const currentX = startX + train.direction * train.progressPx;

@@ -1,7 +1,7 @@
-import type { ViewportSize } from '../../shared/types';
+import type { ViewportEdge, ViewportSize } from '../../shared/types';
 import { applyAdaptiveShadow, drawBorderedRect, drawWheel } from './spriteHelpers';
 
-export type PoliceEdge = 'top' | 'right' | 'bottom' | 'left';
+export type PoliceEdge = ViewportEdge;
 
 export interface PoliceWarningRenderState {
   edge: PoliceEdge;

@@ -1,5 +1,6 @@
-import type { Rect, Vector2, VehicleDesign, World } from '../shared/types';
-import type { PoliceEdge } from './sprites';
+import type { Rect, Vector2, VehicleDesign, ViewportEdge, World } from '../shared/types';
+
+type PoliceEdge = ViewportEdge;
 
 export interface SurfaceSample {
   lightness: number;
