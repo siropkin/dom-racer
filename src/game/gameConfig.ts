@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------------
 
 export const TIMING = {
+  UNPAUSE_GRACE_MS: 1_500,
   POLICE_WARNING_MS: 1_100,
   PLANE_WARNING_MS: 900,
   BOOST_HOLD_MS: 400,

@@ -2122,6 +2122,45 @@ export class Game {
     this.syncPausedFromPageFocus();
   };
 
+  private extendTimersAfterUnpause(): void {
+    const grace = TIMING.UNPAUSE_GRACE_MS;
+
+    if (this.policeChase?.phase === 'chasing') {
+      this.policeChase.remainingMs += grace;
+    }
+
+    if (this.policeWarning) {
+      this.policeWarning.remainingMs += grace;
+    }
+
+    if (this.planeWarning) {
+      this.planeWarning.remainingMs += grace;
+    }
+
+    if (this.trainState?.phase === 'warning') {
+      this.trainState.warningRemainingMs += grace;
+    }
+
+    if (this.ghostTimerMs > 0) {
+      this.ghostTimerMs += grace;
+    }
+    if (this.magnetTimerMs > 0) {
+      this.magnetTimerMs += grace;
+    }
+    if (this.invertTimerMs > 0) {
+      this.invertTimerMs += grace;
+    }
+    if (this.blurTimerMs > 0) {
+      this.blurTimerMs += grace;
+    }
+    if (this.oilSlickTimerMs > 0) {
+      this.oilSlickTimerMs += grace;
+    }
+    if (this.reverseTimerMs > 0) {
+      this.reverseTimerMs += grace;
+    }
+  }
+
   private syncPausedFromPageFocus(): void {
     if (!this.running) {
       return;
@@ -2153,6 +2192,7 @@ export class Game {
       if (this.startTimeMs > 0) {
         this.startTimeMs += pauseDurationMs;
       }
+      this.extendTimersAfterUnpause();
       this.resetInput();
     }
   }
