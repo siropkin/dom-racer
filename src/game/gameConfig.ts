@@ -147,6 +147,22 @@ export const PLANE = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Train encounter
+// ---------------------------------------------------------------------------
+
+export const TRAIN = {
+  MIN_RUN_TIME_MS: 30_000,
+  SPEED: 320,
+  WARNING_MS: 1_500,
+  BODY_HEIGHT: 20,
+  HITBOX_HEIGHT: 16,
+  COOLDOWN_MS: 50_000,
+  MAX_PER_RUN: 1,
+  INITIAL_MIN_MS: 35_000,
+  INITIAL_MAX_MS: 55_000,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Encounter stagger (shared between plane & police)
 // ---------------------------------------------------------------------------
 

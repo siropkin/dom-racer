@@ -107,17 +107,17 @@ Design reference: `docs/discovery-helicopter-train.md`
 Design reference: `docs/discovery-helicopter-train.md`
 
 ### 18A. Rail Detection in Scanner & World Builder
-- [ ] Add `<hr>` element detection to `src/content/domScanner.ts` — bypass the 12px `MIN_DIMENSION` height check for `<hr>` elements, require width > 60% of viewport width
-- [ ] Add `'rail'` to `ScannedKind` type in `src/shared/types.ts`
-- [ ] Add `railCandidates: Array<{ rect: Rect; axis: 'horizontal' | 'vertical' }>` to `World` interface in `src/shared/types.ts`
-- [ ] In `src/content/worldBuilder.ts`: post-process `obstacles` + `slowZones` to find rail candidates — filter for long thin rects (aspect ratio > 12:1, spanning > 60% of viewport dimension)
-- [ ] Also process `rail`-kind scanned elements as rail candidates
-- [ ] Deduplicate overlapping rail candidates, keep the longest
-- [ ] Verify rails have >= 60px clearance on at least one side for player escape
-- [ ] Populate `world.railCandidates` in `buildWorld`
+- [x] Add `<hr>` element detection to `src/content/domScanner.ts` — bypass the 12px `MIN_DIMENSION` height check for `<hr>` elements, require width > 60% of viewport width
+- [x] Add `'rail'` to `ScannedKind` type in `src/shared/types.ts`
+- [x] Add `railCandidates: Array<{ rect: Rect; axis: 'horizontal' | 'vertical' }>` to `World` interface in `src/shared/types.ts`
+- [x] In `src/content/worldBuilder.ts`: post-process `obstacles` + `slowZones` to find rail candidates — filter for long thin rects (aspect ratio > 12:1, spanning > 60% of viewport dimension)
+- [x] Also process `rail`-kind scanned elements as rail candidates
+- [x] Deduplicate overlapping rail candidates, keep the longest
+- [x] Verify rails have >= 60px clearance on at least one side for player escape
+- [x] Populate `world.railCandidates` in `buildWorld`
 
 ### 18B. Train Config & State
-- [ ] Add `TRAIN` section to `src/game/gameConfig.ts` with constants:
+- [x] Add `TRAIN` section to `src/game/gameConfig.ts` with constants:
   - `MIN_RUN_TIME_MS: 30_000` — no trains before 30s
   - `SPEED: 320` — pixels per second (~4s to cross 1280px viewport)
   - `WARNING_MS: 1_500` — edge indicator + rail flash duration before train enters
@@ -127,7 +127,7 @@ Design reference: `docs/discovery-helicopter-train.md`
   - `MAX_PER_RUN: 1` — maximum train events per run
   - `INITIAL_MIN_MS: 35_000` — earliest possible train spawn
   - `INITIAL_MAX_MS: 55_000` — latest first spawn window
-- [ ] Define `TrainState` interface in `src/game/gameStateTypes.ts`: rail rect, axis, travel progress, warning state, direction
+- [x] Define `TrainState` interface in `src/game/gameStateTypes.ts`: rail rect, axis, travel progress, warning state, direction
 
 ### 18C. Train Runtime
 - [ ] Create `src/game/trainRuntime.ts` with lifecycle: idle → warning → crossing → cooldown

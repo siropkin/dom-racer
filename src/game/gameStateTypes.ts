@@ -1,4 +1,4 @@
-import type { Vector2, VehicleDesign, World } from '../shared/types';
+import type { Rect, Vector2, VehicleDesign, World } from '../shared/types';
 import type { PoliceEdge } from './sprites';
 
 export interface SurfaceSample {
@@ -52,6 +52,15 @@ export interface PlaneWarningState {
   edge: PoliceEdge;
   remainingMs: number;
   durationMs: number;
+}
+
+export interface TrainState {
+  rail: Rect;
+  axis: 'horizontal' | 'vertical';
+  direction: 1 | -1;
+  progressPx: number;
+  phase: 'warning' | 'crossing';
+  warningRemainingMs: number;
 }
 
 export interface GameOverState {

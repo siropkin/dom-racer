@@ -1,5 +1,6 @@
 import {
   PLAYER_SIZE,
+  type RailCandidate,
   type Rect,
   type ScannedElement,
   type Vector2,
@@ -22,6 +23,8 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
   const boosts: Rect[] = [];
   const pickups: World['pickups'] = [];
 
+  const scannedRailRects: Rect[] = [];
+
   for (const element of scannedElements) {
     if (element.kind === 'wall') {
       slowZones.push(expandRect(element.rect, 1));
@@ -40,6 +43,11 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
 
     if (element.kind === 'ice') {
       iceZones.push(expandRect(element.rect, 2));
+      continue;
+    }
+
+    if (element.kind === 'rail') {
+      scannedRailRects.push(element.rect);
       continue;
     }
   }
@@ -66,6 +74,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
   }
 
   const spawnPoint = findSpawnPoint(obstacles, hazards, deadSpots, viewport);
+  const railCandidates = findRailCandidates(obstacles, slowZones, scannedRailRects, viewport);
 
   return {
     viewport,
@@ -76,6 +85,7 @@ export function buildWorld(scannedElements: ScannedElement[], viewport: Viewport
     deadSpots,
     boosts,
     pickups,
+    railCandidates,
     spawnPoint,
     scannedCount: scannedElements.length,
   };
@@ -202,4 +212,125 @@ function axisDistance(startA: number, endA: number, startB: number, endB: number
 
 function clampToViewport(position: number, size: number, max: number): number {
   return Math.max(8, Math.min(position, max - size - 8));
+}
+
+const RAIL_ASPECT_RATIO = 12;
+const RAIL_VIEWPORT_SPAN = 0.6;
+const RAIL_CLEARANCE_PX = 60;
+
+function findRailCandidates(
+  obstacles: Rect[],
+  slowZones: Rect[],
+  scannedRailRects: Rect[],
+  viewport: ViewportSize,
+): RailCandidate[] {
+  const candidates: RailCandidate[] = [];
+
+  for (const rect of scannedRailRects) {
+    const candidate = toRailCandidate(rect, viewport);
+    if (candidate) {
+      candidates.push(candidate);
+    }
+  }
+
+  for (const rect of [...obstacles, ...slowZones]) {
+    const candidate = toRailCandidate(rect, viewport);
+    if (candidate) {
+      candidates.push(candidate);
+    }
+  }
+
+  const deduped = deduplicateRails(candidates);
+  return deduped.filter((c) => hasEnoughClearance(c.rect, c.axis, obstacles, viewport));
+}
+
+function toRailCandidate(rect: Rect, viewport: ViewportSize): RailCandidate | null {
+  const aspectW = rect.width / Math.max(1, rect.height);
+  const aspectH = rect.height / Math.max(1, rect.width);
+
+  if (aspectW >= RAIL_ASPECT_RATIO && rect.width >= viewport.width * RAIL_VIEWPORT_SPAN) {
+    return { rect, axis: 'horizontal' };
+  }
+
+  if (aspectH >= RAIL_ASPECT_RATIO && rect.height >= viewport.height * RAIL_VIEWPORT_SPAN) {
+    return { rect, axis: 'vertical' };
+  }
+
+  return null;
+}
+
+function deduplicateRails(candidates: RailCandidate[]): RailCandidate[] {
+  const sorted = [...candidates].sort((a, b) => railLength(b) - railLength(a));
+  const kept: RailCandidate[] = [];
+
+  for (const candidate of sorted) {
+    const overlaps = kept.some(
+      (existing) => existing.axis === candidate.axis && railsOverlap(existing.rect, candidate.rect),
+    );
+    if (!overlaps) {
+      kept.push(candidate);
+    }
+  }
+
+  return kept;
+}
+
+function railLength(candidate: RailCandidate): number {
+  return candidate.axis === 'horizontal' ? candidate.rect.width : candidate.rect.height;
+}
+
+function railsOverlap(a: Rect, b: Rect): boolean {
+  const xOverlap =
+    Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > Math.min(a.width, b.width) * 0.5;
+  const yOverlap =
+    Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) >
+    Math.min(a.height, b.height) * 0.5;
+  return xOverlap && yOverlap;
+}
+
+function hasEnoughClearance(
+  rail: Rect,
+  axis: 'horizontal' | 'vertical',
+  obstacles: Rect[],
+  viewport: ViewportSize,
+): boolean {
+  if (axis === 'horizontal') {
+    const above: Rect = {
+      x: rail.x,
+      y: rail.y - RAIL_CLEARANCE_PX,
+      width: rail.width,
+      height: RAIL_CLEARANCE_PX,
+    };
+    const below: Rect = {
+      x: rail.x,
+      y: rail.y + rail.height,
+      width: rail.width,
+      height: RAIL_CLEARANCE_PX,
+    };
+
+    const aboveClear = above.y >= 0 && !obstacles.some((o) => rectsIntersect(above, o));
+    const belowClear =
+      below.y + below.height <= viewport.height && !obstacles.some((o) => rectsIntersect(below, o));
+
+    return aboveClear || belowClear;
+  }
+
+  const left: Rect = {
+    x: rail.x - RAIL_CLEARANCE_PX,
+    y: rail.y,
+    width: RAIL_CLEARANCE_PX,
+    height: rail.height,
+  };
+  const right: Rect = {
+    x: rail.x + rail.width,
+    y: rail.y,
+    width: RAIL_CLEARANCE_PX,
+    height: rail.height,
+  };
+
+  const leftClear = left.x >= 0 && !obstacles.some((o) => rectsIntersect(left, o));
+  const rightClear =
+    right.x + right.width <= viewport.width && !obstacles.some((o) => rectsIntersect(right, o));
+
+  return leftClear || rightClear;
 }

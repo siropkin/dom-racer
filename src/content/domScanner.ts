@@ -25,6 +25,15 @@ export function scanVisibleDom(overlayRoot: HTMLElement | null): ScannedElement[
     }
 
     const style = window.getComputedStyle(element);
+
+    const hrResult = tryClassifyHr(element, style, viewport);
+    if (hrResult) {
+      if (results.length < MAX_RESULTS) {
+        results.push(hrResult);
+      }
+      continue;
+    }
+
     const rect = normalizeRect(element.getBoundingClientRect(), viewport);
     if (!rect) {
       continue;
@@ -92,6 +101,40 @@ function normalizeRect(domRect: DOMRect, viewport: ViewportSize): Rect | null {
     width,
     height,
   };
+}
+
+function tryClassifyHr(
+  element: HTMLElement,
+  style: CSSStyleDeclaration,
+  viewport: ViewportSize,
+): ScannedElement | null {
+  if (element.tagName.toLowerCase() !== 'hr') {
+    return null;
+  }
+
+  if (style.display === 'none' || style.visibility === 'hidden') {
+    return null;
+  }
+
+  const domRect = element.getBoundingClientRect();
+  const left = Math.max(0, domRect.left);
+  const top = Math.max(0, domRect.top);
+  const right = Math.min(viewport.width, domRect.right);
+  const bottom = Math.min(viewport.height, domRect.bottom);
+  const width = Math.round(right - left);
+  const height = Math.max(1, Math.round(bottom - top));
+
+  if (width < viewport.width * 0.6) {
+    return null;
+  }
+
+  if (right <= 0 || bottom <= 0 || left >= viewport.width || top >= viewport.height) {
+    return null;
+  }
+
+  const rect: Rect = { x: Math.round(left), y: Math.round(top), width, height };
+  const fixed = style.position === 'fixed' || style.position === 'sticky';
+  return toScannedElement('rail', element, rect, fixed);
 }
 
 function classifyElement(
