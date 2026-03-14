@@ -49,11 +49,11 @@ describe('VFX particle smoke invariants', () => {
     const particles: VfxParticle[] = [];
     spawnCoinBurstParticles(particles, 300, 400);
 
-    expect(particles.length).toBeGreaterThanOrEqual(4);
-    expect(particles.length).toBeLessThanOrEqual(6);
+    expect(particles.length).toBeGreaterThanOrEqual(5);
+    expect(particles.length).toBeLessThanOrEqual(8);
     expect(particles.every((p) => p.color === '#fde047')).toBe(true);
-    expect(particles.every((p) => p.radius === 2)).toBe(true);
-    expect(particles.every((p) => p.maxLifetimeMs >= 200 && p.maxLifetimeMs <= 300)).toBe(true);
+    expect(particles.every((p) => p.radius === 2.5)).toBe(true);
+    expect(particles.every((p) => p.maxLifetimeMs >= 280 && p.maxLifetimeMs <= 380)).toBe(true);
   });
 
   it('spawns tire dust particles with surface-appropriate color', () => {
@@ -75,9 +75,9 @@ describe('VFX particle smoke invariants', () => {
     const particles: VfxParticle[] = [];
     spawnDriftSparkParticles(particles, 200, 300, Math.PI / 4);
 
-    expect(particles.length).toBeGreaterThanOrEqual(2);
-    expect(particles.length).toBeLessThanOrEqual(3);
-    expect(particles.every((p) => p.maxLifetimeMs === 150)).toBe(true);
+    expect(particles.length).toBeGreaterThanOrEqual(3);
+    expect(particles.length).toBeLessThanOrEqual(4);
+    expect(particles.every((p) => p.maxLifetimeMs === 200)).toBe(true);
     expect(particles.every((p) => p.color === '#fde047' || p.color === '#f8fafc')).toBe(true);
   });
 });

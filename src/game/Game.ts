@@ -70,6 +70,7 @@ import {
   spawnCoinBurstParticles,
   spawnDriftSparkParticles,
   spawnEscapedCelebrationParticles,
+  spawnNearMissFlashParticles,
   spawnNewBestBurstParticles,
   spawnTireDustParticles,
   updateVfxParticles,
@@ -1181,9 +1182,15 @@ export class Game {
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playNearMissWhoosh();
+      const nmBounds = this.player.getBounds();
+      spawnNearMissFlashParticles(
+        this.vfxParticles,
+        nmBounds.x + nmBounds.width / 2,
+        nmBounds.y + nmBounds.height / 2,
+      );
       this.toastSystem.enqueue({
-        x: this.player.getBounds().x + this.player.getBounds().width / 2,
-        y: this.player.getBounds().y - 18,
+        x: nmBounds.x + nmBounds.width / 2,
+        y: nmBounds.y - 18,
         text: step.messageText,
         ttlMs: NEAR_MISS_TOAST_TTL_MS,
         color: NEAR_MISS_COLOR,

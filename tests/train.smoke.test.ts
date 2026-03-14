@@ -158,10 +158,14 @@ describe('train encounter smoke invariants', () => {
 
   describe('ghost immunity', () => {
     it('ghost effect prevents train collision', () => {
-      const train = createTrainEvent(viewport);
-      train.phase = 'crossing';
-      train.direction = 1;
-      train.progressPx = viewport.width;
+      const train = {
+        rail: { x: 0, y: Math.round(viewport.height / 2), width: viewport.width, height: 3 },
+        axis: 'horizontal' as const,
+        direction: 1 as const,
+        progressPx: viewport.width,
+        phase: 'crossing' as const,
+        warningRemainingMs: 0,
+      };
 
       const playerOnRail: Rect = {
         x: 600,

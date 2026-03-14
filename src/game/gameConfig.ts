@@ -196,7 +196,7 @@ export const NEAR_MISS = {
   COOLDOWN_MS: 800,
   THRESHOLD_PX: 5,
   COLOR: '#fb923c',
-  TOAST_TTL_MS: 600,
+  TOAST_TTL_MS: 800,
 } as const;
 
 // ---------------------------------------------------------------------------

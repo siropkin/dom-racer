@@ -48,13 +48,13 @@ export function drawVfxParticles(ctx: CanvasRenderingContext2D, particles: VfxPa
   ctx.restore();
 }
 
-/** Spawns 4-6 tiny yellow sparkle particles bursting outward from a collection point. */
+/** Spawns 5-8 yellow sparkle particles bursting outward from a collection point. */
 export function spawnCoinBurstParticles(particles: VfxParticle[], x: number, y: number): void {
-  const count = 4 + Math.floor(Math.random() * 3);
+  const count = 5 + Math.floor(Math.random() * 4);
   for (let i = 0; i < count; i += 1) {
     const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
-    const speed = 40 + Math.random() * 60;
-    const lifetime = 200 + Math.random() * 100;
+    const speed = 50 + Math.random() * 80;
+    const lifetime = 280 + Math.random() * 100;
     particles.push({
       x,
       y,
@@ -64,7 +64,7 @@ export function spawnCoinBurstParticles(particles: VfxParticle[], x: number, y: 
       maxAlpha: 1,
       lifetimeMs: lifetime,
       maxLifetimeMs: lifetime,
-      radius: 2,
+      radius: 2.5,
       color: '#fde047',
     });
   }
@@ -183,14 +183,14 @@ export function spawnTireDustParticles(
   }
 }
 
-/** Spawns 2-3 tiny white/yellow spark particles at the car's rear on sharp turns over boost. */
+/** Spawns 3-4 tiny white/yellow spark particles at the car's rear on sharp turns over boost. */
 export function spawnDriftSparkParticles(
   particles: VfxParticle[],
   cx: number,
   cy: number,
   angle: number,
 ): void {
-  const count = 2 + Math.floor(Math.random() * 2);
+  const count = 3 + Math.floor(Math.random() * 2);
   for (let i = 0; i < count; i += 1) {
     const side = Math.random() > 0.5 ? 1 : -1;
     const sideAngle = angle + Math.PI + side * (0.6 + Math.random() * 0.6);
@@ -202,10 +202,39 @@ export function spawnDriftSparkParticles(
       dy: Math.sin(sideAngle) * speed,
       alpha: 0.9,
       maxAlpha: 0.9,
-      lifetimeMs: 150,
-      maxLifetimeMs: 150,
+      lifetimeMs: 200,
+      maxLifetimeMs: 200,
       radius: 1.2 + Math.random() * 0.6,
       color: Math.random() > 0.5 ? '#fde047' : '#f8fafc',
+    });
+  }
+  if (particles.length > VFX_PARTICLE_CAP) {
+    particles.splice(0, particles.length - VFX_PARTICLE_CAP);
+  }
+}
+
+/** Spawns 3-5 orange flash particles around the player on a near-miss graze. */
+export function spawnNearMissFlashParticles(
+  particles: VfxParticle[],
+  cx: number,
+  cy: number,
+): void {
+  const count = 3 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.6;
+    const speed = 35 + Math.random() * 55;
+    const lifetime = 220 + Math.random() * 80;
+    particles.push({
+      x: cx + (Math.random() - 0.5) * 8,
+      y: cy + (Math.random() - 0.5) * 8,
+      dx: Math.cos(angle) * speed,
+      dy: Math.sin(angle) * speed,
+      alpha: 0.9,
+      maxAlpha: 0.9,
+      lifetimeMs: lifetime,
+      maxLifetimeMs: lifetime,
+      radius: 1.8 + Math.random() * 0.6,
+      color: '#fb923c',
     });
   }
   if (particles.length > VFX_PARTICLE_CAP) {

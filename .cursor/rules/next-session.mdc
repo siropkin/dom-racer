@@ -23,23 +23,23 @@ Phases 1-19 complete + post-phase polish. 100 smoke tests across 9 files. All pa
 Re-read the research references in SOUL.md and audit the full game loop against them.
 
 ### 20A. Telegraphing & Response Windows
-- [ ] Audit all encounter pre-cues: police warning (1.1s), plane warning (0.9s), train warning (1.5s), chopper warning. Are response windows consistent and fair?
-- [ ] Check that difficulty escalates through route pressure (overgrowth, police frequency), not hidden state changes
-- [ ] Verify the player always has a readable cue before any danger (no surprise deaths)
-- [ ] Adjust any timings that feel too short or too long
+- [x] Audit all encounter pre-cues: police warning (1.1s), plane warning (0.9s), train warning (1.5s), chopper warning. Are response windows consistent and fair?
+- [x] Check that difficulty escalates through route pressure (overgrowth, police frequency), not hidden state changes
+- [x] Verify the player always has a readable cue before any danger (no surprise deaths)
+- [x] Adjust any timings that feel too short or too long
 
 ### 20B. Economy & Pacing (MDA Framework)
-- [ ] Review coin spawn rates, refill timing, and special spawn intervals — is the economy satisfying across a 30-90 second run?
-- [ ] Verify police pressure ramp: first at ~8-10s, respawn 11-17s, helicopter at chase #3. Does this feel like rising tension or random harassment?
-- [ ] Plane encounter timing: first at ~10-15s, respawn ~11-17s. Does the drop feel like a reward event?
-- [ ] Train at 30s+, max 1 per run. Is this a punctuation mark or does it feel random?
-- [ ] Daily modifiers: verify each one feels like a recognizable twist, not a bug
+- [x] Review coin spawn rates, refill timing, and special spawn intervals — is the economy satisfying across a 30-90 second run?
+- [x] Verify police pressure ramp: first at ~8-10s, respawn 11-17s, helicopter at chase #3. Does this feel like rising tension or random harassment?
+- [x] Plane encounter timing: first at ~10-15s, respawn ~11-17s. Does the drop feel like a reward event?
+- [x] Train at 30s+, max 1 per run. Is this a punctuation mark or does it feel random?
+- [x] Daily modifiers: verify each one feels like a recognizable twist, not a bug
 
 ### 20C. Game Feel (Vlambeer Principles)
-- [ ] Audit VFX feedback: coin burst particles, celebration particles, near-miss flash, drift sparks. Are they punchy enough?
-- [ ] Audio feedback: pickup sound, siren, horn, chop, engine. Any gaps?
-- [ ] First-play hint timing (4.5s) — long enough to read?
-- [ ] Toast visibility and lifetime — are messages readable at speed?
+- [x] Audit VFX feedback: coin burst particles, celebration particles, near-miss flash, drift sparks. Are they punchy enough?
+- [x] Audio feedback: pickup sound, siren, horn, chop, engine. Any gaps?
+- [x] First-play hint timing (4.5s) — long enough to read?
+- [x] Toast visibility and lifetime — are messages readable at speed?
 
 ### 20D. Phase 20 Closeout
 - [ ] Document all findings and changes in a summary
