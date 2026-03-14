@@ -386,6 +386,7 @@ describe('police, plane, encounter stagger smoke invariants', () => {
       durationMs: 6000,
       phase: 'chasing' as const,
       exitEdge: 'right' as const,
+      variant: 'car' as const,
     };
     const normal = { ...baseline };
     const onIce = { ...baseline };

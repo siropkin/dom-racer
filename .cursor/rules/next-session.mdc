@@ -49,18 +49,18 @@ Key decisions from completed phases:
 Design reference: `docs/discovery-helicopter-train.md`
 
 ### 17A. Helicopter State & Config
-- [ ] Add `variant: 'car' | 'helicopter'` field to `PoliceChaseState` in `src/game/gameStateTypes.ts`
-- [ ] Add `POLICE.HELICOPTER_CHASE_THRESHOLD` (default: 3) to `src/game/gameConfig.ts` — the Nth chase in a run that becomes a helicopter
-- [ ] Add helicopter-specific physics constants: `POLICE.HELICOPTER_SPEED` (~140), `POLICE.HELICOPTER_TURN_BLEND` (~6), separate from car values
-- [ ] Track `policeChaseCount` per run in `Game.ts`, increment on chase spawn, reset on `beginRun`
+- [x] Add `variant: 'car' | 'helicopter'` field to `PoliceChaseState` in `src/game/gameStateTypes.ts`
+- [x] Add `POLICE.HELICOPTER_CHASE_THRESHOLD` (default: 3) to `src/game/gameConfig.ts` — the Nth chase in a run that becomes a helicopter
+- [x] Add helicopter-specific physics constants: `POLICE.HELICOPTER_SPEED` (~140), `POLICE.HELICOPTER_TURN_BLEND` (~6), separate from car values
+- [x] Track `policeChaseCount` per run in `Game.ts`, increment on chase spawn, reset on `beginRun`
 
 ### 17B. Helicopter Movement & Encounter Logic
-- [ ] In `encounterRuntime.ts` `createPoliceChase`: set `variant: 'helicopter'` when chase count >= threshold
-- [ ] In `advancePoliceChasing`: when `variant === 'helicopter'`, use helicopter speed/turn constants
-- [ ] Helicopter ignores obstacles — skip obstacle collision avoidance in chase movement
-- [ ] Helicopter ignores ice — skip ice zone speed/turn modifiers
-- [ ] Ghost effect still dismisses helicopter chase (same as car)
-- [ ] Existing chase duration escalation formula applies to both variants — no special casing
+- [x] In `encounterRuntime.ts` `createPoliceChase`: set `variant: 'helicopter'` when chase count >= threshold
+- [x] In `advancePoliceChasing`: when `variant === 'helicopter'`, use helicopter speed/turn constants
+- [x] Helicopter ignores obstacles — skip obstacle collision avoidance in chase movement
+- [x] Helicopter ignores ice — skip ice zone speed/turn modifiers
+- [x] Ghost effect still dismisses helicopter chase (same as car)
+- [x] Existing chase duration escalation formula applies to both variants — no special casing
 
 ### 17C. Helicopter Sprite
 - [ ] Create `src/game/sprites/helicopterSprite.ts` with `renderHelicopterSprite` function

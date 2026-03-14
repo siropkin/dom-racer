@@ -110,6 +110,9 @@ export const POLICE = {
   CHASE_DURATION_MAX_MS: 6_000,
   ICE_SPEED_MULTIPLIER: 1.08,
   ICE_TURN_RATE: 3.6,
+  HELICOPTER_CHASE_THRESHOLD: 3,
+  HELICOPTER_SPEED: 140,
+  HELICOPTER_TURN_BLEND: 6,
 } as const;
 
 // ---------------------------------------------------------------------------

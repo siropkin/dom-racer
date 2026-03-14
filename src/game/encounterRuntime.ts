@@ -165,6 +165,7 @@ export function createPoliceChase(
   edge?: PoliceEdge,
   runElapsedMs = 0,
   viewportScaleFactor = 1,
+  policeChaseCount = 1,
 ): PoliceChaseState {
   const spawnEdge = edge ?? getRandomPoliceEdge();
   const spawn = getPoliceSpawn(viewport, spawnEdge);
@@ -172,12 +173,15 @@ export function createPoliceChase(
   const minMs = POLICE.CHASE_DURATION_MIN_MS + escalation * 3_000;
   const maxMs = POLICE.CHASE_DURATION_MAX_MS + escalation * 4_000;
   const durationMs = randomBetween(minMs, maxMs) * viewportScaleFactor;
+  const variant: 'car' | 'helicopter' =
+    policeChaseCount >= POLICE.HELICOPTER_CHASE_THRESHOLD ? 'helicopter' : 'car';
   return {
     ...spawn,
     remainingMs: durationMs,
     durationMs,
     phase: 'chasing',
     exitEdge: spawnEdge,
+    variant,
   };
 }
 
@@ -201,16 +205,18 @@ export function advancePoliceLeaving(
   dtSeconds: number,
   onIce: boolean,
 ): void {
+  const isHeli = policeChase.variant === 'helicopter';
   const exitTarget = getPoliceExitTarget(viewport, policeChase);
   const policeCenter = getPoliceCenter(policeChase);
   const dx = exitTarget.x - policeCenter.x;
   const dy = exitTarget.y - policeCenter.y;
   const distance = Math.hypot(dx, dy);
-  const exitSpeed = 230 * (onIce ? POLICE.ICE_SPEED_MULTIPLIER : 1);
+  const iceOnGround = onIce && !isHeli;
+  const exitSpeed = 230 * (iceOnGround ? POLICE.ICE_SPEED_MULTIPLIER : 1);
 
   if (distance > 0.0001) {
     const targetAngle = Math.atan2(dy, dx);
-    const turnBlend = clamp(dtSeconds * (onIce ? POLICE.ICE_TURN_RATE : 16), 0, 1);
+    const turnBlend = clamp(dtSeconds * (iceOnGround ? POLICE.ICE_TURN_RATE : 16), 0, 1);
     const moveAngle = blendAngle(policeChase.angle, targetAngle, turnBlend);
     policeChase.x += Math.cos(moveAngle) * exitSpeed * dtSeconds;
     policeChase.y += Math.sin(moveAngle) * exitSpeed * dtSeconds;
@@ -226,17 +232,24 @@ export function advancePoliceChasing(
   score: number,
   onIce: boolean,
 ): { urgency: number } {
+  const isHeli = policeChase.variant === 'helicopter';
   const policeCenter = getPoliceCenter(policeChase);
   const dx = target.x - policeCenter.x;
   const dy = target.y - policeCenter.y;
   const distance = Math.hypot(dx, dy);
   const urgency = clamp(1 - distance / 260, 0.12, 1);
-  const speed =
-    (162 + Math.min(50, score * 0.2) + urgency * 28) * (onIce ? POLICE.ICE_SPEED_MULTIPLIER : 1);
+
+  const iceOnGround = onIce && !isHeli;
+  const speed = isHeli
+    ? POLICE.HELICOPTER_SPEED
+    : (162 + Math.min(50, score * 0.2) + urgency * 28) *
+      (iceOnGround ? POLICE.ICE_SPEED_MULTIPLIER : 1);
 
   if (distance > 0.0001) {
     const targetAngle = Math.atan2(dy, dx);
-    const turnBlend = clamp(dtSeconds * (onIce ? POLICE.ICE_TURN_RATE : 18), 0, 1);
+    const turnBlend = isHeli
+      ? clamp(dtSeconds * POLICE.HELICOPTER_TURN_BLEND, 0, 1)
+      : clamp(dtSeconds * (iceOnGround ? POLICE.ICE_TURN_RATE : 18), 0, 1);
     const moveAngle = blendAngle(policeChase.angle, targetAngle, turnBlend);
     policeChase.x += Math.cos(moveAngle) * speed * dtSeconds;
     policeChase.y += Math.sin(moveAngle) * speed * dtSeconds;
@@ -516,6 +529,7 @@ export interface PoliceChaseTickInput {
   runElapsedMs: number;
   dtSeconds: number;
   viewportScaleFactor?: number;
+  policeChaseCount?: number;
 }
 
 export interface PoliceChaseTickResult {
@@ -598,6 +612,7 @@ export function resolvePoliceChaseTickStep(input: PoliceChaseTickInput): PoliceC
         policeWarning?.edge,
         input.runElapsedMs,
         input.viewportScaleFactor ?? 1,
+        input.policeChaseCount ?? 1,
       );
       policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS);
       policeWarning = null;

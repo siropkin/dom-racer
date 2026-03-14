@@ -39,6 +39,7 @@ export interface PoliceChaseState {
   durationMs: number;
   phase: 'chasing' | 'leaving';
   exitEdge: PoliceEdge;
+  variant: 'car' | 'helicopter';
 }
 
 export interface PoliceWarningState {

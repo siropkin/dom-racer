@@ -241,6 +241,7 @@ export class Game {
   private lifetimeTotalScore: number;
   private viewportScaleFactor: number;
   private pageLightness: number;
+  private policeChaseCount: number;
 
   constructor(options: GameOptions) {
     const context = options.canvas.getContext('2d');
@@ -344,6 +345,7 @@ export class Game {
     this.lifetimeTotalScore = options.initialLifetimeTotalScore;
     this.viewportScaleFactor = 1;
     this.pageLightness = 0.5;
+    this.policeChaseCount = 0;
   }
 
   start(): void {
@@ -1503,6 +1505,7 @@ export class Game {
       runElapsedMs: this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0,
       dtSeconds,
       viewportScaleFactor: this.viewportScaleFactor,
+      policeChaseCount: this.policeChaseCount + 1,
     });
 
     this.policeChase = step.policeChase;
@@ -1521,6 +1524,7 @@ export class Game {
           this.audio.playPoliceAlert();
           break;
         case 'chase-spawned':
+          this.policeChaseCount += 1;
           break;
         case 'escaped':
           this.spawnEffectMessage('ESCAPED', '#86efac', 'high');
@@ -1772,6 +1776,7 @@ export class Game {
     this.spriteShowcaseActive = nextRunState.spriteShowcaseActive;
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
+    this.policeChaseCount = 0;
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;
