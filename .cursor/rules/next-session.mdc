@@ -16,7 +16,7 @@ First, read:
 
 ## Current State
 
-Phases 1-19 complete + post-phase polish. 100 smoke tests across 9 files. All passing, clean build. 41 source files, 159 KB bundle (44 KB gzip).
+Phases 1-20 complete + post-phase polish. 100 smoke tests across 9 files. All passing, clean build. 41 source files, 159 KB bundle (44 KB gzip).
 
 ## Phase 20 — Gameplay Audit (Research-Informed)
 
@@ -42,9 +42,9 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Toast visibility and lifetime — are messages readable at speed?
 
 ### 20D. Phase 20 Closeout
-- [ ] Document all findings and changes in a summary
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] Document all findings and changes in a summary
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 21 — Sprite & Visual Consistency Pass
 

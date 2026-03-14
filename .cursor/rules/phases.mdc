@@ -28,7 +28,7 @@ alwaysApply: false
 | 17 | `done` | Police helicopter late-game escalation |
 | 18 | `done` | Train encounter |
 | 19 | `done` | Branding pixel-art backgrounds |
-| 20 | `pending` | Gameplay audit (research-informed) |
+| 20 | `done` | Gameplay audit (research-informed) |
 | 21 | `pending` | Sprite & visual consistency pass |
 | 22 | `pending` | Popup, manifest & marketplace review |
 | 23 | `pending` | Debug screen (sprite showcase) polish |
@@ -50,6 +50,8 @@ alwaysApply: false
 **Phase 18** — Train encounter: train spawns at viewport center with random horizontal/vertical axis. Caltrain-style multi-car sprite. Train horn + crossing rumble audio. Yellow "TRAIN" edge warning. "HIT BY TRAIN" game over. Ghost immunity. Encounter stagger with police/plane. Max 1 per run, after 30s.
 
 **Phase 19** — Branding: horizontal stepped color band backgrounds (dark navy → teal) across all SVGs. PNGs regenerated.
+
+**Phase 20** — Gameplay audit (research-informed): audited the full game loop against Mike Stout telegraphing, MDA framework, and Vlambeer game-feel principles. Telegraphing hierarchy (1.5s train > 1.1s police/chopper > 0.9s plane) confirmed fair with readable pre-cues; difficulty escalates through route pressure, not hidden state. Economy pacing validated: coin spawns, police ramp, plane drops, and train timing all satisfying across 30-90s runs. Game feel improvements: punchier coin burst particles (5-8 count, radius 2.5, 280-380ms lifetime), new near-miss orange flash particles, buffed drift sparks (3-4 count, 200ms lifetime), extended near-miss toast TTL from 600ms to 800ms.
 
 ## Post-Phase Polish
 
