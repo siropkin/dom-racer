@@ -33,7 +33,7 @@ export type SpecialEffect =
   | 'mystery';
 export type HudEffectKind = SpecialEffect | 'police';
 
-export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier' | 'rail';
+export type ScannedKind = 'wall' | 'pickup' | 'boost' | 'ice' | 'barrier';
 
 export interface ScannedElement {
   id: string;
@@ -54,11 +54,6 @@ export interface WorldPickup {
   label?: string;
 }
 
-export interface RailCandidate {
-  rect: Rect;
-  axis: 'horizontal' | 'vertical';
-}
-
 export interface World {
   viewport: ViewportSize;
   obstacles: Rect[];
@@ -68,7 +63,6 @@ export interface World {
   deadSpots: Rect[];
   pickups: WorldPickup[];
   boosts: Rect[];
-  railCandidates: RailCandidate[];
   spawnPoint: Vector2;
   scannedCount: number;
 }

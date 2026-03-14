@@ -148,10 +148,6 @@ export function cloneWorld(world: World): World {
     deadSpots: world.deadSpots.map(cloneRect),
     boosts: world.boosts.map(cloneRect),
     pickups: world.pickups.map(clonePickup),
-    railCandidates: world.railCandidates.map((c) => ({
-      rect: cloneRect(c.rect),
-      axis: c.axis,
-    })),
     spawnPoint: { ...world.spawnPoint },
     scannedCount: world.scannedCount,
   };

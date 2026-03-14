@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { Rect, World } from '../src/shared/types';
-import { buildWorld } from '../src/content/worldBuilder';
+import type { Rect } from '../src/shared/types';
 import {
   advanceTrainCrossing,
   checkTrainCollision,
@@ -37,23 +36,13 @@ import { Game } from '../src/game/Game';
 describe('train encounter smoke invariants', () => {
   let game: Game;
   const runReasons: Array<'manual' | 'deadSpot' | 'caught' | 'quit'> = [];
-
-  function createWorldWithRailCandidates(coinCount: number): World {
-    const base = createWorldWithRegularCoins(coinCount);
-    base.railCandidates = [
-      {
-        rect: { x: 0, y: 360, width: 1280, height: 4 },
-        axis: 'horizontal' as const,
-      },
-    ];
-    return base;
-  }
+  const viewport = { width: 1280, height: 720 };
 
   beforeEach(() => {
     runReasons.length = 0;
     game = new Game({
       canvas: createCanvas(),
-      createWorld: () => createWorldWithRailCandidates(14),
+      createWorld: () => createWorldWithRegularCoins(14),
       getPageTitle: () => 'DOM Racer Train Smoke',
       sampleSurfaceAt: () => ({ lightness: 0.6, saturation: 0.2, hasGradient: false }),
       setPageInverted: () => undefined,
@@ -71,99 +60,21 @@ describe('train encounter smoke invariants', () => {
     });
   });
 
-  describe('rail detection', () => {
-    it('identifies long thin horizontal rect as a rail candidate', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'barrier:hr:0:360:1280:4:hr:',
-          kind: 'barrier' as const,
-          rect: { x: 0, y: 360, width: 1280, height: 4 },
-          tagName: 'div',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
-      expect(world.railCandidates[0].axis).toBe('horizontal');
-    });
+  describe('train creation', () => {
+    it('creates a train at viewport center with random axis', () => {
+      const train = createTrainEvent(viewport);
+      expect(train.phase).toBe('warning');
+      expect(train.warningRemainingMs).toBe(TRAIN.WARNING_MS);
+      expect(['horizontal', 'vertical']).toContain(train.axis);
+      expect([1, -1]).toContain(train.direction);
 
-    it('rejects short rect as rail candidate', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'barrier:div:0:360:200:4:short:',
-          kind: 'barrier' as const,
-          rect: { x: 0, y: 360, width: 200, height: 4 },
-          tagName: 'div',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBe(0);
-    });
-
-    it('produces rail candidates from hr-scanned rail elements', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'rail:hr:0:360:1280:2:hr:',
-          kind: 'rail' as const,
-          rect: { x: 0, y: 360, width: 1280, height: 2 },
-          tagName: 'hr',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
-      expect(world.railCandidates[0].axis).toBe('horizontal');
-    });
-
-    it('produces rail candidates from thin divider elements (below MIN_DIMENSION)', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'rail:div:0:400:1280:2:divider:',
-          kind: 'rail' as const,
-          rect: { x: 0, y: 400, width: 1280, height: 2 },
-          tagName: 'div',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
-      expect(world.railCandidates[0].axis).toBe('horizontal');
-    });
-
-    it('produces rail candidates from CSS border rects', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'rail:nav:0:64:1280:1:border-bottom:',
-          kind: 'rail' as const,
-          rect: { x: 0, y: 64, width: 1280, height: 1 },
-          tagName: 'nav',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBeGreaterThanOrEqual(1);
-      expect(world.railCandidates[0].axis).toBe('horizontal');
-    });
-
-    it('rejects border rail rect that is too short', () => {
-      const viewport = { width: 1280, height: 720 };
-      const elements = [
-        {
-          id: 'rail:div:0:64:300:1:border-bottom:',
-          kind: 'rail' as const,
-          rect: { x: 0, y: 64, width: 300, height: 1 },
-          tagName: 'div',
-          fixed: false,
-        },
-      ];
-      const world = buildWorld(elements, viewport);
-      expect(world.railCandidates.length).toBe(0);
+      if (train.axis === 'horizontal') {
+        expect(train.rail.y).toBe(Math.round(viewport.height / 2));
+        expect(train.rail.width).toBe(viewport.width);
+      } else {
+        expect(train.rail.x).toBe(Math.round(viewport.width / 2));
+        expect(train.rail.height).toBe(viewport.height);
+      }
     });
   });
 
@@ -173,7 +84,6 @@ describe('train encounter smoke invariants', () => {
         trainSpawnTimerMs: 0,
         runElapsedMs: TRAIN.MIN_RUN_TIME_MS - 1000,
         trainEventsThisRun: 0,
-        railCandidateCount: 1,
         policeOrWarningActive: false,
         planeOrWarningActive: false,
         trainActive: false,
@@ -187,7 +97,6 @@ describe('train encounter smoke invariants', () => {
         trainSpawnTimerMs: 100,
         runElapsedMs: TRAIN.MIN_RUN_TIME_MS + 5000,
         trainEventsThisRun: 0,
-        railCandidateCount: 1,
         policeOrWarningActive: false,
         planeOrWarningActive: false,
         trainActive: false,
@@ -201,7 +110,6 @@ describe('train encounter smoke invariants', () => {
         trainSpawnTimerMs: 0,
         runElapsedMs: 90_000,
         trainEventsThisRun: TRAIN.MAX_PER_RUN,
-        railCandidateCount: 1,
         policeOrWarningActive: false,
         planeOrWarningActive: false,
         trainActive: false,
@@ -218,12 +126,10 @@ describe('train encounter smoke invariants', () => {
       (game as any).score = 40;
       (game as any).startTimeMs = performance.now() - 1000;
 
-      const viewport = { width: 1280, height: 720 };
-      const train = createTrainEvent([
-        { rect: { x: 0, y: 360, width: 1280, height: 4 }, axis: 'horizontal' },
-      ]);
+      const train = createTrainEvent(viewport);
       train.phase = 'crossing';
-      train.progressPx = viewport.width / 2;
+      train.direction = 1;
+      train.progressPx = viewport.width;
 
       (game as any).trainState = train;
       (game as any).updateTrain(0.016);
@@ -252,62 +158,19 @@ describe('train encounter smoke invariants', () => {
 
   describe('ghost immunity', () => {
     it('ghost effect prevents train collision', () => {
-      const viewport = { width: 1280, height: 720 };
-      const train = createTrainEvent([
-        { rect: { x: 0, y: 356, width: 1280, height: 4 }, axis: 'horizontal' },
-      ]);
+      const train = createTrainEvent(viewport);
       train.phase = 'crossing';
       train.direction = 1;
       train.progressPx = viewport.width;
 
-      const playerOnRail: Rect = { x: 600, y: 352, width: 28, height: 16 };
+      const playerOnRail: Rect = {
+        x: 600,
+        y: Math.round(viewport.height / 2) - 4,
+        width: 28,
+        height: 16,
+      };
       expect(checkTrainCollision(train, viewport, playerOnRail, false)).toBe(true);
       expect(checkTrainCollision(train, viewport, playerOnRail, true)).toBe(false);
-    });
-  });
-
-  describe('no train when railCandidates is empty', () => {
-    it('skips train spawn when no rail candidates exist', () => {
-      const step = resolveTrainSpawnStep({
-        trainSpawnTimerMs: 0,
-        runElapsedMs: 60_000,
-        trainEventsThisRun: 0,
-        railCandidateCount: 0,
-        policeOrWarningActive: false,
-        planeOrWarningActive: false,
-        trainActive: false,
-        dtSeconds: 0.016,
-      });
-      expect(step.shouldSpawn).toBe(false);
-    });
-
-    it('does not attempt train events when world has no rail candidates', () => {
-      const noRailGame = new Game({
-        canvas: createCanvas(),
-        createWorld: () => createWorldWithRegularCoins(14),
-        getPageTitle: () => 'DOM Racer No Rails',
-        sampleSurfaceAt: () => ({ lightness: 0.6, saturation: 0.2, hasGradient: false }),
-        setPageInverted: () => undefined,
-        setPageBlur: () => undefined,
-        setMagnetUiState: () => undefined,
-        onQuit: () => undefined,
-        initialSoundEnabled: false,
-        onSoundEnabledChange: () => undefined,
-        initialVehicleDesign: 'coupe',
-        onVehicleDesignChange: () => undefined,
-        initialPageBestScore: 0,
-        initialLifetimeBestScore: 0,
-        initialRunCount: 0,
-      });
-
-      (noRailGame as any).beginRun();
-      (noRailGame as any).running = true;
-      (noRailGame as any).startTimeMs = performance.now() - 60_000;
-      (noRailGame as any).trainSpawnTimerMs = 0;
-
-      const result = (noRailGame as any).updateTrain(0.016);
-      expect(result).toBe(false);
-      expect((noRailGame as any).trainState).toBeNull();
     });
   });
 
@@ -317,7 +180,6 @@ describe('train encounter smoke invariants', () => {
         trainSpawnTimerMs: 0,
         runElapsedMs: 60_000,
         trainEventsThisRun: 0,
-        railCandidateCount: 1,
         policeOrWarningActive: true,
         planeOrWarningActive: false,
         trainActive: false,
@@ -332,7 +194,6 @@ describe('train encounter smoke invariants', () => {
         trainSpawnTimerMs: 0,
         runElapsedMs: 60_000,
         trainEventsThisRun: 0,
-        railCandidateCount: 1,
         policeOrWarningActive: false,
         planeOrWarningActive: true,
         trainActive: false,
@@ -361,10 +222,7 @@ describe('train encounter smoke invariants', () => {
 
   describe('train lifecycle', () => {
     it('train advances through warning then crossing phases', () => {
-      const viewport = { width: 1280, height: 720 };
-      const train = createTrainEvent([
-        { rect: { x: 0, y: 360, width: 1280, height: 4 }, axis: 'horizontal' },
-      ]);
+      const train = createTrainEvent(viewport);
       expect(train.phase).toBe('warning');
       expect(train.warningRemainingMs).toBe(TRAIN.WARNING_MS);
 
@@ -375,10 +233,7 @@ describe('train encounter smoke invariants', () => {
     });
 
     it('train completes after crossing the viewport', () => {
-      const viewport = { width: 1280, height: 720 };
-      const train = createTrainEvent([
-        { rect: { x: 0, y: 360, width: 1280, height: 4 }, axis: 'horizontal' },
-      ]);
+      const train = createTrainEvent(viewport);
       train.phase = 'crossing';
 
       const totalTravel = viewport.width + train.rail.width;

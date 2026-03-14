@@ -1,4 +1,4 @@
-import type { Rect, RailCandidate, ViewportSize } from '../shared/types';
+import type { Rect, ViewportSize } from '../shared/types';
 import { rectsIntersect } from '../shared/utils';
 import type { TrainState } from './gameStateTypes';
 import { ENCOUNTER, TRAIN } from './gameConfig';
@@ -17,17 +17,12 @@ export function resolveTrainSpawnStep(options: {
   trainSpawnTimerMs: number;
   runElapsedMs: number;
   trainEventsThisRun: number;
-  railCandidateCount: number;
   policeOrWarningActive: boolean;
   planeOrWarningActive: boolean;
   trainActive: boolean;
   dtSeconds: number;
 }): TrainSpawnStep {
   if (options.trainActive) {
-    return { trainSpawnTimerMs: options.trainSpawnTimerMs, shouldSpawn: false };
-  }
-
-  if (options.railCandidateCount === 0) {
     return { trainSpawnTimerMs: options.trainSpawnTimerMs, shouldSpawn: false };
   }
 
@@ -55,16 +50,21 @@ export function resolveTrainSpawnStep(options: {
 }
 
 // ---------------------------------------------------------------------------
-// Train creation
+// Train creation — spawns at viewport center, random axis
 // ---------------------------------------------------------------------------
 
-export function createTrainEvent(railCandidates: RailCandidate[]): TrainState {
-  const rail = railCandidates[Math.floor(Math.random() * railCandidates.length)];
+export function createTrainEvent(viewport: ViewportSize): TrainState {
+  const axis: 'horizontal' | 'vertical' = Math.random() < 0.5 ? 'horizontal' : 'vertical';
   const direction: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
 
+  const rail: Rect =
+    axis === 'horizontal'
+      ? { x: 0, y: Math.round(viewport.height / 2), width: viewport.width, height: 3 }
+      : { x: Math.round(viewport.width / 2), y: 0, width: 3, height: viewport.height };
+
   return {
-    rail: { ...rail.rect },
-    axis: rail.axis,
+    rail,
+    axis,
     direction,
     progressPx: 0,
     phase: 'warning',

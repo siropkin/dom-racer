@@ -1704,16 +1704,11 @@ export class Game {
       return false;
     }
 
-    if (this.world.railCandidates.length === 0) {
-      return false;
-    }
-
     const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
     const step = resolveTrainSpawnStep({
       trainSpawnTimerMs: this.trainSpawnTimerMs,
       runElapsedMs,
       trainEventsThisRun: this.trainEventsThisRun,
-      railCandidateCount: this.world.railCandidates.length,
       policeOrWarningActive: Boolean(this.policeChase) || Boolean(this.policeWarning),
       planeOrWarningActive: Boolean(this.planeBonusEvent) || Boolean(this.planeWarning),
       trainActive: false,
@@ -1722,7 +1717,7 @@ export class Game {
     this.trainSpawnTimerMs = step.trainSpawnTimerMs;
 
     if (step.shouldSpawn) {
-      this.trainState = createTrainEvent(this.world.railCandidates);
+      this.trainState = createTrainEvent(this.world.viewport);
       this.trainEventsThisRun += 1;
       this.trainSpawnTimerMs = TRAIN.COOLDOWN_MS;
       this.policeSpawnTimerMs = Math.max(this.policeSpawnTimerMs, ENCOUNTER.STAGGER_MS);

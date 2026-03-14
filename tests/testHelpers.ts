@@ -48,7 +48,7 @@ export function createWorldWithRegularCoins(coinCount: number): World {
     deadSpots: [],
     boosts: [],
     pickups,
-    railCandidates: [],
+
     spawnPoint: { x: 600, y: 620 },
     scannedCount: pickups.length,
   };
