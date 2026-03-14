@@ -1,28 +1,30 @@
 # DOM Racer
 
 ```
-                  ┌──────┐
-          ┌───┐   │▄▄▄▄▄▄│   ┌───┐
-          │░░░│   │      │   │░░░│
-          └───┘   │ ┌──┐ │   └───┘
-                  │ │  │ │
-                  │ └──┘ │
-          ┌───┐   │      │   ┌───┐
-          │░░░│   │▄▄▄▄▄▄│   │░░░│
-          └───┘   └──────┘   └───┘
+       ████    ███   █   █
+       █   █  █   █  ██ ██
+       █   █  █   █  █ █ █
+       █   █  █   █  █   █
+       ████    ███   █   █
+
+████    ███    ████  █████  ████
+█   █  █   █  █      █      █   █
+████   █████  █      ████   ████
+█  █   █   █  █      █      █  █
+█   █  █   █   ████  █████  █   █
 ```
 
 **Your browser tab is a racetrack. You just don't know it yet.**
 
-DOM Racer is a Chrome / Edge extension that scans whatever page you're on and turns it into a tiny top-down arcade arena. Links become loot. Text becomes walls. Images become ice. Buttons become coins. Police show up when you get too comfortable. A propeller plane drops weird gifts from the sky. The page you were reading five seconds ago is now a hostile little world, and you love it.
+DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into a top-down arcade arena. Links and buttons become coins. Text slows you down. Form fields grow weeds. Police show up, a biplane drops gifts from the sky, and the page you were reading is now a hostile little world.
 
 ![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
 
 ## Every Page Plays Different
 
-A docs page is a maze of text walls. A dashboard is a wide-open racetrack with scattered buttons. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey — and that's the whole point.
+A docs page is a maze of slow zones. A dashboard is a wide-open track with scattered coins. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey.
 
-The difficulty curve is simple: the longer you survive, the weirder it gets. Coins to chase. Power-ups to grab. Police cars that punish overstaying your welcome. A biplane that drops surprises across the map. Bushes that literally grow out of the walls and close off your escape routes. It starts clean. It doesn't stay clean.
+The longer you survive, the weirder it gets. Power-ups to grab. Police that punish overstaying. A biplane dropping surprises. Grass that grows into bushes and trees, closing off your escape routes. It starts clean. It doesn't stay clean.
 
 ## Get It Running
 
@@ -55,23 +57,15 @@ You can also start the game from the extension popup button.
 
 ## What Happens During a Run
 
-**Coins everywhere.** Every link and button on the page becomes a gold coin. Drive through them. That's your score.
-
-**Power-ups spawn in.** Nine specials drop into free space as you play — some help, some mess with you, one is a total mystery. Grab them all anyway. (See the full list below.)
-
-**Police show up.** Stay alive long enough and a cop car spawns at the edge of the screen with flashing sirens. Outrun it or get busted. The longer your run, the longer they chase.
-
-**A plane flies over.** A propeller biplane crosses the arena and drops one of five things: bonus pickups, a trail of coins, a spotlight on a hidden special, a lucky wind that nudges coins your way, or a brief police delay. You'll hear the drone coming.
-
-**The page fights back.** After ~35 seconds, bushes and trees start sprouting from walls and barriers, slowly eating into your driving lanes. Small bumps become speed traps become full walls. The map tightens. Your routes get riskier.
-
-**Goals appear.** A few seconds into a run, you get a quiet coin-collection challenge: grab N coins in X seconds. Nail it for a score bonus (+20 to +40). Miss it, no penalty — another one shows up after a cooldown.
-
-**Near-misses feel great.** Thread the gap between your car and a wall or police cruiser and the HUD flashes — CLOSE! TIGHT! RAZOR! — with a burst of particles. No score bonus, just the thrill.
-
-**Daily modifiers.** Every day the rules twist a little: double coins, faster police, slippery surfaces, early overgrowth, extra specials. It's the same page, but today it's different.
-
-**Nitro boost.** Hit `Space` for a short speed burst. 3 second cooldown between uses. The cooldown varies by vehicle.
+- Every link and button becomes a gold coin — drive through them for score
+- Nine power-ups spawn into open space as you play — some help, some hurt, one is a mystery
+- Police show up after a while with flashing sirens — outrun them or get busted
+- A propeller biplane crosses the arena dropping bonus pickups, coin trails, or lucky wind
+- After ~35s, grass sprouts from obstacles, grows into bushes, then trees — your lanes shrink
+- Coin-collection goals appear mid-run — hit them for +20 to +40 bonus points
+- Thread the gap near walls or police for a near-miss flash (no score, just style)
+- Daily modifiers twist the rules: double coins, faster police, slippery surfaces, and more
+- Hit `Space` for a nitro burst — cooldown varies by vehicle
 
 **Three vehicles, three feels.** Unlocked by hitting lifetime score milestones. Swap mid-game with `V`.
 
@@ -101,25 +95,25 @@ Active effects show a countdown timer in the top-right HUD panel.
 
 ## How the World Is Built
 
-This is the genuinely cool part. DOM Racer scans your visible page and translates real HTML elements into game geometry:
+DOM Racer scans your visible page and translates real HTML elements into game geometry:
 
-- **Text blocks** → wall slices (using actual visible text bounds)
+- **Text blocks** → slow zones (car slows down)
 - **Links & buttons** → gold coin pickups
-- **Images & pictures** → ice surfaces (slippery!)
+- **Form controls** (inputs, textareas, selects) → slow zones + overgrowth surfaces
+- **Images, video, canvas** → ice surfaces (slippery!)
 - **Fixed UI near edges** → barriers
-- **SVGs & reactive surfaces** → speed boosts
+- **SVGs & colorful surfaces** → speed boosts
 - **Empty space** → where specials spawn mid-run
 
-The result is intentionally game-ish, not pixel-perfect. The goal is to preserve the *feel* of the page while making it fun to drive through. A GitHub Issues page plays nothing like a Wikipedia article, and that's the whole point.
+The result is intentionally game-ish, not pixel-perfect. A GitHub Issues page plays nothing like a Wikipedia article, and that's the whole point.
 
 ## Tips
 
-- **Try different websites** — every page generates a unique track. Wikipedia, GitHub, blogs, news sites, docs all play completely differently.
-- **The buggy** turns fast and recharges nitro quickly — great for tight pages with lots of text walls.
-- **The truck** has raw speed but turns like a boat — best for open pages with long stretches.
-- **Watch for the airplane** — listen for the propeller drone and follow the drop.
-- **After ~35 seconds**, bushes grow from walls and close off routes. Plan your escape lanes early.
-- **Some pages won't work** — heavily iframe'd apps like Gmail or Figma don't have enough scannable content. You'll see a friendly "not enough to race on" screen.
+- **Try different websites** — every page generates a unique track
+- **The buggy** turns fast and recharges nitro quickly — great for tight pages
+- **The truck** has raw speed but turns like a boat — best for open stretches
+- **Listen for the airplane** — follow the propeller drone to the drop
+- **After ~35s**, overgrowth closes off routes — plan your lanes early
 
 ## Privacy
 

@@ -54,8 +54,8 @@ First, read:
 
 ## Current State
 
-Phases 1-14 complete.
-Phase 14 delivered: HUD controls fix (WASD/ARROWS drive text, M key prefix for music, fixed-position layout preventing jitter), info block spacing normalized, center-biased spawn point, form control DOM scanning (inputs/textareas/selects/radios/checkboxes become slow zones + overgrowth anchors), overgrowth ladder rewrite (grass → bush → tree single escalation replacing bush/tree two-kind system), special pickup readability pass (helpful=rounded square+chevron, harmful=diamond, mystery=circle).
+Phases 1-15 complete.
+Phase 15 delivered: Popup visual language unified with HUD (accent bars, darker bg, minimal rounding, shape-prefixed special tags), pixel-art wordmark in README and branding SVGs, README shortened and inaccuracies fixed, store listing refreshed.
 
 ## Phase 9 — Play-test Polish (UX, specials overhaul, screens)
 

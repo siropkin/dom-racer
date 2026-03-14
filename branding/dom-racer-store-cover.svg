@@ -101,7 +101,7 @@
   <rect x="1076" y="378" width="4" height="32" rx="2" fill="#ef4444" fill-opacity="0.5"/>
 
   <!-- Title -->
-  <text x="160" y="704" fill="#f8fafc" font-size="48" font-weight="900" font-family="Arial, Helvetica, sans-serif">DOM Racer</text>
+  <text x="160" y="704" fill="#f8fafc" font-size="48" font-weight="900" font-family="'Courier New', Courier, monospace" letter-spacing="4">DOM Racer</text>
   <text x="160" y="742" fill="#94a3b8" font-size="20" font-weight="500" font-family="Arial, Helvetica, sans-serif">Turn any webpage into a tiny arcade track.</text>
 
   <!-- Sparkles -->

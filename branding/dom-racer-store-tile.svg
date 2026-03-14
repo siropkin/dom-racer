@@ -54,7 +54,7 @@
   <path d="M36 60L40 72L52 76L40 80L36 92L32 80L20 76L32 72Z" fill="#fff" fill-opacity="0.65"/>
 
   <!-- Text content (right side) -->
-  <text x="184" y="90" fill="#f8fafc" font-size="30" font-weight="800" font-family="Arial, Helvetica, sans-serif">DOM Racer</text>
+  <text x="184" y="90" fill="#f8fafc" font-size="30" font-weight="900" font-family="'Courier New', Courier, monospace" letter-spacing="4">DOM Racer</text>
   <text x="184" y="114" fill="#94a3b8" font-size="13" font-weight="500" font-family="Arial, Helvetica, sans-serif">Every page is a racetrack.</text>
 
   <!-- Feature pills -->
