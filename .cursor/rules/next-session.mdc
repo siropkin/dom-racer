@@ -16,38 +16,168 @@ First, read:
 
 ## Current State
 
-Phases 1-19 complete. 100 smoke tests across 9 files. All passing, clean build. No pending phases. Production readiness audit done.
+Phases 1-19 complete + post-phase polish. 100 smoke tests across 9 files. All passing, clean build. 41 source files, 159 KB bundle (44 KB gzip).
 
-Key decisions:
-- 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
-- Overgrowth: grass → bush → tree single escalation ladder
-- Special pickup shapes: helpful=rounded square+chevron, harmful=diamond, mystery=circle, jackpot=star
-- Form controls scanned as slow zones + overgrowth anchors
-- HUD controls: `WASD/ARROWS` left, `SPACE NITRO` right, line 2 fixed-position columns
-- Spawn strongly center-biased. All score increments multiples of 10.
-- Police helicopter from chase #3+: airborne movement, rotor chop audio, amber "CHOPPER" warning, searchlight, body flash lights
-- Train encounter: spawns at viewport center (random horizontal/vertical axis), Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
-- Sprite showcase (Shift+D): helicopter, train, clickable sound test panel with active-state indicators
-- Daily modifiers: 4 types (DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, EARLY_OVERGROWTH), first-play protection (no modifier when lifetime score is 0)
-- First police arrives at ~8-10s (fast start)
-- Unpause grace: 1.5s extension on all timers when tab regains focus
-- Pixel-art branding: horizontal stepped color bands (dark navy → teal) across icon, cover, tile
+## Phase 20 — Gameplay Audit (Research-Informed)
+
+Re-read the research references in SOUL.md and audit the full game loop against them.
+
+### 20A. Telegraphing & Response Windows
+- [ ] Audit all encounter pre-cues: police warning (1.1s), plane warning (0.9s), train warning (1.5s), chopper warning. Are response windows consistent and fair?
+- [ ] Check that difficulty escalates through route pressure (overgrowth, police frequency), not hidden state changes
+- [ ] Verify the player always has a readable cue before any danger (no surprise deaths)
+- [ ] Adjust any timings that feel too short or too long
+
+### 20B. Economy & Pacing (MDA Framework)
+- [ ] Review coin spawn rates, refill timing, and special spawn intervals — is the economy satisfying across a 30-90 second run?
+- [ ] Verify police pressure ramp: first at ~8-10s, respawn 11-17s, helicopter at chase #3. Does this feel like rising tension or random harassment?
+- [ ] Plane encounter timing: first at ~10-15s, respawn ~11-17s. Does the drop feel like a reward event?
+- [ ] Train at 30s+, max 1 per run. Is this a punctuation mark or does it feel random?
+- [ ] Daily modifiers: verify each one feels like a recognizable twist, not a bug
+
+### 20C. Game Feel (Vlambeer Principles)
+- [ ] Audit VFX feedback: coin burst particles, celebration particles, near-miss flash, drift sparks. Are they punchy enough?
+- [ ] Audio feedback: pickup sound, siren, horn, chop, engine. Any gaps?
+- [ ] First-play hint timing (4.5s) — long enough to read?
+- [ ] Toast visibility and lifetime — are messages readable at speed?
+
+### 20D. Phase 20 Closeout
+- [ ] Document all findings and changes in a summary
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 21 — Sprite & Visual Consistency Pass
+
+### 21A. Player Sprites
+- [ ] Review all 3 vehicle sprites (coupe, buggy, truck) for visual consistency: line weight, color palette, detail level
+- [ ] Ensure ghost opacity, magnet glow, boost flame effects look correct on all 3 vehicles
+- [ ] Verify adaptive shadow/glow works well on both light and dark pages for all sprites
+
+### 21B. Encounter Sprites
+- [ ] Review police car sprite: proportions, light bar, body flash
+- [ ] Review helicopter sprite: body proportions, rotor spin speed, searchlight cone, police lights
+- [ ] Review plane sprite: propeller spin, body shape, approach angle
+- [ ] Review train sprite: Caltrain livery, car count, horizontal + vertical rendering, rail flash
+- [ ] Ensure all encounter sprites feel like they belong in the same visual universe
+
+### 21C. Pickup & Overgrowth Sprites
+- [ ] Review coin sprite: spin animation, gold color
+- [ ] Review all 9 special pickup shapes: helpful=rounded square, harmful=diamond, mystery=circle, jackpot=star
+- [ ] Review overgrowth stages: grass, bush, tree — do they read well at small sizes?
+
+### 21D. Phase 21 Closeout
+- [ ] Fix any visual issues found
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 22 — Popup, Manifest & Marketplace Review
+
+### 22A. Popup HTML
+- [ ] Read `public/popup.html` and review: layout, content accuracy, visual alignment with HUD style
+- [ ] Verify all power-up descriptions are accurate (check against current 9 specials)
+- [ ] Verify controls listed match actual hotkeys
+- [ ] Check "Start Game" button functionality description
+- [ ] Fix any stale text or styling issues
+
+### 22B. Manifest & Store Listing
+- [ ] Review `public/manifest.json`: name, version, description, permissions, icons
+- [ ] Manifest description should be concise and enticing (≤132 chars for Chrome Web Store)
+- [ ] Verify all icon sizes exist and are correct (16, 32, 48, 128)
+- [ ] Review `branding/` SVGs: are store cover (1280×800) and tile (440×280) accurate?
+- [ ] Cross-check README "What Happens During a Run" section with actual gameplay
+- [ ] Update `INSTALL-FOR-FRIENDS.md` if anything changed
+
+### 22C. Phase 22 Closeout
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 23 — Debug Screen (Sprite Showcase) Polish
+
+### 23A. Showcase Layout & Content
+- [ ] Review overall layout of sprite showcase (Shift+D): spacing, alignment, readability
+- [ ] Verify all sprites render correctly in the showcase
+- [ ] Verify all edge warning indicators are visible (police, chopper, plane, train)
+- [ ] Verify sound test panel buttons all work and show active state correctly
+- [ ] Check that showcase train renders at a sensible position
+
+### 23B. Showcase UX
+- [ ] Add labels near each sprite group (VEHICLES, ENCOUNTERS, PICKUPS, etc.) if missing
+- [ ] Ensure theme cycling (arrow keys) works for all themes
+- [ ] Test that entering/exiting showcase cleanly restores game state
+
+### 23C. Phase 23 Closeout
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 24 — HUD Text Fitting & Layout
+
+### 24A. Text Overflow Audit
+- [ ] "TODAY: EARLY OVERGROWTH" is too wide for the info section — truncate or abbreviate long modifier labels
+- [ ] Audit all HUD text for overflow: score display, timer, best scores, controls hint, daily modifier
+- [ ] Check HUD at small viewport sizes (e.g., 800×600) — does anything clip or overlap?
+- [ ] Verify GOAL panel police bar text fits: "BUSTED BY POLICE", "CHOPPER - ESCAPE!", "HIT BY TRAIN"
+- [ ] Check POWER panel effect labels — do long names like "OIL SLICK" fit?
+
+### 24B. Layout Consistency
+- [ ] Verify line 2 fixed-position columns (WASD/ARROWS left, SPACE NITRO right) alignment
+- [ ] Confirm HUD scales correctly with `viewportScaleFactor`
+- [ ] Test HUD on both wide (1920px) and narrow (800px) viewports
+
+### 24C. Phase 24 Closeout
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Commit
+
+## Phase 25 — Code Refactoring & Production Readiness
+
+### 25A. File Structure & Organization
+- [ ] Review 41 source files — any that should be merged or split?
+- [ ] Check naming consistency: `*Runtime.ts` pattern, `*Sprite.ts` pattern
+- [ ] Verify all imports use the barrel pattern (`./sprites`) where appropriate
+- [ ] Check for circular dependencies
+
+### 25B. Dead Code & Unused Exports
+- [ ] Run dead code audit: unused exports, orphaned functions, stale imports
+- [ ] Remove any `export` on module-internal functions
+- [ ] Check for duplicate utility functions across files
+
+### 25C. Type Safety & Code Quality
+- [ ] Search for `as any` casts — eliminate or document necessity
+- [ ] Search for `console.log`, `__domRacerDebug`, `TODO`, `FIXME`
+- [ ] Verify all config values in `gameConfig.ts` are actually used
+- [ ] Run `npm run lint:fix && npm run format` — zero warnings
+
+### 25D. Bundle & Performance
+- [ ] Check bundle size — flag anything over 200 KB
+- [ ] Verify no unused modules are included in the build
+- [ ] Check that dev-only code doesn't leak into production build
+
+### 25E. Phase 25 Closeout
+- [ ] Final `npm run test` green, `npm run build` clean
+- [ ] Update SOUL.md, README.md with final test count and bundle size
+- [ ] Commit
+
+## Phase 26 — Git Hygiene
+
+### 26A. Remove .cursor from Git Tracking
+- [ ] Run `git rm --cached .cursor/rules/next-session.mdc .cursor/rules/phases.mdc`
+- [ ] Verify `.cursor` is in `.gitignore` (it already is)
+- [ ] Commit with message "chore: remove .cursor rules from git tracking"
+- [ ] Verify `git ls-files .cursor/` returns nothing
+
+### 26B. Final Session Closeout
+- [ ] `npm run test` green, `npm run build` clean
+- [ ] Update SOUL.md and next-session.mdc with final state
+- [ ] Create final commit
+- [ ] Report completion to user
 
 ## Essential Context
 
 - `window.__domRacerDebug` must not exist in source/build.
-- Centralized tuning: `gameConfig.ts` groups (TIMING, TOAST, COINS, SPECIALS, EFFECTS, JACKPOT, POLICE, PLANE, TRAIN, ENCOUNTER, OVERGROWTH, NEAR_MISS, OBJECTIVES, PLAYER, VEHICLES).
+- Centralized tuning: `gameConfig.ts` (15 config sections).
 - Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
 - 100 smoke tests across 9 files. `npm run test` / `npm run build` must pass.
-- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time. From chase #3+, variant switches to helicopter.
-- Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Anchors from obstacles + slowZones.
-- All score increments multiples of 10. Near-miss is visual-only (no score).
-- Extension popup: static HTML in `public/popup.html`. No JS build step.
-- Adaptive sprite contrast: `applyAdaptiveShadow()`/`clearAdaptiveShadow()` in `spriteHelpers.ts`.
-- Branding: pixel-art SVGs in `branding/`, PNGs generated via `generate_assets.py` using `rsvg-convert`.
-- Game toggle: Shift+Space (or Shift+Backtick). Popup "Start Game" button also toggles.
 
 ## Constraints To Preserve
 

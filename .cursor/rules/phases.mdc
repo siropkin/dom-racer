@@ -28,6 +28,13 @@ alwaysApply: false
 | 17 | `done` | Police helicopter late-game escalation |
 | 18 | `done` | Train encounter |
 | 19 | `done` | Branding pixel-art backgrounds |
+| 20 | `pending` | Gameplay audit (research-informed) |
+| 21 | `pending` | Sprite & visual consistency pass |
+| 22 | `pending` | Popup, manifest & marketplace review |
+| 23 | `pending` | Debug screen (sprite showcase) polish |
+| 24 | `pending` | HUD text fitting & layout |
+| 25 | `pending` | Code refactoring & production readiness |
+| 26 | `pending` | Git hygiene (.cursor removal) |
 
 ## Phase Summaries
 
