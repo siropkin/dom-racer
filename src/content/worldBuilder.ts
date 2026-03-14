@@ -148,8 +148,8 @@ function findSpawnPoint(
 
       const clearance = nearestClearance(candidate, blockers, viewport);
       const center = rectCenter(candidate);
-      const biasScore = -Math.sqrt(distanceSquared(center, target)) * 0.5;
-      const score = clearance + biasScore;
+      const dist = Math.sqrt(distanceSquared(center, target));
+      const score = Math.min(clearance, 80) * 0.3 - dist * 0.7;
 
       if (score > bestScore) {
         bestScore = score;
