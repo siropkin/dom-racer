@@ -124,8 +124,8 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Test HUD on both wide (1920px) and narrow (800px) viewports
 
 ### 24C. Phase 24 Closeout
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 25 — Code Refactoring & Production Readiness
 
