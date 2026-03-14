@@ -82,14 +82,30 @@ export function renderHelicopterSprite(
   ctx.stroke();
   ctx.lineCap = 'butt';
 
+  // --- siren flash state ---
+  const sirenPhase = Math.floor(now / 120) % 2 === 0;
+  const pulse = Math.sin(now / 110) > 0;
+
+  // --- siren glow (under fuselage, visible when chasing) ---
+  if (options.chasing) {
+    const glowColor = sirenPhase ? 'rgba(59, 130, 246, 0.22)' : 'rgba(239, 68, 68, 0.22)';
+    ctx.fillStyle = glowColor;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, halfBody + 6, BODY_H / 2 + 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   // --- fuselage outline ---
   ctx.fillStyle = 'rgba(15, 23, 42, 0.62)';
   ctx.beginPath();
   ctx.ellipse(0, 0, halfBody + 1.2, BODY_H / 2 + 1.2, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // --- fuselage body (oval) ---
-  ctx.fillStyle = '#cbd5e1';
+  // --- fuselage body (oval) — flashes red/blue when chasing ---
+  const bodyColor = options.chasing
+    ? (sirenPhase ? '#93c5fd' : '#fca5a5')
+    : '#cbd5e1';
+  ctx.fillStyle = bodyColor;
   ctx.beginPath();
   ctx.ellipse(0, 0, halfBody, BODY_H / 2, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -111,11 +127,10 @@ export function renderHelicopterSprite(
   ctx.ellipse(halfBody * 0.35 + 1, -1, 2.2, 2.2, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // --- police light bar ---
-  const pulse = Math.floor(now / 120) % 2 === 0;
-  const barWidth = 10;
-  const barHeight = 4;
-  drawBorderedRect(ctx, -barWidth / 2, -barHeight / 2 - 0.5, barWidth, barHeight, 1.4, '#0f172a');
+  // --- police light bar (larger, matching car proportions) ---
+  const barWidth = 12;
+  const barHeight = 5;
+  drawBorderedRect(ctx, -barWidth / 2, -barHeight / 2 - 0.5, barWidth, barHeight, 1.6, '#0f172a');
   ctx.fillStyle = pulse ? '#93c5fd' : '#1d4ed8';
   ctx.fillRect(-barWidth / 2 + 0.8, -barHeight / 2 + 0.3, barWidth / 2 - 1, barHeight - 1.2);
   ctx.fillStyle = pulse ? '#991b1b' : '#f87171';
