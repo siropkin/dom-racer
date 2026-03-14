@@ -66,9 +66,9 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Review overgrowth stages: grass, bush, tree — do they read well at small sizes?
 
 ### 21D. Phase 21 Closeout
-- [ ] Fix any visual issues found
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] Fix any visual issues found
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 22 — Popup, Manifest & Marketplace Review
 
