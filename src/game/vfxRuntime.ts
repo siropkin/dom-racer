@@ -15,7 +15,7 @@ export interface VfxParticle {
   color: string;
 }
 
-export const VFX_PARTICLE_CAP = 120;
+const VFX_PARTICLE_CAP = 120;
 
 /** Advances all particles forward and removes expired ones in-place. */
 export function updateVfxParticles(particles: VfxParticle[], dtSeconds: number): void {

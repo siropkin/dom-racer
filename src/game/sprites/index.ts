@@ -9,13 +9,5 @@ export {
   type PoliceWarningRenderState,
   type PoliceCarPose,
 } from './policeSprite';
-export {
-  renderPlaneSprite,
-  getPlaneSpriteTuning,
-  setPlaneSpriteTuning,
-  resetPlaneSpriteTuning,
-  DEFAULT_PLANE_SPRITE_TUNING,
-  type PlaneSpritePose,
-  type PlaneSpriteTuning,
-} from './planeSprite';
+export { renderPlaneSprite, type PlaneSpritePose } from './planeSprite';
 export { drawRegularCoinSprite, drawSpecialPickupSprite } from './pickupSprites';

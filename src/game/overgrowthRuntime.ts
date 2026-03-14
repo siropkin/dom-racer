@@ -18,8 +18,6 @@ export interface OvergrowthNode {
 }
 
 export const OVERGROWTH_SPAWN_START_MS = OVERGROWTH.SPAWN_START_MS;
-export const OVERGROWTH_SPAWN_INTERVAL_MIN_MS = OVERGROWTH.SPAWN_INTERVAL_MIN_MS;
-export const OVERGROWTH_SPAWN_INTERVAL_MAX_MS = OVERGROWTH.SPAWN_INTERVAL_MAX_MS;
 export const OVERGROWTH_MAX_NODES = OVERGROWTH.MAX_NODES;
 
 export const OVERGROWTH_GROWTH_GRASS_TO_BUSH_MS = OVERGROWTH.GROWTH_GRASS_TO_BUSH_MS;
@@ -62,7 +60,7 @@ export function resolveOvergrowthSpawnStep(options: {
 }
 
 export function getOvergrowthRespawnDelayMs(): number {
-  return randomBetween(OVERGROWTH_SPAWN_INTERVAL_MIN_MS, OVERGROWTH_SPAWN_INTERVAL_MAX_MS);
+  return randomBetween(OVERGROWTH.SPAWN_INTERVAL_MIN_MS, OVERGROWTH.SPAWN_INTERVAL_MAX_MS);
 }
 
 export function trySpawnOvergrowthNode(

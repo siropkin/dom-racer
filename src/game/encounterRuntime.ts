@@ -414,7 +414,7 @@ export function resolvePlaneEncounterSchedulingStep(options: {
   return { planeBonusTimerMs: 0, shouldStartEncounter: true };
 }
 
-export function isPointOutsideViewport(
+function isPointOutsideViewport(
   viewport: World['viewport'],
   x: number,
   y: number,
@@ -481,7 +481,7 @@ export function createPlaneCoinTrailRects(
   return rects;
 }
 
-export function getPlaneEntryEdge(viewport: World['viewport'], point: Vector2): PoliceEdge {
+function getPlaneEntryEdge(viewport: World['viewport'], point: Vector2): PoliceEdge {
   const distances = [
     { edge: 'top' as const, distance: point.y },
     { edge: 'right' as const, distance: viewport.width - point.x },

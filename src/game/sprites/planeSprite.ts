@@ -25,7 +25,7 @@ interface PlaneSpriteRenderOptions {
   snapToPixel?: boolean;
 }
 
-export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
+const PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
   bodyLength: 32,
   bodyWidth: 10,
   wingSpan: 36,
@@ -36,24 +36,6 @@ export const DEFAULT_PLANE_SPRITE_TUNING: PlaneSpriteTuning = {
   tailHeight: 5,
   propellerRadius: 6.4,
 };
-let runtimePlaneSpriteTuning: PlaneSpriteTuning = { ...DEFAULT_PLANE_SPRITE_TUNING };
-
-export function getPlaneSpriteTuning(): PlaneSpriteTuning {
-  return { ...runtimePlaneSpriteTuning };
-}
-
-export function setPlaneSpriteTuning(update: Partial<PlaneSpriteTuning>): PlaneSpriteTuning {
-  runtimePlaneSpriteTuning = {
-    ...runtimePlaneSpriteTuning,
-    ...update,
-  };
-  return { ...runtimePlaneSpriteTuning };
-}
-
-export function resetPlaneSpriteTuning(): PlaneSpriteTuning {
-  runtimePlaneSpriteTuning = { ...DEFAULT_PLANE_SPRITE_TUNING };
-  return { ...runtimePlaneSpriteTuning };
-}
 
 export function renderPlaneSprite(
   ctx: CanvasRenderingContext2D,
@@ -62,7 +44,7 @@ export function renderPlaneSprite(
   options: PlaneSpriteRenderOptions = {},
 ): void {
   const tuning: PlaneSpriteTuning = {
-    ...runtimePlaneSpriteTuning,
+    ...PLANE_SPRITE_TUNING,
     ...options.tuning,
   };
   const wobble = options.wobbleRadians ?? 0;
