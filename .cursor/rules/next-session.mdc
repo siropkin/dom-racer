@@ -148,16 +148,16 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Export from `src/game/sprites/index.ts` barrel
 
 ### 18E. Train Audio
-- [ ] Add train horn warning SFX to `src/game/audio.ts` — plays during warning phase
-- [ ] Add crossing rumble/clatter continuous audio while train is visible
-- [ ] Fade in/out matching existing encounter audio patterns
+- [x] Add train horn warning SFX to `src/game/audio.ts` — plays during warning phase
+- [x] Add crossing rumble/clatter continuous audio while train is visible
+- [x] Fade in/out matching existing encounter audio patterns
 
 ### 18F. Train Rendering & HUD
-- [ ] Wire train rendering into `src/game/gameRenderRuntime.ts`
-- [ ] Draw rail highlight during warning phase (pulsing glow along the rail line)
-- [ ] Draw train body during crossing phase
-- [ ] Edge warning indicator: same system, new color (e.g., yellow `#eab308`), label "TRAIN"
-- [ ] No GOAL panel bar needed — train is a hazard to avoid, not a timed chase
+- [x] Wire train rendering into `src/game/gameRenderRuntime.ts`
+- [x] Draw rail highlight during warning phase (pulsing glow along the rail line)
+- [x] Draw train body during crossing phase
+- [x] Edge warning indicator: same system, new color (e.g., yellow `#eab308`), label "TRAIN"
+- [x] No GOAL panel bar needed — train is a hazard to avoid, not a timed chase
 
 ### 18G. Train Integration in Game.ts
 - [ ] Wire `trainRuntime` lifecycle into `Game.ts` tick loop

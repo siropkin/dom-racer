@@ -1,7 +1,19 @@
 import type { Vector2, ViewportSize, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
-import { renderPlaneSprite, drawRegularCoinSprite, drawSpecialPickupSprite } from './sprites';
-import type { PlaneBonusEventState, SpecialSpawnCue, SurfaceSample } from './gameStateTypes';
+import {
+  renderPlaneSprite,
+  drawRegularCoinSprite,
+  drawSpecialPickupSprite,
+  renderEdgeWarningIndicator,
+  renderTrainSprite,
+  type PoliceEdge,
+} from './sprites';
+import type {
+  PlaneBonusEventState,
+  SpecialSpawnCue,
+  SurfaceSample,
+  TrainState,
+} from './gameStateTypes';
 
 /** Renders all world pickups (coins and specials) with spin animation. */
 export function drawPickups(
@@ -176,4 +188,43 @@ export function drawFocusModeLayer(
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, width, height);
   ctx.restore();
+}
+
+// ---------------------------------------------------------------------------
+// Train encounter rendering
+// ---------------------------------------------------------------------------
+
+/** Draws the train encounter: rail flash during warning, train body during crossing. */
+export function drawTrainEncounter(
+  ctx: CanvasRenderingContext2D,
+  train: TrainState,
+  viewport: ViewportSize,
+  nowMs: number,
+): void {
+  renderTrainSprite(ctx, train, viewport, nowMs);
+}
+
+/** Returns the edge from which the train enters based on axis and direction. */
+function getTrainWarningEdge(train: TrainState): PoliceEdge {
+  if (train.axis === 'horizontal') {
+    return train.direction === 1 ? 'left' : 'right';
+  }
+  return train.direction === 1 ? 'top' : 'bottom';
+}
+
+/** Draws the edge warning indicator for an incoming train. */
+export function drawTrainEdgeWarning(
+  ctx: CanvasRenderingContext2D,
+  viewport: ViewportSize,
+  train: TrainState,
+  nowMs: number,
+): void {
+  renderEdgeWarningIndicator(ctx, viewport, nowMs, {
+    edge: getTrainWarningEdge(train),
+    label: 'TRAIN',
+    colorOn: '#eab308',
+    colorOff: '#713f12',
+    flashPeriodMs: 90,
+    padding: 20,
+  });
 }

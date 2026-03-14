@@ -27,6 +27,12 @@ export class AudioManager {
   private chopOscillatorB: OscillatorNode | null;
   private chopLfoOscillator: OscillatorNode | null;
   private chopLfoGain: GainNode | null;
+  private trainRumbleGain: GainNode | null;
+  private trainRumbleFilter: BiquadFilterNode | null;
+  private trainRumbleOscillatorA: OscillatorNode | null;
+  private trainRumbleOscillatorB: OscillatorNode | null;
+  private trainRumbleLfoOscillator: OscillatorNode | null;
+  private trainRumbleLfoGain: GainNode | null;
   private enabled: boolean;
 
   constructor(initiallyEnabled: boolean) {
@@ -56,6 +62,12 @@ export class AudioManager {
     this.chopOscillatorB = null;
     this.chopLfoOscillator = null;
     this.chopLfoGain = null;
+    this.trainRumbleGain = null;
+    this.trainRumbleFilter = null;
+    this.trainRumbleOscillatorA = null;
+    this.trainRumbleOscillatorB = null;
+    this.trainRumbleLfoOscillator = null;
+    this.trainRumbleLfoGain = null;
     this.enabled = initiallyEnabled;
   }
 
@@ -369,6 +381,93 @@ export class AudioManager {
     }
   }
 
+  /** One-shot train horn blast for the warning phase. */
+  playTrainHorn(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    this.playSweepTone({
+      time: now,
+      startFrequency: 220,
+      endFrequency: 185,
+      duration: 0.38,
+      type: 'sawtooth',
+      volume: 0.028,
+      startFilterFrequency: 700,
+      endFilterFrequency: 420,
+      q: 1.2,
+    });
+    this.playSweepTone({
+      time: now + 0.01,
+      startFrequency: 330,
+      endFrequency: 278,
+      duration: 0.34,
+      type: 'triangle',
+      volume: 0.018,
+      startFilterFrequency: 900,
+      endFilterFrequency: 500,
+      q: 0.9,
+    });
+    this.playTone({
+      time: now + 0.15,
+      frequency: 165,
+      duration: 0.22,
+      type: 'square',
+      volume: 0.012,
+    });
+  }
+
+  /**
+   * Continuous rumble/clatter while the train is crossing.
+   * Low-frequency sawtooth oscillators with fast LFO for a rhythmic clickety-clack.
+   */
+  updateTrainRumble(active: boolean, progress: number): void {
+    if (!this.enabled) {
+      if (this.trainRumbleGain && this.context) {
+        const now = this.context.currentTime;
+        this.trainRumbleGain.gain.cancelScheduledValues(now);
+        this.trainRumbleGain.gain.setTargetAtTime(0, now, 0.03);
+      }
+      return;
+    }
+
+    const context = this.ensureContext();
+    const now = context.currentTime;
+    const rumble = this.ensureTrainRumbleNodes();
+
+    const fadeIn = Math.min(1, progress / 0.1);
+    const fadeOut = Math.min(1, (1 - progress) / 0.15);
+    const envelope = active ? fadeIn * fadeOut : 0;
+    const targetGain = envelope * 0.026;
+
+    rumble.gain.cancelScheduledValues(now);
+    rumble.gain.setTargetAtTime(targetGain, now, 0.05);
+
+    const baseFrequency = 48 + progress * 14;
+    const filterFrequency = 180 + envelope * 280;
+    const clatterRate = 16 + progress * 8;
+
+    if (this.trainRumbleOscillatorA && this.trainRumbleOscillatorB) {
+      this.trainRumbleOscillatorA.frequency.cancelScheduledValues(now);
+      this.trainRumbleOscillatorB.frequency.cancelScheduledValues(now);
+      this.trainRumbleOscillatorA.frequency.setTargetAtTime(baseFrequency, now, 0.07);
+      this.trainRumbleOscillatorB.frequency.setTargetAtTime(baseFrequency * 1.49, now, 0.07);
+    }
+
+    if (this.trainRumbleFilter) {
+      this.trainRumbleFilter.frequency.cancelScheduledValues(now);
+      this.trainRumbleFilter.frequency.setTargetAtTime(filterFrequency, now, 0.06);
+    }
+
+    if (this.trainRumbleLfoOscillator) {
+      this.trainRumbleLfoOscillator.frequency.cancelScheduledValues(now);
+      this.trainRumbleLfoOscillator.frequency.setTargetAtTime(clatterRate, now, 0.08);
+    }
+  }
+
   playPlaneDrop(): void {
     if (!this.enabled) {
       return;
@@ -452,7 +551,13 @@ export class AudioManager {
     }
 
     const now = this.context.currentTime;
-    for (const gain of [this.engineGain, this.policeGain, this.droneGain, this.chopGain]) {
+    for (const gain of [
+      this.engineGain,
+      this.policeGain,
+      this.droneGain,
+      this.chopGain,
+      this.trainRumbleGain,
+    ]) {
       if (gain) {
         gain.gain.cancelScheduledValues(now);
         gain.gain.setTargetAtTime(0, now, 0.02);
@@ -704,6 +809,62 @@ export class AudioManager {
     this.chopLfoOscillator = lfoOscillator;
     this.chopLfoGain = lfoGain;
     return chopGain;
+  }
+
+  private ensureTrainRumbleNodes(): GainNode {
+    if (
+      this.trainRumbleGain &&
+      this.trainRumbleFilter &&
+      this.trainRumbleOscillatorA &&
+      this.trainRumbleOscillatorB &&
+      this.trainRumbleLfoOscillator &&
+      this.trainRumbleLfoGain
+    ) {
+      return this.trainRumbleGain;
+    }
+
+    const context = this.ensureContext();
+    const masterGain = this.ensureMasterGain();
+    const rumbleGain = context.createGain();
+    rumbleGain.gain.value = 0;
+    const rumbleFilter = context.createBiquadFilter();
+    rumbleFilter.type = 'lowpass';
+    rumbleFilter.frequency.value = 200;
+    rumbleFilter.Q.value = 1.6;
+
+    const oscillatorA = context.createOscillator();
+    oscillatorA.type = 'sawtooth';
+    oscillatorA.frequency.value = 52;
+
+    const oscillatorB = context.createOscillator();
+    oscillatorB.type = 'triangle';
+    oscillatorB.frequency.value = 78;
+
+    const lfoOscillator = context.createOscillator();
+    lfoOscillator.type = 'square';
+    lfoOscillator.frequency.value = 18;
+    const lfoGain = context.createGain();
+    lfoGain.gain.value = 12;
+
+    lfoOscillator.connect(lfoGain);
+    lfoGain.connect(oscillatorA.detune);
+    lfoGain.connect(oscillatorB.detune);
+    oscillatorA.connect(rumbleFilter);
+    oscillatorB.connect(rumbleFilter);
+    rumbleFilter.connect(rumbleGain);
+    rumbleGain.connect(masterGain);
+
+    lfoOscillator.start();
+    oscillatorA.start();
+    oscillatorB.start();
+
+    this.trainRumbleGain = rumbleGain;
+    this.trainRumbleFilter = rumbleFilter;
+    this.trainRumbleOscillatorA = oscillatorA;
+    this.trainRumbleOscillatorB = oscillatorB;
+    this.trainRumbleLfoOscillator = lfoOscillator;
+    this.trainRumbleLfoGain = lfoGain;
+    return rumbleGain;
   }
 
   private playTone(options: {
