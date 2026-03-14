@@ -158,6 +158,8 @@ function drawBuggyBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {
   ctx.fillStyle = '#fef3c7';
   ctx.fillRect(-9.5, -1.5, 2, 3);
   ctx.fillRect(8.5, -1.5, 2, 3);
+
+  drawContourOutline(ctx, -10.5, -7, 20, 14, 4, 'rgba(15, 23, 42, 0.85)', 1);
 }
 
 function drawTruckBody(ctx: CanvasRenderingContext2D, airborne: boolean): void {

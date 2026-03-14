@@ -49,21 +49,21 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 ## Phase 21 — Sprite & Visual Consistency Pass
 
 ### 21A. Player Sprites
-- [ ] Review all 3 vehicle sprites (coupe, buggy, truck) for visual consistency: line weight, color palette, detail level
-- [ ] Ensure ghost opacity, magnet glow, boost flame effects look correct on all 3 vehicles
-- [ ] Verify adaptive shadow/glow works well on both light and dark pages for all sprites
+- [x] Review all 3 vehicle sprites (coupe, buggy, truck) for visual consistency: line weight, color palette, detail level
+- [x] Ensure ghost opacity, magnet glow, boost flame effects look correct on all 3 vehicles
+- [x] Verify adaptive shadow/glow works well on both light and dark pages for all sprites
 
 ### 21B. Encounter Sprites
-- [ ] Review police car sprite: proportions, light bar, body flash
-- [ ] Review helicopter sprite: body proportions, rotor spin speed, searchlight cone, police lights
-- [ ] Review plane sprite: propeller spin, body shape, approach angle
-- [ ] Review train sprite: Caltrain livery, car count, horizontal + vertical rendering, rail flash
-- [ ] Ensure all encounter sprites feel like they belong in the same visual universe
+- [x] Review police car sprite: proportions, light bar, body flash
+- [x] Review helicopter sprite: body proportions, rotor spin speed, searchlight cone, police lights
+- [x] Review plane sprite: propeller spin, body shape, approach angle
+- [x] Review train sprite: Caltrain livery, car count, horizontal + vertical rendering, rail flash
+- [x] Ensure all encounter sprites feel like they belong in the same visual universe
 
 ### 21C. Pickup & Overgrowth Sprites
-- [ ] Review coin sprite: spin animation, gold color
-- [ ] Review all 9 special pickup shapes: helpful=rounded square, harmful=diamond, mystery=circle, jackpot=star
-- [ ] Review overgrowth stages: grass, bush, tree — do they read well at small sizes?
+- [x] Review coin sprite: spin animation, gold color
+- [x] Review all 9 special pickup shapes: helpful=rounded square, harmful=diamond, mystery=circle, jackpot=star
+- [x] Review overgrowth stages: grass, bush, tree — do they read well at small sizes?
 
 ### 21D. Phase 21 Closeout
 - [ ] Fix any visual issues found
