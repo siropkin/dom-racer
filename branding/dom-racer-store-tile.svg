@@ -53,9 +53,27 @@
   <!-- Sparkle -->
   <path d="M36 60L40 72L52 76L40 80L36 92L32 80L20 76L32 72Z" fill="#fff" fill-opacity="0.65"/>
 
-  <!-- Text content (right side) -->
-  <text x="184" y="90" fill="#f8fafc" font-size="30" font-weight="900" font-family="'Courier New', Courier, monospace" letter-spacing="4">DOM Racer</text>
-  <text x="184" y="114" fill="#94a3b8" font-size="13" font-weight="500" font-family="Arial, Helvetica, sans-serif">Every page is a racetrack.</text>
+  <!-- Pixel-art "DOM RACER" wordmark -->
+  <g fill="#f8fafc" transform="translate(184,68)">
+    <!-- D -->
+    <rect x="0" y="0" width="3" height="15"/><rect x="3" y="0" width="3" height="3"/><rect x="6" y="0" width="3" height="3"/><rect x="9" y="3" width="3" height="9"/><rect x="6" y="12" width="3" height="3"/><rect x="3" y="12" width="3" height="3"/>
+    <!-- O -->
+    <rect x="16" y="0" width="9" height="3"/><rect x="16" y="12" width="9" height="3"/><rect x="16" y="3" width="3" height="9"/><rect x="22" y="3" width="3" height="9"/>
+    <!-- M -->
+    <rect x="30" y="0" width="3" height="15"/><rect x="42" y="0" width="3" height="15"/><rect x="33" y="3" width="3" height="3"/><rect x="39" y="3" width="3" height="3"/><rect x="36" y="6" width="3" height="3"/>
+    <!-- gap -->
+    <!-- R -->
+    <rect x="56" y="0" width="3" height="15"/><rect x="59" y="0" width="6" height="3"/><rect x="65" y="3" width="3" height="3"/><rect x="59" y="6" width="6" height="3"/><rect x="62" y="9" width="3" height="3"/><rect x="65" y="12" width="3" height="3"/>
+    <!-- A -->
+    <rect x="73" y="3" width="3" height="12"/><rect x="85" y="3" width="3" height="12"/><rect x="76" y="0" width="9" height="3"/><rect x="76" y="7" width="9" height="3"/>
+    <!-- C -->
+    <rect x="93" y="0" width="9" height="3"/><rect x="93" y="12" width="9" height="3"/><rect x="93" y="3" width="3" height="9"/>
+    <!-- E -->
+    <rect x="107" y="0" width="3" height="15"/><rect x="110" y="0" width="6" height="3"/><rect x="110" y="6" width="6" height="3"/><rect x="110" y="12" width="6" height="3"/>
+    <!-- R -->
+    <rect x="120" y="0" width="3" height="15"/><rect x="123" y="0" width="6" height="3"/><rect x="129" y="3" width="3" height="3"/><rect x="123" y="6" width="6" height="3"/><rect x="126" y="9" width="3" height="3"/><rect x="129" y="12" width="3" height="3"/>
+  </g>
+  <text x="184" y="100" fill="#94a3b8" font-size="13" font-weight="500" font-family="Arial, Helvetica, sans-serif">Every page is a racetrack.</text>
 
   <!-- Feature pills -->
   <rect x="184" y="136" width="70" height="26" rx="13" fill="#111827" fill-opacity="0.6" stroke="#fff" stroke-opacity="0.1"/>
