@@ -26,6 +26,7 @@ interface DrawSpriteShowcaseOptions {
   nowMs: number;
   themeIndex: number;
   pageLightness: number;
+  activeSounds?: Set<ShowcaseSoundId>;
 }
 
 interface DrawCaughtGameOverOptions {
@@ -58,6 +59,7 @@ export function drawSpriteShowcaseOverlay({
   nowMs,
   themeIndex,
   pageLightness,
+  activeSounds,
 }: DrawSpriteShowcaseOptions): void {
   const { width, height } = viewport;
   const theme = SHOWCASE_THEMES[themeIndex];
@@ -87,7 +89,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.fillStyle = theme.subtitle;
   ctx.font = '11px "SFMono-Regular", "JetBrains Mono", monospace';
   ctx.fillText('SHIFT+D TO EXIT + RESTART', 20, 38);
-  ctx.fillText(`ARROWS THEME: ${theme.name}  ·  CLICK SOUNDS TO PREVIEW`, 20, 54);
+  ctx.fillText(`ARROWS THEME: ${theme.name}`, 20, 54);
   ctx.fillText(`AUTO PAGE LUMA: ${Math.round(pageLightness * 100)}%`, 20, 70);
 
   const carsBaseY = 102;
@@ -331,7 +333,7 @@ export function drawSpriteShowcaseOverlay({
   ctx.fillRect(soundPanelX - 8, soundPanelY - 22, soundPanelW, soundPanelH);
   ctx.fillStyle = theme.subtitle;
   ctx.font = 'bold 10px "SFMono-Regular", "JetBrains Mono", monospace';
-  ctx.fillText('SOUNDS (CLICK)', soundPanelX - 2, soundPanelY - 8);
+  ctx.fillText('SOUNDS', soundPanelX - 2, soundPanelY - 8);
 
   _lastSoundButtonRects.length = 0;
   SHOWCASE_SOUND_BUTTONS.forEach((btn, index) => {
@@ -339,14 +341,23 @@ export function drawSpriteShowcaseOverlay({
     const row = Math.floor(index / soundCols);
     const bx = soundPanelX + col * (soundBtnW + soundBtnGap);
     const by = soundPanelY + row * (soundBtnH + soundBtnGap);
-    ctx.fillStyle = theme.toastCard;
+    const isActive = activeSounds?.has(btn.id) ?? false;
+
+    ctx.fillStyle = isActive ? 'rgba(56, 189, 248, 0.25)' : theme.toastCard;
     ctx.fillRect(bx, by, soundBtnW, soundBtnH);
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = isActive ? '#22d3ee' : '#38bdf8';
+    ctx.lineWidth = isActive ? 2 : 1;
     ctx.strokeRect(bx + 0.5, by + 0.5, soundBtnW - 1, soundBtnH - 1);
-    ctx.fillStyle = '#7dd3fc';
+
+    if (isActive) {
+      const pulse = 0.7 + 0.3 * Math.sin(nowMs / 200);
+      ctx.fillStyle = `rgba(34, 211, 238, ${pulse * 0.12})`;
+      ctx.fillRect(bx + 1, by + 1, soundBtnW - 2, soundBtnH - 2);
+    }
+
+    ctx.fillStyle = isActive ? '#22d3ee' : '#7dd3fc';
     ctx.font = 'bold 8px "SFMono-Regular", "JetBrains Mono", monospace';
-    ctx.fillText(btn.label, bx + 4, by + 11);
+    ctx.fillText(isActive ? `▶ ${btn.label}` : btn.label, bx + 4, by + 11);
     _lastSoundButtonRects.push({ x: bx, y: by, w: soundBtnW, h: soundBtnH, id: btn.id });
   });
 

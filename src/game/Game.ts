@@ -830,6 +830,7 @@ export class Game {
       nowMs: performance.now(),
       themeIndex: this.spriteShowcaseThemeIndex,
       pageLightness: this.spriteShowcasePageLightness,
+      activeSounds: this.getActiveShowcaseSounds(),
     });
   }
 
@@ -983,6 +984,14 @@ export class Game {
     this.showcaseSirenActive = false;
     this.showcaseHeliActive = false;
     this.showcaseRumbleActive = false;
+  }
+
+  private getActiveShowcaseSounds(): Set<ShowcaseSoundId> {
+    const active = new Set<ShowcaseSoundId>();
+    if (this.showcaseSirenActive) active.add('siren');
+    if (this.showcaseHeliActive) active.add('heli-chop');
+    if (this.showcaseRumbleActive) active.add('train-rumble');
+    return active;
   }
 
   private playShowcaseSound(id: ShowcaseSoundId): void {
