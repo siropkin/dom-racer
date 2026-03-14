@@ -123,8 +123,11 @@ function drawControlsHint(
   ctx.font = HUD_FONT;
   ctx.fillStyle = HUD_TEXT_DIM;
   ctx.textAlign = 'left';
-  ctx.fillText('WASD/ARROWS  |  SPACE NITRO', x + 12, y + 10);
+  ctx.fillText('WASD/ARROWS', x + 12, y + 10);
+  ctx.textAlign = 'right';
+  ctx.fillText('SPACE NITRO', x + w - 12, y + 10);
 
+  ctx.textAlign = 'left';
   ctx.fillText('V CAR', x + 12, y + 30);
   const soundLabel = state.soundEnabled ? 'M MUSIC ON' : 'M MUSIC OFF';
   ctx.fillText(soundLabel, x + 72, y + 30);
