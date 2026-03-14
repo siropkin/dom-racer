@@ -24,11 +24,11 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
 - Police chases with escalating duration and siren flash; from the 3rd chase onward, a helicopter variant with airborne movement, rotor chop audio, amber "CHOPPER" warning, and searchlight
 - Airplane flyovers with five drop modes
-- Train encounters on pages with rail-like elements (detected from CSS borders on wide containers, thin separator divs, `<hr>` elements, and long thin obstacles): warning horn + rail flash, then a Caltrain-style multi-car train crosses at high speed — instant game over on collision, ghost grants immunity
+- Train encounters: a Caltrain-style multi-car train spawns at the viewport center (random horizontal or vertical axis) with warning horn + rail flash — instant game over on collision, ghost grants immunity, max 1 per run
 - Overgrowth: grass → bush → tree escalation ladder from barriers/slow zones after ~35s, narrowing routes
 - Near-miss visual feedback (toast + VFX particles) for grazing obstacles
 - Coin-collection goals with x2/x3/x4 multiplier tiers (+20/+30/+40 bonus) and countdown timers
-- Daily modifier (5 rule twists, deterministic from date)
+- Daily modifier (4 rule twists, deterministic from date; skipped for first-time players)
 - Simplified game-over screen (score, run number, restart/quit)
 - VFX particles, page-reactive tint, celebration animations
 - Viewport-proportional scaling for effect durations and police chase timers
@@ -81,7 +81,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 107 smoke tests across 9 focused test files
+- 100 smoke tests across 9 focused test files
 
 ## Research References
 

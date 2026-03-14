@@ -236,7 +236,10 @@ describe('train encounter smoke invariants', () => {
       const train = createTrainEvent(viewport);
       train.phase = 'crossing';
 
-      const totalTravel = viewport.width + train.rail.width;
+      const totalTravel =
+        train.axis === 'horizontal'
+          ? viewport.width + train.rail.width
+          : viewport.height + train.rail.height;
       train.progressPx = totalTravel + 10;
 
       const result = advanceTrainCrossing(train, viewport, 0.016);

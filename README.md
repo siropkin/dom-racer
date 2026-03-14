@@ -61,11 +61,11 @@ You can also start the game from the extension popup button.
 - Nine power-ups spawn into open space as you play — some help, some hurt, one is a mystery
 - Police show up after a while with flashing sirens — outrun them or get busted. Survive enough chases and they send a helicopter
 - A propeller biplane crosses the arena dropping bonus pickups, coin trails, or lucky wind
-- On pages with headers, dividers, or table borders, a train may blast through — dodge it or get flattened
+- After 30 seconds, a train may blast through the middle of the screen — dodge it or get flattened
 - After ~35s, grass sprouts from obstacles, grows into bushes, then trees — your lanes shrink
 - Coin-collection goals appear mid-run — hit them for +20 to +40 bonus points
 - Thread the gap near walls or police for a near-miss flash (no score, just style)
-- Daily modifiers twist the rules: double coins, faster police, slippery surfaces, and more
+- Daily modifiers twist the rules: double coins, faster police, extra specials, or early overgrowth
 - Hit `Space` for a nitro burst — cooldown varies by vehicle
 
 **Three vehicles, three feels.** Unlocked by hitting lifetime score milestones. Swap mid-game with `V`.
@@ -114,7 +114,7 @@ The result is intentionally game-ish, not pixel-perfect. A GitHub Issues page pl
 - **The buggy** turns fast and recharges nitro quickly — great for tight pages
 - **The truck** has raw speed but turns like a boat — best for open stretches
 - **Listen for the airplane** — follow the propeller drone to the drop
-- **Watch for the train horn** — a yellow rail flash means get clear fast
+- **Watch for the train horn** — a yellow flash across the center means get clear fast
 - **After ~35s**, overgrowth closes off routes — plan your lanes early
 
 ## Privacy

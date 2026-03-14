@@ -12,214 +12,26 @@ First, read:
 - `.cursor/rules/phases.mdc` (development phases and learnings)
 - `src/game/Game.ts`
 - `src/game/gameConfig.ts`
-- `src/game/gameRuntime.ts`
 - `src/game/gameStateTypes.ts`
-- `src/game/encounterRuntime.ts`
-- `src/game/overgrowthRuntime.ts`
-- `src/game/gameRenderRuntime.ts`
-- `src/game/gameOverlays.ts`
-- `src/game/sprites/pickupSprites.ts`
-- `src/game/sprites/policeSprite.ts`
-- `src/game/sprites/helicopterSprite.ts`
-- `src/game/sprites/planeSprite.ts`
-- `src/game/sprites/trainSprite.ts`
-- `src/game/sprites/spriteHelpers.ts`
-- `src/game/audio.ts`
-- `src/game/trainRuntime.ts`
-- `src/game/hud.ts`
-- `src/content/domScanner.ts`
-- `src/content/worldBuilder.ts`
-- `src/shared/types.ts`
-- `docs/discovery-helicopter-train.md`
 
 ## Current State
 
-Phases 1-19 complete. 107 smoke tests across 9 files. All passing, clean build. No pending phases. Production readiness audit done (dead code removed, docs updated).
+Phases 1-19 complete. 100 smoke tests across 9 files. All passing, clean build. No pending phases. Production readiness audit done.
 
-Key decisions from completed phases:
+Key decisions:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
 - Overgrowth: grass → bush → tree single escalation ladder
 - Special pickup shapes: helpful=rounded square+chevron, harmful=diamond, mystery=circle, jackpot=star
 - Form controls scanned as slow zones + overgrowth anchors
-- HUD controls: `WASD/ARROWS` left, `SPACE NITRO` right (no separators), line 2 fixed-position columns
-- Spawn strongly center-biased
-- All score increments multiples of 10
-- Pixel-art SVG wordmark in branding, block-character logo in README
-- Popup styled to match HUD (accent bars, minimal rounding, shape-prefixed special tags)
-- Police helicopter from chase #3+: airborne movement (ignores obstacles/ice), rotor chop audio, amber "CHOPPER" edge warning, searchlight toward player
-- Train encounters: rail detection from CSS borders on wide containers, thin separator divs, `<hr>` elements, and long thin obstacles; Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
-- Sprite showcase (Shift+D): clickable sound test panel previews all audio (works even when sound is toggled off)
-
-## Phase 17 — Police Helicopter Late-Game Escalation
-
-Design reference: `docs/discovery-helicopter-train.md`
-
-### 17A. Helicopter State & Config
-- [x] Add `variant: 'car' | 'helicopter'` field to `PoliceChaseState` in `src/game/gameStateTypes.ts`
-- [x] Add `POLICE.HELICOPTER_CHASE_THRESHOLD` (default: 3) to `src/game/gameConfig.ts` — the Nth chase in a run that becomes a helicopter
-- [x] Add helicopter-specific physics constants: `POLICE.HELICOPTER_SPEED` (~140), `POLICE.HELICOPTER_TURN_BLEND` (~6), separate from car values
-- [x] Track `policeChaseCount` per run in `Game.ts`, increment on chase spawn, reset on `beginRun`
-
-### 17B. Helicopter Movement & Encounter Logic
-- [x] In `encounterRuntime.ts` `createPoliceChase`: set `variant: 'helicopter'` when chase count >= threshold
-- [x] In `advancePoliceChasing`: when `variant === 'helicopter'`, use helicopter speed/turn constants
-- [x] Helicopter ignores obstacles — skip obstacle collision avoidance in chase movement
-- [x] Helicopter ignores ice — skip ice zone speed/turn modifiers
-- [x] Ghost effect still dismisses helicopter chase (same as car)
-- [x] Existing chase duration escalation formula applies to both variants — no special casing
-
-### 17C. Helicopter Sprite
-- [x] Create `src/game/sprites/helicopterSprite.ts` with `renderHelicopterSprite` function
-- [x] Top-down silhouette: oval body (~34×18), tail boom extending backward
-- [x] Spinning rotor disc: semi-transparent circle with 2-3 rotating blade lines (faster spin than plane propeller)
-- [x] Police light bar on body: reuse blue/red flash pattern from `policeSprite.ts`
-- [x] Searchlight cone: subtle semi-transparent radial gradient projecting toward player position (decorative only, no gameplay effect)
-- [x] Export from `src/game/sprites/index.ts` barrel
-
-### 17D. Helicopter Audio
-- [x] Add `updateHelicopterChop(active: boolean, urgency: number)` to `src/game/audio.ts`
-- [x] Distinct from plane drone: square wave oscillators at ~120-140Hz, faster LFO at ~22-28Hz for "thwap-thwap-thwap" chopper sound
-- [x] Bandpass filter centered ~400-600Hz
-- [x] Replaces police siren audio during helicopter chases — stop siren, start rotor chop on helicopter spawn; reverse on helicopter leave
-- [x] Fade in/out matching existing drone/siren patterns
-
-### 17E. Helicopter Rendering & HUD
-- [x] Fix airplane render order: airplane should draw on top of the player car (higher z-index) since it flies overhead — adjust draw order in `gameRenderRuntime.ts`
-- [x] In `gameRenderRuntime.ts`: branch on `policeChase.variant` to call `renderHelicopterSprite` instead of `renderPoliceSprite`
-- [x] Edge warning indicator: use same system but with amber flash colors (`#fbbf24` on / `#92400e` off) and label "CHOPPER" instead of standard police warning
-- [x] GOAL panel police bar: show "CHOPPER - ESCAPE!" text when variant is helicopter, keep red color
-- [x] Helicopter renders above player car visually (draw after player in render order, same as airplane)
-
-### 17F. Helicopter Tests
-- [x] Update `tests/encounters.smoke.test.ts`: test that chase #1 and #2 have `variant: 'car'`, chase #3+ has `variant: 'helicopter'`
-- [x] Test helicopter ignores obstacles and ice in movement
-- [x] Test ghost dismisses helicopter
-- [x] Test chase duration escalation still works for helicopter variant
-- [x] Test chase count resets on `beginRun`
-
-### 17G. Phase 17 Closeout
-- [x] Refactor & simplify
-- [x] Productionize — no debug artifacts
-- [x] Update tests — `npm run test` green
-- [x] Lint & format — zero warnings
-- [x] Build — clean
-- [x] Docs — update SOUL.md (add helicopter to encounter description), README.md (mention helicopter in police section), next-session.mdc, phases.mdc
-- [x] Commit
-
-## Phase 18 — Train Encounter + Rail Detection
-
-Design reference: `docs/discovery-helicopter-train.md`
-
-### 18A. Rail Detection in Scanner & World Builder
-- [x] Add `<hr>` element detection to `src/content/domScanner.ts` — bypass the 12px `MIN_DIMENSION` height check for `<hr>` elements, require width > 60% of viewport width
-- [x] Add `'rail'` to `ScannedKind` type in `src/shared/types.ts`
-- [x] Add `railCandidates: Array<{ rect: Rect; axis: 'horizontal' | 'vertical' }>` to `World` interface in `src/shared/types.ts`
-- [x] In `src/content/worldBuilder.ts`: post-process `obstacles` + `slowZones` to find rail candidates — filter for long thin rects (aspect ratio > 12:1, spanning > 60% of viewport dimension)
-- [x] Also process `rail`-kind scanned elements as rail candidates
-- [x] Deduplicate overlapping rail candidates, keep the longest
-- [x] Verify rails have >= 60px clearance on at least one side for player escape
-- [x] Populate `world.railCandidates` in `buildWorld`
-
-### 18B. Train Config & State
-- [x] Add `TRAIN` section to `src/game/gameConfig.ts` with constants:
-  - `MIN_RUN_TIME_MS: 30_000` — no trains before 30s
-  - `SPEED: 320` — pixels per second (~4s to cross 1280px viewport)
-  - `WARNING_MS: 1_500` — edge indicator + rail flash duration before train enters
-  - `BODY_HEIGHT: 20` — visual height of train body
-  - `HITBOX_HEIGHT: 16` — collision hitbox height
-  - `COOLDOWN_MS: 50_000` — minimum time between train events
-  - `MAX_PER_RUN: 1` — maximum train events per run
-  - `INITIAL_MIN_MS: 35_000` — earliest possible train spawn
-  - `INITIAL_MAX_MS: 55_000` — latest first spawn window
-- [x] Define `TrainState` interface in `src/game/gameStateTypes.ts`: rail rect, axis, travel progress, warning state, direction
-
-### 18C. Train Runtime
-- [x] Create `src/game/trainRuntime.ts` with lifecycle: idle → warning → crossing → cooldown
-- [x] `resolveTrainSpawnStep`: check timing thresholds, rail candidates exist, not overlapping with police/plane encounters
-- [x] `advanceTrainCrossing`: move train rect along rail axis at configured speed
-- [x] `getTrainRect`: compute current train collision rect from rail + progress
-- [x] Collision detection: `rectsIntersect` with player bounds — instant game over
-- [x] Ghost effect grants immunity to train collision
-- [x] Stagger with police/plane via existing `ENCOUNTER.STAGGER_MS` pattern
-
-### 18D. Train Sprite
-- [x] Create `src/game/sprites/trainSprite.ts` with `renderTrainSprite` function
-- [x] Caltrain-style design: locomotive + 2-3 passenger cars
-- [x] Colors: silver/gray body with red stripe accent (Caltrain livery)
-- [x] Horizontal trains: left-to-right or right-to-left along rail
-- [x] Vertical trains: top-to-bottom or bottom-to-top along rail
-- [x] Rail flash effect: the rail line pulses/highlights briefly during warning phase
-- [x] Export from `src/game/sprites/index.ts` barrel
-
-### 18E. Train Audio
-- [x] Add train horn warning SFX to `src/game/audio.ts` — plays during warning phase
-- [x] Add crossing rumble/clatter continuous audio while train is visible
-- [x] Fade in/out matching existing encounter audio patterns
-
-### 18F. Train Rendering & HUD
-- [x] Wire train rendering into `src/game/gameRenderRuntime.ts`
-- [x] Draw rail highlight during warning phase (pulsing glow along the rail line)
-- [x] Draw train body during crossing phase
-- [x] Edge warning indicator: same system, new color (e.g., yellow `#eab308`), label "TRAIN"
-- [x] No GOAL panel bar needed — train is a hazard to avoid, not a timed chase
-
-### 18G. Train Integration in Game.ts
-- [x] Wire `trainRuntime` lifecycle into `Game.ts` tick loop
-- [x] Only attempt train events when `world.railCandidates.length > 0`
-- [x] On train collision: trigger game over (same path as police catch, different message — "HIT BY TRAIN" instead of "BUSTED BY POLICE")
-- [x] Game over screen: show "HIT BY TRAIN" when death cause is train
-- [x] Pass train state to render pipeline
-- [x] Stagger with police and plane encounters
-
-### 18H. Train Tests
-- [x] Add `tests/train.smoke.test.ts`
-- [x] Test rail detection: long thin horizontal rect → rail candidate; short rect → not a candidate
-- [x] Test `<hr>` element scanning produces rail candidates
-- [x] Test train spawn timing: not before 30s, respects cooldown
-- [x] Test train collision triggers game over
-- [x] Test ghost immunity to train
-- [x] Test no train events when `railCandidates` is empty
-- [x] Test stagger with police/plane prevents overlap
-
-### 18I. Phase 18 Closeout
-- [x] Refactor & simplify
-- [x] Productionize — no debug artifacts
-- [x] Update tests — `npm run test` green
-- [x] Lint & format — zero warnings
-- [x] Build — clean
-- [x] Docs — update SOUL.md (add train encounter), README.md (add train to gameplay section), next-session.mdc, phases.mdc
-- [x] Commit
-
-## Phase 19 — Branding Pixel-Art Backgrounds
-
-### 19A. Icon Background Redesign
-- [x] Replace the smooth linear gradient background in `branding/dom-racer-icon.svg` with a pixel-art style background
-- [x] Use chunky rectangular color blocks, dithering patterns, or stepped color bands instead of smooth gradients
-- [x] Keep the purple → blue → cyan color palette but render it as visible pixel blocks (e.g., 8×8 or 16×16 pixel grid with stepped color fills)
-- [x] The grid pattern overlay can stay but should feel integrated with the pixelated background
-- [x] Keep the "DR" pixel monogram and pixel coin — only the background changes
-- [x] Ensure the icon still reads well at 16×16, 32×32, and 128×128 sizes
-
-### 19B. Store Cover Background Redesign
-- [x] Replace the smooth gradient background in `branding/dom-racer-store-cover.svg` with a pixel-art style background
-- [x] Use stepped color bands or subtle dithering — keep it clean and quiet, not busy
-- [x] Remove the smooth bezier sweep decorations — replace with minimal pixel-art equivalents or remove entirely
-- [x] Reduce the number of decorative elements (fewer scattered coins, fewer sparkles) — the wordmark should dominate
-- [x] Keep the "DOM RACER" pixel wordmark and pixel road stripe — they are the focus
-- [x] The overall feel should be "calm retro title screen" not a cluttered arcade flyer
-
-### 19C. Store Tile Background Redesign
-- [x] Replace the smooth gradient background in `branding/dom-racer-store-tile.svg` with a matching pixel-art background
-- [x] Must feel consistent with the icon and cover — same quiet pixel-art language
-- [x] Remove the smooth bezier sweep decorations
-- [x] Reduce decorative noise — keep only the wordmark, feature pills, hotkey hint, and one small pixel coin at most
-- [x] Feature pill and hotkey hint rounded corners can stay (they're UI elements, not branding art)
-
-### 19D. Regenerate PNGs & Verify
-- [x] Run `python3 branding/generate_assets.py` to regenerate all PNGs
-- [x] Verify PNGs look correct at target sizes (icons at 16-512px, tile at 440×280, cover at 1280×800)
-- [x] Run `npm run build` to ensure dist/ picks up updated assets
-- [x] Commit all SVG and PNG changes
+- HUD controls: `WASD/ARROWS` left, `SPACE NITRO` right, line 2 fixed-position columns
+- Spawn strongly center-biased. All score increments multiples of 10.
+- Police helicopter from chase #3+: airborne movement, rotor chop audio, amber "CHOPPER" warning, searchlight, body flash lights
+- Train encounter: spawns at viewport center (random horizontal/vertical axis), Caltrain-style sprite, horn + rumble audio, yellow "TRAIN" warning, "HIT BY TRAIN" game over, ghost immunity, max 1 per run
+- Sprite showcase (Shift+D): helicopter, train, clickable sound test panel with active-state indicators
+- Daily modifiers: 4 types (DOUBLE_COINS, FAST_POLICE, EXTRA_SPECIALS, EARLY_OVERGROWTH), first-play protection (no modifier when lifetime score is 0)
+- First police arrives at ~8-10s (fast start)
+- Unpause grace: 1.5s extension on all timers when tab regains focus
+- Pixel-art branding: horizontal stepped color bands (dark navy → teal) across icon, cover, tile
 
 ## Essential Context
 
@@ -228,18 +40,14 @@ Design reference: `docs/discovery-helicopter-train.md`
 - Runtime modules are pure functions: logic in `*Runtime.ts`, orchestration in `Game.ts`.
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
-- 107 smoke tests across 9 files. `npm run test` / `npm run build` must pass.
-- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time. From chase #3+ (`POLICE.HELICOPTER_CHASE_THRESHOLD`), variant switches to helicopter with airborne movement, rotor chop audio, and amber warning.
-- Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Config: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. Anchors from obstacles + slowZones.
-- Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + chevron, harmful (blur/oil_slick/reverse) = diamond, mystery = circle, jackpot = star.
-- Form controls (input/textarea/select/radio/checkbox) scanned as `wall` → `slowZones`.
+- 100 smoke tests across 9 files. `npm run test` / `npm run build` must pass.
+- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time. From chase #3+, variant switches to helicopter.
+- Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Anchors from obstacles + slowZones.
 - All score increments multiples of 10. Near-miss is visual-only (no score).
 - Extension popup: static HTML in `public/popup.html`. No JS build step.
 - Adaptive sprite contrast: `applyAdaptiveShadow()`/`clearAdaptiveShadow()` in `spriteHelpers.ts`.
-- Branding: pixel-art SVG wordmark in `branding/`, PNGs generated via `generate_assets.py` using `rsvg-convert`.
+- Branding: pixel-art SVGs in `branding/`, PNGs generated via `generate_assets.py` using `rsvg-convert`.
 - Game toggle: Shift+Space (or Shift+Backtick). Popup "Start Game" button also toggles.
-- Scrollbar: only `<body>` gets `overflow: hidden`. Wheel/touchmove listeners prevent scrolling.
-- Unsupported page detection: sad screen when too few elements to race on.
 
 ## Constraints To Preserve
 
