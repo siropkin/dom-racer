@@ -35,7 +35,7 @@ Unzip the file into a folder. Remember where you put it — Chrome needs to read
 | WASD / Arrows | Drive |
 | Space | Nitro boost (3s cooldown) |
 | V | Switch car (coupe / buggy / truck — each drives differently!) |
-| M | Toggle music |
+| M | Toggle sound |
 | R | Restart run |
 | Esc | Quit |
 

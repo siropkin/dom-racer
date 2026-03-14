@@ -129,7 +129,7 @@ function drawControlsHint(
 
   ctx.textAlign = 'left';
   ctx.fillText('V CAR', x + 12, y + 30);
-  const soundLabel = state.soundEnabled ? 'M MUSIC ON' : 'M MUSIC OFF';
+  const soundLabel = state.soundEnabled ? 'M SOUND ON' : 'M SOUND OFF';
   ctx.fillText(soundLabel, x + 72, y + 30);
   ctx.textAlign = 'right';
   ctx.fillText('ESC QUIT', x + w - 12, y + 30);

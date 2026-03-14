@@ -48,7 +48,7 @@ That's it. You're racing.
 | `WASD` / Arrow keys | Drive |
 | `Space` | Nitro boost (3s cooldown) |
 | `V` | Switch vehicle (each drives differently!) |
-| `M` | Toggle music |
+| `M` | Toggle sound |
 | `R` | Restart run |
 | `Esc` | Quit |
 | `Space` (game over) | Restart |
