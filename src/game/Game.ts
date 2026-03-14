@@ -597,7 +597,7 @@ export class Game {
     const policeStep = this.updatePoliceChase(dtSeconds);
     const isHelicopterChase = this.policeChase?.variant === 'helicopter';
     void this.audio.updatePoliceSiren(policeStep.active && !isHelicopterChase, policeStep.urgency);
-    this.audio.updateHelicopterChop(policeStep.active && !!isHelicopterChase, policeStep.urgency);
+    this.audio.updateHelicopterChop(policeStep.active && isHelicopterChase, policeStep.urgency);
     if (policeStep.caught) {
       this.render();
       this.frameHandle = window.requestAnimationFrame(this.tick);

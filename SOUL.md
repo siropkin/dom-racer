@@ -22,7 +22,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Page scanning: text → slow zones, form controls → slow zones + overgrowth anchors, images/video/canvas → ice, links/buttons → coins, SVG → boost
 - HUD: POWER panel (top-right), GOAL panel (bottom-center), merged info block (top-left: score/time, bests, daily modifier)
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
-- Police chases with escalating duration and siren flash
+- Police chases with escalating duration and siren flash; from the 3rd chase onward, a helicopter variant with airborne movement, rotor chop audio, amber "CHOPPER" warning, and searchlight
 - Airplane flyovers with five drop modes
 - Overgrowth: grass → bush → tree escalation ladder from barriers/slow zones after ~35s, narrowing routes
 - Near-miss visual feedback (toast + VFX particles) for grazing obstacles
@@ -53,7 +53,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 ```
 src/content/         Page scanning, overlay bootstrapping
 src/game/            Game loop, rendering, HUD, audio, runtime helpers
-src/game/sprites/    Player, police, plane, pickup renderers + shared helpers
+src/game/sprites/    Player, police, helicopter, plane, pickup renderers + shared helpers
 src/game/gameConfig.ts  Centralized tuning constants (13 sections)
 src/shared/          Types, settings, persistence, utilities
 src/popup/           (none — popup is static HTML in public/)
@@ -80,7 +80,7 @@ branding/            SVG sources + PNG generator
 - Game.ts is orchestration only — logic lives in `*Runtime.ts` helpers
 - Sprite files in `sprites/` subdirectory with barrel export
 - ESLint (flat config, typescript-eslint) + Prettier enforced
-- 81 smoke tests across 8 focused test files
+- 87 smoke tests across 8 focused test files
 
 ## Research References
 

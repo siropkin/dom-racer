@@ -20,6 +20,7 @@ First, read:
 - `src/game/gameOverlays.ts`
 - `src/game/sprites/pickupSprites.ts`
 - `src/game/sprites/policeSprite.ts`
+- `src/game/sprites/helicopterSprite.ts`
 - `src/game/sprites/planeSprite.ts`
 - `src/game/sprites/spriteHelpers.ts`
 - `src/game/audio.ts`
@@ -31,7 +32,7 @@ First, read:
 
 ## Current State
 
-Phases 1-16 complete. 87 smoke tests across 8 files. All passing, clean build.
+Phases 1-17 complete. 87 smoke tests across 8 files. All passing, clean build.
 
 Key decisions from completed phases:
 - 9 specials: bonus, magnet, invert, ghost, jackpot, blur, oil_slick, reverse, mystery
@@ -43,6 +44,7 @@ Key decisions from completed phases:
 - All score increments multiples of 10
 - Pixel-art SVG wordmark in branding, block-character logo in README
 - Popup styled to match HUD (accent bars, minimal rounding, shape-prefixed special tags)
+- Police helicopter from chase #3+: airborne movement (ignores obstacles/ice), rotor chop audio, amber "CHOPPER" edge warning, searchlight toward player
 
 ## Phase 17 — Police Helicopter Late-Game Escalation
 
@@ -92,13 +94,13 @@ Design reference: `docs/discovery-helicopter-train.md`
 - [x] Test chase count resets on `beginRun`
 
 ### 17G. Phase 17 Closeout
-- [ ] Refactor & simplify
-- [ ] Productionize — no debug artifacts
-- [ ] Update tests — `npm run test` green
-- [ ] Lint & format — zero warnings
-- [ ] Build — clean
-- [ ] Docs — update SOUL.md (add helicopter to encounter description), README.md (mention helicopter in police section), next-session.mdc, phases.mdc
-- [ ] Commit
+- [x] Refactor & simplify
+- [x] Productionize — no debug artifacts
+- [x] Update tests — `npm run test` green
+- [x] Lint & format — zero warnings
+- [x] Build — clean
+- [x] Docs — update SOUL.md (add helicopter to encounter description), README.md (mention helicopter in police section), next-session.mdc, phases.mdc
+- [x] Commit
 
 ## Phase 18 — Train Encounter + Rail Detection
 
@@ -223,7 +225,7 @@ Design reference: `docs/discovery-helicopter-train.md`
 - Sprite files in `src/game/sprites/`; consumers import from barrel `./sprites`.
 - ESLint + Prettier. Scripts: `lint`, `lint:fix`, `format`, `format:check`.
 - 87 smoke tests across 8 files. `npm run test` / `npm run build` must pass.
-- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time.
+- Police chase lifecycle in `encounterRuntime.ts` — base duration 4000-6000ms, escalates with run time. From chase #3+ (`POLICE.HELICOPTER_CHASE_THRESHOLD`), variant switches to helicopter with airborne movement, rotor chop audio, and amber warning.
 - Overgrowth: `OvergrowthStage = 'grass' | 'bush' | 'tree'`. Config: `GROWTH_GRASS_TO_BUSH_MS`, `GROWTH_BUSH_TO_TREE_MS`. Anchors from obstacles + slowZones.
 - Special pickup shapes: helpful (bonus/magnet/ghost/invert) = rounded square + chevron, harmful (blur/oil_slick/reverse) = diamond, mystery = circle, jackpot = star.
 - Form controls (input/textarea/select/radio/checkbox) scanned as `wall` → `slowZones`.

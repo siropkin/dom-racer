@@ -59,7 +59,7 @@ You can also start the game from the extension popup button.
 
 - Every link and button becomes a gold coin — drive through them for score
 - Nine power-ups spawn into open space as you play — some help, some hurt, one is a mystery
-- Police show up after a while with flashing sirens — outrun them or get busted
+- Police show up after a while with flashing sirens — outrun them or get busted. Survive enough chases and they send a helicopter
 - A propeller biplane crosses the arena dropping bonus pickups, coin trails, or lucky wind
 - After ~35s, grass sprouts from obstacles, grows into bushes, then trees — your lanes shrink
 - Coin-collection goals appear mid-run — hit them for +20 to +40 bonus points
