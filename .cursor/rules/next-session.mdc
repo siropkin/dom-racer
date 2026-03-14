@@ -88,8 +88,8 @@ Re-read the research references in SOUL.md and audit the full game loop against 
 - [x] Update `INSTALL-FOR-FRIENDS.md` if anything changed
 
 ### 22C. Phase 22 Closeout
-- [ ] `npm run test` green, `npm run build` clean
-- [ ] Commit
+- [x] `npm run test` green, `npm run build` clean
+- [x] Commit
 
 ## Phase 23 — Debug Screen (Sprite Showcase) Polish
 

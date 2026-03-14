@@ -30,7 +30,7 @@ alwaysApply: false
 | 19 | `done` | Branding pixel-art backgrounds |
 | 20 | `done` | Gameplay audit (research-informed) |
 | 21 | `done` | Sprite & visual consistency pass |
-| 22 | `pending` | Popup, manifest & marketplace review |
+| 22 | `done` | Popup, manifest & marketplace review |
 | 23 | `pending` | Debug screen (sprite showcase) polish |
 | 24 | `pending` | HUD text fitting & layout |
 | 25 | `pending` | Code refactoring & production readiness |
@@ -54,6 +54,8 @@ alwaysApply: false
 **Phase 20** — Gameplay audit (research-informed): audited the full game loop against Mike Stout telegraphing, MDA framework, and Vlambeer game-feel principles. Telegraphing hierarchy (1.5s train > 1.1s police/chopper > 0.9s plane) confirmed fair with readable pre-cues; difficulty escalates through route pressure, not hidden state. Economy pacing validated: coin spawns, police ramp, plane drops, and train timing all satisfying across 30-90s runs. Game feel improvements: punchier coin burst particles (5-8 count, radius 2.5, 280-380ms lifetime), new near-miss orange flash particles, buffed drift sparks (3-4 count, 200ms lifetime), extended near-miss toast TTL from 600ms to 800ms.
 
 **Phase 21** — Sprite & visual consistency pass: audited all sprite files across player vehicles, encounters, pickups, and overgrowth. Fixed buggy missing `drawContourOutline` keyline (coupe and truck already had it). All encounter sprites (police, helicopter, plane, train) confirmed visually consistent. Coin, special pickup shapes, and overgrowth stages all well-designed and readable.
+
+**Phase 22** — Popup, manifest & marketplace review: added missing Nitro boost (Space) control to popup.html controls table. All 9 power-up tags verified accurate. Manifest description (102 chars) within ≤132 limit. All icon sizes (16/32/48/128) present. Store cover (1280×800) and tile (440×280) SVGs confirmed. README gameplay section cross-checked. INSTALL-FOR-FRIENDS.md already up to date.
 
 ## Post-Phase Polish
 
