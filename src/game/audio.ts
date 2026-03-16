@@ -27,6 +27,9 @@ export class AudioManager {
   private chopOscillatorB: OscillatorNode | null;
   private chopLfoOscillator: OscillatorNode | null;
   private chopLfoGain: GainNode | null;
+  private chopSirenOscillator: OscillatorNode | null;
+  private chopSirenGain: GainNode | null;
+  private chopSirenFilter: BiquadFilterNode | null;
   private trainRumbleGain: GainNode | null;
   private trainRumbleFilter: BiquadFilterNode | null;
   private trainRumbleOscillatorA: OscillatorNode | null;
@@ -62,6 +65,9 @@ export class AudioManager {
     this.chopOscillatorB = null;
     this.chopLfoOscillator = null;
     this.chopLfoGain = null;
+    this.chopSirenOscillator = null;
+    this.chopSirenGain = null;
+    this.chopSirenFilter = null;
     this.trainRumbleGain = null;
     this.trainRumbleFilter = null;
     this.trainRumbleOscillatorA = null;
@@ -343,10 +349,16 @@ export class AudioManager {
    */
   updateHelicopterChop(active: boolean, urgency: number): void {
     if (!this.enabled) {
-      if (this.chopGain && this.context) {
+      if (this.context) {
         const now = this.context.currentTime;
-        this.chopGain.gain.cancelScheduledValues(now);
-        this.chopGain.gain.setTargetAtTime(0, now, 0.03);
+        if (this.chopGain) {
+          this.chopGain.gain.cancelScheduledValues(now);
+          this.chopGain.gain.setTargetAtTime(0, now, 0.03);
+        }
+        if (this.chopSirenGain) {
+          this.chopSirenGain.gain.cancelScheduledValues(now);
+          this.chopSirenGain.gain.setTargetAtTime(0, now, 0.03);
+        }
       }
       return;
     }
@@ -378,6 +390,18 @@ export class AudioManager {
     if (this.chopLfoOscillator) {
       this.chopLfoOscillator.frequency.cancelScheduledValues(now);
       this.chopLfoOscillator.frequency.setTargetAtTime(chopRate, now, 0.08);
+    }
+
+    // Layer police siren behind rotor chop
+    if (this.chopSirenGain) {
+      const sirenGain = active ? 0.006 + normalizedUrgency * 0.01 : 0;
+      this.chopSirenGain.gain.cancelScheduledValues(now);
+      this.chopSirenGain.gain.setTargetAtTime(sirenGain, now, 0.08);
+    }
+    if (this.chopSirenFilter) {
+      const sirenFilterFreq = 600 + normalizedUrgency * 250;
+      this.chopSirenFilter.frequency.cancelScheduledValues(now);
+      this.chopSirenFilter.frequency.setTargetAtTime(sirenFilterFreq, now, 0.06);
     }
   }
 
@@ -798,9 +822,35 @@ export class AudioManager {
     chopFilter.connect(chopGain);
     chopGain.connect(masterGain);
 
+    // Siren layer: filtered sine oscillator for police helicopter feel
+    const sirenOscillator = context.createOscillator();
+    sirenOscillator.type = 'sine';
+    sirenOscillator.frequency.value = 660;
+    const sirenFilter = context.createBiquadFilter();
+    sirenFilter.type = 'bandpass';
+    sirenFilter.frequency.value = 700;
+    sirenFilter.Q.value = 4;
+    const sirenGain = context.createGain();
+    sirenGain.gain.value = 0;
+
+    // Siren wail LFO (slow ~1.6Hz sweep)
+    const sirenLfo = context.createOscillator();
+    sirenLfo.type = 'sine';
+    sirenLfo.frequency.value = 1.6;
+    const sirenLfoGain = context.createGain();
+    sirenLfoGain.gain.value = 120;
+    sirenLfo.connect(sirenLfoGain);
+    sirenLfoGain.connect(sirenOscillator.frequency);
+
+    sirenOscillator.connect(sirenFilter);
+    sirenFilter.connect(sirenGain);
+    sirenGain.connect(masterGain);
+
     lfoOscillator.start();
     oscillatorA.start();
     oscillatorB.start();
+    sirenOscillator.start();
+    sirenLfo.start();
 
     this.chopGain = chopGain;
     this.chopFilter = chopFilter;
@@ -808,6 +858,9 @@ export class AudioManager {
     this.chopOscillatorB = oscillatorB;
     this.chopLfoOscillator = lfoOscillator;
     this.chopLfoGain = lfoGain;
+    this.chopSirenOscillator = sirenOscillator;
+    this.chopSirenGain = sirenGain;
+    this.chopSirenFilter = sirenFilter;
     return chopGain;
   }
 
