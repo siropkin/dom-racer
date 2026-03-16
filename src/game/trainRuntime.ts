@@ -57,10 +57,11 @@ export function createTrainEvent(viewport: ViewportSize): TrainState {
   const axis: 'horizontal' | 'vertical' = Math.random() < 0.5 ? 'horizontal' : 'vertical';
   const direction: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
 
+  const railThickness = 3;
   const rail: Rect =
     axis === 'horizontal'
-      ? { x: 0, y: Math.round(viewport.height / 2), width: viewport.width, height: 3 }
-      : { x: Math.round(viewport.width / 2), y: 0, width: 3, height: viewport.height };
+      ? { x: 0, y: Math.round(viewport.height / 2 - TRAIN.BODY_HEIGHT / 2 - railThickness / 2), width: viewport.width, height: railThickness }
+      : { x: Math.round(viewport.width / 2 - TRAIN.BODY_HEIGHT / 2 - railThickness / 2), y: 0, width: railThickness, height: viewport.height };
 
   return {
     rail,

@@ -69,10 +69,10 @@ describe('train encounter smoke invariants', () => {
       expect([1, -1]).toContain(train.direction);
 
       if (train.axis === 'horizontal') {
-        expect(train.rail.y).toBe(Math.round(viewport.height / 2));
+        expect(train.rail.y).toBe(Math.round(viewport.height / 2 - TRAIN.BODY_HEIGHT / 2 - 3 / 2));
         expect(train.rail.width).toBe(viewport.width);
       } else {
-        expect(train.rail.x).toBe(Math.round(viewport.width / 2));
+        expect(train.rail.x).toBe(Math.round(viewport.width / 2 - TRAIN.BODY_HEIGHT / 2 - 3 / 2));
         expect(train.rail.height).toBe(viewport.height);
       }
     });
@@ -158,8 +158,9 @@ describe('train encounter smoke invariants', () => {
 
   describe('ghost immunity', () => {
     it('ghost effect prevents train collision', () => {
+      const railY = Math.round(viewport.height / 2 - TRAIN.BODY_HEIGHT / 2 - 3 / 2);
       const train = {
-        rail: { x: 0, y: Math.round(viewport.height / 2), width: viewport.width, height: 3 },
+        rail: { x: 0, y: railY, width: viewport.width, height: 3 },
         axis: 'horizontal' as const,
         direction: 1 as const,
         progressPx: viewport.width,
@@ -169,7 +170,7 @@ describe('train encounter smoke invariants', () => {
 
       const playerOnRail: Rect = {
         x: 600,
-        y: Math.round(viewport.height / 2) - 4,
+        y: railY - 4,
         width: 28,
         height: 16,
       };
