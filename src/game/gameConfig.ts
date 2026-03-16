@@ -169,10 +169,10 @@ export const TRAIN = {
 
 export const ENCOUNTER = {
   STAGGER_MS: 3_800,
-  PLANE_AFTER_POLICE_MIN_MS: 1_600,
-  PLANE_AFTER_POLICE_MAX_MS: 3_200,
-  POLICE_AFTER_PLANE_MIN_MS: 3_600,
-  POLICE_AFTER_PLANE_MAX_MS: 6_200,
+  PLANE_AFTER_POLICE_MIN_MS: 8_000,
+  PLANE_AFTER_POLICE_MAX_MS: 12_000,
+  POLICE_AFTER_PLANE_MIN_MS: 4_500,
+  POLICE_AFTER_PLANE_MAX_MS: 7_000,
 } as const;
 
 // ---------------------------------------------------------------------------
