@@ -65,16 +65,29 @@ export function createPlaneBonusEncounter(viewport: World['viewport']): {
   const ttlMs = (distance / PLANE.EVENT_SPEED) * 1000 + 650;
 
   const effectRoll = Math.random();
-  const effectMode =
-    effectRoll < PLANE.COIN_TRAIL_CHANCE
-      ? 'coin-trail'
-      : effectRoll < PLANE.COIN_TRAIL_CHANCE + PLANE.SPOTLIGHT_CHANCE
-        ? 'spotlight'
-        : effectRoll < PLANE.COIN_TRAIL_CHANCE + PLANE.SPOTLIGHT_CHANCE + PLANE.LUCKY_WIND_CHANCE
-          ? Math.random() < PLANE.POLICE_DELAY_MODE_CHANCE
-            ? 'police-delay'
-            : 'lucky-wind'
-          : 'bonus-drop';
+  let cumulative = 0;
+  let effectMode: PlaneBonusEventState['effectMode'];
+  cumulative += PLANE.MYSTERY_DROP_CHANCE;
+  if (effectRoll < cumulative) {
+    effectMode = 'mystery-drop';
+  } else {
+    cumulative += PLANE.COIN_TRAIL_CHANCE;
+    if (effectRoll < cumulative) {
+      effectMode = 'coin-trail';
+    } else {
+      cumulative += PLANE.SPOTLIGHT_CHANCE;
+      if (effectRoll < cumulative) {
+        effectMode = 'spotlight';
+      } else {
+        cumulative += PLANE.LUCKY_WIND_CHANCE;
+        if (effectRoll < cumulative) {
+          effectMode = Math.random() < PLANE.POLICE_DELAY_MODE_CHANCE ? 'police-delay' : 'lucky-wind';
+        } else {
+          effectMode = 'bonus-drop';
+        }
+      }
+    }
+  }
 
   return {
     planeBonusEvent: {

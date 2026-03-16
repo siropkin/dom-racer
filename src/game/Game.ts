@@ -1267,6 +1267,7 @@ export class Game {
         spawnSpotlight: (x, y) => this.spawnPlaneSpotlight(x, y),
         spawnLuckyWind: (x, y, vx, vy) => this.spawnPlaneLuckyWind(x, y, vx, vy),
         spawnPoliceDelay: () => this.spawnPlanePoliceDelay(),
+        spawnMysteryDrop: (x, y) => this.spawnPlaneMysteryDrop(x, y),
       });
       this.planeBonusEvent.dropped = dropSpawned;
     }
@@ -1308,6 +1309,40 @@ export class Game {
     this.enqueueSpecialSpawnCue(pickup);
     this.audio.playPlaneDrop();
     return true;
+  }
+
+  private spawnPlaneMysteryDrop(x: number, y: number): boolean {
+    if (!this.world) {
+      return false;
+    }
+
+    const count = Math.random() < 0.5 ? 1 : 2;
+    let spawned = false;
+    for (let i = 0; i < count; i++) {
+      const offset = i * 28;
+      const rect =
+        this.findFreePickupRectNear({ x: x + offset, y: y + offset }, 20, 22) ??
+        this.findFreePickupRect(20);
+      if (!rect) continue;
+
+      const pickup: WorldPickup = {
+        id: `plane-mystery:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
+        rect,
+        value: 0,
+        kind: 'special',
+        effect: 'mystery',
+        accentColor: getSpecialColor('mystery'),
+        label: getSpecialLabel('mystery'),
+      };
+      this.dynamicPickups.push(pickup);
+      this.world.pickups.push(clonePickup(pickup));
+      this.enqueueSpecialSpawnCue(pickup);
+      spawned = true;
+    }
+    if (spawned) {
+      this.audio.playPlaneDrop();
+    }
+    return spawned;
   }
 
   private spawnPlaneCoinTrail(x: number, y: number, vx: number, vy: number): boolean {

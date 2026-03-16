@@ -29,7 +29,7 @@ export interface PlaneBonusEventState {
   dropAtPx: number;
   dropped: boolean;
   flyoverSoundPlayed: boolean;
-  effectMode: 'bonus-drop' | 'coin-trail' | 'spotlight' | 'lucky-wind' | 'police-delay';
+  effectMode: 'bonus-drop' | 'coin-trail' | 'spotlight' | 'lucky-wind' | 'police-delay' | 'mystery-drop';
 }
 
 export interface PoliceChaseState {

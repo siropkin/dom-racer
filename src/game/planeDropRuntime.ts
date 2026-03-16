@@ -9,6 +9,7 @@ interface PlaneDropDispatchHandlers {
   spawnSpotlight: (x: number, y: number) => boolean;
   spawnLuckyWind: (x: number, y: number, vx: number, vy: number) => boolean;
   spawnPoliceDelay: () => boolean;
+  spawnMysteryDrop?: (x: number, y: number) => boolean;
 }
 
 export interface PoliceDelayCueState {
@@ -61,6 +62,13 @@ export function dispatchPlaneDropWithFallback(
         return bonusDrop();
       }
       return true;
+    }
+    case 'mystery-drop': {
+      if (handlers.spawnMysteryDrop) {
+        const spawned = handlers.spawnMysteryDrop(dropX, dropY);
+        if (spawned) return true;
+      }
+      return bonusDrop();
     }
     case 'bonus-drop':
       return bonusDrop();

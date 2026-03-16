@@ -147,6 +147,7 @@ export const PLANE = {
   POLICE_DELAY_MIN_MS: 2_600,
   POLICE_DELAY_MAX_MS: 4_200,
   LANE_SPECIAL_STAGGER_MS: 1_500,
+  MYSTERY_DROP_CHANCE: 0.18,
 } as const;
 
 // ---------------------------------------------------------------------------
