@@ -786,7 +786,8 @@ export class AudioManager {
       this.chopOscillatorA &&
       this.chopOscillatorB &&
       this.chopLfoOscillator &&
-      this.chopLfoGain
+      this.chopLfoGain &&
+      this.chopSirenOscillator
     ) {
       return this.chopGain;
     }
