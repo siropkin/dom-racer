@@ -165,6 +165,7 @@ describe('scanner -> world smoke', () => {
     expect(disabledScanned).toHaveLength(0);
 
     const world = buildWorld(scanned, { width: 1200, height: 800 });
+    // slowZones still populated for overgrowth anchoring, but no speed effect
     expect(world.slowZones.length).toBeGreaterThanOrEqual(2);
   });
 });

@@ -18,7 +18,6 @@ interface PlayerUpdateContext {
   viewport: ViewportSize;
   obstacles: Rect[];
   boosting: boolean;
-  slowed: boolean;
   onIce: boolean;
   speedMultiplier?: number;
 }
@@ -79,7 +78,7 @@ export class Player {
   }
 
   update(context: PlayerUpdateContext): void {
-    const { input, dtSeconds, viewport, obstacles, boosting, slowed, onIce } = context;
+    const { input, dtSeconds, viewport, obstacles, boosting, onIce } = context;
     this.previousAngle = this.angle;
 
     const currentlyAirborne = this.isAirborne();
@@ -126,7 +125,6 @@ export class Player {
     const extraMultiplier = context.speedMultiplier ?? 1;
     const topSpeed =
       (this.boostTimerMs > 0 ? stats.boostSpeed : stats.baseSpeed) *
-      (slowed ? PLAYER.SLOW_ZONE_MULTIPLIER : 1) *
       (onIce ? PLAYER.ICE_TOP_SPEED_MULTIPLIER : 1) *
       iceEntryMultiplier *
       extraMultiplier;

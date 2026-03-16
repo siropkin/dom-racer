@@ -19,7 +19,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 ## What Exists
 
 - Three vehicle designs (coupe, buggy, truck) with score-gated unlocks
-- Page scanning: text → slow zones, form controls → slow zones + overgrowth anchors, images/video/canvas → ice, links/buttons → coins, SVG → boost
+- Page scanning: text/form controls → overgrowth anchors, images/video/canvas → ice, links/buttons → coins, SVG → boost
 - HUD: POWER panel (top-right), GOAL panel (bottom-center), merged info block (top-left: score/time, bests, daily modifier)
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
 - Police chases with escalating duration and siren flash; from the 3rd chase onward, a helicopter variant with airborne movement, rotor chop audio, amber "CHOPPER" warning, and searchlight

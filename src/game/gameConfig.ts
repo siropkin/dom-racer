@@ -249,7 +249,6 @@ export const VEHICLE_STATS: Readonly<
 // ---------------------------------------------------------------------------
 
 export const PLAYER = {
-  SLOW_ZONE_MULTIPLIER: 0.62,
   ICE_RESPONSE: 1.5,
   ICE_FRICTION: 0.25,
   ICE_TOP_SPEED_MULTIPLIER: 1.08,

@@ -34,7 +34,7 @@ import {
 } from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
-import { isBoosting, isOnDeadSpot, isOnIceZone, isOnSlowZone } from './pickups';
+import { isBoosting, isOnDeadSpot, isOnIceZone } from './pickups';
 import { resolvePickupCollectionStep } from './gameEconomyRuntime';
 import {
   advancePlaneBonusEventState,
@@ -151,7 +151,6 @@ import {
   drawOvergrowthNodes,
   getOvergrowthObstacles,
   getOvergrowthRespawnDelayMs,
-  getOvergrowthSlowZones,
   resolveOvergrowthSpawnStep,
   trySpawnOvergrowthNode,
   type OvergrowthNode,
@@ -566,11 +565,6 @@ export class Game {
       ...this.world.obstacles,
       ...getOvergrowthObstacles(this.overgrowthNodes),
     ];
-    const activeSlowZones = [
-      ...this.world.slowZones,
-      ...getOvergrowthSlowZones(this.overgrowthNodes),
-    ];
-    const slowed = this.ghostTimerMs <= 0 && !onIce && isOnSlowZone(currentBounds, activeSlowZones);
 
     const activeInput = this.getActiveInput();
 
@@ -590,7 +584,6 @@ export class Game {
       viewport: this.world.viewport,
       obstacles: activeObstacles,
       boosting,
-      slowed,
       onIce,
       speedMultiplier: oilSlickMultiplier,
     });
