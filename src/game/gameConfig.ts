@@ -157,10 +157,10 @@ export const TRAIN = {
   WARNING_MS: 1_500,
   BODY_HEIGHT: 20,
   HITBOX_HEIGHT: 16,
-  COOLDOWN_MS: 50_000,
-  MAX_PER_RUN: 1,
-  INITIAL_MIN_MS: 35_000,
-  INITIAL_MAX_MS: 55_000,
+  COOLDOWN_MS: 35_000,
+  MAX_PER_RUN: 3,
+  INITIAL_MIN_MS: 28_000,
+  INITIAL_MAX_MS: 42_000,
 } as const;
 
 // ---------------------------------------------------------------------------
