@@ -641,6 +641,9 @@ export class Game {
 
     this.updateNearMiss(dtSeconds, activeObstacles);
 
+    // Harmful specials drift toward player
+    this.updateHarmfulPickupAttraction(currentBounds, dtSeconds);
+
     const pickupStep = resolvePickupCollectionStep({
       playerBounds,
       worldPickups: this.world.pickups,
@@ -1145,6 +1148,41 @@ export class Game {
     }
 
     advanceOvergrowthGrowth(this.overgrowthNodes, dtSeconds);
+  }
+
+  private updateHarmfulPickupAttraction(playerBounds: Rect, dtSeconds: number): void {
+    if (!this.world) return;
+    const harmfulEffects = new Set(['oil_slick', 'blur', 'reverse']);
+    const playerCx = playerBounds.x + playerBounds.width / 2;
+    const playerCy = playerBounds.y + playerBounds.height / 2;
+
+    for (const pickup of this.world.pickups) {
+      if (pickup.kind !== 'special' || !pickup.effect || !harmfulEffects.has(pickup.effect)) continue;
+      const pickupCx = pickup.rect.x + pickup.rect.width / 2;
+      const pickupCy = pickup.rect.y + pickup.rect.height / 2;
+      const dx = playerCx - pickupCx;
+      const dy = playerCy - pickupCy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1 || dist > SPECIALS.HARMFUL_MAGNET_RADIUS_PX) continue;
+
+      const movePx = SPECIALS.HARMFUL_MAGNET_SPEED * dtSeconds;
+      pickup.rect.x += (dx / dist) * movePx;
+      pickup.rect.y += (dy / dist) * movePx;
+    }
+    // Also update dynamic pickups positions
+    for (const pickup of this.dynamicPickups) {
+      if (pickup.kind !== 'special' || !pickup.effect || !harmfulEffects.has(pickup.effect)) continue;
+      const pickupCx = pickup.rect.x + pickup.rect.width / 2;
+      const pickupCy = pickup.rect.y + pickup.rect.height / 2;
+      const dx = playerCx - pickupCx;
+      const dy = playerCy - pickupCy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1 || dist > SPECIALS.HARMFUL_MAGNET_RADIUS_PX) continue;
+
+      const movePx = SPECIALS.HARMFUL_MAGNET_SPEED * dtSeconds;
+      pickup.rect.x += (dx / dist) * movePx;
+      pickup.rect.y += (dy / dist) * movePx;
+    }
   }
 
   private updateNearMiss(dtSeconds: number, activeObstacles: Rect[]): void {

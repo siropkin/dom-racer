@@ -67,6 +67,8 @@ export const SPECIALS = {
   BONUS_SCORE: 40,
   PREFERRED_EFFECT_BIAS: 0.52,
   MYSTERY_GUARANTEE_INTERVAL: 3,
+  HARMFUL_MAGNET_RADIUS_PX: 90,
+  HARMFUL_MAGNET_SPEED: 60,
 } as const;
 
 // ---------------------------------------------------------------------------
