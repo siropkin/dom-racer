@@ -170,6 +170,8 @@ export const TRAIN = {
   MAX_PER_RUN: 3,
   INITIAL_MIN_MS: 28_000,
   INITIAL_MAX_MS: 42_000,
+  LATE_GAME_THRESHOLD_MS: 90_000,
+  LATE_GAME_COOLDOWN_MULTIPLIER: 0.65,
 } as const;
 
 // ---------------------------------------------------------------------------

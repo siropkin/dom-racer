@@ -1805,7 +1805,10 @@ export class Game {
     if (step.shouldSpawn) {
       this.trainState = createTrainEvent(this.world.viewport);
       this.trainEventsThisRun += 1;
-      this.trainSpawnTimerMs = TRAIN.COOLDOWN_MS;
+      const runElapsedMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+      const lateGameMultiplier = runElapsedMs >= TRAIN.LATE_GAME_THRESHOLD_MS
+        ? TRAIN.LATE_GAME_COOLDOWN_MULTIPLIER : 1;
+      this.trainSpawnTimerMs = TRAIN.COOLDOWN_MS * lateGameMultiplier;
       this.policeSpawnTimerMs = Math.max(this.policeSpawnTimerMs, ENCOUNTER.STAGGER_MS);
       this.planeBonusTimerMs = Math.max(this.planeBonusTimerMs, ENCOUNTER.STAGGER_MS);
       this.audio.playTrainHorn();
