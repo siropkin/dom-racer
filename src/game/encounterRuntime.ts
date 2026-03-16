@@ -174,7 +174,10 @@ export function createPoliceChase(
   const maxMs = POLICE.CHASE_DURATION_MAX_MS + escalation * 4_000;
   const durationMs = randomBetween(minMs, maxMs) * viewportScaleFactor;
   const variant: 'car' | 'helicopter' =
-    policeChaseCount >= POLICE.HELICOPTER_CHASE_THRESHOLD ? 'helicopter' : 'car';
+    policeChaseCount >= POLICE.HELICOPTER_CHASE_THRESHOLD &&
+    runElapsedMs >= POLICE.HELICOPTER_MIN_RUN_TIME_MS
+      ? 'helicopter'
+      : 'car';
   return {
     ...spawn,
     remainingMs: durationMs,

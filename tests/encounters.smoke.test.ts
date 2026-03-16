@@ -572,16 +572,19 @@ describe('police, plane, encounter stagger smoke invariants', () => {
     expect(ready.planeBonusTimerMs).toBe(0);
   });
 
-  it('spawns car variant for chase #1 and #2, helicopter for chase #3+', () => {
+  it('spawns car variant for chase #1-#3, helicopter for chase #4+ after 60s', () => {
     const viewport = { width: 1280, height: 720 };
-    const chase1 = createPoliceChase(viewport, 'right', 30000, 1, 1);
+    const chase1 = createPoliceChase(viewport, 'right', 70000, 1, 1);
     expect(chase1.variant).toBe('car');
-    const chase2 = createPoliceChase(viewport, 'right', 30000, 1, 2);
+    const chase2 = createPoliceChase(viewport, 'right', 70000, 1, 2);
     expect(chase2.variant).toBe('car');
-    const chase3 = createPoliceChase(viewport, 'right', 30000, 1, 3);
-    expect(chase3.variant).toBe('helicopter');
-    const chase4 = createPoliceChase(viewport, 'right', 30000, 1, 4);
+    const chase3 = createPoliceChase(viewport, 'right', 70000, 1, 3);
+    expect(chase3.variant).toBe('car');
+    const chase4 = createPoliceChase(viewport, 'right', 70000, 1, 4);
     expect(chase4.variant).toBe('helicopter');
+    // Before 60s, even chase #4 is car
+    const earlyChase4 = createPoliceChase(viewport, 'right', 50000, 1, 4);
+    expect(earlyChase4.variant).toBe('car');
   });
 
   it('helicopter ignores ice in chasing movement', () => {
@@ -639,7 +642,7 @@ describe('police, plane, encounter stagger smoke invariants', () => {
 
   it('ghost dismisses helicopter chase same as car', () => {
     const viewport = { width: 1280, height: 720 };
-    const chase = createPoliceChase(viewport, 'right', 60000, 1, 3);
+    const chase = createPoliceChase(viewport, 'right', 70000, 1, 4);
     expect(chase.variant).toBe('helicopter');
     expect(chase.phase).toBe('chasing');
 
@@ -667,8 +670,8 @@ describe('police, plane, encounter stagger smoke invariants', () => {
 
   it('chase duration escalation works for helicopter variant', () => {
     const viewport = { width: 1280, height: 720 };
-    const earlyChase = createPoliceChase(viewport, 'right', 10000, 1, 3);
-    const lateChase = createPoliceChase(viewport, 'right', 150000, 1, 3);
+    const earlyChase = createPoliceChase(viewport, 'right', 70000, 1, 4);
+    const lateChase = createPoliceChase(viewport, 'right', 150000, 1, 4);
     expect(earlyChase.variant).toBe('helicopter');
     expect(lateChase.variant).toBe('helicopter');
     expect(lateChase.durationMs).toBeGreaterThan(earlyChase.durationMs - 1000);

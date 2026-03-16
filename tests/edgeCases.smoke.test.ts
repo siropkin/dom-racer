@@ -102,7 +102,7 @@ describe('26A: encounter overlap stress tests', () => {
   });
 
   it('ghost dismisses helicopter chase AND prevents train collision simultaneously', () => {
-    const heliChase = createPoliceChase(viewport, 'right', 60_000, 1, 3);
+    const heliChase = createPoliceChase(viewport, 'right', 70_000, 1, 4);
     expect(heliChase.variant).toBe('helicopter');
 
     const result = resolvePoliceChaseTickStep({
