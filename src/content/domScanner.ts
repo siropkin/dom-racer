@@ -1,5 +1,4 @@
 import type { Rect, ScannedElement, ScannedKind, ViewportSize } from '../shared/types';
-import { parseCssColor, rgbToHsl } from '../shared/color';
 
 const MAX_RESULTS = 220;
 const MAX_PICKUPS = 56;
@@ -149,29 +148,21 @@ function classifyElement(
   }
 
   if (tag === 'svg') {
-    return area >= 400 ? [toScannedElement('boost', element, rect, fixed)] : [];
+    return [];
   }
 
   if (tag === 'iframe' && isVideoEmbed(element)) {
     return area >= 220 ? [toScannedElement('ice', element, rect, fixed)] : [];
   }
 
-  const results: ScannedElement[] = [];
-  const reactiveSurfaceRect = getReactiveSurfaceRect(style, rect, viewportArea, fixed);
-  if (reactiveSurfaceRect) {
-    results.push(toScannedElement('boost', element, reactiveSurfaceRect, fixed, 'surface'));
-  }
-
   const textRects = getVisibleTextRects(element, style, rect, viewport, viewportArea, fixed);
   if (textRects.length > 0) {
-    results.push(
-      ...textRects.map((textRect, index) =>
-        toScannedElement('wall', element, textRect, fixed, `text-${index}`),
-      ),
+    return textRects.map((textRect, index) =>
+      toScannedElement('wall', element, textRect, fixed, `text-${index}`),
     );
   }
 
-  return results;
+  return [];
 }
 
 function getVisibleTextRects(
@@ -248,43 +239,6 @@ function getVisibleTextRects(
   }
 
   return textRects;
-}
-
-function getReactiveSurfaceRect(
-  style: CSSStyleDeclaration,
-  rect: Rect,
-  viewportArea: number,
-  fixed: boolean,
-): Rect | null {
-  if (fixed) {
-    return null;
-  }
-
-  const area = rect.width * rect.height;
-  if (area < 520 || area > viewportArea * 0.16) {
-    return null;
-  }
-
-  const hasGradient = style.backgroundImage.includes('gradient');
-  const background = parseCssColor(style.backgroundColor);
-  if (!hasGradient && (!background || background.alpha < 0.12)) {
-    return null;
-  }
-
-  const hsl = background
-    ? rgbToHsl(background.r, background.g, background.b)
-    : { lightness: 0.55, saturation: 0.72 };
-  if (!hasGradient && hsl.saturation < 0.36) {
-    return null;
-  }
-
-  const inset = Math.max(3, Math.min(10, Math.round(Math.min(rect.width, rect.height) * 0.08)));
-  return {
-    x: rect.x + inset,
-    y: rect.y + inset,
-    width: Math.max(10, rect.width - inset * 2),
-    height: Math.max(10, rect.height - inset * 2),
-  };
 }
 
 function toScannedElement(

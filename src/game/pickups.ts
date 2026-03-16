@@ -29,10 +29,6 @@ export function collectPickups(playerBounds: Rect, pickups: WorldPickup[]): Pick
   };
 }
 
-export function isBoosting(playerBounds: Rect, boosts: Rect[]): boolean {
-  return boosts.some((boost) => rectsIntersect(playerBounds, boost));
-}
-
 export function isOnIceZone(playerBounds: Rect, iceZones: Rect[]): boolean {
   return iceZones.some((iceZone) => rectsIntersect(playerBounds, iceZone));
 }

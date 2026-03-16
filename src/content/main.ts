@@ -494,7 +494,7 @@ const MIN_GEOMETRY_FOR_VIABLE_WORLD = 1;
 
 function isWorldViable(world: ReturnType<typeof createWorld>): boolean {
   const totalGeometry =
-    world.obstacles.length + world.slowZones.length + world.iceZones.length + world.boosts.length;
+    world.obstacles.length + world.slowZones.length + world.iceZones.length;
   return (
     world.pickups.length >= MIN_PICKUPS_FOR_VIABLE_WORLD &&
     totalGeometry >= MIN_GEOMETRY_FOR_VIABLE_WORLD

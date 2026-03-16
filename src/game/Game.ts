@@ -34,7 +34,7 @@ import {
 } from './gameConfig';
 import { drawHud } from './hud';
 import { collidesWithAny } from './collisions';
-import { isBoosting, isOnDeadSpot, isOnIceZone } from './pickups';
+import { isOnDeadSpot, isOnIceZone } from './pickups';
 import { resolvePickupCollectionStep } from './gameEconomyRuntime';
 import {
   advancePlaneBonusEventState,
@@ -559,7 +559,6 @@ export class Game {
     this.updatePoliceDelayCue(dtSeconds);
 
     const currentBounds = this.player.getBounds();
-    const zoneBoosting = isBoosting(currentBounds, this.getActiveBoostZones());
     const onIce = isOnIceZone(currentBounds, this.world.iceZones);
     const activeObstacles = [
       ...this.world.obstacles,
@@ -576,7 +575,7 @@ export class Game {
     this.nitroActiveMs = Math.max(0, this.nitroActiveMs - dtSeconds * 1000);
     this.nitroCooldownMs = Math.max(0, this.nitroCooldownMs - dtSeconds * 1000);
 
-    const boosting = zoneBoosting || this.nitroActiveMs > 0;
+    const boosting = this.nitroActiveMs > 0;
     const oilSlickMultiplier = this.oilSlickTimerMs > 0 ? EFFECTS.OIL_SLICK_SPEED_MULTIPLIER : 1;
     this.player.update({
       input: activeInput,
@@ -1421,14 +1420,6 @@ export class Game {
     );
     this.policeDelayCueTimerMs = cueState.policeDelayCueTimerMs;
     this.policeDelayCueDurationMs = cueState.policeDelayCueDurationMs;
-  }
-
-  private getActiveBoostZones(): Rect[] {
-    if (!this.world) {
-      return [];
-    }
-
-    return this.world.boosts;
   }
 
   private spawnQueuedCoins(count: number): boolean {

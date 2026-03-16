@@ -66,13 +66,11 @@ describe('scanner -> world smoke', () => {
     expect(scanned.every((entry) => allowedKinds.has(entry.kind))).toBe(true);
     expect(scanned.filter((entry) => entry.kind === 'pickup').length).toBeGreaterThanOrEqual(2);
     expect(scanned.some((entry) => entry.kind === 'ice')).toBe(true);
-    expect(scanned.some((entry) => entry.kind === 'boost')).toBe(true);
-
     expect(world.pickups.length).toBeGreaterThanOrEqual(2);
     expect(world.pickups.every((pickup) => pickup.kind === 'coin')).toBe(true);
     expect(world.pickups.every((pickup) => pickup.sourceId)).toBe(true);
     expect(world.iceZones.length).toBeGreaterThan(0);
-    expect(world.boosts.length).toBeGreaterThan(0);
+    expect(world.boosts).toHaveLength(0);
     expect(world.hazards).toHaveLength(0);
     expect(world.deadSpots).toHaveLength(0);
     expect(world.spawnPoint.x).toBeGreaterThanOrEqual(0);
