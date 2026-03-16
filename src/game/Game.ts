@@ -257,6 +257,7 @@ export class Game {
   private viewportScaleFactor: number;
   private pageLightness: number;
   private policeChaseCount: number;
+  private helicopterChaseCount: number;
   private trainState: TrainState | null;
   private trainSpawnTimerMs: number;
   private trainEventsThisRun: number;
@@ -365,6 +366,7 @@ export class Game {
     this.viewportScaleFactor = 1;
     this.pageLightness = 0.5;
     this.policeChaseCount = 0;
+    this.helicopterChaseCount = 0;
     this.trainState = null;
     this.trainSpawnTimerMs = getInitialTrainSpawnTimerMs();
     this.trainEventsThisRun = 0;
@@ -1702,6 +1704,7 @@ export class Game {
       dtSeconds,
       viewportScaleFactor: this.viewportScaleFactor,
       policeChaseCount: this.policeChaseCount + 1,
+      helicopterChaseCount: this.helicopterChaseCount,
     });
 
     this.policeChase = step.policeChase;
@@ -1721,6 +1724,9 @@ export class Game {
           break;
         case 'chase-spawned':
           this.policeChaseCount += 1;
+          if (this.policeChase?.variant === 'helicopter') {
+            this.helicopterChaseCount += 1;
+          }
           break;
         case 'escaped':
           this.spawnEffectMessage('ESCAPED', '#86efac', 'high');
@@ -2096,6 +2102,7 @@ export class Game {
     this.overgrowthNodes = [];
     this.overgrowthSpawnTimerMs = 0;
     this.policeChaseCount = 0;
+    this.helicopterChaseCount = 0;
     this.nearMissCooldownMs = 0;
     this.nearMissCount = 0;
     this.nearMissFlavorIndex = 0;

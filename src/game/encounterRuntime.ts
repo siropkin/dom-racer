@@ -179,18 +179,33 @@ export function createPoliceChase(
   runElapsedMs = 0,
   viewportScaleFactor = 1,
   policeChaseCount = 1,
+  helicopterChaseCount = 0,
 ): PoliceChaseState {
   const spawnEdge = edge ?? getRandomPoliceEdge();
   const spawn = getPoliceSpawn(viewport, spawnEdge);
   const escalation = Math.min(1, runElapsedMs / 180_000);
   const minMs = POLICE.CHASE_DURATION_MIN_MS + escalation * 3_000;
   const maxMs = POLICE.CHASE_DURATION_MAX_MS + escalation * 4_000;
-  const durationMs = randomBetween(minMs, maxMs) * viewportScaleFactor;
+  let durationMs = randomBetween(minMs, maxMs) * viewportScaleFactor;
   const variant: 'car' | 'helicopter' =
     policeChaseCount >= POLICE.HELICOPTER_CHASE_THRESHOLD &&
     runElapsedMs >= POLICE.HELICOPTER_MIN_RUN_TIME_MS
       ? 'helicopter'
       : 'car';
+
+  // Progressive helicopter escalation
+  let helicopterSpeedOverride: number | undefined;
+  if (variant === 'helicopter' && helicopterChaseCount > 0) {
+    durationMs = Math.min(
+      POLICE.HELICOPTER_MAX_DURATION_MS,
+      durationMs + helicopterChaseCount * POLICE.HELICOPTER_DURATION_ESCALATION_MS,
+    );
+    helicopterSpeedOverride = Math.min(
+      POLICE.HELICOPTER_MAX_SPEED,
+      POLICE.HELICOPTER_SPEED + helicopterChaseCount * POLICE.HELICOPTER_SPEED_ESCALATION,
+    );
+  }
+
   return {
     ...spawn,
     remainingMs: durationMs,
@@ -198,6 +213,7 @@ export function createPoliceChase(
     phase: 'chasing',
     exitEdge: spawnEdge,
     variant,
+    helicopterSpeedOverride,
   };
 }
 
@@ -257,7 +273,7 @@ export function advancePoliceChasing(
 
   const iceOnGround = onIce && !isHeli;
   const speed = isHeli
-    ? POLICE.HELICOPTER_SPEED
+    ? (policeChase.helicopterSpeedOverride ?? POLICE.HELICOPTER_SPEED)
     : (162 + Math.min(50, score * 0.2) + urgency * 28) *
       (iceOnGround ? POLICE.ICE_SPEED_MULTIPLIER : 1);
 
@@ -546,6 +562,7 @@ export interface PoliceChaseTickInput {
   dtSeconds: number;
   viewportScaleFactor?: number;
   policeChaseCount?: number;
+  helicopterChaseCount?: number;
 }
 
 export interface PoliceChaseTickResult {
@@ -629,6 +646,7 @@ export function resolvePoliceChaseTickStep(input: PoliceChaseTickInput): PoliceC
         input.runElapsedMs,
         input.viewportScaleFactor ?? 1,
         input.policeChaseCount ?? 1,
+        input.helicopterChaseCount ?? 0,
       );
       policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS);
       policeWarning = null;

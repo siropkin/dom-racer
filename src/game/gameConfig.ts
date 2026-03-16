@@ -118,6 +118,10 @@ export const POLICE = {
   HELICOPTER_MIN_RUN_TIME_MS: 60_000,
   HELICOPTER_SPEED: 140,
   HELICOPTER_TURN_BLEND: 6,
+  HELICOPTER_DURATION_ESCALATION_MS: 2_000,
+  HELICOPTER_SPEED_ESCALATION: 15,
+  HELICOPTER_MAX_DURATION_MS: 16_000,
+  HELICOPTER_MAX_SPEED: 220,
 } as const;
 
 // ---------------------------------------------------------------------------
