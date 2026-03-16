@@ -66,6 +66,7 @@ export const SPECIALS = {
   CAP_RETRY_MAX_MS: 4_200,
   BONUS_SCORE: 40,
   PREFERRED_EFFECT_BIAS: 0.52,
+  MYSTERY_GUARANTEE_INTERVAL: 3,
 } as const;
 
 // ---------------------------------------------------------------------------

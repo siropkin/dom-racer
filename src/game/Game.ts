@@ -214,6 +214,7 @@ export class Game {
   private planeBonusTimerMs: number;
   private coinsCollectedTotal: number;
   private specialSpawnTimerMs: number;
+  private specialSpawnsSinceMystery: number;
   private magnetTimerMs: number;
   private ghostTimerMs: number;
   private invertTimerMs: number;
@@ -315,6 +316,7 @@ export class Game {
     this.policeDelayCueDurationMs = 0;
     this.planeBonusTimerMs = randomBetween(PLANE.INITIAL_MIN_MS, PLANE.INITIAL_MAX_MS);
     this.coinsCollectedTotal = 0;
+    this.specialSpawnsSinceMystery = 0;
     this.specialSpawnTimerMs = randomBetween(
       SPECIALS.INITIAL_SPAWN_MIN_MS,
       SPECIALS.INITIAL_SPAWN_MAX_MS,
@@ -1469,7 +1471,19 @@ export class Game {
       x: rect.x + rect.width / 2,
       y: rect.y + rect.height / 2,
     });
-    const effect = isJackpot ? ('jackpot' as const) : pickSpecialEffect(surface);
+    let effect: SpecialEffect;
+    if (isJackpot) {
+      effect = 'jackpot';
+    } else if (this.specialSpawnsSinceMystery >= SPECIALS.MYSTERY_GUARANTEE_INTERVAL) {
+      effect = 'mystery';
+    } else {
+      effect = pickSpecialEffect(surface);
+    }
+    if (effect === 'mystery') {
+      this.specialSpawnsSinceMystery = 0;
+    } else {
+      this.specialSpawnsSinceMystery += 1;
+    }
     const pickup: WorldPickup = {
       id: `special:${effect}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
       rect,
