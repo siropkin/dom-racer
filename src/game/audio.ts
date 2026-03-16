@@ -417,9 +417,9 @@ export class AudioManager {
       time: now,
       startFrequency: 220,
       endFrequency: 185,
-      duration: 0.38,
+      duration: 0.6,
       type: 'sawtooth',
-      volume: 0.028,
+      volume: 0.039,
       startFilterFrequency: 700,
       endFilterFrequency: 420,
       q: 1.2,
@@ -428,19 +428,19 @@ export class AudioManager {
       time: now + 0.01,
       startFrequency: 330,
       endFrequency: 278,
-      duration: 0.34,
+      duration: 0.55,
       type: 'triangle',
-      volume: 0.018,
+      volume: 0.025,
       startFilterFrequency: 900,
       endFilterFrequency: 500,
       q: 0.9,
     });
     this.playTone({
-      time: now + 0.15,
+      time: now + 0.2,
       frequency: 165,
-      duration: 0.22,
+      duration: 0.35,
       type: 'square',
-      volume: 0.012,
+      volume: 0.017,
     });
   }
 
@@ -465,14 +465,14 @@ export class AudioManager {
     const fadeIn = Math.min(1, progress / 0.1);
     const fadeOut = Math.min(1, (1 - progress) / 0.15);
     const envelope = active ? fadeIn * fadeOut : 0;
-    const targetGain = envelope * 0.026;
+    const targetGain = envelope * 0.034;
 
     rumble.gain.cancelScheduledValues(now);
     rumble.gain.setTargetAtTime(targetGain, now, 0.05);
 
     const baseFrequency = 48 + progress * 14;
-    const filterFrequency = 180 + envelope * 280;
-    const clatterRate = 16 + progress * 8;
+    const filterFrequency = 220 + envelope * 340;
+    const clatterRate = 18 + progress * 10;
 
     if (this.trainRumbleOscillatorA && this.trainRumbleOscillatorB) {
       this.trainRumbleOscillatorA.frequency.cancelScheduledValues(now);
