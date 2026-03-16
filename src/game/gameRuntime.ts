@@ -1,6 +1,6 @@
 import type { Rect, SpecialEffect, VehicleDesign, World, WorldPickup } from '../shared/types';
 import { clamp } from '../shared/utils';
-import { SPECIALS, VEHICLES } from './gameConfig';
+import { LATE_GAME, SPECIALS, VEHICLES } from './gameConfig';
 import type { SurfaceSample } from './gameStateTypes';
 
 export interface ShowcaseTheme {
@@ -207,7 +207,7 @@ export function isSpecialPickup(pickup: WorldPickup): boolean {
   return pickup.kind === 'special';
 }
 
-export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
+export function pickSpecialEffect(surface: SurfaceSample, runElapsedMs = 0): SpecialEffect {
   const preferredEffect =
     surface.hasGradient || surface.saturation >= 0.52
       ? 'invert'
@@ -216,6 +216,12 @@ export function pickSpecialEffect(surface: SurfaceSample): SpecialEffect {
         : surface.lightness <= 0.34
           ? 'ghost'
           : 'magnet';
+
+  // Late-game: bias toward harmful effects
+  if (runElapsedMs >= LATE_GAME.SPECIAL_TILT_START_MS && Math.random() < LATE_GAME.SPECIAL_HARMFUL_BIAS) {
+    const harmful: SpecialEffect[] = ['oil_slick', 'blur', 'reverse'];
+    return harmful[Math.floor(Math.random() * harmful.length)];
+  }
 
   if (Math.random() < SPECIALS.PREFERRED_EFFECT_BIAS) {
     return preferredEffect;

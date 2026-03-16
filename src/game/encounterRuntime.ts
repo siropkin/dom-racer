@@ -6,7 +6,7 @@ import type {
   PoliceWarningState,
 } from './gameStateTypes';
 import { clamp, rectCenter, rectsIntersect } from '../shared/utils';
-import { ENCOUNTER, PLANE, POLICE, TIMING } from './gameConfig';
+import { ENCOUNTER, LATE_GAME, PLANE, POLICE, TIMING } from './gameConfig';
 import { blendAngle, randomBetween } from './gameRuntime';
 import { POLICE_CAR_SIZE, type PoliceEdge } from './sprites';
 
@@ -648,7 +648,9 @@ export function resolvePoliceChaseTickStep(input: PoliceChaseTickInput): PoliceC
         input.policeChaseCount ?? 1,
         input.helicopterChaseCount ?? 0,
       );
-      policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS);
+      const lateGamePoliceMultiplier = input.runElapsedMs >= LATE_GAME.POLICE_GAP_SHRINK_START_MS
+        ? LATE_GAME.POLICE_RESPAWN_MULTIPLIER : 1;
+      policeSpawnTimerMs = randomBetween(POLICE.POST_SPAWN_MIN_MS, POLICE.POST_SPAWN_MAX_MS) * lateGamePoliceMultiplier;
       policeWarning = null;
       events.push('chase-spawned');
       return {

@@ -175,6 +175,19 @@ export const TRAIN = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Late-game escalation
+// ---------------------------------------------------------------------------
+
+export const LATE_GAME = {
+  POLICE_GAP_SHRINK_START_MS: 120_000,
+  POLICE_RESPAWN_MULTIPLIER: 0.7,
+  OVERGROWTH_ACCEL_START_MS: 90_000,
+  OVERGROWTH_INTERVAL_MULTIPLIER: 0.6,
+  SPECIAL_TILT_START_MS: 120_000,
+  SPECIAL_HARMFUL_BIAS: 0.45,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Encounter stagger (shared between plane & police)
 // ---------------------------------------------------------------------------
 

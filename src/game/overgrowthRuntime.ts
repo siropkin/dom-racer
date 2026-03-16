@@ -1,6 +1,6 @@
 import type { Rect } from '../shared/types';
 import { clamp, rectsIntersect } from '../shared/utils';
-import { OVERGROWTH } from './gameConfig';
+import { LATE_GAME, OVERGROWTH } from './gameConfig';
 import { cloneRect, randomBetween } from './gameRuntime';
 import { applyAdaptiveShadow } from './sprites';
 
@@ -59,8 +59,12 @@ export function resolveOvergrowthSpawnStep(options: {
   return { overgrowthSpawnTimerMs: 0, shouldSpawn: true };
 }
 
-export function getOvergrowthRespawnDelayMs(): number {
-  return randomBetween(OVERGROWTH.SPAWN_INTERVAL_MIN_MS, OVERGROWTH.SPAWN_INTERVAL_MAX_MS);
+export function getOvergrowthRespawnDelayMs(runElapsedMs = 0): number {
+  const delay = randomBetween(OVERGROWTH.SPAWN_INTERVAL_MIN_MS, OVERGROWTH.SPAWN_INTERVAL_MAX_MS);
+  if (runElapsedMs >= LATE_GAME.OVERGROWTH_ACCEL_START_MS) {
+    return delay * LATE_GAME.OVERGROWTH_INTERVAL_MULTIPLIER;
+  }
+  return delay;
 }
 
 export function trySpawnOvergrowthNode(

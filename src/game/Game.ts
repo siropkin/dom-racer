@@ -1146,7 +1146,7 @@ export class Game {
       if (node) {
         this.overgrowthNodes.push(node);
       }
-      this.overgrowthSpawnTimerMs = getOvergrowthRespawnDelayMs();
+      this.overgrowthSpawnTimerMs = getOvergrowthRespawnDelayMs(runElapsedMs);
     }
 
     advanceOvergrowthGrowth(this.overgrowthNodes, dtSeconds);
@@ -1554,7 +1554,8 @@ export class Game {
     } else if (this.specialSpawnsSinceMystery >= SPECIALS.MYSTERY_GUARANTEE_INTERVAL) {
       effect = 'mystery';
     } else {
-      effect = pickSpecialEffect(surface);
+      const runMs = this.startTimeMs > 0 ? performance.now() - this.startTimeMs : 0;
+      effect = pickSpecialEffect(surface, runMs);
     }
     if (effect === 'mystery') {
       this.specialSpawnsSinceMystery = 0;
