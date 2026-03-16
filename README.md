@@ -16,13 +16,13 @@
 
 **Your browser tab is a racetrack. You just don't know it yet.**
 
-DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into a top-down arcade arena. Links and buttons become coins. Text slows you down. Form fields grow weeds. Police show up, a biplane drops gifts from the sky, and the page you were reading is now a hostile little world.
+DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into a top-down arcade arena. Links and buttons become coins. Form fields grow weeds. Police show up, a biplane drops gifts from the sky, and the page you were reading is now a hostile little world.
 
 ![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
 
 ## Every Page Plays Different
 
-A docs page is a maze of slow zones. A dashboard is a wide-open track with scattered coins. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey.
+A docs page is a maze of overgrowth anchors. A dashboard is a wide-open track with scattered coins. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey.
 
 The longer you survive, the weirder it gets. Power-ups to grab. Police that punish overstaying. A biplane dropping surprises. Grass that grows into bushes and trees, closing off your escape routes. It starts clean. It doesn't stay clean.
 
@@ -61,7 +61,7 @@ You can also toggle the game from the extension popup.
 - Nine power-ups spawn into open space as you play — some help, some hurt, one is a mystery
 - Police show up after a while with flashing sirens — outrun them or get busted. Survive enough chases and they send a helicopter
 - A propeller biplane crosses the arena dropping bonus pickups, coin trails, or lucky wind
-- After 30 seconds, a train may blast through the middle of the screen — dodge it or get flattened
+- After 30 seconds, trains may blast through the middle of the screen — dodge them or get flattened (up to 3 per run)
 - After ~35s, grass sprouts from obstacles, grows into bushes, then trees — your lanes shrink
 - Coin-collection goals appear mid-run — hit them for +20 to +40 bonus points
 - Thread the gap near walls or police for a near-miss flash (no score, just style)
@@ -98,12 +98,10 @@ Active effects show a countdown timer in the top-right HUD panel.
 
 DOM Racer scans your visible page and translates real HTML elements into game geometry:
 
-- **Text blocks** → slow zones (car slows down)
+- **Text blocks & form controls** → overgrowth anchor surfaces
 - **Links & buttons** → gold coin pickups
-- **Form controls** (inputs, textareas, selects) → slow zones + overgrowth surfaces
 - **Images, video, canvas** → ice surfaces (slippery!)
 - **Fixed UI near edges** → barriers
-- **SVGs & colorful surfaces** → speed boosts
 - **Empty space** → where specials spawn mid-run
 
 The result is intentionally game-ish, not pixel-perfect. A GitHub Issues page plays nothing like a Wikipedia article, and that's the whole point.

@@ -22,19 +22,22 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 - Page scanning: text/form controls → overgrowth anchors, images/video/canvas → ice, links/buttons → coins
 - HUD: POWER panel (top-right), GOAL panel (bottom-center), merged info block (top-left: score/time, bests, daily modifier)
 - Nine power-ups: `BONUS`, `MAGNET`, `INVERT`, `GHOST`, `BLUR`, `OIL_SLICK`, `REVERSE`, `MYSTERY`, rare `JACKPOT`
-- Police chases with escalating duration and siren flash; from the 3rd chase onward, a helicopter variant with airborne movement, rotor chop audio, amber "CHOPPER" warning, and searchlight
-- Airplane flyovers with five drop modes
-- Train encounters: a Caltrain-style multi-car train spawns at the viewport center (random horizontal or vertical axis) with warning horn + rail flash — instant game over on collision, ghost grants immunity, max 1 per run
-- Overgrowth: grass → bush → tree escalation ladder from barriers/slow zones after ~35s, narrowing routes
+- Police chases with escalating duration and siren flash; from the 4th chase onward (after 60s), a helicopter variant with airborne movement, rotor chop + siren audio, amber "CHOPPER" warning, searchlight, and progressive escalation (each helicopter is longer and faster)
+- Airplane flyovers with six drop modes (bonus, coin trail, spotlight, lucky wind, police delay, mystery drop)
+- Train encounters: a Caltrain-style multi-car train spawns at the viewport center (random horizontal or vertical axis) with warning horn + rail flash — instant game over on collision, ghost grants immunity, up to 3 per run with faster cooldown in late game
+- Overgrowth: grass → bush → tree escalation ladder from barriers after ~35s, narrowing routes (accelerates after 90s)
+- Harmful specials (oil, blur, reverse) are magnetic — drift toward player within 90px
+- Late-game escalation after ~2 minutes: police gaps shrink, overgrowth accelerates, harmful specials become more likely
 - Near-miss visual feedback (toast + VFX particles) for grazing obstacles
+- Mystery specials guaranteed every 3rd spawn; goal completion shows celebratory text (YAY!/NICE!/BOOM!/etc)
 - Coin-collection goals with x2/x3/x4 multiplier tiers (+20/+30/+40 bonus) and countdown timers
 - Daily modifier (4 rule twists, deterministic from date; skipped for first-time players)
 - Simplified game-over screen (score, run number, restart/quit)
 - VFX particles, page-reactive tint, celebration animations
 - Viewport-proportional scaling for effect durations and police chase timers
 - Global sound/vehicle preferences via chrome.storage.local
-- Adaptive sprite contrast: dark outlines on bright pages, light glow on dark pages
-- Extension popup with game info, controls, power-ups, "Start Game" button, and Buy Me a Coffee link
+- Adaptive sprite contrast: dark outlines on bright pages, light glow on dark pages; boost trail adapts to page lightness
+- Extension popup with game info, controls, power-ups, and Buy Me a Coffee link
 - Unsupported page detection: sleeping-car sad screen for pages with too few elements to race on
 - Scrollbar-gutter approach prevents content jump when game activates
 - Propeller biplane sprite with spinning blades and continuous drone audio

@@ -12,7 +12,7 @@ Turn any webpage into a tiny arcade track — collect coins, dodge police, and s
 
 DOM Racer turns any webpage into a tiny arcade track.
 
-Press Alt+G on any page and links become coins, text becomes slow zones, images become ice, and form fields sprout weeds. Every page plays differently — a docs page is a slow-zone maze, a dashboard is an open racetrack, a landing page is a slippery ice rink.
+Press Alt+G on any page and links become coins, images become ice, and form fields sprout weeds. Every page plays differently — a dashboard is an open racetrack, a landing page is a slippery ice rink.
 
 GAMEPLAY
 • Collect gold coins scattered across the page for score
