@@ -205,33 +205,6 @@
         color: #22d3ee;
       }
 
-      .start-btn {
-        display: block;
-        width: 100%;
-        padding: 8px 0;
-        margin-bottom: 14px;
-        background: rgba(34, 211, 238, 0.18);
-        color: #22d3ee;
-        border: 1px solid rgba(34, 211, 238, 0.36);
-        border-radius: 2px;
-        font-family: inherit;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        cursor: pointer;
-        transition:
-          background 0.15s,
-          border-color 0.15s;
-      }
-
-      .start-btn:hover {
-        background: rgba(34, 211, 238, 0.3);
-        border-color: rgba(34, 211, 238, 0.55);
-      }
-
-      .start-btn:active {
-        background: rgba(34, 211, 238, 0.42);
-      }
     </style>
   </head>
   <body>
@@ -247,8 +220,6 @@
       Turn any webpage into a tiny arcade track. Collect coins, dodge police,
       survive the overgrowth.
     </p>
-
-    <button class="start-btn" id="startBtn">▶ START GAME</button>
 
     <div class="hotkey-hint">
       Press <span class="key">Alt+G</span> on any page to play
@@ -310,15 +281,5 @@
         <span class="bmc-icon">☕</span> Buy me a coffee
       </a>
     </div>
-    <script>
-      document.getElementById('startBtn').addEventListener('click', () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0] && tabs[0].id) {
-            chrome.tabs.sendMessage(tabs[0].id, { action: 'toggle-game' });
-            window.close();
-          }
-        });
-      });
-    </script>
   </body>
 </html>
