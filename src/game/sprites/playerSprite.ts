@@ -4,6 +4,7 @@ import {
   drawBorderedRect,
   drawContourOutline,
   drawWheel,
+  getPageLightness,
 } from './spriteHelpers';
 
 interface RenderPlayerSpriteOptions {
@@ -79,7 +80,8 @@ export function renderPlayerSprite(
   drawVehicleBody(ctx, options.design, airborne);
 
   if (options.boostActive) {
-    ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+    const lightPage = getPageLightness() > 0.6;
+    ctx.fillStyle = lightPage ? 'rgba(180, 60, 10, 0.4)' : 'rgba(245, 158, 11, 0.3)';
     ctx.beginPath();
     ctx.moveTo(-18, 0);
     ctx.lineTo(-10, -6);
@@ -87,10 +89,10 @@ export function renderPlayerSprite(
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = '#f59e0b';
+    ctx.fillStyle = lightPage ? '#c2410c' : '#f59e0b';
     ctx.fillRect(-15, -3, 3, 2);
     ctx.fillRect(-15, 1, 3, 2);
-    ctx.fillStyle = '#fde68a';
+    ctx.fillStyle = lightPage ? '#ea580c' : '#fde68a';
     ctx.fillRect(-17, -2.5, 2, 1.5);
     ctx.fillRect(-17, 1, 2, 1.5);
   }

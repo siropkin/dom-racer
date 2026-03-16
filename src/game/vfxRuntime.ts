@@ -1,3 +1,5 @@
+import { getPageLightness } from './sprites/spriteHelpers';
+
 // ---------------------------------------------------------------------------
 // VFX Particles (coin burst, tire dust, drift sparks, NEW BEST burst, speed lines)
 // ---------------------------------------------------------------------------
@@ -268,8 +270,9 @@ export function drawSpeedLines(
     const sx = cx + Math.cos(lineAngle + Math.PI / 2) * (Math.random() - 0.5) * 60;
     const sy = cy + Math.sin(lineAngle + Math.PI / 2) * (Math.random() - 0.5) * 60;
     const len = 40 + Math.random() * 40;
-    ctx.globalAlpha = 0.15 + Math.random() * 0.1;
-    ctx.strokeStyle = '#f8fafc';
+    const lightPage = getPageLightness() > 0.6;
+    ctx.globalAlpha = lightPage ? 0.3 + Math.random() * 0.15 : 0.15 + Math.random() * 0.1;
+    ctx.strokeStyle = lightPage ? '#7c2d12' : '#f8fafc';
     ctx.beginPath();
     ctx.moveTo(sx + Math.cos(lineAngle) * dist, sy + Math.sin(lineAngle) * dist);
     ctx.lineTo(sx + Math.cos(lineAngle) * (dist + len), sy + Math.sin(lineAngle) * (dist + len));
