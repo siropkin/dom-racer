@@ -22,7 +22,7 @@ export const TIMING = {
 // ---------------------------------------------------------------------------
 
 export const TOAST = {
-  MAX_CHARS: 9,
+  MAX_CHARS: 11,
   MAX_VISIBLE: 8,
   DUPLICATE_WINDOW_MS: 260,
   PICKUP_TTL_MS: 1_200,

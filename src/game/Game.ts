@@ -1251,7 +1251,9 @@ export class Game {
       this.pageBestScore = Math.max(this.pageBestScore, this.score);
       this.lifetimeBestScore = Math.max(this.lifetimeBestScore, this.score);
       this.audio.playObjectiveChime();
-      this.spawnEffectMessage(`+${step.completedBonus}`, OBJECTIVE_COMPLETION_COLOR, 'high');
+      const celebPrefixes = ['YAY!', 'NICE!', '$$', 'BOOM!', 'SWEET!'];
+      const celebPrefix = celebPrefixes[Math.floor(Math.random() * celebPrefixes.length)];
+      this.spawnEffectMessage(`${celebPrefix} +${step.completedBonus}`, OBJECTIVE_COMPLETION_COLOR, 'high');
       if (this.player) {
         this.player.triggerCelebration();
         const pb = this.player.getBounds();
