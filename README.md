@@ -36,7 +36,7 @@ npm run build
 1. Open `chrome://extensions` (or `edge://extensions`)
 2. Enable **Developer Mode**
 3. Click **Load unpacked** → select the `dist/` folder
-4. Open any page and press **Shift + Space**
+4. Open any page and press **Alt + G**
 
 That's it. You're racing.
 
@@ -44,7 +44,7 @@ That's it. You're racing.
 
 | Key | What it does |
 |---|---|
-| `Shift + Space` / ``Shift + ` `` | Toggle the game on/off |
+| `Alt + G` / ``Shift + ` `` | Toggle the game on/off |
 | `WASD` / Arrow keys | Drive |
 | `Space` | Nitro boost (3s cooldown) |
 | `V` | Switch vehicle (each drives differently!) |
@@ -53,7 +53,7 @@ That's it. You're racing.
 | `Esc` | Quit |
 | `Space` (game over) | Restart |
 
-You can also start the game from the extension popup button.
+You can also toggle the game from the extension popup.
 
 ## What Happens During a Run
 

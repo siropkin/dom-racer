@@ -78,7 +78,9 @@ window.addEventListener(
       return;
     }
 
-    const togglePressed = event.shiftKey && (event.code === 'Space' || event.code === 'Backquote');
+    const altGPressed = event.altKey && event.code === 'KeyG';
+    const shiftBacktickPressed = event.shiftKey && event.code === 'Backquote';
+    const togglePressed = altGPressed || shiftBacktickPressed;
     if (!togglePressed && isTypingTarget(event.target)) {
       return;
     }
@@ -163,7 +165,7 @@ async function activate(): Promise<void> {
     drawUnsupportedPageScreen(overlay.canvas);
     unsupportedPageDismissListener = (event: KeyboardEvent) => {
       const isEsc = event.code === 'Escape';
-      const isToggle = event.shiftKey && (event.code === 'Space' || event.code === 'Backquote');
+      const isToggle = (event.altKey && event.code === 'KeyG') || (event.shiftKey && event.code === 'Backquote');
       if (isEsc || isToggle) {
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -557,7 +559,7 @@ function drawUnsupportedPageScreen(canvas: HTMLCanvasElement): void {
   );
 
   ctx.font = 'bold 11px "SFMono-Regular", "JetBrains Mono", monospace';
-  unsupportedStrokeFill(ctx, '#475569', 'Press Esc or Shift+Space to close', cx, cy + 116);
+  unsupportedStrokeFill(ctx, '#475569', 'Press Esc or Alt+G to close', cx, cy + 116);
 
   ctx.restore();
 }

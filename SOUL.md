@@ -47,7 +47,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 
 ## Controls
 
-`Shift+Space` toggle (or `Shift+Backtick`) | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase (click to preview sounds) | Game over: `Space` restart | Extension popup "Start Game" button also toggles
+`Alt+G` toggle (or `Shift+Backtick`) | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase (click to preview sounds) | Game over: `Space` restart
 
 ## Architecture
 
