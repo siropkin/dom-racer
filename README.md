@@ -18,11 +18,11 @@
 
 DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into a top-down arcade arena. Links and buttons become coins. Form fields grow weeds. Police show up, a biplane drops gifts from the sky, and the page you were reading is now a hostile little world.
 
-| Racing on Google Calendar | Police chase |
+| Racing on Google Calendar | Mid-run with pickups |
 |:---:|:---:|
-| ![Racing](assets/screenshot-racing.png) | ![Police chase](assets/screenshot-police-chase.png) |
-| **Mid-run with pickups** | **Game over** |
-| ![Mid-run](assets/screenshot-mid-run.png) | ![Game over](assets/screenshot-game-over.png) |
+| ![Racing](assets/screenshot-racing.png) | ![Mid-run](assets/screenshot-police-chase.png) |
+| **Police chase** | **Game over** |
+| ![Police chase](assets/screenshot-mid-run.png) | ![Game over](assets/screenshot-game-over.png) |
 
 ## Every Page Plays Different
 
