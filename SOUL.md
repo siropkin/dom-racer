@@ -50,7 +50,7 @@ Playful, weird, stylish. Light indie-arcade energy — more "cool coding waiting
 
 ## Controls
 
-`Alt+G` toggle (or `Shift+Backtick`) | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase (click to preview sounds) | Game over: `Space` restart
+`Alt+G` / `Option+G` toggle (or `Shift+Backtick`) | `WASD`/arrows drive | `R` restart | `V` vehicle | `M` sound | `Esc` quit | `Shift+D` sprite showcase (click to preview sounds) | Game over: `Space` restart
 
 ## Architecture
 

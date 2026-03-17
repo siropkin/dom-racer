@@ -21,7 +21,7 @@ Unzip the file into a folder. Remember where you put it — Chrome needs to read
 ## Step 4: Play!
 
 1. Go to any webpage (Wikipedia, GitHub, a blog, news site — anything with content)
-2. Press **Alt + G** to start the game
+2. Press **Alt+G** (Windows/Linux) or **Option+G** (Mac) to start the game
 3. Drive with **WASD** or **arrow keys**
 4. Press **Space** for nitro boost
 5. Collect gold coins, dodge police, survive as long as you can
@@ -31,7 +31,7 @@ Unzip the file into a folder. Remember where you put it — Chrome needs to read
 
 | Key | Action |
 |-----|--------|
-| Alt + G | Start / stop the game |
+| Alt+G / Option+G | Start / stop the game |
 | WASD / Arrows | Drive |
 | Space | Nitro boost (3s cooldown) |
 | V | Switch car (coupe / buggy / truck — each drives differently!) |

@@ -18,11 +18,15 @@
 
 DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into a top-down arcade arena. Links and buttons become coins. Form fields grow weeds. Police show up, a biplane drops gifts from the sky, and the page you were reading is now a hostile little world.
 
-![Normal run on GitHub Issues page](assets/screenshot-normal-run.png)
+| Racing on Google Calendar | Police chase |
+|:---:|:---:|
+| ![Racing](assets/screenshot-racing.png) | ![Police chase](assets/screenshot-police-chase.png) |
+| **Mid-run with pickups** | **Game over** |
+| ![Mid-run](assets/screenshot-mid-run.png) | ![Game over](assets/screenshot-game-over.png) |
 
 ## Every Page Plays Different
 
-A docs page is a maze of overgrowth anchors. A dashboard is a wide-open track with scattered coins. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey.
+A docs page is a maze of overgrowth. A dashboard is a wide-open track with scattered coins. A landing page is a slippery ice rink full of hero images. You never know what the track will look like until you hit the hotkey.
 
 The longer you survive, the weirder it gets. Power-ups to grab. Police that punish overstaying. A biplane dropping surprises. Grass that grows into bushes and trees, closing off your escape routes. It starts clean. It doesn't stay clean.
 
@@ -36,7 +40,7 @@ npm run build
 1. Open `chrome://extensions` (or `edge://extensions`)
 2. Enable **Developer Mode**
 3. Click **Load unpacked** → select the `dist/` folder
-4. Open any page and press **Alt + G**
+4. Open any page and press **Alt+G** (Windows/Linux) or **Option+G** (Mac)
 
 That's it. You're racing.
 
@@ -44,7 +48,7 @@ That's it. You're racing.
 
 | Key | What it does |
 |---|---|
-| `Alt + G` / ``Shift + ` `` | Toggle the game on/off |
+| `Alt+G` / `Option+G` / ``Shift+` `` | Toggle the game on/off |
 | `WASD` / Arrow keys | Drive |
 | `Space` | Nitro boost (3s cooldown) |
 | `V` | Switch vehicle (each drives differently!) |
