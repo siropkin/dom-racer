@@ -98,6 +98,13 @@ You can also toggle the game from the extension popup.
 
 Active effects show a countdown timer in the top-right HUD panel.
 
+<details>
+<summary><strong>All vehicles, pickups, encounters, and effects</strong></summary>
+
+![Sprite showcase](assets/screenshot-showcase.png)
+
+</details>
+
 ## How the World Is Built
 
 DOM Racer scans your visible page and translates real HTML elements into game geometry:
