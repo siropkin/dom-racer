@@ -20,9 +20,9 @@ DOM Racer is a Chrome / Edge extension that scans any webpage and turns it into 
 
 | Racing on Google Calendar | Mid-run with pickups |
 |:---:|:---:|
-| ![Racing](assets/screenshot-racing.png) | ![Mid-run](assets/screenshot-police-chase.png) |
+| ![Racing](assets/screenshot-racing.png) | ![Mid-run](assets/screenshot-mid-run.png) |
 | **Police chase** | **Game over** |
-| ![Police chase](assets/screenshot-mid-run.png) | ![Game over](assets/screenshot-game-over.png) |
+| ![Police chase](assets/screenshot-police-chase.png) | ![Game over](assets/screenshot-game-over.png) |
 
 ## Every Page Plays Different
 
