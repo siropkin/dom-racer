@@ -30,7 +30,11 @@ A docs page is a maze of overgrowth. A dashboard is a wide-open track with scatt
 
 The longer you survive, the weirder it gets. Power-ups to grab. Police that punish overstaying. A biplane dropping surprises. Grass that grows into bushes and trees, closing off your escape routes. It starts clean. It doesn't stay clean.
 
-## Get It Running
+## Install
+
+**[Get it on the Chrome Web Store](https://chromewebstore.google.com/detail/dom-racer/igmgkiihkoejjnojdhgpdieadccjgbap)**
+
+Or build from source:
 
 ```bash
 npm install
